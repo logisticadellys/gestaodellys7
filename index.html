@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle - Base</title>
+    <style>
+        body {
+            background-color: #0b192c;
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-weight: bold;
+        }
+
+        #cabecalho-informativo {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        #relogio {
+            color: #00ced1; 
+            font-size: 5.5em; 
+            display: block;
+            letter-spacing: -2px;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #data-atual {
+            color: #a0aec0; 
+            font-size: 1.35em; 
+            display: block;
+            margin-top: 8px;
+            text-transform: capitalize;
+            font-weight: normal; 
+            text-align: justify;
+            text-align-last: justify;
+            width: 100%;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            padding: 280px 40px 40px 40px; 
+        }
+
+        .card {
+            background-color: #1a365d;
+            border: 2px solid #2d4a77;
+            border-radius: 15px;
+            width: 280px;
+            min-height: 180px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            background-color: #244a7d;
+            border-color: #00ced1;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #ffffff;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .info-item {
+            font-size: 1.3em;
+            margin: 5px 0;
+            color: #cbd5e0;
+        }
+
+        #loading {
+            width: 100%;
+            text-align: center;
+            font-size: 1.2em;
+            color: #00ced1;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cabecalho-informativo">
+        <span id="relogio">00:00:00</span>
+        <span id="data-atual">Carregando data...</span>
+    </div>
+
+    <div class="container" id="cards-container">
+        <div id="loading">Sincronizando com a Planilha Base...</div>
+    </div>
+
+    <script>
+        function atualizarTempo() {
+            const agora = new Date();
+            const opHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const opData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
+            document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', opHora);
+            document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', opData);
+        }
+        setInterval(atualizarTempo, 1000);
+        atualizarTempo();
+
+        // Usamos o serviço "cors-anywhere" ou similar se necessário, 
+        // mas primeiro vamos tentar a leitura direta otimizada para CSV.
+        const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
+
+        async function carregarDadosCSV() {
+            const container = document.getElementById('cards-container');
+            
+            try {
+                // Adicionamos um proxy público para evitar o erro de bloqueio (CORS)
+                const proxyURL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(sheetURL);
+                
+                const response = await fetch(proxyURL);
+                const data = await response.json();
+                const csvTexto = data.contents;
+                
+                const linhas = csvTexto.split(/\r?\n/);
+                container.innerHTML = ''; 
+
+                for (let i = 1; i < linhas.length; i++) {
+                    // Divide por vírgula, lidando com possíveis aspas do Google
+                    const colunas = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+
+                    if (colunas.length >= 1 && colunas[0].trim() !== "") {
+                        const tituloCard = colunas[0].replace(/^"|"$/g, '').trim();
+                        const info1 = colunas[1] ? colunas[1].replace(/^"|"$/g, '').trim() : ""; 
+                        const info2 = colunas[2] ? colunas[2].replace(/^"|"$/g, '').trim() : "";
+
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.onclick = () => alert("Você selecionou: " + tituloCard);
+
+                        card.innerHTML = `
+                            <h3>${tituloCard}</h3>
+                            <div class="info-item">${info1}</div>
+                            <div class="info-item">${info2}</div>
+                        `;
+                        container.appendChild(card);
+                    }
+                }
+            } catch (e) {
+                console.error("Erro:", e);
+                container.innerHTML = '<p>Erro ao carregar dados. Tente atualizar a página.</p>';
+            }
+        }
+
+        carregarDadosCSV();
+        setInterval(carregarDadosCSV, 40000); // Atualiza a cada 40 segundos
+    </script>
+</body>
+</html>
