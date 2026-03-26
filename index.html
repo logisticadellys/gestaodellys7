@@ -33,9 +33,10 @@
             font-weight: normal;
         }
 
+        /* Container que alinha os cards lado a lado */
         .grid-cards {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: flex-start;
             margin-top: 10px;
         }
@@ -44,7 +45,7 @@
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            width: 250px;
+            width: 280px; /* Largura levemente aumentada para acomodar o texto */
             padding: 20px;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
@@ -64,7 +65,7 @@
             display: block;
         }
 
-        #status {
+        .status-label {
             font-size: 0.65em;
             margin-top: 8px;
             font-weight: normal;
@@ -83,13 +84,13 @@
         <div class="card">
             <h3>VOLUME EXPEDIDO (KG)</h3>
             <span class="valor" id="vol-valor">-</span>
-            <div id="status">Sincronizando...</div>
+            <div class="status-label" id="status-vol">Sincronizando...</div>
         </div>
 
         <div class="card">
             <h3>DROPSIZE (KG)</h3>
             <span class="valor" id="drop-valor">-</span>
-            <div id="status-drop">Sincronizando...</div>
+            <div class="status-label" id="status-drop">Sincronizando...</div>
         </div>
     </div>
 
@@ -107,7 +108,7 @@
         async function fetchPlanilha() {
             const volDisplay = document.getElementById('vol-valor');
             const dropDisplay = document.getElementById('drop-valor');
-            const statusVol = document.getElementById('status');
+            const statusVol = document.getElementById('status-vol');
             const statusDrop = document.getElementById('status-drop');
             
             const agora = new Date();
@@ -123,48 +124,49 @@
                 
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
-                let achouData = false;
                 
-                let volFinal = "-";
-                let dropFinal = "-";
+                let achouData = false;
+                let valorVolFinal = "-";
+                let valorDropFinal = "-";
 
                 for (let i = 1; i < linhas.length; i++) {
                     const separador = linhas[i].includes(';') ? ';' : ',';
                     const colunas = linhas[i].split(separador);
+                    
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
                     if (dataPlanilha.includes(hojeCompleto)) {
                         achouData = true;
                         
-                        // Coluna C (índice 2) - Volume Expedido
+                        // VOLUME EXPEDIDO: Coluna C (índice 2)
                         let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
-                        volFinal = (valorC !== "" && valorC !== null) ? valorC : "-";
-
-                        // Coluna D (índice 3) - Dropsize
+                        valorVolFinal = (valorC !== "" && valorC !== null) ? valorC : "-";
+                        
+                        // DROPSIZE: Coluna D (índice 3)
                         let valorD = colunas[3] ? colunas[3].replace(/"/g, '').trim() : "";
-                        dropFinal = (valorD !== "" && valorD !== null) ? valorD : "-";
+                        valorDropFinal = (valorD !== "" && valorD !== null) ? valorD : "-";
                         
                         break;
                     }
                 }
 
-                // Atualiza os valores na tela
-                volDisplay.textContent = volFinal;
-                dropDisplay.textContent = dropFinal;
+                // Aplica os valores nos respectivos cards
+                volDisplay.textContent = valorVolFinal;
+                dropDisplay.textContent = valorDropFinal;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 
                 if (achouData) {
                     const msgSinc = `Sincronizado: ${horaSinc}`;
                     statusVol.textContent = msgSinc;
-                    statusVol.style.color = "#00ced1";
                     statusDrop.textContent = msgSinc;
+                    statusVol.style.color = "#00ced1";
                     statusDrop.style.color = "#00ced1";
                 } else {
-                    const msgAguardando = `Aguardando data ${hojeCompleto}`;
+                    const msgAguardando = `Aguardando dado de hoje`;
                     statusVol.textContent = msgAguardando;
-                    statusVol.style.color = "orange";
                     statusDrop.textContent = msgAguardando;
+                    statusVol.style.color = "orange";
                     statusDrop.style.color = "orange";
                 }
 
@@ -172,8 +174,8 @@
                 console.error("Erro de conexão:", err);
                 const msgErro = "Conexão instável...";
                 statusVol.textContent = msgErro;
-                statusVol.style.color = "#ff4d4d";
                 statusDrop.textContent = msgErro;
+                statusVol.style.color = "#ff4d4d";
                 statusDrop.style.color = "#ff4d4d";
             }
         }
