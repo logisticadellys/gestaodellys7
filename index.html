@@ -88,8 +88,9 @@
     </div>
 
     <script>
-        // Trava de valor para impedir que o sistema volte para um dado antigo (cache)
-        let valorPersistente = "";
+        // Lógica de Trava Definitiva
+        let ultimoValorConfirmado = "";
+        let timestampUltimaMudanca = 0;
 
         function atualizarRelogio() {
             const agora = new Date();
@@ -112,54 +113,54 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // A URL muda completamente a cada segundo para impedir que o Google entregue cache antigo
-                const urlFinal = `${spreadsheetUrl}&nocache=${Date.now()}`;
-                
-                const response = await fetch(urlFinal, { 
-                    method: 'GET',
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache'
-                    }
+                // Forçamos o Google a gerar uma resposta totalmente nova usando dois parâmetros aleatórios
+                const cacheBuster = `&t=${Date.now()}&id=${Math.random().toString(36).substr(2, 9)}`;
+                const response = await fetch(spreadsheetUrl + cacheBuster, {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
                 });
                 
                 if (!response.ok) throw new Error();
                 
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
-                let achou = false;
+                let achouNaPlanilha = false;
 
                 for (let i = 1; i < linhas.length; i++) {
                     const separador = linhas[i].includes(';') ? ';' : ',';
                     const colunas = linhas[i].split(separador);
-                    
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
                     if (dataPlanilha.includes(hojeCompleto)) {
-                        let valorBruto = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                        let valorLido = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
-                        // LÓGICA DE ATUALIZAÇÃO OBRIGATÓRIA:
-                        // Se o valor for diferente do que está na tela e não for vazio, atualizamos.
-                        if (valorBruto !== "" && valorBruto !== valorPersistente) {
-                            display.textContent = valorBruto;
-                            valorPersistente = valorBruto;
+                        // REGRA DE OURO: Só muda se o valor for preenchido e se for realmente uma "nova informação"
+                        // Se o valor lido for diferente do atual, nós validamos se não é um "fantasma" do cache
+                        if (valorLido !== "" && valorLido !== "0") {
+                            
+                            // Se o valor mudou, atualizamos o display e travamos ele
+                            if (valorLido !== ultimoValorConfirmado) {
+                                display.textContent = valorLido;
+                                ultimoValorConfirmado = valorLido;
+                                timestampUltimaMudanca = Date.now();
+                            }
                         }
                         
                         const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                         status.textContent = `Sincronizado: ${horaSinc}`;
                         status.style.color = "#00ced1";
-                        achou = true;
+                        achouNaPlanilha = true;
                         break;
                     }
                 }
 
-                if (!achou) {
-                    status.textContent = `Aguardando dado de ${hojeCompleto}`;
+                if (!achouNaPlanilha) {
+                    status.textContent = `Aguardando dados de hoje...`;
                     status.style.color = "orange";
                 }
 
             } catch (err) {
-                status.textContent = "Reconectando...";
+                status.textContent = "Reconectando ao servidor...";
                 status.style.color = "#ff4d4d";
             }
         }
@@ -167,10 +168,10 @@
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
         
-        // Executa a primeira carga
+        // Primeira carga imediata
         fetchPlanilha();
         
-        // Atualiza a planilha INTEIRA a cada 5 segundos forçando novo fetch
+        // Loop de 5 segundos
         setInterval(fetchPlanilha, 5000); 
     </script>
 </body>
