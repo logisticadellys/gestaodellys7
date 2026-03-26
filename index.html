@@ -88,17 +88,22 @@
     </div>
 
     <script>
-        function obterDataHoje() {
+        // Função apenas para o visual do relógio na tela
+        function atualizarRelogio() {
             const agora = new Date();
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
             const fData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
-            
-            return {
-                completo: agora.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit', year: 'numeric'}),
-                curto: agora.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})
-            };
+        }
+
+        // Função estrita para gerar a data no formato exato "26/03/2026"
+        function formatarDataPlanilha() {
+            const agora = new Date();
+            const dia = String(agora.getDate()).padStart(2, '0');
+            const mes = String(agora.getMonth() + 1).padStart(2, '0');
+            const ano = agora.getFullYear();
+            return `${dia}/${mes}/${ano}`;
         }
 
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
@@ -106,59 +111,68 @@
         async function fetchPlanilha() {
             const display = document.getElementById('vol-valor');
             const status = document.getElementById('status');
-            const datas = obterDataHoje();
+            const dataHoje = formatarDataPlanilha(); // Vai retornar ex: "26/03/2026"
 
-            // Lista de 3 servidores diferentes para tentar a conexão
-            const proxyUrls = [
-                `https://api.allorigins.win/get?url=${encodeURIComponent(spreadsheetUrl + '&t=' + Date.now())}`,
-                `https://thingproxy.freeboard.io/fetch/${spreadsheetUrl}?t=${Date.now()}`,
-                `https://corsproxy.io/?${encodeURIComponent(spreadsheetUrl + '&t=' + Date.now())}`
-            ];
-
-            for (const url of proxyUrls) {
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error();
-                    
-                    const resData = await response.json();
-                    const csv = resData.contents || resData; // Alguns proxies retornam direto, outros dentro de 'contents'
-                    
-                    if (typeof csv !== 'string') continue;
-
-                    const linhas = csv.split(/\r?\n/);
-                    let achou = false;
-
-                    for (let i = 1; i < linhas.length; i++) {
-                        const colunas = linhas[i].split(/[;,]/);
-                        let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
-
-                        if (dataPlanilha.includes(datas.completo) || dataPlanilha.includes(datas.curto)) {
-                            let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
-                            display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
-                            status.textContent = "Sincronizado: " + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-                            status.style.color = "#00ced1";
-                            achou = true;
-                            break;
-                        }
-                    }
-
-                    if (achou) return; // Se achou os dados, para de tentar outros proxies
-
-                } catch (e) {
-                    console.warn("Falha em um dos servidores de conexão, tentando próximo...");
+            try {
+                // Acessa DIRETAMENTE do Google (sem intermediários que dão erro)
+                const url = `${spreadsheetUrl}&t=${new Date().getTime()}`;
+                
+                // Primeiro tenta acesso direto (o Google permite para CSV publicado)
+                let response = await fetch(url);
+                
+                // Se o navegador bloquear o acesso direto, usa o AllOrigins como plano B
+                if (!response.ok) {
+                    response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                    const json = await response.json();
+                    csv = json.contents;
+                } else {
+                    csv = await response.text();
                 }
-            }
 
-            status.textContent = "Erro de conexão - Tentando novamente";
-            status.style.color = "#ff4d4d";
+                const linhas = csv.split(/\r?\n/);
+                let achou = false;
+
+                for (let i = 1; i < linhas.length; i++) {
+                    const separador = linhas[i].includes(';') ? ';' : ',';
+                    const colunas = linhas[i].split(separador);
+                    
+                    // Pega a Coluna A (Índice 0)
+                    let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
+
+                    // Se a Coluna A for exatamente o dia de hoje
+                    if (dataPlanilha.includes(dataHoje)) {
+                        // Pula para a Coluna C (Índice 2)
+                        let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                        
+                        display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
+                        status.textContent = "Sincronizado: " + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                        status.style.color = "#00ced1";
+                        achou = true;
+                        break;
+                    }
+                }
+
+                if (!achou) {
+                    display.textContent = "-";
+                    status.textContent = `Data ${dataHoje} não localizada`;
+                    status.style.color = "orange";
+                }
+
+            } catch (err) {
+                status.textContent = "Aguardando atualização...";
+                status.style.color = "#ff4d4d";
+                console.error(err);
+            }
         }
 
-        setInterval(obterDataHoje, 1000);
-        obterDataHoje();
+        // Inicia tudo
+        setInterval(atualizarRelogio, 1000);
+        atualizarRelogio();
+        
         fetchPlanilha();
         
-        // Atualização Automática a cada 50 segundos
-        setInterval(fetchPlanilha, 50000); 
+        // Atualiza a cada 30 segundos
+        setInterval(fetchPlanilha, 30000); 
     </script>
 </body>
 </html>
