@@ -35,20 +35,25 @@
                 if (!response.ok) throw new Error("Erro na resposta");
                 
                 const csv = await response.text();
-                const linhas = csv.split(/\r?\n/);
+                const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
-                // Remove aspas e espaços extras para comparar o cabeçalho
-                const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
-                const idxData = cabecalho.indexOf("DATA");
-                const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
-                const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
-                const idxOcp = cabecalho.indexOf("OCUPAÇÃO (%)");
+                // Função para normalizar o texto (remove aspas, espaços extras e caracteres especiais)
+                const normalizar = (txt) => txt.replace(/"/g, '').replace(/[^a-zA-Z0-9(%)]/g, '').trim().toUpperCase();
                 
-                // Busca flexível para a coluna de NF (procura por qualquer coluna que comece com "NF")
-                const idxNf = cabecalho.findIndex(txt => txt.includes("NF"));
+                const cabecalhoOriginal = linhas[0].split(separador);
+                const cabecalhoLimpo = cabecalhoOriginal.map(normalizar);
+                
+                // Mapeamento das colunas ignorando caracteres especiais como ' ou ’
+                const idxData = cabecalhoLimpo.indexOf("DATA");
+                const idxVol = cabecalhoLimpo.indexOf("VOLUMEEXPEDIDO(KG)");
+                const idxDrop = cabecalhoLimpo.indexOf("DROPSIZE(KG)");
+                const idxOcp = cabecalhoLimpo.indexOf("OCUPACAO(%)");
+                
+                // Procura por qualquer coluna que contenha "NF" no nome normalizado
+                const idxNf = cabecalhoLimpo.findIndex(txt => txt.includes("NF"));
 
                 let achouData = false;
                 let valores = { vol: "-", drop: "-", ocp: "-", nf: "-" };
@@ -60,32 +65,38 @@
 
                         if (dataPlanilha.includes(hojeCompleto)) {
                             achouData = true;
-                            if (idxVol !== -1) valores.vol = colunas[idxVol]?.replace(/"/g, '').trim() || "-";
-                            if (idxDrop !== -1) valores.drop = colunas[idxDrop]?.replace(/"/g, '').trim() || "-";
-                            if (idxOcp !== -1) valores.ocp = colunas[idxOcp]?.replace(/"/g, '').trim() || "-";
-                            if (idxNf !== -1) valores.nf = colunas[idxNf]?.replace(/"/g, '').trim() || "-";
+                            
+                            const pegarValor = (idx) => {
+                                if (idx === -1 || !colunas[idx]) return "-";
+                                let v = colunas[idx].replace(/"/g, '').trim();
+                                return (v === "" || v === null) ? "-" : v;
+                            };
+
+                            valores.vol = pegarValor(idxVol);
+                            valores.drop = pegarValor(idxDrop);
+                            valores.ocp = pegarValor(idxOcp);
+                            valores.nf = pegarValor(idxNf);
                             break;
                         }
                     }
                 }
 
-                // Atualizar tela
+                // Atualizar os números na tela
                 Object.keys(displays).forEach(key => {
                     if (displays[key]) displays[key].textContent = valores[key];
                 });
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                const statusList = Object.values(statuses);
-
+                
                 if (achouData) {
-                    statusList.forEach(s => {
+                    Object.values(statuses).forEach(s => {
                         if(s) {
                             s.textContent = `Sincronizado: ${horaSinc}`;
                             s.style.color = "#00ced1";
                         }
                     });
                 } else {
-                    statusList.forEach(s => {
+                    Object.values(statuses).forEach(s => {
                         if(s) {
                             s.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
                             s.style.color = "orange";
