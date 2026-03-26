@@ -10,27 +10,30 @@
             color: #ffffff;
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
-            padding: 2vw; /* Padding dinâmico baseado na largura da tela */
+            padding: 2vh 2vw;
             font-weight: bold;
             overflow: hidden;
             height: 100vh;
+            display: flex;
+            flex-direction: column;
             box-sizing: border-box;
         }
 
         header {
             margin-bottom: 2vh;
-            line-height: 1.1;
+            flex-shrink: 0; /* Impede o header de encolher */
         }
 
         #relogio {
             color: #00ced1; 
-            font-size: clamp(3em, 8vw, 4.5em); /* Ajusta o tamanho da fonte entre 3em e 4.5em conforme a tela */
+            font-size: clamp(3em, 7vw, 4.5em);
             display: block;
+            line-height: 1;
         }
 
         #data-atual {
             color: #a0aec0; 
-            font-size: clamp(0.9em, 2vw, 1.1em);
+            font-size: clamp(0.9em, 1.5vw, 1.1em);
             text-transform: capitalize;
             font-weight: normal;
         }
@@ -38,18 +41,19 @@
         .grid-cards {
             display: flex;
             gap: 1.5vw;
-            justify-content: space-between; /* Distribui o espaço entre os cards */
-            margin-top: 1vh;
-            flex-wrap: nowrap; /* Garante que fiquem na mesma linha */
+            flex: 1; /* Faz o container de cards ocupar o resto da tela */
+            align-items: stretch; /* Garante que todos os cards tenham a mesma altura */
             width: 100%;
+            box-sizing: border-box;
         }
 
         .card {
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            flex: 1; /* Todos os cards crescem igualmente */
-            min-width: 0; /* Permite que o flex-item diminua além do conteúdo se necessário */
+            /* O segredo da proporção: flex-basis 0 e flex-grow 1 força divisão igual */
+            flex: 1 1 0; 
+            min-width: 0;
             padding: 2vh 1vw;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
@@ -59,27 +63,29 @@
         }
 
         .card h3 {
-            margin: 0 0 1vh 0;
+            margin: 0 0 1.5vh 0;
             color: #a0aec0;
-            font-size: clamp(0.7em, 1.2vw, 0.85em);
+            font-size: clamp(0.7em, 1.1vw, 0.85em);
             text-transform: uppercase;
             letter-spacing: 1px;
-            min-height: 2.5em;
+            min-height: 3em;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .valor {
-            font-size: clamp(2em, 5vw, 3em);
+            font-size: clamp(1.8em, 4.5vw, 3.5em);
             color: #ffffff;
             display: block;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .status-label {
-            font-size: clamp(0.5em, 1vw, 0.65em);
-            margin-top: 1vh;
+            font-size: clamp(0.5em, 0.9vw, 0.65em);
+            margin-top: 1.5vh;
             font-weight: normal;
             color: #00ced1;
         }
