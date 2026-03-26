@@ -95,39 +95,36 @@
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
             
-            return agora.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit'});
+            // Retorna o formato exato 26/03/2026
+            return agora.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric'});
         }
 
-        // URL DIRETA (Sem Proxy)
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
         async function fetchPlanilha() {
             const display = document.getElementById('vol-valor');
             const status = document.getElementById('status');
-            const hoje = atualizarRelogio();
+            const hojeCompleto = atualizarRelogio(); // Ex: "26/03/2026"
 
             try {
-                // Tentativa de fetch direto com cache buster
-                const response = await fetch(`${spreadsheetUrl}&cache=${Date.now()}`, {
-                    mode: 'cors'
-                });
+                // Forçamos o uso do AllOrigins pois ele já provou que consegue ler o conteúdo
+                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(spreadsheetUrl)}&t=${Date.now()}`);
+                const data = await response.json();
+                const csv = data.contents;
                 
-                if (!response.ok) throw new Error("Erro na rede");
-
-                const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
                 let achou = false;
 
                 for (let i = 1; i < linhas.length; i++) {
-                    // Divide por vírgula ou ponto-e-vírgula (Google pode variar)
+                    // Tenta detectar o separador (vírgula ou ponto-e-vírgula)
                     const separador = linhas[i].includes(';') ? ';' : ',';
                     const colunas = linhas[i].split(separador);
                     
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
-                    // Busca o dia de hoje (ex: 26/03)
-                    if (dataPlanilha.includes(hoje)) {
-                        // Coluna C (índice 2)
+                    // Busca flexível: verifica se "26/03/2026" está contido na célula
+                    if (dataPlanilha.includes(hojeCompleto) || dataPlanilha.includes(hojeCompleto.substring(0, 5))) {
+                        // Coluna C (Índice 2)
                         let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
                         display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
@@ -140,43 +137,21 @@
 
                 if (!achou) {
                     display.textContent = "-";
-                    status.textContent = "Data " + hoje + " não encontrada";
+                    status.textContent = "Data " + hojeCompleto + " não localizada";
                     status.style.color = "orange";
                 }
 
             } catch (err) {
-                // Se o fetch direto falhar por CORS, tentamos o AllOrigins como ÚLTIMO RECURSO
-                try {
-                    const fallback = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(spreadsheetUrl)}&t=${Date.now()}`);
-                    const json = await fallback.json();
-                    const csv = json.contents;
-                    const linhas = csv.split(/\r?\n/);
-                    let achou = false;
-
-                    for (let i = 1; i < linhas.length; i++) {
-                        const colunas = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                        let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
-                        if (dataPlanilha.includes(hoje)) {
-                            let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
-                            display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
-                            status.textContent = "Sincronizado (via Fallback)";
-                            status.style.color = "#00ced1";
-                            achou = true;
-                            break;
-                        }
-                    }
-                } catch (err2) {
-                    status.textContent = "Erro de conexão severo";
-                    status.style.color = "#ff4d4d";
-                    setTimeout(fetchPlanilha, 10000); // Tenta de novo em 10s
-                }
+                status.textContent = "Erro de conexão - Tentando novamente";
+                status.style.color = "#ff4d4d";
+                setTimeout(fetchPlanilha, 5000);
             }
         }
 
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
         fetchPlanilha();
-        setInterval(fetchPlanilha, 35000); 
+        setInterval(fetchPlanilha, 30000); 
     </script>
 </body>
 </html>
