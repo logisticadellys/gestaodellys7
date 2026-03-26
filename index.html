@@ -14,7 +14,6 @@
             font-weight: bold;
         }
 
-        /* Mantendo seu cabeçalho no canto esquerdo */
         #cabecalho-informativo {
             position: absolute;
             top: 30px;
@@ -41,52 +40,46 @@
             width: 100%;
         }
 
-        /* Container centralizado para o Card */
         .container {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Centraliza verticalmente na tela */
+            min-height: 100vh;
             padding: 20px;
         }
 
-        /* O Quadrado arredondado */
         .card {
             background-color: #1a365d;
             border: 3px solid #00ced1;
-            border-radius: 40px; /* Bem arredondado como pediu */
+            border-radius: 40px; 
             width: 400px;
-            padding: 40px;
+            padding: 45px;
             text-align: center;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
         }
 
         .card h3 {
             margin-top: 0;
             color: #a0aec0;
-            font-size: 1.2em;
+            font-size: 1.1em;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
+            letter-spacing: 1.5px;
+            margin-bottom: 25px;
         }
 
         .valor-volume {
-            font-size: 4em;
+            font-size: 5em;
             color: #ffffff;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         #status-carga {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #00ced1;
             font-weight: normal;
-        }
-
-        #loading {
-            font-size: 1.2em;
-            color: #00ced1;
+            margin-top: 15px;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -94,15 +87,14 @@
 
     <div id="cabecalho-informativo">
         <span id="relogio">00:00:00</span>
-        <span id="data-atual">Carregando data...</span>
+        <span id="data-atual">Carregando...</span>
     </div>
 
     <div class="container" id="cards-container">
-        <div id="loading">Buscando Volume de Hoje...</div>
-    </div>
+        </div>
 
     <script>
-        function atualizarTempo() {
+        function obterDataHoje() {
             const agora = new Date();
             const opHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
             const opData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
@@ -110,7 +102,7 @@
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', opHora);
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', opData);
             
-            // Retorna a data no formato DD/MM/YYYY para comparar com a Coluna A
+            // Retorna DD/MM/YYYY para comparar com a planilha
             return agora.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric'});
         }
 
@@ -118,7 +110,7 @@
 
         async function carregarDados() {
             const container = document.getElementById('cards-container');
-            const dataHoje = atualizarTempo(); 
+            const dataHojeStr = obterDataHoje(); 
 
             try {
                 const proxyURL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(sheetURL + '&cache=' + new Date().getTime());
@@ -127,16 +119,17 @@
                 const csvTexto = data.contents;
                 const linhas = csvTexto.split(/\r?\n/);
                 
-                let volumeHoje = "---";
+                let volumeHoje = "-"; // Valor padrão caso não encontre nada
 
-                // Começa no 1 para pular o cabeçalho (Data, Dia da Semana, Volume...)
+                // Começa no 1 para pular o cabeçalho
                 for (let i = 1; i < linhas.length; i++) {
                     const colunas = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     
-                    // Se a Coluna A (Data) for igual a data de hoje
-                    if (colunas[0] && colunas[0].trim() === dataHoje) {
-                        // Pega a Coluna C (Volume Expedido)
-                        volumeHoje = colunas[2] ? colunas[2].replace(/^"|"$/g, '').trim() : "0";
+                    // Compara Data (Coluna A)
+                    if (colunas[0] && colunas[0].trim() === dataHojeStr) {
+                        const valorPlanilha = colunas[2] ? colunas[2].replace(/^"|"$/g, '').trim() : "";
+                        // Se a célula existir mas estiver vazia, mantém o "-", senão usa o valor
+                        volumeHoje = (valorPlanilha === "" || valorPlanilha === "0") ? "-" : valorPlanilha;
                         break; 
                     }
                 }
@@ -145,19 +138,19 @@
                     <div class="card">
                         <h3>VOLUME EXPEDIDO (KG)</h3>
                         <span class="valor-volume">${volumeHoje}</span>
-                        <div id="status-carga">Sincronizado com a Base</div>
+                        <div id="status-carga">Atualizado agora</div>
                     </div>
                 `;
 
             } catch (e) {
-                container.innerHTML = '<p>Erro ao atualizar dados.</p>';
+                container.innerHTML = '<div class="card"><h3>VOLUME EXPEDIDO (KG)</h3><span class="valor-volume">-</span></div>';
             }
         }
 
-        setInterval(atualizarTempo, 1000);
-        atualizarTempo();
+        setInterval(obterDataHoje, 1000);
+        obterDataHoje();
         carregarDados();
-        setInterval(carregarDados, 40000); // Atualiza a cada 40 segundos
+        setInterval(carregarDados, 35000); // Sincroniza a cada 35 segundos
     </script>
 </body>
 </html>
