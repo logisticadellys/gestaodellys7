@@ -44,7 +44,7 @@
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            width: 320px; 
+            min-width: 320px; 
             padding: 20px;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
@@ -125,11 +125,10 @@
                 
                 if (linhas.length === 0) return;
 
-                // 1. Mapeia o cabeçalho (Linha 0)
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
-                // 2. Localiza os índices das colunas pelos nomes exatos da planilha
+                // Busca dinâmica pelos nomes das colunas na planilha
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
                 const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
@@ -138,7 +137,6 @@
                 let valorVolFinal = "-";
                 let valorDropFinal = "-";
 
-                // 3. Só processa se a coluna DATA for encontrada
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
                         const colunas = linhas[i].split(separador);
@@ -147,13 +145,11 @@
                         if (dataPlanilha.includes(hojeCompleto)) {
                             achouData = true;
                             
-                            // Busca Volume (se a coluna foi encontrada no cabeçalho)
                             if (idxVol !== -1) {
                                 let v = colunas[idxVol] ? colunas[idxVol].replace(/"/g, '').trim() : "";
                                 valorVolFinal = (v !== "" && v !== null) ? v : "-";
                             }
                             
-                            // Busca Dropsize (se a coluna foi encontrada no cabeçalho)
                             if (idxDrop !== -1) {
                                 let d = colunas[idxDrop] ? colunas[idxDrop].replace(/"/g, '').trim() : "";
                                 valorDropFinal = (d !== "" && d !== null) ? d : "-";
@@ -163,7 +159,6 @@
                     }
                 }
 
-                // Atualiza a interface
                 volDisplay.textContent = valorVolFinal;
                 dropDisplay.textContent = valorDropFinal;
 
