@@ -1,4 +1,117 @@
-<script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Logístico</title>
+    <style>
+        body {
+            background-color: #0b192c;
+            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 30px;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        header {
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        #relogio {
+            color: #00ced1; 
+            font-size: 4.5em;
+            display: block;
+        }
+
+        #data-atual {
+            color: #a0aec0; 
+            font-size: 1.1em;
+            text-transform: capitalize;
+            font-weight: normal;
+        }
+
+        .grid-cards {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 10px;
+            flex-wrap: nowrap; 
+        }
+
+        .card {
+            background-color: #1a365d;
+            border: 2px solid #00ced1;
+            border-radius: 20px;
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            color: #a0aec0;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .valor {
+            font-size: 2.5em;
+            color: #ffffff;
+            display: block;
+        }
+
+        .status-label {
+            font-size: 0.55em;
+            margin-top: 8px;
+            font-weight: normal;
+            color: #00ced1;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span id="relogio">00:00:00</span>
+        <span id="data-atual">Carregando...</span>
+    </header>
+
+    <div class="grid-cards" id="container-principal">
+        <div class="card">
+            <h3>VOLUME EXPEDIDO (KG) - HOJE</h3>
+            <span class="valor" id="vol-valor">-</span>
+            <div class="status-label" id="status-vol">Sincronizando...</div>
+        </div>
+
+        <div class="card">
+            <h3>DROPSIZE (KG) - HOJE</h3>
+            <span class="valor" id="drop-valor">-</span>
+            <div class="status-label" id="status-drop">Sincronizando...</div>
+        </div>
+
+        <div class="card">
+            <h3>OCUPAÇÃO (%) - HOJE</h3>
+            <span class="valor" id="ocp-valor">-</span>
+            <div class="status-label" id="status-ocp">Sincronizando...</div>
+        </div>
+
+        <div class="card">
+            <h3>NF's (QTD) - HOJE</h3>
+            <span class="valor" id="nf-valor">-</span>
+            <div class="status-label" id="status-nf">Sincronizando...</div>
+        </div>
+    </div>
+
+    <script>
         function atualizarRelogio() {
             const agora = new Date();
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -29,43 +142,59 @@
 
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
+                if (!response.ok) throw new Error("Erro na rede");
+                
                 const csv = await response.text();
-                const linhas = csv.split(/\r?\n/).map(l => l.split(/[;,]/)); // Aceita vírgula ou ponto e vírgula
+                const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
+                if (linhas.length === 0) return;
+
+                const separador = linhas[0].includes(';') ? ';' : ',';
+                const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
-                if (linhas.length < 2) return;
-
-                // Limpa o cabeçalho para comparação
-                const cabecalho = linhas[0].map(c => c.replace(/"/g, '').trim().toUpperCase());
+                // Índices das colunas
+                const idxData = cabecalho.indexOf("DATA");
+                const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
+                const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
+                const idxOcp = cabecalho.indexOf("OCUPAÇÃO (%)");
                 
-                // Localiza os índices por palavras-chave simples
-                const idxData = cabecalho.findIndex(c => c.includes("DATA"));
-                const idxVol = cabecalho.findIndex(c => c.includes("VOLUME"));
-                const idxDrop = cabecalho.findIndex(c => c.includes("DROP"));
-                const idxOcp = cabecalho.findIndex(c => c.includes("OCUPA"));
-                const idxNf = cabecalho.findIndex(c => c.includes("NF"));
+                // Busca flexível para NF (procura coluna que tenha "NF" e "QTD")
+                const idxNf = cabecalho.findIndex(txt => txt.includes("NF") && txt.includes("QTD"));
 
-                let dadosDeHoje = null;
+                let achouData = false;
+                let valores = { vol: "-", drop: "-", ocp: "-", nf: "-" };
 
-                // Procura a linha de hoje
-                for (let i = 1; i < linhas.length; i++) {
-                    if (linhas[i][idxData] && linhas[i][idxData].includes(hojeCompleto)) {
-                        dadosDeHoje = linhas[i];
-                        break;
+                if (idxData !== -1) {
+                    for (let i = 1; i < linhas.length; i++) {
+                        const colunas = linhas[i].split(separador);
+                        let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
+
+                        if (dataPlanilha.includes(hojeCompleto)) {
+                            achouData = true;
+                            
+                            const limpar = (val) => {
+                                if (!val) return "-";
+                                let limpo = val.replace(/"/g, '').trim();
+                                return limpo === "" ? "-" : limpo;
+                            };
+
+                            valores.vol = limpar(colunas[idxVol]);
+                            valores.drop = limpar(colunas[idxDrop]);
+                            valores.ocp = limpar(colunas[idxOcp]);
+                            valores.nf = limpar(colunas[idxNf]);
+                            break;
+                        }
                     }
                 }
 
-                if (dadosDeHoje) {
-                    const extrair = (idx) => {
-                        let v = dadosDeHoje[idx] ? dadosDeHoje[idx].replace(/"/g, '').trim() : "-";
-                        return v === "" ? "-" : v;
-                    };
+                // Atualiza tela
+                displays.vol.textContent = valores.vol;
+                displays.drop.textContent = valores.drop;
+                displays.ocp.textContent = valores.ocp;
+                displays.nf.textContent = valores.nf;
 
-                    displays.vol.textContent = extrair(idxVol);
-                    displays.drop.textContent = extrair(idxDrop);
-                    displays.ocp.textContent = extrair(idxOcp);
-                    displays.nf.textContent = extrair(idxNf);
-
-                    const horaSinc = new Date().toLocaleTimeString('pt-BR');
+                const horaSinc = new Date().toLocaleTimeString('pt-BR');
+                
+                if (achouData) {
                     statuses.forEach(s => {
                         s.textContent = `Sincronizado: ${horaSinc}`;
                         s.style.color = "#00ced1";
@@ -80,8 +209,8 @@
             } catch (err) {
                 console.error(err);
                 statuses.forEach(s => {
-                    s.textContent = "Erro na conexão...";
-                    s.style.color = "red";
+                    s.textContent = "Conexão instável...";
+                    s.style.color = "#ff4d4d";
                 });
             }
         }
@@ -89,5 +218,7 @@
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
         fetchPlanilha();
-        setInterval(fetchPlanilha, 10000); 
+        setInterval(fetchPlanilha, 7000); 
     </script>
+</body>
+</html>
