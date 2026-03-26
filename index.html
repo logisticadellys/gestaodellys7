@@ -103,7 +103,7 @@
         </div>
 
         <div class="card">
-            <h3>NF's (QTD) - HOJE</h3>
+            <h3>NF'S (QTD) - HOJE</h3>
             <span class="valor" id="nf-valor">-</span>
             <div class="status-label" id="status-nf">Sincronizando...</div>
         </div>
@@ -135,12 +135,10 @@
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
-                // Mapeia índices das colunas
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
                 const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
                 const idxOcp = cabecalho.indexOf("OCUPAÇÃO (%)");
-                // Busca a coluna NF's (QTD) de forma flexível (com ou sem aspa curva)
                 const idxNf = cabecalho.findIndex(txt => txt.includes("NF") && txt.includes("QTD"));
 
                 let achouData = false;
@@ -169,7 +167,6 @@
                     }
                 }
 
-                // Atualiza elementos na tela
                 document.getElementById('vol-valor').textContent = finalValores.vol;
                 document.getElementById('drop-valor').textContent = finalValores.drop;
                 document.getElementById('ocp-valor').textContent = finalValores.ocp;
