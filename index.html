@@ -33,7 +33,6 @@
             font-weight: normal;
         }
 
-        /* Container que alinha os cards lado a lado */
         .grid-cards {
             display: flex;
             gap: 20px;
@@ -45,7 +44,7 @@
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            width: 280px; /* Largura levemente aumentada para acomodar o texto */
+            width: 300px; /* Ajustado para caber o novo título */
             padding: 20px;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
@@ -54,7 +53,7 @@
         .card h3 {
             margin: 0 0 10px 0;
             color: #a0aec0;
-            font-size: 1.1em;
+            font-size: 1em;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -82,7 +81,7 @@
 
     <div class="grid-cards">
         <div class="card">
-            <h3>VOLUME EXPEDIDO (KG)</h3>
+            <h3>VOLUME EXPEDIDO (KG) - HOJE</h3>
             <span class="valor" id="vol-valor">-</span>
             <div class="status-label" id="status-vol">Sincronizando...</div>
         </div>
@@ -119,70 +118,71 @@
 
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
-                
                 if (!response.ok) throw new Error("Erro na resposta");
                 
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
                 
+                // 1. Identifica os separadores e mapeia o cabeçalho (Linha 0)
+                const separadorHeader = linhas[0].includes(';') ? ';' : ',';
+                const cabecalho = linhas[0].split(separadorHeader).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
+                
+                // 2. Localiza as colunas pelos nomes
+                const idxData = cabecalho.indexOf("DATA");
+                const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
+                const idxDrop = cabecalho.indexOf("DROPSIZE (KG)"); // Assumindo que o nome na planilha seja este
+
                 let achouData = false;
                 let valorVolFinal = "-";
                 let valorDropFinal = "-";
 
-                for (let i = 1; i < linhas.length; i++) {
-                    const separador = linhas[i].includes(';') ? ';' : ',';
-                    const colunas = linhas[i].split(separador);
-                    
-                    let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
+                // 3. Procura a data de hoje nas linhas
+                if (idxData !== -1) {
+                    for (let i = 1; i < linhas.length; i++) {
+                        const colunas = linhas[i].split(separadorHeader);
+                        let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
 
-                    if (dataPlanilha.includes(hojeCompleto)) {
-                        achouData = true;
-                        
-                        // VOLUME EXPEDIDO: Coluna C (índice 2)
-                        let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
-                        valorVolFinal = (valorC !== "" && valorC !== null) ? valorC : "-";
-                        
-                        // DROPSIZE: Coluna D (índice 3)
-                        let valorD = colunas[3] ? colunas[3].replace(/"/g, '').trim() : "";
-                        valorDropFinal = (valorD !== "" && valorD !== null) ? valorD : "-";
-                        
-                        break;
+                        if (dataPlanilha.includes(hojeCompleto)) {
+                            achouData = true;
+                            
+                            // Busca Volume
+                            if (idxVol !== -1) {
+                                let v = colunas[idxVol] ? colunas[idxVol].replace(/"/g, '').trim() : "";
+                                valorVolFinal = (v !== "" && v !== null) ? v : "-";
+                            }
+                            
+                            // Busca Dropsize
+                            if (idxDrop !== -1) {
+                                let d = colunas[idxDrop] ? colunas[idxDrop].replace(/"/g, '').trim() : "";
+                                valorDropFinal = (d !== "" && d !== null) ? d : "-";
+                            }
+                            break;
+                        }
                     }
                 }
 
-                // Aplica os valores nos respectivos cards
                 volDisplay.textContent = valorVolFinal;
                 dropDisplay.textContent = valorDropFinal;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                
                 if (achouData) {
-                    const msgSinc = `Sincronizado: ${horaSinc}`;
-                    statusVol.textContent = msgSinc;
-                    statusDrop.textContent = msgSinc;
+                    statusVol.textContent = `Sincronizado: ${horaSinc}`;
+                    statusDrop.textContent = `Sincronizado: ${horaSinc}`;
                     statusVol.style.color = "#00ced1";
-                    statusDrop.style.color = "#00ced1";
                 } else {
-                    const msgAguardando = `Aguardando dado de hoje`;
-                    statusVol.textContent = msgAguardando;
-                    statusDrop.textContent = msgAguardando;
+                    statusVol.textContent = "Aguardando dado de hoje";
+                    statusDrop.textContent = "Aguardando dado de hoje";
                     statusVol.style.color = "orange";
-                    statusDrop.style.color = "orange";
                 }
 
             } catch (err) {
-                console.error("Erro de conexão:", err);
-                const msgErro = "Conexão instável...";
-                statusVol.textContent = msgErro;
-                statusDrop.textContent = msgErro;
+                statusVol.textContent = "Conexão instável...";
                 statusVol.style.color = "#ff4d4d";
-                statusDrop.style.color = "#ff4d4d";
             }
         }
 
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
-        
         fetchPlanilha();
         setInterval(fetchPlanilha, 7000); 
     </script>
