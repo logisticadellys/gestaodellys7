@@ -95,7 +95,6 @@
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
             
-            // Retorna o formato exato 26/03/2026
             return agora.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric'});
         }
 
@@ -104,11 +103,13 @@
         async function fetchPlanilha() {
             const display = document.getElementById('vol-valor');
             const status = document.getElementById('status');
-            const hojeCompleto = atualizarRelogio(); // Ex: "26/03/2026"
+            const hojeCompleto = atualizarRelogio();
 
             try {
-                // Forçamos o uso do AllOrigins pois ele já provou que consegue ler o conteúdo
-                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(spreadsheetUrl)}&t=${Date.now()}`);
+                // Adicionado Cache Buster único para cada requisição para garantir atualização automática real
+                const urlComCacheBuster = `${spreadsheetUrl}&cachebuster=${new Date().getTime()}`;
+                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(urlComCacheBuster)}`);
+                
                 const data = await response.json();
                 const csv = data.contents;
                 
@@ -116,19 +117,16 @@
                 let achou = false;
 
                 for (let i = 1; i < linhas.length; i++) {
-                    // Tenta detectar o separador (vírgula ou ponto-e-vírgula)
                     const separador = linhas[i].includes(';') ? ';' : ',';
                     const colunas = linhas[i].split(separador);
                     
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
-                    // Busca flexível: verifica se "26/03/2026" está contido na célula
                     if (dataPlanilha.includes(hojeCompleto) || dataPlanilha.includes(hojeCompleto.substring(0, 5))) {
-                        // Coluna C (Índice 2)
                         let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
                         display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
-                        status.textContent = "Sincronizado";
+                        status.textContent = "Sincronizado: " + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
                         status.style.color = "#00ced1";
                         achou = true;
                         break;
@@ -151,6 +149,8 @@
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
         fetchPlanilha();
+        
+        // Mantido em 30 segundos para evitar bloqueios do serviço de proxy
         setInterval(fetchPlanilha, 30000); 
     </script>
 </body>
