@@ -109,9 +109,10 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // Mantive exatamente a URL que estava funcionando, apenas com o timestamp para evitar cache
-                const response = await fetch(`${spreadsheetUrl}&nocache=${new Date().getTime()}`, { 
-                    cache: 'no-store' 
+                // ALTERAÇÃO AQUI: Mudamos para Date.now() para garantir que NUNCA repita a URL, evitando a alternância de valores
+                const response = await fetch(`${spreadsheetUrl}&cachebuster=${Date.now()}`, { 
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
                 });
                 
                 if (!response.ok) throw new Error();
@@ -120,7 +121,6 @@
                 const linhas = csv.split(/\r?\n/);
                 let achou = false;
 
-                // Percorre as linhas para achar a data de hoje na Coluna A (index 0)
                 for (let i = 1; i < linhas.length; i++) {
                     const separador = linhas[i].includes(';') ? ';' : ',';
                     const colunas = linhas[i].split(separador);
@@ -128,8 +128,9 @@
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
                     if (dataPlanilha.includes(hojeCompleto)) {
-                        // Puxa o valor da Coluna C (index 2)
                         let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                        
+                        // Atualiza o valor na tela
                         display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
                         
                         const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
@@ -152,14 +153,12 @@
             }
         }
 
-        // Inicia o relógio
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
 
-        // Primeira busca imediata
         fetchPlanilha();
         
-        // ATUALIZAÇÃO A CADA 5 SEGUNDOS (5000ms)
+        // Mantido em 5 segundos conforme solicitado
         setInterval(fetchPlanilha, 5000); 
     </script>
 </body>
