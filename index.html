@@ -83,26 +83,21 @@
         <div class="card">
             <h3>VOLUME EXPEDIDO (KG)</h3>
             <span class="valor" id="vol-valor">-</span>
-            <div id="status">Buscando dados...</div>
+            <div id="status">Iniciando...</div>
         </div>
     </div>
 
     <script>
-        function atualizarRelogio() {
+        function obterDataHoje() {
             const agora = new Date();
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
             const fData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
             
-            // Formatos para comparação (26/03/2026 e 26/03)
-            const dia = agora.toLocaleDateString('pt-BR', {day: '2-digit'});
-            const mes = agora.toLocaleDateString('pt-BR', {month: '2-digit'});
-            const ano = agora.getFullYear();
-            
             return {
-                completo: `${dia}/${mes}/${ano}`,
-                curto: `${dia}/${mes}`
+                completo: agora.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit', year: 'numeric'}),
+                curto: agora.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})
             };
         }
 
@@ -111,57 +106,59 @@
         async function fetchPlanilha() {
             const display = document.getElementById('vol-valor');
             const status = document.getElementById('status');
-            const datasHoje = atualizarRelogio(); 
+            const datas = obterDataHoje();
 
-            try {
-                // AllOrigins com timestamp para garantir que pegue a mudança na planilha
-                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(spreadsheetUrl + '&t=' + Date.now())}`);
-                const data = await response.json();
-                const csv = data.contents;
-                
-                const linhas = csv.split(/\r?\n/);
-                let achou = false;
+            // Lista de 3 servidores diferentes para tentar a conexão
+            const proxyUrls = [
+                `https://api.allorigins.win/get?url=${encodeURIComponent(spreadsheetUrl + '&t=' + Date.now())}`,
+                `https://thingproxy.freeboard.io/fetch/${spreadsheetUrl}?t=${Date.now()}`,
+                `https://corsproxy.io/?${encodeURIComponent(spreadsheetUrl + '&t=' + Date.now())}`
+            ];
 
-                for (let i = 1; i < linhas.length; i++) {
-                    const separador = linhas[i].includes(';') ? ';' : ',';
-                    const colunas = linhas[i].split(separador);
+            for (const url of proxyUrls) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error();
                     
-                    // Limpa a célula da data (remove aspas e espaços)
-                    let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
+                    const resData = await response.json();
+                    const csv = resData.contents || resData; // Alguns proxies retornam direto, outros dentro de 'contents'
+                    
+                    if (typeof csv !== 'string') continue;
 
-                    // Busca Flexível: confere se a célula contém "26/03/2026" OU "26/03"
-                    if (dataPlanilha.includes(datasHoje.completo) || dataPlanilha.includes(datasHoje.curto)) {
-                        // Coluna C (Índice 2)
-                        let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
-                        
-                        display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
-                        status.textContent = "Sincronizado";
-                        status.style.color = "#00ced1";
-                        achou = true;
-                        break;
+                    const linhas = csv.split(/\r?\n/);
+                    let achou = false;
+
+                    for (let i = 1; i < linhas.length; i++) {
+                        const colunas = linhas[i].split(/[;,]/);
+                        let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
+
+                        if (dataPlanilha.includes(datas.completo) || dataPlanilha.includes(datas.curto)) {
+                            let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                            display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
+                            status.textContent = "Sincronizado: " + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                            status.style.color = "#00ced1";
+                            achou = true;
+                            break;
+                        }
                     }
-                }
 
-                if (!achou) {
-                    display.textContent = "-";
-                    status.textContent = "Data " + datasHoje.completo + " não localizada";
-                    status.style.color = "orange";
-                }
+                    if (achou) return; // Se achou os dados, para de tentar outros proxies
 
-            } catch (err) {
-                status.textContent = "Erro de conexão - Tentando novamente";
-                status.style.color = "#ff4d4d";
+                } catch (e) {
+                    console.warn("Falha em um dos servidores de conexão, tentando próximo...");
+                }
             }
+
+            status.textContent = "Erro de conexão - Tentando novamente";
+            status.style.color = "#ff4d4d";
         }
 
-        setInterval(atualizarRelogio, 1000);
-        atualizarRelogio();
-        
-        // Busca inicial
+        setInterval(obterDataHoje, 1000);
+        obterDataHoje();
         fetchPlanilha();
         
-        // Atualização automática a cada 30 segundos
-        setInterval(fetchPlanilha, 30000); 
+        // Atualização Automática a cada 50 segundos
+        setInterval(fetchPlanilha, 50000); 
     </script>
 </body>
 </html>
