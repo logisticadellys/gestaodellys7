@@ -69,6 +69,7 @@
             justify-content: center;
         }
 
+        /* Layout para a segunda linha */
         .container-inferior {
             display: flex;
             gap: 1.5vw;
@@ -77,7 +78,7 @@
         }
 
         .card-frota {
-            flex: 1;
+            flex: 1; /* Ocupa metade da tela (lado esquerdo) */
             display: flex;
             flex-direction: column;
         }
@@ -251,14 +252,24 @@
                     }
                 }
 
+                // Atualizar KPIs superiores
                 document.getElementById('vol-valor').textContent = finalValores.vol;
                 document.getElementById('drop-valor').textContent = finalValores.drop;
                 document.getElementById('ocp-valor').textContent = finalValores.ocp;
                 document.getElementById('nf-valor').textContent = finalValores.nf;
+
+                // Atualizar Frota com Lógica de Cores
+                const atualizarCampoFrota = (id, valor, corCondicional) => {
+                    const el = document.getElementById(id);
+                    el.textContent = valor;
+                    const num = parseFloat(valor.replace(',', '.'));
+                    el.style.color = (!isNaN(num) && num > 0) ? corCondicional : "#ffffff";
+                };
+
                 document.getElementById('f-total').textContent = finalValores.fTotal;
-                document.getElementById('f-parados').textContent = finalValores.fParados;
-                document.getElementById('f-dispo').textContent = finalValores.fDispo;
-                document.getElementById('f-util').textContent = finalValores.fUtil;
+                atualizarCampoFrota('f-parados', finalValores.fParados, "#ff4d4d"); // Vermelho
+                atualizarCampoFrota('f-dispo', finalValores.fDispo, "#00ced1");   // Azul (Cyan)
+                atualizarCampoFrota('f-util', finalValores.fUtil, "#4dfb4d");    // Verde
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota'];
