@@ -1,224 +1,427 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Painel Logístico</title>
+
     <style>
+
         body {
+
             background-color: #0b192c;
+
             color: #ffffff;
+
             font-family: 'Segoe UI', sans-serif;
+
             margin: 0;
+
             padding: 30px;
+
             font-weight: bold;
+
             overflow: hidden;
+
         }
+
+
 
         header {
+
             margin-bottom: 20px;
+
             line-height: 1.1;
+
         }
+
+
 
         #relogio {
+
             color: #00ced1; 
+
             font-size: 4.5em;
+
             display: block;
+
         }
+
+
 
         #data-atual {
+
             color: #a0aec0; 
+
             font-size: 1.1em;
+
             text-transform: capitalize;
+
             font-weight: normal;
+
         }
+
+
 
         .grid-cards {
+
             display: flex;
-            gap: 15px;
-            justify-content: space-between;
+
+            gap: 20px;
+
+            justify-content: flex-start;
+
             margin-top: 10px;
-            flex-wrap: nowrap; 
+
+            flex-wrap: nowrap; /* Mantém os 3 na mesma linha */
+
         }
+
+
 
         .card {
+
             background-color: #1a365d;
+
             border: 2px solid #00ced1;
+
             border-radius: 20px;
-            flex: 1;
-            min-width: 200px;
+
+            flex: 1; /* Faz os cards dividirem o espaço igualmente */
+
+            min-width: 280px;
+
+            max-width: 350px;
+
             padding: 20px;
+
             text-align: center;
+
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+
         }
+
+
 
         .card h3 {
+
             margin: 0 0 10px 0;
+
             color: #a0aec0;
-            font-size: 0.75em;
+
+            font-size: 0.85em;
+
             text-transform: uppercase;
+
             letter-spacing: 1px;
-            min-height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+            min-height: 34px; /* Garante alinhamento se o texto quebrar linha */
+
         }
+
+
 
         .valor {
-            font-size: 2.5em;
+
+            font-size: 3em;
+
             color: #ffffff;
+
             display: block;
+
         }
+
+
 
         .status-label {
-            font-size: 0.55em;
+
+            font-size: 0.65em;
+
             margin-top: 8px;
+
             font-weight: normal;
+
             color: #00ced1;
+
         }
+
     </style>
+
 </head>
+
 <body>
 
+
+
     <header>
+
         <span id="relogio">00:00:00</span>
+
         <span id="data-atual">Carregando...</span>
+
     </header>
 
+
+
     <div class="grid-cards" id="container-principal">
+
         <div class="card">
+
             <h3>VOLUME EXPEDIDO (KG) - HOJE</h3>
+
             <span class="valor" id="vol-valor">-</span>
+
             <div class="status-label" id="status-vol">Sincronizando...</div>
+
         </div>
 
+
+
         <div class="card">
+
             <h3>DROPSIZE (KG) - HOJE</h3>
+
             <span class="valor" id="drop-valor">-</span>
+
             <div class="status-label" id="status-drop">Sincronizando...</div>
+
         </div>
 
+
+
         <div class="card">
+
             <h3>OCUPAÇÃO (%) - HOJE</h3>
+
             <span class="valor" id="ocp-valor">-</span>
+
             <div class="status-label" id="status-ocp">Sincronizando...</div>
+
         </div>
 
-        <div class="card">
-            <h3>NF's (QTD) - HOJE</h3>
-            <span class="valor" id="nf-valor">-</span>
-            <div class="status-label" id="status-nf">Sincronizando...</div>
-        </div>
     </div>
 
+
+
     <script>
+
         function atualizarRelogio() {
+
             const agora = new Date();
+
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+
             const fData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
+
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
+
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
+
         }
+
+
 
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
+
+
         async function fetchPlanilha() {
-            const displays = {
-                vol: document.getElementById('vol-valor'),
-                drop: document.getElementById('drop-valor'),
-                ocp: document.getElementById('ocp-valor'),
-                nf: document.getElementById('nf-valor')
-            };
+
+            const volDisplay = document.getElementById('vol-valor');
+
+            const dropDisplay = document.getElementById('drop-valor');
+
+            const ocpDisplay = document.getElementById('ocp-valor');
+
             
-            const statuses = [
-                document.getElementById('status-vol'),
-                document.getElementById('status-drop'),
-                document.getElementById('status-ocp'),
-                document.getElementById('status-nf')
-            ];
+
+            const statusVol = document.getElementById('status-vol');
+
+            const statusDrop = document.getElementById('status-drop');
+
+            const statusOcp = document.getElementById('status-ocp');
+
             
+
             const agora = new Date();
-            const hojeCompleto = `${String(agora.getDate()).padStart(2, '0')}/${String(agora.getMonth() + 1).padStart(2, '0')}/${agora.getFullYear()}`;
+
+            const dia = String(agora.getDate()).padStart(2, '0');
+
+            const mes = String(agora.getMonth() + 1).padStart(2, '0');
+
+            const ano = agora.getFullYear();
+
+            const hojeCompleto = `${dia}/${mes}/${ano}`;
+
+
 
             try {
+
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
-                if (!response.ok) throw new Error("Erro na rede");
+
+                if (!response.ok) throw new Error("Erro na resposta");
+
                 
+
                 const csv = await response.text();
-                const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
+
+                const linhas = csv.split(/\r?\n/);
+
+                
+
                 if (linhas.length === 0) return;
 
+
+
                 const separador = linhas[0].includes(';') ? ';' : ',';
+
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
+
                 
-                // Índices das colunas
+
                 const idxData = cabecalho.indexOf("DATA");
+
                 const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
+
                 const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
+
                 const idxOcp = cabecalho.indexOf("OCUPAÇÃO (%)");
-                
-                // Busca flexível para NF (procura coluna que tenha "NF" e "QTD")
-                const idxNf = cabecalho.findIndex(txt => txt.includes("NF") && txt.includes("QTD"));
+
+
 
                 let achouData = false;
-                let valores = { vol: "-", drop: "-", ocp: "-", nf: "-" };
+
+                let valorVolFinal = "-";
+
+                let valorDropFinal = "-";
+
+                let valorOcpFinal = "-";
+
+
 
                 if (idxData !== -1) {
+
                     for (let i = 1; i < linhas.length; i++) {
+
                         const colunas = linhas[i].split(separador);
+
                         let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
 
+
+
                         if (dataPlanilha.includes(hojeCompleto)) {
+
                             achouData = true;
+
                             
-                            const limpar = (val) => {
-                                if (!val) return "-";
-                                let limpo = val.replace(/"/g, '').trim();
-                                return limpo === "" ? "-" : limpo;
-                            };
 
-                            valores.vol = limpar(colunas[idxVol]);
-                            valores.drop = limpar(colunas[idxDrop]);
-                            valores.ocp = limpar(colunas[idxOcp]);
-                            valores.nf = limpar(colunas[idxNf]);
+                            if (idxVol !== -1) {
+
+                                let v = colunas[idxVol] ? colunas[idxVol].replace(/"/g, '').trim() : "";
+
+                                valorVolFinal = (v !== "" && v !== null) ? v : "-";
+
+                            }
+
+                            if (idxDrop !== -1) {
+
+                                let d = colunas[idxDrop] ? colunas[idxDrop].replace(/"/g, '').trim() : "";
+
+                                valorDropFinal = (d !== "" && d !== null) ? d : "-";
+
+                            }
+
+                            if (idxOcp !== -1) {
+
+                                let o = colunas[idxOcp] ? colunas[idxOcp].replace(/"/g, '').trim() : "";
+
+                                valorOcpFinal = (o !== "" && o !== null) ? o : "-";
+
+                            }
+
                             break;
+
                         }
+
                     }
+
                 }
 
-                // Atualiza tela
-                displays.vol.textContent = valores.vol;
-                displays.drop.textContent = valores.drop;
-                displays.ocp.textContent = valores.ocp;
-                displays.nf.textContent = valores.nf;
 
-                const horaSinc = new Date().toLocaleTimeString('pt-BR');
+
+                volDisplay.textContent = valorVolFinal;
+
+                dropDisplay.textContent = valorDropFinal;
+
+                ocpDisplay.textContent = valorOcpFinal;
+
+
+
+                const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+
                 
+
                 if (achouData) {
-                    statuses.forEach(s => {
-                        s.textContent = `Sincronizado: ${horaSinc}`;
+
+                    const msgSinc = `Sincronizado: ${horaSinc}`;
+
+                    [statusVol, statusDrop, statusOcp].forEach(s => {
+
+                        s.textContent = msgSinc;
+
                         s.style.color = "#00ced1";
+
                     });
+
                 } else {
-                    statuses.forEach(s => {
-                        s.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
+
+                    const msgAguardando = `Aguardando dado de hoje (${hojeCompleto})`;
+
+                    [statusVol, statusDrop, statusOcp].forEach(s => {
+
+                        s.textContent = msgAguardando;
+
                         s.style.color = "orange";
+
                     });
+
                 }
+
+
 
             } catch (err) {
-                console.error(err);
-                statuses.forEach(s => {
+
+                console.error("Erro:", err);
+
+                [statusVol, statusDrop, statusOcp].forEach(s => {
+
                     s.textContent = "Conexão instável...";
+
                     s.style.color = "#ff4d4d";
+
                 });
+
             }
+
         }
 
+
+
         setInterval(atualizarRelogio, 1000);
+
         atualizarRelogio();
+
         fetchPlanilha();
+
         setInterval(fetchPlanilha, 7000); 
+
     </script>
+
 </body>
+
 </html>
