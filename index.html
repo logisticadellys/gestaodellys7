@@ -10,19 +10,19 @@
             color: #ffffff;
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
-            padding: 30px; /* Reduzi o padding geral */
+            padding: 30px;
             font-weight: bold;
             overflow: hidden;
         }
 
         header {
-            margin-bottom: 20px; /* Subi o conteúdo: de 50px para 20px */
+            margin-bottom: 20px;
             line-height: 1.1;
         }
 
         #relogio {
             color: #00ced1; 
-            font-size: 4.5em; /* Diminuí um pouco o relógio */
+            font-size: 4.5em;
             display: block;
         }
 
@@ -37,36 +37,36 @@
             display: flex;
             gap: 15px;
             justify-content: flex-start;
-            margin-top: 10px; /* Aproximou os cards do relógio */
+            margin-top: 10px;
         }
 
         .card {
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            width: 250px; /* Card mais estreito */
-            padding: 20px;
+            width: 280px; /* Ajustado levemente para o título maior */
+            padding: 25px 20px;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
         }
 
         .card h3 {
-            margin: 0 0 10px 0;
+            margin: 0 0 15px 0;
             color: #a0aec0;
-            font-size: 0.85em;
+            font-size: 1.1em; /* Título maior conforme solicitado */
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .valor {
-            font-size: 3em; /* Valor mais equilibrado */
+            font-size: 3.5em;
             color: #ffffff;
             display: block;
         }
 
         #status {
-            font-size: 0.65em;
-            margin-top: 8px;
+            font-size: 0.7em;
+            margin-top: 10px;
             font-weight: normal;
             color: #00ced1;
         }
@@ -83,7 +83,7 @@
         <div class="card">
             <h3>VOLUME EXPEDIDO (KG)</h3>
             <span class="valor" id="vol-valor">-</span>
-            <div id="status">Buscando na C27...</div>
+            <div id="status">Sincronizando...</div>
         </div>
     </div>
 
@@ -95,7 +95,6 @@
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
             
-            // Pega dia e mês (ex: 26/03) para uma busca mais flexível
             return agora.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit'});
         }
 
@@ -118,7 +117,6 @@
                     const col = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     const dataPlanilha = col[0] ? col[0].replace(/"/g, '').trim() : "";
 
-                    // Busca flexível: se a coluna A contiver "26/03", ele pega a linha
                     if (dataPlanilha.includes(hojeReduzido)) {
                         let v = col[2] ? col[2].replace(/"/g, '').trim() : "";
                         display.textContent = (v === "" || v === "0") ? "-" : v;
@@ -131,7 +129,7 @@
 
                 if (!achou) {
                     display.textContent = "-";
-                    status.textContent = "Data " + hojeReduzido + " não lida";
+                    status.textContent = "Data " + hojeReduzido + " não encontrada";
                     status.style.color = "orange";
                 }
 
