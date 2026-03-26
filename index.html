@@ -14,6 +14,7 @@
             font-weight: bold;
         }
 
+        /* Mantendo seu cabeçalho no canto esquerdo */
         #cabecalho-informativo {
             position: absolute;
             top: 30px;
@@ -37,58 +38,53 @@
             margin-top: 8px;
             text-transform: capitalize;
             font-weight: normal; 
-            text-align: justify;
-            text-align-last: justify;
             width: 100%;
         }
 
+        /* Container centralizado para o Card */
         .container {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 25px;
-            padding: 280px 40px 40px 40px; 
+            align-items: center;
+            min-height: 100vh; /* Centraliza verticalmente na tela */
+            padding: 20px;
         }
 
+        /* O Quadrado arredondado */
         .card {
             background-color: #1a365d;
-            border: 2px solid #2d4a77;
-            border-radius: 15px;
-            width: 280px;
-            min-height: 180px;
-            padding: 20px;
+            border: 3px solid #00ced1;
+            border-radius: 40px; /* Bem arredondado como pediu */
+            width: 400px;
+            padding: 40px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .card:hover {
-            transform: translateY(-8px);
-            background-color: #244a7d;
-            border-color: #00ced1;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
         }
 
         .card h3 {
             margin-top: 0;
-            color: #ffffff;
-            font-size: 1.8em;
-            margin-bottom: 10px;
+            color: #a0aec0;
+            font-size: 1.2em;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
         }
 
-        .info-item {
-            font-size: 1.3em;
-            margin: 5px 0;
-            color: #cbd5e0;
+        .valor-volume {
+            font-size: 4em;
+            color: #ffffff;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #status-carga {
+            font-size: 0.9em;
+            color: #00ced1;
+            font-weight: normal;
         }
 
         #loading {
-            width: 100%;
-            text-align: center;
             font-size: 1.2em;
             color: #00ced1;
         }
@@ -102,7 +98,7 @@
     </div>
 
     <div class="container" id="cards-container">
-        <div id="loading">Sincronizando com a Planilha Base...</div>
+        <div id="loading">Buscando Volume de Hoje...</div>
     </div>
 
     <script>
@@ -110,59 +106,58 @@
             const agora = new Date();
             const opHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
             const opData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
+            
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', opHora);
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', opData);
+            
+            // Retorna a data no formato DD/MM/YYYY para comparar com a Coluna A
+            return agora.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric'});
         }
-        setInterval(atualizarTempo, 1000);
-        atualizarTempo();
 
-        // Usamos o serviço "cors-anywhere" ou similar se necessário, 
-        // mas primeiro vamos tentar a leitura direta otimizada para CSV.
         const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
-        async function carregarDadosCSV() {
+        async function carregarDados() {
             const container = document.getElementById('cards-container');
-            
+            const dataHoje = atualizarTempo(); 
+
             try {
-                // Adicionamos um proxy público para evitar o erro de bloqueio (CORS)
-                const proxyURL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(sheetURL);
-                
+                const proxyURL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(sheetURL + '&cache=' + new Date().getTime());
                 const response = await fetch(proxyURL);
                 const data = await response.json();
                 const csvTexto = data.contents;
-                
                 const linhas = csvTexto.split(/\r?\n/);
-                container.innerHTML = ''; 
+                
+                let volumeHoje = "---";
 
+                // Começa no 1 para pular o cabeçalho (Data, Dia da Semana, Volume...)
                 for (let i = 1; i < linhas.length; i++) {
-                    // Divide por vírgula, lidando com possíveis aspas do Google
                     const colunas = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-
-                    if (colunas.length >= 1 && colunas[0].trim() !== "") {
-                        const tituloCard = colunas[0].replace(/^"|"$/g, '').trim();
-                        const info1 = colunas[1] ? colunas[1].replace(/^"|"$/g, '').trim() : ""; 
-                        const info2 = colunas[2] ? colunas[2].replace(/^"|"$/g, '').trim() : "";
-
-                        const card = document.createElement('div');
-                        card.className = 'card';
-                        card.onclick = () => alert("Você selecionou: " + tituloCard);
-
-                        card.innerHTML = `
-                            <h3>${tituloCard}</h3>
-                            <div class="info-item">${info1}</div>
-                            <div class="info-item">${info2}</div>
-                        `;
-                        container.appendChild(card);
+                    
+                    // Se a Coluna A (Data) for igual a data de hoje
+                    if (colunas[0] && colunas[0].trim() === dataHoje) {
+                        // Pega a Coluna C (Volume Expedido)
+                        volumeHoje = colunas[2] ? colunas[2].replace(/^"|"$/g, '').trim() : "0";
+                        break; 
                     }
                 }
+
+                container.innerHTML = `
+                    <div class="card">
+                        <h3>VOLUME EXPEDIDO (KG)</h3>
+                        <span class="valor-volume">${volumeHoje}</span>
+                        <div id="status-carga">Sincronizado com a Base</div>
+                    </div>
+                `;
+
             } catch (e) {
-                console.error("Erro:", e);
-                container.innerHTML = '<p>Erro ao carregar dados. Tente atualizar a página.</p>';
+                container.innerHTML = '<p>Erro ao atualizar dados.</p>';
             }
         }
 
-        carregarDadosCSV();
-        setInterval(carregarDadosCSV, 40000); // Atualiza a cada 40 segundos
+        setInterval(atualizarTempo, 1000);
+        atualizarTempo();
+        carregarDados();
+        setInterval(carregarDados, 40000); // Atualiza a cada 40 segundos
     </script>
 </body>
 </html>
