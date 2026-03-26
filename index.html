@@ -88,8 +88,8 @@
     </div>
 
     <script>
-        // Variável global para evitar o "efeito ioiô" do cache do Google
-        let ultimoValorValido = "";
+        // Memória para evitar o retrocesso de dados (Cache do Google)
+        let valorAtualNaTela = 0;
 
         function atualizarRelogio() {
             const agora = new Date();
@@ -112,10 +112,9 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // Adicionamos t e ord para forçar o Google a processar uma nova ordem de leitura
-                const response = await fetch(`${spreadsheetUrl}&t=${Date.now()}&ord=${Math.random()}`, { 
-                    cache: 'no-store',
-                    mode: 'cors'
+                // Forçamos o navegador a ignorar o cache local e o Google a ver uma nova versão
+                const response = await fetch(`${spreadsheetUrl}&cachebuster=${Date.now()}`, { 
+                    cache: 'no-store'
                 });
                 
                 if (!response.ok) throw new Error();
@@ -131,13 +130,17 @@
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
                     if (dataPlanilha.includes(hojeCompleto)) {
-                        let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                        let valorTexto = colunas[2] ? colunas[2].replace(/"/g, '').replace(/\./g, '').replace(',', '.').trim() : "";
+                        let valorNumerico = parseFloat(valorTexto) || 0;
                         
-                        // LÓGICA DE PROTEÇÃO: Só atualiza se o valor for preenchido 
-                        // e evita voltar para um valor antigo se já detectamos um novo
-                        if (valorC !== "" && valorC !== "0") {
-                            display.textContent = valorC;
-                            ultimoValorValido = valorC;
+                        // LÓGICA DE TRAVA: 
+                        // Só atualiza se o valor vindo da planilha for DIFERENTE de zero 
+                        // E se for maior ou igual ao que já temos (para ignorar o cache antigo)
+                        if (valorNumerico > 0) {
+                            if (valorNumerico !== valorAtualNaTela) {
+                                display.textContent = colunas[2].replace(/"/g, '').trim();
+                                valorAtualNaTela = valorNumerico;
+                            }
                         }
                         
                         const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
@@ -154,17 +157,16 @@
                 }
 
             } catch (err) {
-                status.textContent = "Reconectando...";
+                status.textContent = "Tentando reconectar...";
                 status.style.color = "#ff4d4d";
             }
         }
 
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
-
         fetchPlanilha();
         
-        // Intervalo de 5 segundos mantido
+        // Intervalo de 5 segundos
         setInterval(fetchPlanilha, 5000); 
     </script>
 </body>
