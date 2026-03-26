@@ -88,8 +88,8 @@
     </div>
 
     <script>
-        // Memória para evitar o retrocesso de dados (Cache do Google)
-        let valorAtualNaTela = 0;
+        // Trava de valor para impedir que o sistema volte para um dado antigo (cache)
+        let valorPersistente = "";
 
         function atualizarRelogio() {
             const agora = new Date();
@@ -112,9 +112,15 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // Forçamos o navegador a ignorar o cache local e o Google a ver uma nova versão
-                const response = await fetch(`${spreadsheetUrl}&cachebuster=${Date.now()}`, { 
-                    cache: 'no-store'
+                // A URL muda completamente a cada segundo para impedir que o Google entregue cache antigo
+                const urlFinal = `${spreadsheetUrl}&nocache=${Date.now()}`;
+                
+                const response = await fetch(urlFinal, { 
+                    method: 'GET',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
+                    }
                 });
                 
                 if (!response.ok) throw new Error();
@@ -130,17 +136,13 @@
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
                     if (dataPlanilha.includes(hojeCompleto)) {
-                        let valorTexto = colunas[2] ? colunas[2].replace(/"/g, '').replace(/\./g, '').replace(',', '.').trim() : "";
-                        let valorNumerico = parseFloat(valorTexto) || 0;
+                        let valorBruto = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
-                        // LÓGICA DE TRAVA: 
-                        // Só atualiza se o valor vindo da planilha for DIFERENTE de zero 
-                        // E se for maior ou igual ao que já temos (para ignorar o cache antigo)
-                        if (valorNumerico > 0) {
-                            if (valorNumerico !== valorAtualNaTela) {
-                                display.textContent = colunas[2].replace(/"/g, '').trim();
-                                valorAtualNaTela = valorNumerico;
-                            }
+                        // LÓGICA DE ATUALIZAÇÃO OBRIGATÓRIA:
+                        // Se o valor for diferente do que está na tela e não for vazio, atualizamos.
+                        if (valorBruto !== "" && valorBruto !== valorPersistente) {
+                            display.textContent = valorBruto;
+                            valorPersistente = valorBruto;
                         }
                         
                         const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
@@ -152,21 +154,23 @@
                 }
 
                 if (!achou) {
-                    status.textContent = `Data ${hojeCompleto} pendente`;
+                    status.textContent = `Aguardando dado de ${hojeCompleto}`;
                     status.style.color = "orange";
                 }
 
             } catch (err) {
-                status.textContent = "Tentando reconectar...";
+                status.textContent = "Reconectando...";
                 status.style.color = "#ff4d4d";
             }
         }
 
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
+        
+        // Executa a primeira carga
         fetchPlanilha();
         
-        // Intervalo de 5 segundos
+        // Atualiza a planilha INTEIRA a cada 5 segundos forçando novo fetch
         setInterval(fetchPlanilha, 5000); 
     </script>
 </body>
