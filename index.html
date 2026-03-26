@@ -3,172 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Controle - Base</title>
+    <title>Painel Logístico</title>
     <style>
         body {
             background-color: #0b192c;
             color: #ffffff;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 40px;
             font-weight: bold;
-            overflow-x: hidden;
         }
 
-        #cabecalho-informativo {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            display: inline-block;
-            line-height: 1;
+        /* Cabeçalho no topo esquerdo */
+        header {
+            margin-bottom: 50px;
+            line-height: 1.1;
         }
 
         #relogio {
             color: #00ced1; 
-            font-size: 5.5em; 
+            font-size: 5em; 
             display: block;
-            letter-spacing: -2px;
-            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         #data-atual {
             color: #a0aec0; 
-            font-size: 1.35em; 
-            display: block;
-            margin-top: 8px;
+            font-size: 1.2em; 
             text-transform: capitalize;
-            font-weight: normal; 
+            font-weight: normal;
         }
 
-        /* Container ajustado para alinhar cards à esquerda */
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start; /* Alinhado à esquerda */
-            align-items: flex-start;
-            padding: 240px 50px 50px 50px; /* Espaço para o relógio no topo */
+        /* Container que alinha os cards à esquerda */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 280px); /* Define largura fixa dos cards */
             gap: 20px;
+            justify-content: start; /* Alinha tudo à esquerda */
+            margin-top: 20px;
         }
 
-        /* Card um pouco menor para caberem mais na linha */
         .card {
             background-color: #1a365d;
-            border: 3px solid #00ced1;
-            border-radius: 30px; 
-            width: 320px;
-            padding: 30px;
+            border: 2px solid #00ced1;
+            border-radius: 25px;
+            padding: 25px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
         .card h3 {
-            margin-top: 0;
+            margin: 0 0 15px 0;
             color: #a0aec0;
-            font-size: 1em;
+            font-size: 0.9em;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 15px;
-            height: 40px; /* Mantém títulos alinhados */
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        .valor-volume {
-            font-size: 4em;
+        .valor {
+            font-size: 3.5em;
             color: #ffffff;
             display: block;
-            margin-bottom: 5px;
         }
 
-        #msg-status {
-            font-size: 0.75em;
-            color: #00ced1;
+        #status {
+            font-size: 0.7em;
             margin-top: 10px;
             font-weight: normal;
+            color: #00ced1;
         }
     </style>
 </head>
 <body>
 
-    <div id="cabecalho-informativo">
+    <header>
         <span id="relogio">00:00:00</span>
         <span id="data-atual">Carregando...</span>
-    </div>
+    </header>
 
-    <div class="container">
-        <div id="cards-container">
-            <div class="card">
-                <h3>VOLUME EXPEDIDO (KG)</h3>
-                <span class="valor-volume" id="volume-display">...</span>
-                <div id="msg-status">Sincronizando...</div>
-            </div>
+    <div class="grid-cards">
+        <div class="card">
+            <h3>VOLUME EXPEDIDO (KG)</h3>
+            <span class="valor" id="vol-valor">-</span>
+            <div id="status">Sincronizando...</div>
         </div>
-    </div>
+        </div>
 
     <script>
-        function atualizarTempo() {
+        function atualizarRelogio() {
             const agora = new Date();
-            const opHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-            const opData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
-            
-            document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', opHora);
-            document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', opData);
-            
+            const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const fData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
+            document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
+            document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
             return agora.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric'});
         }
 
-        const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
+        const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
-        async function carregarDados() {
-            const volumeDisplay = document.getElementById('volume-display');
-            const statusDisplay = document.getElementById('msg-status');
-            const dataHojeStr = atualizarTempo(); 
+        async function fetchPlanilha() {
+            const display = document.getElementById('vol-valor');
+            const status = document.getElementById('status');
+            const hoje = atualizarRelogio();
 
             try {
-                const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(sheetURL + '&t=' + new Date().getTime()));
-                const json = await response.json();
-                const csvTexto = json.contents;
+                // Usando um proxy diferente para evitar o erro de conexão
+                const resp = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}&t=${Date.now()}`);
+                const csv = await resp.text();
+                const linhas = csv.split('\n');
                 
-                // Divide as linhas e remove possíveis espaços extras
-                const linhas = csvTexto.split(/\r?\n/).map(l => l.trim());
-                
-                let volumeEncontrado = "-";
-                let encontrouData = false;
+                let achou = false;
 
                 for (let i = 1; i < linhas.length; i++) {
-                    // Regex para separar por vírgula mas respeitar aspas (caso o número tenha vírgula decimal)
-                    const colunas = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    
-                    const dataPlanilha = colunas[0] ? colunas[0].replace(/^"|"$/g, '').trim() : "";
-                    
-                    if (dataPlanilha === dataHojeStr) {
-                        let valorRaw = colunas[2] ? colunas[2].replace(/^"|"$/g, '').trim() : "";
-                        
-                        // Limpeza: remove pontos de milhar e substitui vírgula decimal por ponto se necessário
-                        // Mas para exibição, vamos apenas garantir que não venha vazio
-                        volumeEncontrado = (valorRaw === "" || valorRaw === "0") ? "-" : valorRaw;
-                        
-                        encontrouData = true;
+                    const col = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    const dataPlanilha = col[0] ? col[0].replace(/"/g, '').trim() : "";
+
+                    if (dataPlanilha === hoje) {
+                        const v = col[2] ? col[2].replace(/"/g, '').trim() : "";
+                        display.textContent = (v === "" || v === "0") ? "-" : v;
+                        status.textContent = "Atualizado agora";
+                        status.style.color = "#00ced1";
+                        achou = true;
                         break;
                     }
                 }
 
-                volumeDisplay.textContent = volumeEncontrado;
-                statusDisplay.textContent = encontrouData ? "Atualizado Agora" : "Data " + dataHojeStr + " não encontrada";
-                statusDisplay.style.color = encontrouData ? "#00ced1" : "orange";
+                if (!achou) {
+                    display.textContent = "-";
+                    status.textContent = "Data não encontrada";
+                    status.style.color = "orange";
+                }
 
-            } catch (e) {
-                console.error(e);
-                statusDisplay.textContent = "Erro na conexão";
-                statusDisplay.style.color = "red";
+            } catch (err) {
+                status.textContent = "Erro de conexão";
+                status.style.color = "red";
             }
         }
 
-        setInterval(atualizarTempo, 1000);
-        atualizarTempo();
-        carregarDados();
-        setInterval(carregarDados, 30000);
+        setInterval(atualizarRelogio, 1000);
+        atualizarRelogio();
+        fetchPlanilha();
+        setInterval(fetchPlanilha, 40000); // Atualiza a cada 40s
     </script>
 </body>
 </html>
