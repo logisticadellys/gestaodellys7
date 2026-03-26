@@ -83,12 +83,11 @@
         <div class="card">
             <h3>VOLUME EXPEDIDO (KG)</h3>
             <span class="valor" id="vol-valor">-</span>
-            <div id="status">Iniciando...</div>
+            <div id="status">Buscando dados no Google...</div>
         </div>
     </div>
 
     <script>
-        // Função apenas para o visual do relógio na tela
         function atualizarRelogio() {
             const agora = new Date();
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -97,55 +96,48 @@
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
         }
 
-        // Função estrita para gerar a data no formato exato "26/03/2026"
-        function formatarDataPlanilha() {
-            const agora = new Date();
-            const dia = String(agora.getDate()).padStart(2, '0');
-            const mes = String(agora.getMonth() + 1).padStart(2, '0');
-            const ano = agora.getFullYear();
-            return `${dia}/${mes}/${ano}`;
-        }
-
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
         async function fetchPlanilha() {
             const display = document.getElementById('vol-valor');
             const status = document.getElementById('status');
-            const dataHoje = formatarDataPlanilha(); // Vai retornar ex: "26/03/2026"
+            
+            // Cria a data no formato exato DD/MM/AAAA para comparar com a Coluna A
+            const agora = new Date();
+            const dia = String(agora.getDate()).padStart(2, '0');
+            const mes = String(agora.getMonth() + 1).padStart(2, '0');
+            const ano = agora.getFullYear();
+            const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // Acessa DIRETAMENTE do Google (sem intermediários que dão erro)
-                const url = `${spreadsheetUrl}&t=${new Date().getTime()}`;
+                // Acessa DIRETAMENTE a planilha do Google
+                // O '&nocache' garante que o seu navegador não use dados velhos
+                const urlDireta = `${spreadsheetUrl}&nocache=${new Date().getTime()}`;
+                const response = await fetch(urlDireta);
                 
-                // Primeiro tenta acesso direto (o Google permite para CSV publicado)
-                let response = await fetch(url);
+                if (!response.ok) throw new Error("Google recusou a conexão");
                 
-                // Se o navegador bloquear o acesso direto, usa o AllOrigins como plano B
-                if (!response.ok) {
-                    response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
-                    const json = await response.json();
-                    csv = json.contents;
-                } else {
-                    csv = await response.text();
-                }
-
+                const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
                 let achou = false;
 
+                // Começa do índice 1 para pular o cabeçalho da planilha
                 for (let i = 1; i < linhas.length; i++) {
                     const separador = linhas[i].includes(';') ? ';' : ',';
                     const colunas = linhas[i].split(separador);
                     
-                    // Pega a Coluna A (Índice 0)
+                    // Coluna A (Índice 0)
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
-                    // Se a Coluna A for exatamente o dia de hoje
-                    if (dataPlanilha.includes(dataHoje)) {
+                    // Se a data da Coluna A bater com o dia de hoje
+                    if (dataPlanilha.includes(hojeCompleto)) {
                         // Pula para a Coluna C (Índice 2)
                         let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
                         display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
-                        status.textContent = "Sincronizado: " + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                        
+                        const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                        status.textContent = `Sincronizado: ${horaSinc}`;
                         status.style.color = "#00ced1";
                         achou = true;
                         break;
@@ -154,24 +146,23 @@
 
                 if (!achou) {
                     display.textContent = "-";
-                    status.textContent = `Data ${dataHoje} não localizada`;
+                    status.textContent = `Data ${hojeCompleto} não localizada`;
                     status.style.color = "orange";
                 }
 
             } catch (err) {
-                status.textContent = "Aguardando atualização...";
+                status.textContent = "Erro de conexão - Tentando novamente";
                 status.style.color = "#ff4d4d";
-                console.error(err);
+                console.error("Detalhe do erro:", err);
             }
         }
 
-        // Inicia tudo
+        // Inicia o relógio e a primeira busca
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
-        
         fetchPlanilha();
         
-        // Atualiza a cada 30 segundos
+        // Mantém a atualização a cada 30 segundos
         setInterval(fetchPlanilha, 30000); 
     </script>
 </body>
