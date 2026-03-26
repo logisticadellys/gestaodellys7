@@ -10,67 +10,76 @@
             color: #ffffff;
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
-            padding: 30px;
+            padding: 2vw; /* Padding dinâmico baseado na largura da tela */
             font-weight: bold;
             overflow: hidden;
+            height: 100vh;
+            box-sizing: border-box;
         }
 
         header {
-            margin-bottom: 20px;
+            margin-bottom: 2vh;
             line-height: 1.1;
         }
 
         #relogio {
             color: #00ced1; 
-            font-size: 4.5em;
+            font-size: clamp(3em, 8vw, 4.5em); /* Ajusta o tamanho da fonte entre 3em e 4.5em conforme a tela */
             display: block;
         }
 
         #data-atual {
             color: #a0aec0; 
-            font-size: 1.1em;
+            font-size: clamp(0.9em, 2vw, 1.1em);
             text-transform: capitalize;
             font-weight: normal;
         }
 
         .grid-cards {
             display: flex;
-            gap: 20px;
-            justify-content: flex-start;
-            margin-top: 10px;
-            flex-wrap: nowrap;
+            gap: 1.5vw;
+            justify-content: space-between; /* Distribui o espaço entre os cards */
+            margin-top: 1vh;
+            flex-wrap: nowrap; /* Garante que fiquem na mesma linha */
+            width: 100%;
         }
 
         .card {
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            flex: 1;
-            min-width: 280px;
-            max-width: 350px;
-            padding: 20px;
+            flex: 1; /* Todos os cards crescem igualmente */
+            min-width: 0; /* Permite que o flex-item diminua além do conteúdo se necessário */
+            padding: 2vh 1vw;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .card h3 {
-            margin: 0 0 10px 0;
+            margin: 0 0 1vh 0;
             color: #a0aec0;
-            font-size: 0.85em;
+            font-size: clamp(0.7em, 1.2vw, 0.85em);
             text-transform: uppercase;
             letter-spacing: 1px;
-            min-height: 34px;
+            min-height: 2.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .valor {
-            font-size: 3em;
+            font-size: clamp(2em, 5vw, 3em);
             color: #ffffff;
             display: block;
+            white-space: nowrap;
         }
 
         .status-label {
-            font-size: 0.65em;
-            margin-top: 8px;
+            font-size: clamp(0.5em, 1vw, 0.65em);
+            margin-top: 1vh;
             font-weight: normal;
             color: #00ced1;
         }
@@ -189,8 +198,11 @@
             } catch (err) {
                 console.error("Erro:", err);
                 ['status-vol', 'status-drop', 'status-ocp', 'status-nf'].forEach(id => {
-                    document.getElementById(id).textContent = "Conexão instável...";
-                    document.getElementById(id).style.color = "#ff4d4d";
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.textContent = "Conexão instável...";
+                        el.style.color = "#ff4d4d";
+                    }
                 });
             }
         }
