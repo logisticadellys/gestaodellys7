@@ -46,7 +46,7 @@
             border: 2px solid #00ced1;
             border-radius: 20px;
             flex: 1;
-            min-width: 250px;
+            min-width: 280px;
             max-width: 350px;
             padding: 20px;
             text-align: center;
@@ -103,7 +103,7 @@
         </div>
 
         <div class="card">
-            <h3>NFs (QTD) - HOJE</h3>
+            <h3>NF's (QTD) - HOJE</h3>
             <span class="valor" id="nf-valor">-</span>
             <div class="status-label" id="status-nf">Sincronizando...</div>
         </div>
@@ -121,20 +121,6 @@
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
         async function fetchPlanilha() {
-            const displays = {
-                vol: document.getElementById('vol-valor'),
-                drop: document.getElementById('drop-valor'),
-                ocp: document.getElementById('ocp-valor'),
-                nf: document.getElementById('nf-valor')
-            };
-            
-            const statuses = [
-                document.getElementById('status-vol'),
-                document.getElementById('status-drop'),
-                document.getElementById('status-ocp'),
-                document.getElementById('status-nf')
-            ];
-            
             const agora = new Date();
             const hojeCompleto = `${String(agora.getDate()).padStart(2, '0')}/${String(agora.getMonth() + 1).padStart(2, '0')}/${agora.getFullYear()}`;
 
@@ -149,15 +135,16 @@
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
+                // Mapeia índices das colunas
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
                 const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
                 const idxOcp = cabecalho.indexOf("OCUPAÇÃO (%)");
-                // Busca a coluna de NFs ignorando variações de aspas
-                const idxNf = cabecalho.findIndex(t => t.includes("NF") && t.includes("QTD"));
+                // Busca a coluna NF's (QTD) de forma flexível (com ou sem aspa curva)
+                const idxNf = cabecalho.findIndex(txt => txt.includes("NF") && txt.includes("QTD"));
 
                 let achouData = false;
-                let valoresFinais = { vol: "-", drop: "-", ocp: "-", nf: "-" };
+                let finalValores = { vol: "-", drop: "-", ocp: "-", nf: "-" };
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -167,48 +154,46 @@
                         if (dataPlanilha.includes(hojeCompleto)) {
                             achouData = true;
                             
-                            const extrair = (idx) => {
+                            const limpar = (idx) => {
                                 if (idx === -1 || !colunas[idx]) return "-";
                                 let v = colunas[idx].replace(/"/g, '').trim();
-                                return (v === "" || v === null) ? "-" : v;
+                                return (v === "" || v === "null") ? "-" : v;
                             };
 
-                            valoresFinais.vol = extrair(idxVol);
-                            valoresFinais.drop = extrair(idxDrop);
-                            valoresFinais.ocp = extrair(idxOcp);
-                            valoresFinais.nf = extrair(idxNf);
+                            finalValores.vol = limpar(idxVol);
+                            finalValores.drop = limpar(idxDrop);
+                            finalValores.ocp = limpar(idxOcp);
+                            finalValores.nf = limpar(idxNf);
                             break;
                         }
                     }
                 }
 
-                // Atualiza os valores nos cards
-                displays.vol.textContent = valoresFinais.vol;
-                displays.drop.textContent = valoresFinais.drop;
-                displays.ocp.textContent = valoresFinais.ocp;
-                displays.nf.textContent = valoresFinais.nf;
+                // Atualiza elementos na tela
+                document.getElementById('vol-valor').textContent = finalValores.vol;
+                document.getElementById('drop-valor').textContent = finalValores.drop;
+                document.getElementById('ocp-valor').textContent = finalValores.ocp;
+                document.getElementById('nf-valor').textContent = finalValores.nf;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                
-                if (achouData) {
-                    const msgSinc = `Sincronizado: ${horaSinc}`;
-                    statuses.forEach(s => {
-                        s.textContent = msgSinc;
-                        s.style.color = "#00ced1";
-                    });
-                } else {
-                    const msgAguardando = `Aguardando dado de hoje (${hojeCompleto})`;
-                    statuses.forEach(s => {
-                        s.textContent = msgAguardando;
-                        s.style.color = "orange";
-                    });
-                }
+                const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf'];
+
+                statusIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (achouData) {
+                        el.textContent = `Sincronizado: ${horaSinc}`;
+                        el.style.color = "#00ced1";
+                    } else {
+                        el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
+                        el.style.color = "orange";
+                    }
+                });
 
             } catch (err) {
                 console.error("Erro:", err);
-                statuses.forEach(s => {
-                    s.textContent = "Conexão instável...";
-                    s.style.color = "#ff4d4d";
+                ['status-vol', 'status-drop', 'status-ocp', 'status-nf'].forEach(id => {
+                    document.getElementById(id).textContent = "Conexão instável...";
+                    document.getElementById(id).style.color = "#ff4d4d";
                 });
             }
         }
