@@ -44,7 +44,7 @@
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            width: 280px; /* Largura levemente maior para o título maior */
+            width: 280px;
             padding: 25px 20px;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
@@ -53,19 +53,19 @@
         .card h3 {
             margin: 0 0 15px 0;
             color: #a0aec0;
-            font-size: 1.1em; /* Título maior conforme solicitado */
+            font-size: 1.2em; /* Título maior */
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .valor {
-            font-size: 3.5em; /* Valor em destaque */
+            font-size: 3.5em;
             color: #ffffff;
             display: block;
         }
 
         #status {
-            font-size: 0.65em;
+            font-size: 0.7em;
             margin-top: 12px;
             font-weight: normal;
             color: #00ced1;
@@ -92,34 +92,35 @@
             const agora = new Date();
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
             const fData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
+            
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
             
-            // Retorna o formato DD/MM para a busca na planilha
             return agora.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit'});
         }
 
-        const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
+        const urlOriginal = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
         async function fetchPlanilha() {
             const display = document.getElementById('vol-valor');
             const status = document.getElementById('status');
-            const hojeReduzido = atualizarRelogio();
+            const hoje = atualizarRelogio();
 
             try {
-                // Mantendo a lógica exata que funcionou
-                const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&t=${Date.now()}`);
+                const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(urlOriginal)}&t=${Date.now()}`);
                 const json = await resp.json();
                 const csv = json.contents;
-                const linhas = csv.split('\n');
                 
+                if (!csv) return;
+
+                const linhas = csv.split('\n');
                 let achou = false;
 
                 for (let i = 1; i < linhas.length; i++) {
                     const col = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     const dataPlanilha = col[0] ? col[0].replace(/"/g, '').trim() : "";
 
-                    if (dataPlanilha.includes(hojeReduzido)) {
+                    if (dataPlanilha.includes(hoje)) {
                         let v = col[2] ? col[2].replace(/"/g, '').trim() : "";
                         display.textContent = (v === "" || v === "0") ? "-" : v;
                         status.textContent = "Sincronizado";
@@ -130,23 +131,19 @@
                 }
 
                 if (!achou) {
-                    display.textContent = "-";
-                    status.textContent = "Data " + hojeReduzido + " não lida";
+                    status.textContent = "Data " + hoje + " não encontrada";
                     status.style.color = "orange";
                 }
-
             } catch (err) {
                 status.textContent = "Erro de conexão";
                 status.style.color = "red";
             }
         }
 
-        // Inicia o sistema
+        // Inicia
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
         fetchPlanilha();
-        
-        // Atualiza a cada 35 segundos para evitar sobrecarga no proxy
         setInterval(fetchPlanilha, 35000); 
     </script>
 </body>
