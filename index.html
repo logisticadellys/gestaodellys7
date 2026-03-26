@@ -88,10 +88,6 @@
     </div>
 
     <script>
-        // Lógica de Trava Definitiva
-        let ultimoValorConfirmado = "";
-        let timestampUltimaMudanca = 0;
-
         function atualizarRelogio() {
             const agora = new Date();
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -113,54 +109,53 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // Forçamos o Google a gerar uma resposta totalmente nova usando dois parâmetros aleatórios
-                const cacheBuster = `&t=${Date.now()}&id=${Math.random().toString(36).substr(2, 9)}`;
-                const response = await fetch(spreadsheetUrl + cacheBuster, {
-                    cache: 'no-store',
-                    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+                // Forçamos o Google a ignorar o cache totalmente
+                const response = await fetch(`${spreadsheetUrl}&nocache=${Date.now()}`, { 
+                    cache: 'no-store'
                 });
                 
                 if (!response.ok) throw new Error();
                 
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
-                let achouNaPlanilha = false;
+                let achouData = false;
+                let novoValor = "-";
 
                 for (let i = 1; i < linhas.length; i++) {
                     const separador = linhas[i].includes(';') ? ';' : ',';
                     const colunas = linhas[i].split(separador);
+                    
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
+                    // 1. Procura a data de hoje na Coluna A
                     if (dataPlanilha.includes(hojeCompleto)) {
-                        let valorLido = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                        achouData = true;
                         
-                        // REGRA DE OURO: Só muda se o valor for preenchido e se for realmente uma "nova informação"
-                        // Se o valor lido for diferente do atual, nós validamos se não é um "fantasma" do cache
-                        if (valorLido !== "" && valorLido !== "0") {
-                            
-                            // Se o valor mudou, atualizamos o display e travamos ele
-                            if (valorLido !== ultimoValorConfirmado) {
-                                display.textContent = valorLido;
-                                ultimoValorConfirmado = valorLido;
-                                timestampUltimaMudanca = Date.now();
-                            }
+                        // 2. Pula duas colunas para a direita (Coluna C)
+                        let valorCelulaC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                        
+                        // 3. Se a célula não estiver vazia, usa o valor. Se estiver vazia, mantém "-"
+                        if (valorCelulaC !== "" && valorCelulaC !== null) {
+                            novoValor = valorCelulaC;
                         }
-                        
-                        const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                        status.textContent = `Sincronizado: ${horaSinc}`;
-                        status.style.color = "#00ced1";
-                        achouNaPlanilha = true;
-                        break;
+                        break; 
                     }
                 }
 
-                if (!achouNaPlanilha) {
-                    status.textContent = `Aguardando dados de hoje...`;
+                // Atualiza o display com o que foi encontrado (ou "-" se não achou data ou estava vazio)
+                display.textContent = novoValor;
+
+                const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+                if (achouData) {
+                    status.textContent = `Sincronizado: ${horaSinc}`;
+                    status.style.color = "#00ced1";
+                } else {
+                    status.textContent = `Data ${hojeCompleto} não listada`;
                     status.style.color = "orange";
                 }
 
             } catch (err) {
-                status.textContent = "Reconectando ao servidor...";
+                status.textContent = "Reconectando...";
                 status.style.color = "#ff4d4d";
             }
         }
@@ -168,10 +163,8 @@
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
         
-        // Primeira carga imediata
         fetchPlanilha();
-        
-        // Loop de 5 segundos
+        // Verifica a cada 5 segundos
         setInterval(fetchPlanilha, 5000); 
     </script>
 </body>
