@@ -38,13 +38,14 @@
             gap: 20px;
             justify-content: flex-start;
             margin-top: 10px;
+            flex-wrap: wrap; /* Garante ajuste se a tela for pequena */
         }
 
         .card {
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            min-width: 320px; 
+            min-width: 300px; 
             padding: 20px;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
@@ -53,7 +54,7 @@
         .card h3 {
             margin: 0 0 10px 0;
             color: #a0aec0;
-            font-size: 0.95em;
+            font-size: 0.90em;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -91,6 +92,12 @@
             <span class="valor" id="drop-valor">-</span>
             <div class="status-label" id="status-drop">Sincronizando...</div>
         </div>
+
+        <div class="card">
+            <h3>OCUPAÇÃO (%) - HOJE</h3>
+            <span class="valor" id="ocp-valor">-</span>
+            <div class="status-label" id="status-ocp">Sincronizando...</div>
+        </div>
     </div>
 
     <script>
@@ -107,8 +114,11 @@
         async function fetchPlanilha() {
             const volDisplay = document.getElementById('vol-valor');
             const dropDisplay = document.getElementById('drop-valor');
+            const ocpDisplay = document.getElementById('ocp-valor');
+            
             const statusVol = document.getElementById('status-vol');
             const statusDrop = document.getElementById('status-drop');
+            const statusOcp = document.getElementById('status-ocp');
             
             const agora = new Date();
             const dia = String(agora.getDate()).padStart(2, '0');
@@ -128,14 +138,16 @@
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
-                // Busca dinâmica pelos nomes das colunas na planilha
+                // Mapeamento dinâmico das colunas
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
                 const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
+                const idxOcp = cabecalho.indexOf("OCUPAÇÃO (%)");
 
                 let achouData = false;
                 let valorVolFinal = "-";
                 let valorDropFinal = "-";
+                let valorOcpFinal = "-";
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -145,45 +157,53 @@
                         if (dataPlanilha.includes(hojeCompleto)) {
                             achouData = true;
                             
+                            // Busca Volume
                             if (idxVol !== -1) {
                                 let v = colunas[idxVol] ? colunas[idxVol].replace(/"/g, '').trim() : "";
                                 valorVolFinal = (v !== "" && v !== null) ? v : "-";
                             }
-                            
+                            // Busca Dropsize
                             if (idxDrop !== -1) {
                                 let d = colunas[idxDrop] ? colunas[idxDrop].replace(/"/g, '').trim() : "";
                                 valorDropFinal = (d !== "" && d !== null) ? d : "-";
+                            }
+                            // Busca Ocupação
+                            if (idxOcp !== -1) {
+                                let o = colunas[idxOcp] ? colunas[idxOcp].replace(/"/g, '').trim() : "";
+                                valorOcpFinal = (o !== "" && o !== null) ? o : "-";
                             }
                             break;
                         }
                     }
                 }
 
+                // Atualiza os valores na tela
                 volDisplay.textContent = valorVolFinal;
                 dropDisplay.textContent = valorDropFinal;
+                ocpDisplay.textContent = valorOcpFinal;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 
                 if (achouData) {
                     const msgSinc = `Sincronizado: ${horaSinc}`;
-                    statusVol.textContent = msgSinc;
-                    statusDrop.textContent = msgSinc;
-                    statusVol.style.color = "#00ced1";
-                    statusDrop.style.color = "#00ced1";
+                    [statusVol, statusDrop, statusOcp].forEach(s => {
+                        s.textContent = msgSinc;
+                        s.style.color = "#00ced1";
+                    });
                 } else {
                     const msgAguardando = `Aguardando dado de hoje (${hojeCompleto})`;
-                    statusVol.textContent = msgAguardando;
-                    statusDrop.textContent = msgAguardando;
-                    statusVol.style.color = "orange";
-                    statusDrop.style.color = "orange";
+                    [statusVol, statusDrop, statusOcp].forEach(s => {
+                        s.textContent = msgAguardando;
+                        s.style.color = "orange";
+                    });
                 }
 
             } catch (err) {
                 console.error("Erro:", err);
-                statusVol.textContent = "Conexão instável...";
-                statusDrop.textContent = "Conexão instável...";
-                statusVol.style.color = "#ff4d4d";
-                statusDrop.style.color = "#ff4d4d";
+                [statusVol, statusDrop, statusOcp].forEach(s => {
+                    s.textContent = "Conexão instável...";
+                    s.style.color = "#ff4d4d";
+                });
             }
         }
 
