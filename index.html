@@ -1,4 +1,93 @@
-<script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Logístico</title>
+    <style>
+        body {
+            background-color: #0b192c;
+            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 30px;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        header {
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        #relogio {
+            color: #00ced1; 
+            font-size: 4.5em;
+            display: block;
+        }
+
+        #data-atual {
+            color: #a0aec0; 
+            font-size: 1.1em;
+            text-transform: capitalize;
+            font-weight: normal;
+        }
+
+        .grid-cards {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-start;
+            margin-top: 10px;
+        }
+
+        .card {
+            background-color: #1a365d;
+            border: 2px solid #00ced1;
+            border-radius: 20px;
+            width: 280px; /* Largura levemente maior para o título maior */
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+
+        .card h3 {
+            margin: 0 0 15px 0;
+            color: #a0aec0;
+            font-size: 1.1em; /* Título maior conforme solicitado */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .valor {
+            font-size: 3.5em; /* Valor em destaque */
+            color: #ffffff;
+            display: block;
+        }
+
+        #status {
+            font-size: 0.65em;
+            margin-top: 12px;
+            font-weight: normal;
+            color: #00ced1;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span id="relogio">00:00:00</span>
+        <span id="data-atual">Carregando...</span>
+    </header>
+
+    <div class="grid-cards">
+        <div class="card">
+            <h3>VOLUME EXPEDIDO (KG)</h3>
+            <span class="valor" id="vol-valor">-</span>
+            <div id="status">Sincronizando...</div>
+        </div>
+    </div>
+
+    <script>
         function atualizarRelogio() {
             const agora = new Date();
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -6,11 +95,11 @@
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
             
+            // Retorna o formato DD/MM para a busca na planilha
             return agora.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit'});
         }
 
-        // URL da sua planilha publicada como CSV
-        const urlOriginal = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
+        const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
         async function fetchPlanilha() {
             const display = document.getElementById('vol-valor');
@@ -18,24 +107,15 @@
             const hojeReduzido = atualizarRelogio();
 
             try {
-                // Adicionamos um timestamp para evitar cache do navegador
-                const cacheBuster = Date.now();
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlOriginal)}&t=${cacheBuster}`;
-                
-                const resp = await fetch(proxyUrl);
-                
-                if (!resp.ok) throw new Error("Erro na resposta da rede");
-
+                // Mantendo a lógica exata que funcionou
+                const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&t=${Date.now()}`);
                 const json = await resp.json();
                 const csv = json.contents;
-                
-                if (!csv) throw new Error("Conteúdo vazio");
-
                 const linhas = csv.split('\n');
+                
                 let achou = false;
 
                 for (let i = 1; i < linhas.length; i++) {
-                    // Regex para lidar com vírgulas dentro de aspas (comum em CSVs)
                     const col = linhas[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     const dataPlanilha = col[0] ? col[0].replace(/"/g, '').trim() : "";
 
@@ -51,23 +131,23 @@
 
                 if (!achou) {
                     display.textContent = "-";
-                    status.textContent = "Data " + hojeReduzido + " não encontrada";
+                    status.textContent = "Data " + hojeReduzido + " não lida";
                     status.style.color = "orange";
                 }
 
             } catch (err) {
-                console.error(err);
-                status.textContent = "Erro de conexão. Tentando novamente...";
-                status.style.color = "#ff4d4d";
-                // Tenta reconectar em 5 segundos se falhar
-                setTimeout(fetchPlanilha, 5000);
+                status.textContent = "Erro de conexão";
+                status.style.color = "red";
             }
         }
 
+        // Inicia o sistema
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
         fetchPlanilha();
         
-        // Atualiza a cada 30 segundos
-        setInterval(fetchPlanilha, 30000); 
+        // Atualiza a cada 35 segundos para evitar sobrecarga no proxy
+        setInterval(fetchPlanilha, 35000); 
     </script>
+</body>
+</html>
