@@ -1,117 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Logístico</title>
-    <style>
-        body {
-            background-color: #0b192c;
-            color: #ffffff;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 30px;
-            font-weight: bold;
-            overflow: hidden;
-        }
-
-        header {
-            margin-bottom: 20px;
-            line-height: 1.1;
-        }
-
-        #relogio {
-            color: #00ced1; 
-            font-size: 4.5em;
-            display: block;
-        }
-
-        #data-atual {
-            color: #a0aec0; 
-            font-size: 1.1em;
-            text-transform: capitalize;
-            font-weight: normal;
-        }
-
-        .grid-cards {
-            display: flex;
-            gap: 15px;
-            justify-content: space-between;
-            margin-top: 10px;
-            flex-wrap: nowrap; 
-        }
-
-        .card {
-            background-color: #1a365d;
-            border: 2px solid #00ced1;
-            border-radius: 20px;
-            flex: 1 1 0; /* Garante que os 4 cards tenham exatamente o mesmo tamanho */
-            min-width: 200px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-        }
-
-        .card h3 {
-            margin: 0 0 10px 0;
-            color: #a0aec0;
-            font-size: 0.75em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            min-height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .valor {
-            font-size: 2.5em; /* Reduzi um pouco para caber os 4 confortavelmente */
-            color: #ffffff;
-            display: block;
-        }
-
-        .status-label {
-            font-size: 0.55em;
-            margin-top: 8px;
-            font-weight: normal;
-            color: #00ced1;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <span id="relogio">00:00:00</span>
-        <span id="data-atual">Carregando...</span>
-    </header>
-
-    <div class="grid-cards">
-        <div class="card">
-            <h3>VOLUME EXPEDIDO (KG) - HOJE</h3>
-            <span class="valor" id="vol-valor">-</span>
-            <div class="status-label" id="status-vol">Sincronizando...</div>
-        </div>
-
-        <div class="card">
-            <h3>DROPSIZE (KG) - HOJE</h3>
-            <span class="valor" id="drop-valor">-</span>
-            <div class="status-label" id="status-drop">Sincronizando...</div>
-        </div>
-
-        <div class="card">
-            <h3>OCUPAÇÃO (%) - HOJE</h3>
-            <span class="valor" id="ocp-valor">-</span>
-            <div class="status-label" id="status-ocp">Sincronizando...</div>
-        </div>
-
-        <div class="card">
-            <h3>NF's (QTD) - HOJE</h3>
-            <span class="valor" id="nf-valor">-</span>
-            <div class="status-label" id="status-nf">Sincronizando...</div>
-        </div>
-    </div>
-
-    <script>
+<script>
         function atualizarRelogio() {
             const agora = new Date();
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -152,13 +39,16 @@
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
+                // Remove aspas e espaços extras para comparar o cabeçalho
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
                 const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
                 const idxOcp = cabecalho.indexOf("OCUPAÇÃO (%)");
-                const idxNf = cabecalho.indexOf("NF’S (QTD)");
+                
+                // Busca flexível para a coluna de NF (procura por qualquer coluna que comece com "NF")
+                const idxNf = cabecalho.findIndex(txt => txt.includes("NF"));
 
                 let achouData = false;
                 let valores = { vol: "-", drop: "-", ocp: "-", nf: "-" };
@@ -180,26 +70,32 @@
                 }
 
                 // Atualizar tela
-                Object.keys(displays).forEach(key => displays[key].textContent = valores[key]);
+                Object.keys(displays).forEach(key => {
+                    if (displays[key]) displays[key].textContent = valores[key];
+                });
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                const statusElements = [statuses.vol, statuses.drop, statuses.ocp, statuses.nf];
+                const statusList = Object.values(statuses);
 
                 if (achouData) {
-                    statusElements.forEach(s => {
-                        s.textContent = `Sincronizado: ${horaSinc}`;
-                        s.style.color = "#00ced1";
+                    statusList.forEach(s => {
+                        if(s) {
+                            s.textContent = `Sincronizado: ${horaSinc}`;
+                            s.style.color = "#00ced1";
+                        }
                     });
                 } else {
-                    statusElements.forEach(s => {
-                        s.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
-                        s.style.color = "orange";
+                    statusList.forEach(s => {
+                        if(s) {
+                            s.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
+                            s.style.color = "orange";
+                        }
                     });
                 }
 
             } catch (err) {
                 console.error("Erro:", err);
-                [statusVol, statusDrop, statusOcp, statusNf].forEach(s => {
+                Object.values(statuses).forEach(s => {
                     if(s) {
                         s.textContent = "Conexão instável...";
                         s.style.color = "#ff4d4d";
@@ -213,5 +109,3 @@
         fetchPlanilha();
         setInterval(fetchPlanilha, 7000); 
     </script>
-</body>
-</html>
