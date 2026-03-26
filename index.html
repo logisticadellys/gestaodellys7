@@ -35,19 +35,19 @@
 
         .grid-cards {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             justify-content: flex-start;
             margin-top: 10px;
-            flex-wrap: nowrap; /* Mantém os 3 na mesma linha */
+            flex-wrap: nowrap; 
         }
 
         .card {
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            flex: 1; /* Faz os cards dividirem o espaço igualmente */
-            min-width: 280px;
-            max-width: 350px;
+            flex: 1; 
+            min-width: 240px;
+            max-width: 300px;
             padding: 20px;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
@@ -56,20 +56,23 @@
         .card h3 {
             margin: 0 0 10px 0;
             color: #a0aec0;
-            font-size: 0.85em;
+            font-size: 0.80em;
             text-transform: uppercase;
             letter-spacing: 1px;
-            min-height: 34px; /* Garante alinhamento se o texto quebrar linha */
+            min-height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .valor {
-            font-size: 3em;
+            font-size: 2.8em;
             color: #ffffff;
             display: block;
         }
 
         .status-label {
-            font-size: 0.65em;
+            font-size: 0.60em;
             margin-top: 8px;
             font-weight: normal;
             color: #00ced1;
@@ -101,6 +104,12 @@
             <span class="valor" id="ocp-valor">-</span>
             <div class="status-label" id="status-ocp">Sincronizando...</div>
         </div>
+
+        <div class="card">
+            <h3>NF's (QTD) - HOJE</h3>
+            <span class="valor" id="nf-valor">-</span>
+            <div class="status-label" id="status-nf">Sincronizando...</div>
+        </div>
     </div>
 
     <script>
@@ -118,10 +127,12 @@
             const volDisplay = document.getElementById('vol-valor');
             const dropDisplay = document.getElementById('drop-valor');
             const ocpDisplay = document.getElementById('ocp-valor');
+            const nfDisplay = document.getElementById('nf-valor');
             
             const statusVol = document.getElementById('status-vol');
             const statusDrop = document.getElementById('status-drop');
             const statusOcp = document.getElementById('status-ocp');
+            const statusNf = document.getElementById('status-nf');
             
             const agora = new Date();
             const dia = String(agora.getDate()).padStart(2, '0');
@@ -145,11 +156,13 @@
                 const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
                 const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
                 const idxOcp = cabecalho.indexOf("OCUPAÇÃO (%)");
+                const idxNf = cabecalho.indexOf("NF’S (QTD)");
 
                 let achouData = false;
                 let valorVolFinal = "-";
                 let valorDropFinal = "-";
                 let valorOcpFinal = "-";
+                let valorNfFinal = "-";
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -171,6 +184,10 @@
                                 let o = colunas[idxOcp] ? colunas[idxOcp].replace(/"/g, '').trim() : "";
                                 valorOcpFinal = (o !== "" && o !== null) ? o : "-";
                             }
+                            if (idxNf !== -1) {
+                                let n = colunas[idxNf] ? colunas[idxNf].replace(/"/g, '').trim() : "";
+                                valorNfFinal = (n !== "" && n !== null) ? n : "-";
+                            }
                             break;
                         }
                     }
@@ -179,18 +196,19 @@
                 volDisplay.textContent = valorVolFinal;
                 dropDisplay.textContent = valorDropFinal;
                 ocpDisplay.textContent = valorOcpFinal;
+                nfDisplay.textContent = valorNfFinal;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 
                 if (achouData) {
                     const msgSinc = `Sincronizado: ${horaSinc}`;
-                    [statusVol, statusDrop, statusOcp].forEach(s => {
+                    [statusVol, statusDrop, statusOcp, statusNf].forEach(s => {
                         s.textContent = msgSinc;
                         s.style.color = "#00ced1";
                     });
                 } else {
                     const msgAguardando = `Aguardando dado de hoje (${hojeCompleto})`;
-                    [statusVol, statusDrop, statusOcp].forEach(s => {
+                    [statusVol, statusDrop, statusOcp, statusNf].forEach(s => {
                         s.textContent = msgAguardando;
                         s.style.color = "orange";
                     });
@@ -198,7 +216,7 @@
 
             } catch (err) {
                 console.error("Erro:", err);
-                [statusVol, statusDrop, statusOcp].forEach(s => {
+                [statusVol, statusDrop, statusOcp, statusNf].forEach(s => {
                     s.textContent = "Conexão instável...";
                     s.style.color = "#ff4d4d";
                 });
