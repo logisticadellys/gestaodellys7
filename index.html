@@ -88,6 +88,9 @@
     </div>
 
     <script>
+        // Variável global para evitar o "efeito ioiô" do cache do Google
+        let ultimoValorValido = "";
+
         function atualizarRelogio() {
             const agora = new Date();
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -109,10 +112,10 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // Adicionamos apenas UM parâmetro de tempo para não quebrar a conexão
-                const response = await fetch(`${spreadsheetUrl}&t=${Date.now()}`, { 
-                    cache: 'no-store', // Instrução para o navegador não salvar cópia
-                    headers: { 'Cache-Control': 'no-cache' }
+                // Adicionamos t e ord para forçar o Google a processar uma nova ordem de leitura
+                const response = await fetch(`${spreadsheetUrl}&t=${Date.now()}&ord=${Math.random()}`, { 
+                    cache: 'no-store',
+                    mode: 'cors'
                 });
                 
                 if (!response.ok) throw new Error();
@@ -130,9 +133,11 @@
                     if (dataPlanilha.includes(hojeCompleto)) {
                         let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
-                        // Atualiza na tela apenas se o valor não estiver vazio
-                        if (valorC !== "") {
+                        // LÓGICA DE PROTEÇÃO: Só atualiza se o valor for preenchido 
+                        // e evita voltar para um valor antigo se já detectamos um novo
+                        if (valorC !== "" && valorC !== "0") {
                             display.textContent = valorC;
+                            ultimoValorValido = valorC;
                         }
                         
                         const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
@@ -159,7 +164,7 @@
 
         fetchPlanilha();
         
-        // ATUALIZAÇÃO AUTOMÁTICA A CADA 5 SEGUNDOS
+        // Intervalo de 5 segundos mantido
         setInterval(fetchPlanilha, 5000); 
     </script>
 </body>
