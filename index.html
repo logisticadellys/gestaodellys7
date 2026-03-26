@@ -109,10 +109,17 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // ALTERAÇÃO AQUI: Mudamos para Date.now() para garantir que NUNCA repita a URL, evitando a alternância de valores
-                const response = await fetch(`${spreadsheetUrl}&cachebuster=${Date.now()}`, { 
+                // VARREDURA E AJUSTE: Usando múltiplos parâmetros de desvio de cache
+                const timestamp = Date.now();
+                const urlFinal = `${spreadsheetUrl}&cachebuster=${timestamp}&revision=${timestamp}`;
+                
+                const response = await fetch(urlFinal, { 
                     cache: 'no-store',
-                    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
                 });
                 
                 if (!response.ok) throw new Error();
@@ -130,11 +137,13 @@
                     if (dataPlanilha.includes(hojeCompleto)) {
                         let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
-                        // Atualiza o valor na tela
-                        display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
+                        // SÓ ATUALIZA SE O VALOR FOR DIFERENTE DE VAZIO
+                        if (valorC !== "") {
+                            display.textContent = valorC;
+                        }
                         
                         const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                        status.textContent = `Atualizado às: ${horaSinc}`;
+                        status.textContent = `Sincronizado: ${horaSinc}`;
                         status.style.color = "#00ced1";
                         achou = true;
                         break;
@@ -142,13 +151,12 @@
                 }
 
                 if (!achou) {
-                    display.textContent = "-";
-                    status.textContent = `Data ${hojeCompleto} não encontrada`;
+                    status.textContent = `Aguardando data ${hojeCompleto}`;
                     status.style.color = "orange";
                 }
 
             } catch (err) {
-                status.textContent = "Tentando reconectar...";
+                status.textContent = "Erro na conexão...";
                 status.style.color = "#ff4d4d";
             }
         }
@@ -158,7 +166,7 @@
 
         fetchPlanilha();
         
-        // Mantido em 5 segundos conforme solicitado
+        // Mantido o intervalo de 5 segundos
         setInterval(fetchPlanilha, 5000); 
     </script>
 </body>
