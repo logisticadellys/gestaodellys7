@@ -17,100 +17,71 @@
                 nf: document.getElementById('nf-valor')
             };
             
-            const statuses = {
-                vol: document.getElementById('status-vol'),
-                drop: document.getElementById('status-drop'),
-                ocp: document.getElementById('status-ocp'),
-                nf: document.getElementById('status-nf')
-            };
+            const statuses = [
+                document.getElementById('status-vol'),
+                document.getElementById('status-drop'),
+                document.getElementById('status-ocp'),
+                document.getElementById('status-nf')
+            ];
             
             const agora = new Date();
-            const dia = String(agora.getDate()).padStart(2, '0');
-            const mes = String(agora.getMonth() + 1).padStart(2, '0');
-            const ano = agora.getFullYear();
-            const hojeCompleto = `${dia}/${mes}/${ano}`;
+            const hojeCompleto = `${String(agora.getDate()).padStart(2, '0')}/${String(agora.getMonth() + 1).padStart(2, '0')}/${agora.getFullYear()}`;
 
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
-                if (!response.ok) throw new Error("Erro na resposta");
-                
                 const csv = await response.text();
-                const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
-                if (linhas.length === 0) return;
-
-                const separador = linhas[0].includes(';') ? ';' : ',';
+                const linhas = csv.split(/\r?\n/).map(l => l.split(/[;,]/)); // Aceita vírgula ou ponto e vírgula
                 
-                // Função para normalizar o texto (remove aspas, espaços extras e caracteres especiais)
-                const normalizar = (txt) => txt.replace(/"/g, '').replace(/[^a-zA-Z0-9(%)]/g, '').trim().toUpperCase();
+                if (linhas.length < 2) return;
+
+                // Limpa o cabeçalho para comparação
+                const cabecalho = linhas[0].map(c => c.replace(/"/g, '').trim().toUpperCase());
                 
-                const cabecalhoOriginal = linhas[0].split(separador);
-                const cabecalhoLimpo = cabecalhoOriginal.map(normalizar);
-                
-                // Mapeamento das colunas ignorando caracteres especiais como ' ou ’
-                const idxData = cabecalhoLimpo.indexOf("DATA");
-                const idxVol = cabecalhoLimpo.indexOf("VOLUMEEXPEDIDO(KG)");
-                const idxDrop = cabecalhoLimpo.indexOf("DROPSIZE(KG)");
-                const idxOcp = cabecalhoLimpo.indexOf("OCUPACAO(%)");
-                
-                // Procura por qualquer coluna que contenha "NF" no nome normalizado
-                const idxNf = cabecalhoLimpo.findIndex(txt => txt.includes("NF"));
+                // Localiza os índices por palavras-chave simples
+                const idxData = cabecalho.findIndex(c => c.includes("DATA"));
+                const idxVol = cabecalho.findIndex(c => c.includes("VOLUME"));
+                const idxDrop = cabecalho.findIndex(c => c.includes("DROP"));
+                const idxOcp = cabecalho.findIndex(c => c.includes("OCUPA"));
+                const idxNf = cabecalho.findIndex(c => c.includes("NF"));
 
-                let achouData = false;
-                let valores = { vol: "-", drop: "-", ocp: "-", nf: "-" };
+                let dadosDeHoje = null;
 
-                if (idxData !== -1) {
-                    for (let i = 1; i < linhas.length; i++) {
-                        const colunas = linhas[i].split(separador);
-                        let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
-
-                        if (dataPlanilha.includes(hojeCompleto)) {
-                            achouData = true;
-                            
-                            const pegarValor = (idx) => {
-                                if (idx === -1 || !colunas[idx]) return "-";
-                                let v = colunas[idx].replace(/"/g, '').trim();
-                                return (v === "" || v === null) ? "-" : v;
-                            };
-
-                            valores.vol = pegarValor(idxVol);
-                            valores.drop = pegarValor(idxDrop);
-                            valores.ocp = pegarValor(idxOcp);
-                            valores.nf = pegarValor(idxNf);
-                            break;
-                        }
+                // Procura a linha de hoje
+                for (let i = 1; i < linhas.length; i++) {
+                    if (linhas[i][idxData] && linhas[i][idxData].includes(hojeCompleto)) {
+                        dadosDeHoje = linhas[i];
+                        break;
                     }
                 }
 
-                // Atualizar os números na tela
-                Object.keys(displays).forEach(key => {
-                    if (displays[key]) displays[key].textContent = valores[key];
-                });
+                if (dadosDeHoje) {
+                    const extrair = (idx) => {
+                        let v = dadosDeHoje[idx] ? dadosDeHoje[idx].replace(/"/g, '').trim() : "-";
+                        return v === "" ? "-" : v;
+                    };
 
-                const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                
-                if (achouData) {
-                    Object.values(statuses).forEach(s => {
-                        if(s) {
-                            s.textContent = `Sincronizado: ${horaSinc}`;
-                            s.style.color = "#00ced1";
-                        }
+                    displays.vol.textContent = extrair(idxVol);
+                    displays.drop.textContent = extrair(idxDrop);
+                    displays.ocp.textContent = extrair(idxOcp);
+                    displays.nf.textContent = extrair(idxNf);
+
+                    const horaSinc = new Date().toLocaleTimeString('pt-BR');
+                    statuses.forEach(s => {
+                        s.textContent = `Sincronizado: ${horaSinc}`;
+                        s.style.color = "#00ced1";
                     });
                 } else {
-                    Object.values(statuses).forEach(s => {
-                        if(s) {
-                            s.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
-                            s.style.color = "orange";
-                        }
+                    statuses.forEach(s => {
+                        s.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
+                        s.style.color = "orange";
                     });
                 }
 
             } catch (err) {
-                console.error("Erro:", err);
-                Object.values(statuses).forEach(s => {
-                    if(s) {
-                        s.textContent = "Conexão instável...";
-                        s.style.color = "#ff4d4d";
-                    }
+                console.error(err);
+                statuses.forEach(s => {
+                    s.textContent = "Erro na conexão...";
+                    s.style.color = "red";
                 });
             }
         }
@@ -118,5 +89,5 @@
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
         fetchPlanilha();
-        setInterval(fetchPlanilha, 7000); 
+        setInterval(fetchPlanilha, 10000); 
     </script>
