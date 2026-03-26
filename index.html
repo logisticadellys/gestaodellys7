@@ -109,16 +109,15 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // VARREDURA E AJUSTE: Usando múltiplos parâmetros de desvio de cache
-                const timestamp = Date.now();
-                const urlFinal = `${spreadsheetUrl}&cachebuster=${timestamp}&revision=${timestamp}`;
+                // Força o recarregamento total da planilha ignorando cache do navegador e do Google
+                const urlFinal = `${spreadsheetUrl}&v=${Date.now()}`;
                 
                 const response = await fetch(urlFinal, { 
-                    cache: 'no-store',
+                    method: 'GET',
+                    cache: 'reload', // Força o navegador a buscar uma cópia nova
                     headers: {
                         'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                        'Pragma': 'no-cache'
                     }
                 });
                 
@@ -137,7 +136,7 @@
                     if (dataPlanilha.includes(hojeCompleto)) {
                         let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
-                        // SÓ ATUALIZA SE O VALOR FOR DIFERENTE DE VAZIO
+                        // Atualiza o display apenas se houver dado na coluna
                         if (valorC !== "") {
                             display.textContent = valorC;
                         }
@@ -151,22 +150,24 @@
                 }
 
                 if (!achou) {
-                    status.textContent = `Aguardando data ${hojeCompleto}`;
+                    status.textContent = `Aguardando dado de ${hojeCompleto}`;
                     status.style.color = "orange";
                 }
 
             } catch (err) {
-                status.textContent = "Erro na conexão...";
+                status.textContent = "Reconectando servidor...";
                 status.style.color = "#ff4d4d";
             }
         }
 
+        // Inicialização
         setInterval(atualizarRelogio, 1000);
         atualizarRelogio();
 
+        // Primeira chamada
         fetchPlanilha();
         
-        // Mantido o intervalo de 5 segundos
+        // ATUALIZAÇÃO DA PLANILHA INTEIRA A CADA 5 SEGUNDOS
         setInterval(fetchPlanilha, 5000); 
     </script>
 </body>
