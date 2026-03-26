@@ -1,174 +1,329 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Painel Logístico</title>
+
     <style>
+
         body {
+
             background-color: #0b192c;
+
             color: #ffffff;
+
             font-family: 'Segoe UI', sans-serif;
+
             margin: 0;
+
             padding: 30px;
+
             font-weight: bold;
+
             overflow: hidden;
+
         }
+
+
 
         header {
+
             margin-bottom: 20px;
+
             line-height: 1.1;
+
         }
+
+
 
         #relogio {
+
             color: #00ced1; 
+
             font-size: 4.5em;
+
             display: block;
+
         }
+
+
 
         #data-atual {
+
             color: #a0aec0; 
+
             font-size: 1.1em;
+
             text-transform: capitalize;
+
             font-weight: normal;
+
         }
+
+
 
         .grid-cards {
+
             display: flex;
+
             gap: 15px;
+
             justify-content: flex-start;
+
             margin-top: 10px;
+
         }
+
+
 
         .card {
+
             background-color: #1a365d;
+
             border: 2px solid #00ced1;
+
             border-radius: 20px;
+
             width: 250px;
+
             padding: 20px;
+
             text-align: center;
+
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+
         }
+
+
 
         .card h3 {
+
             margin: 0 0 10px 0;
+
             color: #a0aec0;
+
             font-size: 1.1em;
+
             text-transform: uppercase;
+
             letter-spacing: 1px;
+
         }
+
+
 
         .valor {
+
             font-size: 3em;
+
             color: #ffffff;
+
             display: block;
+
         }
+
+
 
         #status {
+
             font-size: 0.65em;
+
             margin-top: 8px;
+
             font-weight: normal;
+
             color: #00ced1;
+
         }
+
     </style>
+
 </head>
+
 <body>
 
+
+
     <header>
+
         <span id="relogio">00:00:00</span>
+
         <span id="data-atual">Carregando...</span>
+
     </header>
 
+
+
     <div class="grid-cards">
+
         <div class="card">
+
             <h3>VOLUME EXPEDIDO (KG)</h3>
+
             <span class="valor" id="vol-valor">-</span>
+
             <div id="status">Sincronizando...</div>
+
         </div>
+
     </div>
 
+
+
     <script>
+
         function atualizarRelogio() {
+
             const agora = new Date();
+
             const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+
             const fData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
+
             document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
+
             document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
+
         }
+
+
 
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
+
+
         async function fetchPlanilha() {
+
             const display = document.getElementById('vol-valor');
+
             const status = document.getElementById('status');
+
             
+
             const agora = new Date();
+
             const dia = String(agora.getDate()).padStart(2, '0');
+
             const mes = String(agora.getMonth() + 1).padStart(2, '0');
+
             const ano = agora.getFullYear();
+
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
+
+
             try {
-                // Força o recarregamento total da planilha ignorando cache do navegador e do Google
-                const urlFinal = `${spreadsheetUrl}&v=${Date.now()}`;
-                
-                const response = await fetch(urlFinal, { 
-                    method: 'GET',
-                    cache: 'reload', // Força o navegador a buscar uma cópia nova
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache'
-                    }
+
+                // ALTERAÇÃO AQUI: Mudamos para Date.now() para garantir que NUNCA repita a URL, evitando a alternância de valores
+
+                const response = await fetch(`${spreadsheetUrl}&cachebuster=${Date.now()}`, { 
+
+                    cache: 'no-store',
+
+                    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+
                 });
+
                 
+
                 if (!response.ok) throw new Error();
+
                 
+
                 const csv = await response.text();
+
                 const linhas = csv.split(/\r?\n/);
+
                 let achou = false;
 
+
+
                 for (let i = 1; i < linhas.length; i++) {
+
                     const separador = linhas[i].includes(';') ? ';' : ',';
+
                     const colunas = linhas[i].split(separador);
+
                     
+
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
+
+
                     if (dataPlanilha.includes(hojeCompleto)) {
+
                         let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+
                         
-                        // Atualiza o display apenas se houver dado na coluna
-                        if (valorC !== "") {
-                            display.textContent = valorC;
-                        }
+
+                        // Atualiza o valor na tela
+
+                        display.textContent = (valorC === "" || valorC === "0") ? "-" : valorC;
+
                         
+
                         const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                        status.textContent = `Sincronizado: ${horaSinc}`;
+
+                        status.textContent = `Atualizado às: ${horaSinc}`;
+
                         status.style.color = "#00ced1";
+
                         achou = true;
+
                         break;
+
                     }
+
                 }
+
+
 
                 if (!achou) {
-                    status.textContent = `Aguardando dado de ${hojeCompleto}`;
+
+                    display.textContent = "-";
+
+                    status.textContent = `Data ${hojeCompleto} não encontrada`;
+
                     status.style.color = "orange";
+
                 }
 
+
+
             } catch (err) {
-                status.textContent = "Reconectando servidor...";
+
+                status.textContent = "Tentando reconectar...";
+
                 status.style.color = "#ff4d4d";
+
             }
+
         }
 
-        // Inicialização
+
+
         setInterval(atualizarRelogio, 1000);
+
         atualizarRelogio();
 
-        // Primeira chamada
+
+
         fetchPlanilha();
+
         
-        // ATUALIZAÇÃO DA PLANILHA INTEIRA A CADA 5 SEGUNDOS
+
+        // Mantido em 5 segundos conforme solicitado
+
         setInterval(fetchPlanilha, 5000); 
+
     </script>
+
 </body>
+
 </html>
