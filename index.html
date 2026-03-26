@@ -85,6 +85,12 @@
             <span class="valor" id="vol-valor">-</span>
             <div id="status">Sincronizando...</div>
         </div>
+
+        <div class="card">
+            <h3>DROPSIZE (KG)</h3>
+            <span class="valor" id="drop-valor">-</span>
+            <div id="status-drop">Sincronizando...</div>
+        </div>
     </div>
 
     <script>
@@ -99,8 +105,10 @@
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
         async function fetchPlanilha() {
-            const display = document.getElementById('vol-valor');
-            const status = document.getElementById('status');
+            const volDisplay = document.getElementById('vol-valor');
+            const dropDisplay = document.getElementById('drop-valor');
+            const statusVol = document.getElementById('status');
+            const statusDrop = document.getElementById('status-drop');
             
             const agora = new Date();
             const dia = String(agora.getDate()).padStart(2, '0');
@@ -109,7 +117,6 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // Adicionamos um timestamp simples para evitar cache sem sobrecarregar o cabeçalho
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
                 
                 if (!response.ok) throw new Error("Erro na resposta");
@@ -117,7 +124,9 @@
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
                 let achouData = false;
-                let valorFinal = "-";
+                
+                let volFinal = "-";
+                let dropFinal = "-";
 
                 for (let i = 1; i < linhas.length; i++) {
                     const separador = linhas[i].includes(';') ? ';' : ',';
@@ -126,31 +135,46 @@
 
                     if (dataPlanilha.includes(hojeCompleto)) {
                         achouData = true;
-                        // Coluna C (índice 2)
-                        let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
-                        // Se estiver preenchido, usa o valor. Se não, fica "-"
-                        valorFinal = (valorC !== "" && valorC !== null) ? valorC : "-";
+                        // Coluna C (índice 2) - Volume Expedido
+                        let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                        volFinal = (valorC !== "" && valorC !== null) ? valorC : "-";
+
+                        // Coluna D (índice 3) - Dropsize
+                        let valorD = colunas[3] ? colunas[3].replace(/"/g, '').trim() : "";
+                        dropFinal = (valorD !== "" && valorD !== null) ? valorD : "-";
+                        
                         break;
                     }
                 }
 
-                display.textContent = valorFinal;
+                // Atualiza os valores na tela
+                volDisplay.textContent = volFinal;
+                dropDisplay.textContent = dropFinal;
+
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 
                 if (achouData) {
-                    status.textContent = `Sincronizado: ${horaSinc}`;
-                    status.style.color = "#00ced1";
+                    const msgSinc = `Sincronizado: ${horaSinc}`;
+                    statusVol.textContent = msgSinc;
+                    statusVol.style.color = "#00ced1";
+                    statusDrop.textContent = msgSinc;
+                    statusDrop.style.color = "#00ced1";
                 } else {
-                    status.textContent = `Aguardando data ${hojeCompleto}`;
-                    status.style.color = "orange";
+                    const msgAguardando = `Aguardando data ${hojeCompleto}`;
+                    statusVol.textContent = msgAguardando;
+                    statusVol.style.color = "orange";
+                    statusDrop.textContent = msgAguardando;
+                    statusDrop.style.color = "orange";
                 }
 
             } catch (err) {
-                // Em caso de erro, não limpamos o valor da tela (mantém o que estava)
                 console.error("Erro de conexão:", err);
-                status.textContent = "Conexão instável. Tentando novamente...";
-                status.style.color = "#ff4d4d";
+                const msgErro = "Conexão instável...";
+                statusVol.textContent = msgErro;
+                statusVol.style.color = "#ff4d4d";
+                statusDrop.textContent = msgErro;
+                statusDrop.style.color = "#ff4d4d";
             }
         }
 
@@ -158,7 +182,6 @@
         atualizarRelogio();
         
         fetchPlanilha();
-        // Aumentei ligeiramente o intervalo para 7 segundos para evitar bloqueios do Google
         setInterval(fetchPlanilha, 7000); 
     </script>
 </body>
