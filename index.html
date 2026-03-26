@@ -24,7 +24,7 @@
 
         #relogio {
             color: #00ced1; 
-            font-size: clamp(3em, 6vw, 4em);
+            font-size: clamp(2.5em, 5vw, 3.5em);
             display: block;
             line-height: 1;
         }
@@ -36,21 +36,18 @@
             font-weight: normal;
         }
 
-        .row {
+        .grid-cards {
             display: flex;
             gap: 1.5vw;
             width: 100%;
+            flex-shrink: 0;
         }
-
-        /* Primeira linha ocupa mais espaço que a segunda */
-        .row-kpis { flex: 2; }
-        .row-frota { flex: 1.2; }
 
         .card {
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            flex: 1 1 0;
+            flex: 1 1 0; 
             min-width: 0;
             padding: 1.5vh 1vw;
             text-align: center;
@@ -63,14 +60,25 @@
         .card h3 {
             margin: 0 0 1vh 0;
             color: #a0aec0;
-            font-size: clamp(0.65em, 1vw, 0.8em);
+            font-size: clamp(0.65em, 0.9vw, 0.8em);
             text-transform: uppercase;
             letter-spacing: 1px;
+            min-height: 2.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Estilo para o Card Dividido de Frota */
-        .card-split {
-            flex: 1; /* Ocupa o lado esquerdo na segunda linha */
+        /* Layout para a segunda linha */
+        .container-inferior {
+            display: flex;
+            gap: 1.5vw;
+            flex: 1;
+            width: 100%;
+        }
+
+        .card-frota {
+            flex: 1; /* Ocupa metade da tela (lado esquerdo) */
             display: flex;
             flex-direction: column;
         }
@@ -80,28 +88,35 @@
             justify-content: space-around;
             align-items: center;
             flex: 1;
+            padding: 1vh 0;
         }
 
         .split-item {
             flex: 1;
-            border-right: 1px solid rgba(0, 206, 209, 0.3);
+            border-right: 1px solid rgba(160, 174, 192, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .split-item:last-child { border-right: none; }
 
-        .split-label {
-            font-size: clamp(0.55em, 0.8vw, 0.7em);
+        .subtitulo {
+            font-size: clamp(0.6em, 0.8vw, 0.75em);
             color: #a0aec0;
             margin-bottom: 5px;
+            text-transform: uppercase;
         }
 
         .valor {
-            font-size: clamp(1.8em, 4vw, 3.2em);
+            font-size: clamp(1.8em, 4vw, 3em);
             color: #ffffff;
             display: block;
         }
 
-        .valor-small { font-size: clamp(1.5em, 3vw, 2.5em); }
+        .valor-frota {
+            font-size: clamp(1.5em, 3.5vw, 2.8em);
+        }
 
         .status-label {
             font-size: clamp(0.5em, 0.8vw, 0.6em);
@@ -118,7 +133,7 @@
         <span id="data-atual">Carregando...</span>
     </header>
 
-    <div class="row row-kpis">
+    <div class="grid-cards">
         <div class="card">
             <h3>VOLUME EXPEDIDO (KG) - HOJE</h3>
             <span class="valor" id="vol-valor">-</span>
@@ -141,32 +156,31 @@
         </div>
     </div>
 
-    <div class="row row-frota">
-        <div class="card card-split">
+    <div class="container-inferior">
+        <div class="card card-frota">
             <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
             <div class="split-container">
                 <div class="split-item">
-                    <div class="split-label">TOTAL</div>
-                    <span class="valor valor-small" id="f-total">-</span>
+                    <span class="subtitulo">TOTAL</span>
+                    <span class="valor valor-frota" id="f-total">-</span>
                 </div>
                 <div class="split-item">
-                    <div class="split-label">PARADOS</div>
-                    <span class="valor valor-small" id="f-parados">-</span>
+                    <span class="subtitulo">PARADOS</span>
+                    <span class="valor valor-frota" id="f-parados">-</span>
                 </div>
                 <div class="split-item">
-                    <div class="split-label">DISPONIBILIDADE</div>
-                    <span class="valor valor-small" id="f-dispo">-</span>
+                    <span class="subtitulo">DISPONIBILIDADE</span>
+                    <span class="valor valor-frota" id="f-dispo">-</span>
                 </div>
                 <div class="split-item">
-                    <div class="split-label">UTILIZADOS</div>
-                    <span class="valor valor-small" id="f-util">-</span>
+                    <span class="subtitulo">UTILIZADOS</span>
+                    <span class="valor valor-frota" id="f-util">-</span>
                 </div>
             </div>
             <div class="status-label" id="status-frota">Sincronizando...</div>
         </div>
         
-        <div style="flex:1; display:flex; gap:1.5vw;">
-            </div>
+        <div style="flex: 1;"></div>
     </div>
 
     <script>
@@ -195,22 +209,29 @@
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
-                // Mapeamento de Índices
                 const idxData = cabecalho.indexOf("DATA");
-                const idxs = {
-                    vol: cabecalho.indexOf("VOLUME EXPEDIDO (KG)"),
-                    drop: cabecalho.indexOf("DROPSIZE (KG)"),
-                    ocp: cabecalho.indexOf("OCUPAÇÃO (%)"),
-                    nf: cabecalho.findIndex(txt => txt.includes("NF") && txt.includes("QTD")),
-                    // Novos índices de Frota
-                    fTotal: cabecalho.indexOf("FROTA PRÓPRIA ENTREGA TOTAL (QTD)"),
-                    fParados: cabecalho.indexOf("FROTA PRÓPRIA ENTREGA PARADOS (QTD)"),
-                    fDispo: cabecalho.indexOf("FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)"),
-                    fUtil: cabecalho.indexOf("FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)")
+                const mapping = {
+                    vol: "VOLUME EXPEDIDO (KG)",
+                    drop: "DROPSIZE (KG)",
+                    ocp: "OCUPAÇÃO (%)",
+                    nf: "NF'S (QTD)",
+                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)",
+                    fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)",
+                    fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)",
+                    fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)"
                 };
 
+                const idxs = {};
+                for (let key in mapping) {
+                    if(key === 'nf') {
+                        idxs[key] = cabecalho.findIndex(txt => txt.includes("NF") && txt.includes("QTD"));
+                    } else {
+                        idxs[key] = cabecalho.indexOf(mapping[key]);
+                    }
+                }
+
                 let achouData = false;
-                let valores = { vol: "-", drop: "-", ocp: "-", nf: "-", fTotal: "-", fParados: "-", fDispo: "-", fUtil: "-" };
+                let finalValores = { vol: "-", drop: "-", ocp: "-", nf: "-", fTotal: "-", fParados: "-", fDispo: "-", fUtil: "-" };
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -225,23 +246,30 @@
                                 return (v === "" || v === "null" || v === "#N/A") ? "-" : v;
                             };
 
-                            Object.keys(idxs).forEach(key => {
-                                if(key !== 'idxData') valores[key] = limpar(idxs[key]);
-                            });
+                            for(let key in idxs) { finalValores[key] = limpar(idxs[key]); }
                             break;
                         }
                     }
                 }
 
-                // Atualizar DOM
-                document.getElementById('vol-valor').textContent = valores.vol;
-                document.getElementById('drop-valor').textContent = valores.drop;
-                document.getElementById('ocp-valor').textContent = valores.ocp;
-                document.getElementById('nf-valor').textContent = valores.nf;
-                document.getElementById('f-total').textContent = valores.fTotal;
-                document.getElementById('f-parados').textContent = valores.fParados;
-                document.getElementById('f-dispo').textContent = valores.fDispo;
-                document.getElementById('f-util').textContent = valores.fUtil;
+                // Atualizar KPIs superiores
+                document.getElementById('vol-valor').textContent = finalValores.vol;
+                document.getElementById('drop-valor').textContent = finalValores.drop;
+                document.getElementById('ocp-valor').textContent = finalValores.ocp;
+                document.getElementById('nf-valor').textContent = finalValores.nf;
+
+                // Atualizar Frota com Lógica de Cores
+                const atualizarCampoFrota = (id, valor, corCondicional) => {
+                    const el = document.getElementById(id);
+                    el.textContent = valor;
+                    const num = parseFloat(valor.replace(',', '.'));
+                    el.style.color = (!isNaN(num) && num > 0) ? corCondicional : "#ffffff";
+                };
+
+                document.getElementById('f-total').textContent = finalValores.fTotal;
+                atualizarCampoFrota('f-parados', finalValores.fParados, "#ff4d4d"); // Vermelho
+                atualizarCampoFrota('f-dispo', finalValores.fDispo, "#00ced1");   // Azul (Cyan)
+                atualizarCampoFrota('f-util', finalValores.fUtil, "#4dfb4d");    // Verde
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota'];
