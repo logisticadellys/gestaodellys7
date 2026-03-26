@@ -109,53 +109,47 @@
             const hojeCompleto = `${dia}/${mes}/${ano}`;
 
             try {
-                // Forçamos o Google a ignorar o cache totalmente
-                const response = await fetch(`${spreadsheetUrl}&nocache=${Date.now()}`, { 
-                    cache: 'no-store'
-                });
+                // Adicionamos um timestamp simples para evitar cache sem sobrecarregar o cabeçalho
+                const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
                 
-                if (!response.ok) throw new Error();
+                if (!response.ok) throw new Error("Erro na resposta");
                 
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
                 let achouData = false;
-                let novoValor = "-";
+                let valorFinal = "-";
 
                 for (let i = 1; i < linhas.length; i++) {
                     const separador = linhas[i].includes(';') ? ';' : ',';
                     const colunas = linhas[i].split(separador);
-                    
                     let dataPlanilha = colunas[0] ? colunas[0].replace(/"/g, '').trim() : "";
 
-                    // 1. Procura a data de hoje na Coluna A
                     if (dataPlanilha.includes(hojeCompleto)) {
                         achouData = true;
+                        // Coluna C (índice 2)
+                        let valorC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         
-                        // 2. Pula duas colunas para a direita (Coluna C)
-                        let valorCelulaC = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
-                        
-                        // 3. Se a célula não estiver vazia, usa o valor. Se estiver vazia, mantém "-"
-                        if (valorCelulaC !== "" && valorCelulaC !== null) {
-                            novoValor = valorCelulaC;
-                        }
-                        break; 
+                        // Se estiver preenchido, usa o valor. Se não, fica "-"
+                        valorFinal = (valorC !== "" && valorC !== null) ? valorC : "-";
+                        break;
                     }
                 }
 
-                // Atualiza o display com o que foi encontrado (ou "-" se não achou data ou estava vazio)
-                display.textContent = novoValor;
-
+                display.textContent = valorFinal;
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+                
                 if (achouData) {
                     status.textContent = `Sincronizado: ${horaSinc}`;
                     status.style.color = "#00ced1";
                 } else {
-                    status.textContent = `Data ${hojeCompleto} não listada`;
+                    status.textContent = `Aguardando data ${hojeCompleto}`;
                     status.style.color = "orange";
                 }
 
             } catch (err) {
-                status.textContent = "Reconectando...";
+                // Em caso de erro, não limpamos o valor da tela (mantém o que estava)
+                console.error("Erro de conexão:", err);
+                status.textContent = "Conexão instável. Tentando novamente...";
                 status.style.color = "#ff4d4d";
             }
         }
@@ -164,8 +158,8 @@
         atualizarRelogio();
         
         fetchPlanilha();
-        // Verifica a cada 5 segundos
-        setInterval(fetchPlanilha, 5000); 
+        // Aumentei ligeiramente o intervalo para 7 segundos para evitar bloqueios do Google
+        setInterval(fetchPlanilha, 7000); 
     </script>
 </body>
 </html>
