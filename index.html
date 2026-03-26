@@ -38,14 +38,16 @@
             gap: 20px;
             justify-content: flex-start;
             margin-top: 10px;
-            flex-wrap: wrap; /* Garante ajuste se a tela for pequena */
+            flex-wrap: nowrap; /* Mantém os 3 na mesma linha */
         }
 
         .card {
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 20px;
-            min-width: 300px; 
+            flex: 1; /* Faz os cards dividirem o espaço igualmente */
+            min-width: 280px;
+            max-width: 350px;
             padding: 20px;
             text-align: center;
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
@@ -54,9 +56,10 @@
         .card h3 {
             margin: 0 0 10px 0;
             color: #a0aec0;
-            font-size: 0.90em;
+            font-size: 0.85em;
             text-transform: uppercase;
             letter-spacing: 1px;
+            min-height: 34px; /* Garante alinhamento se o texto quebrar linha */
         }
 
         .valor {
@@ -80,7 +83,7 @@
         <span id="data-atual">Carregando...</span>
     </header>
 
-    <div class="grid-cards">
+    <div class="grid-cards" id="container-principal">
         <div class="card">
             <h3>VOLUME EXPEDIDO (KG) - HOJE</h3>
             <span class="valor" id="vol-valor">-</span>
@@ -138,7 +141,6 @@
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
-                // Mapeamento dinâmico das colunas
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVol = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
                 const idxDrop = cabecalho.indexOf("DROPSIZE (KG)");
@@ -157,17 +159,14 @@
                         if (dataPlanilha.includes(hojeCompleto)) {
                             achouData = true;
                             
-                            // Busca Volume
                             if (idxVol !== -1) {
                                 let v = colunas[idxVol] ? colunas[idxVol].replace(/"/g, '').trim() : "";
                                 valorVolFinal = (v !== "" && v !== null) ? v : "-";
                             }
-                            // Busca Dropsize
                             if (idxDrop !== -1) {
                                 let d = colunas[idxDrop] ? colunas[idxDrop].replace(/"/g, '').trim() : "";
                                 valorDropFinal = (d !== "" && d !== null) ? d : "-";
                             }
-                            // Busca Ocupação
                             if (idxOcp !== -1) {
                                 let o = colunas[idxOcp] ? colunas[idxOcp].replace(/"/g, '').trim() : "";
                                 valorOcpFinal = (o !== "" && o !== null) ? o : "-";
@@ -177,7 +176,6 @@
                     }
                 }
 
-                // Atualiza os valores na tela
                 volDisplay.textContent = valorVolFinal;
                 dropDisplay.textContent = valorDropFinal;
                 ocpDisplay.textContent = valorOcpFinal;
