@@ -68,19 +68,26 @@
             justify-content: center;
         }
 
-        /* Nova estrutura para alinhar os cards de baixo com os de cima */
-        .container-inferior {
-            display: grid;
-            grid-template-columns: 1fr 1fr 2fr; /* O último card ocupa 2 frações (espaço de 2 cards) */
+        /* Container principal inferior */
+        .secao-inferior {
+            display: flex;
             gap: 1vw;
             flex: 1;
             min-height: 0;
         }
 
-        .coluna-frotas {
+        .container-frotas {
+            display: flex;
+            flex-direction: column; 
+            gap: 1.5vh;
+            flex: 1; /* Ocupa metade da largura (correspondendo aos 2 primeiros cards de cima) */
+        }
+
+        /* Card motorista ajustado para ocupar a largura de 2 cards (50% da tela aprox) */
+        .container-motoristas {
             display: flex;
             flex-direction: column;
-            gap: 1.5vh;
+            flex: 1; 
         }
 
         .card-split {
@@ -109,11 +116,10 @@
         .split-item:last-child { border-right: none; }
 
         .subtitulo {
-            font-size: clamp(0.45em, 0.6vw, 0.55em);
+            font-size: clamp(0.4em, 0.6vw, 0.55em); /* Diminuído para caber 7 partes */
             color: #a0aec0;
             margin-bottom: 2px;
             text-transform: uppercase;
-            text-align: center;
         }
 
         .valor {
@@ -123,7 +129,7 @@
         }
 
         .valor-frota {
-            font-size: clamp(1.1em, 2.5vw, 2em);
+            font-size: clamp(1.2em, 2.8vw, 2.2em);
         }
 
         .status-label {
@@ -164,15 +170,27 @@
         </div>
     </div>
 
-    <div class="container-inferior">
-        <div class="coluna-frotas">
+    <div class="secao-inferior">
+        <div class="container-frotas">
             <div class="card card-split">
                 <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">DISPO.</span><span class="valor valor-frota" id="f-dispo">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTILIZ.</span><span class="valor valor-frota" id="f-util">-</span></div>
+                    <div class="split-item">
+                        <span class="subtitulo">TOTAL</span>
+                        <span class="valor valor-frota" id="f-total">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">PARADOS</span>
+                        <span class="valor valor-frota" id="f-parados">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">DISPO.</span>
+                        <span class="valor valor-frota" id="f-dispo">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">UTILIZ.</span>
+                        <span class="valor valor-frota" id="f-util">-</span>
+                    </div>
                 </div>
                 <div class="status-label" id="status-frota">Sincronizando...</div>
             </div>
@@ -180,16 +198,26 @@
             <div class="card card-split">
                 <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">DISPO.</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTILIZ.</span><span class="valor valor-frota" id="ft-util">-</span></div>
+                    <div class="split-item">
+                        <span class="subtitulo">TOTAL</span>
+                        <span class="valor valor-frota" id="ft-total">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">PARADOS</span>
+                        <span class="valor valor-frota" id="ft-parados">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">DISPO.</span>
+                        <span class="valor valor-frota" id="ft-dispo">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">UTILIZ.</span>
+                        <span class="valor valor-frota" id="ft-util">-</span>
+                    </div>
                 </div>
                 <div class="status-label" id="status-frota-t">Sincronizando...</div>
             </div>
-        </div>
 
-        <div class="coluna-frotas">
             <div class="card card-split">
                 <h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3>
                 <div class="split-container">
@@ -200,24 +228,44 @@
                 </div>
                 <div class="status-label" id="status-terceiros">Sincronizando...</div>
             </div>
-            <div style="flex: 1;"></div> </div>
+        </div>
 
-        <div class="coluna-frotas">
+        <div class="container-motoristas">
             <div class="card card-split">
                 <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">VAGAS EM ABERTO</span><span class="valor valor-frota" id="md-vagas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="md-ferias">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="md-atestados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">BANCO DE HORAS</span><span class="valor valor-frota" id="md-banco">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="md-util">-</span></div>
+                    <div class="split-item">
+                        <span class="subtitulo">TOTAL</span>
+                        <span class="valor valor-frota" id="md-total">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">VAGAS EM ABERTO</span>
+                        <span class="valor valor-frota" id="md-vagas">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">FÉRIAS</span>
+                        <span class="valor valor-frota" id="md-ferias">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">FALTAS</span>
+                        <span class="valor valor-frota" id="md-faltas">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">ATESTADOS</span>
+                        <span class="valor valor-frota" id="md-atestados">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">BANCO DE HORAS</span>
+                        <span class="valor valor-frota" id="md-banco">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">UTILIZADOS</span>
+                        <span class="valor valor-frota" id="md-util">-</span>
+                    </div>
                 </div>
                 <div class="status-label" id="status-md">Sincronizando...</div>
             </div>
-            <div style="flex: 1;"></div>
-        </div>
+            <div style="flex: 2;"></div> </div>
     </div>
 
     <script>
@@ -245,8 +293,8 @@
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
-                const idxData = cabecalho.indexOf("DATA");
                 
+                const idxData = cabecalho.indexOf("DATA");
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)",
                     drop: "DROPSIZE (KG)",
@@ -272,7 +320,11 @@
 
                 const idxs = {};
                 for (let key in mapping) {
-                    idxs[key] = cabecalho.indexOf(mapping[key]);
+                    if(key === 'nf') {
+                        idxs[key] = cabecalho.findIndex(txt => txt.includes("NF") && txt.includes("QTD"));
+                    } else {
+                        idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
+                    }
                 }
 
                 let achouData = false;
@@ -311,7 +363,7 @@
                 document.getElementById('ft-util').textContent = v.ftUtil;
                 document.getElementById('terc-util').textContent = v.terceiros;
                 
-                // Dados Motorista
+                // Novos valores motorista
                 document.getElementById('md-total').textContent = v.mdTotal;
                 document.getElementById('md-vagas').textContent = v.mdVagas;
                 document.getElementById('md-ferias').textContent = v.mdFerias;
@@ -321,20 +373,22 @@
                 document.getElementById('md-util').textContent = v.mdUtil;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                const statusList = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota', 'status-frota-t', 'status-terceiros', 'status-md'];
+                const statusIds = {
+                    'status-vol': achouData, 'status-drop': achouData, 'status-ocp': achouData, 'status-nf': achouData,
+                    'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 'status-md': achouData
+                };
 
-                statusList.forEach(id => {
+                for (let id in statusIds) {
                     const el = document.getElementById(id);
-                    if (el) {
-                        if (achouData) {
-                            el.textContent = `Sincronizado: ${horaSinc}`;
-                            el.style.color = "#00ced1";
-                        } else {
-                            el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
-                            el.style.color = "orange";
-                        }
+                    if (!el) continue;
+                    if (statusIds[id]) {
+                        el.textContent = `Sincronizado: ${horaSinc}`;
+                        el.style.color = "#00ced1";
+                    } else {
+                        el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
+                        el.style.color = "orange";
                     }
-                });
+                }
 
             } catch (err) { console.error("Erro:", err); }
         }
