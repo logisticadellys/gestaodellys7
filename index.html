@@ -68,19 +68,20 @@
             justify-content: center;
         }
 
-        /* Estrutura principal para organizar as colunas de baixo */
+        /* Estrutura para organizar as colunas */
         .container-main {
             display: flex;
             gap: 1vw;
             flex: 1;
             min-height: 0;
+            width: 100%;
         }
 
         .coluna-painel {
             display: flex;
             flex-direction: column; 
             gap: 1.5vh;
-            flex: 1; /* Cada coluna ocupa o espaço proporcional a 1 card de cima */
+            width: 24.2%; /* Largura exata para alinhar com os cards de cima */
         }
 
         .card-split {
@@ -113,7 +114,6 @@
             color: #a0aec0;
             margin-bottom: 2px;
             text-transform: uppercase;
-            text-align: center;
         }
 
         .valor {
@@ -165,6 +165,7 @@
     </div>
 
     <div class="container-main">
+        
         <div class="coluna-painel">
             <div class="card card-split">
                 <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
@@ -214,8 +215,8 @@
             <div style="flex: 2;"></div> 
         </div>
 
-        <div class="coluna-painel" style="flex: 1;"></div>
-        <div class="coluna-painel" style="flex: 1;"></div>
+        <div class="coluna-painel"></div>
+        <div class="coluna-painel"></div>
     </div>
 
     <script>
@@ -295,6 +296,7 @@
                     }
                 }
 
+                // Atualização dos elementos no HTML
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
@@ -309,7 +311,6 @@
                 document.getElementById('ft-util').textContent = v.ftUtil;
                 document.getElementById('terc-util').textContent = v.terceiros;
                 
-                // Novos dados Motorista
                 document.getElementById('md-total').textContent = v.mdTotal;
                 document.getElementById('md-vagas').textContent = v.mdVagas;
                 document.getElementById('md-ferias').textContent = v.mdFerias;
@@ -323,12 +324,14 @@
 
                 statusList.forEach(id => {
                     const el = document.getElementById(id);
-                    if (achouData) {
-                        el.textContent = `Sincronizado: ${horaSinc}`;
-                        el.style.color = "#00ced1";
-                    } else {
-                        el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
-                        el.style.color = "orange";
+                    if (el) {
+                        if (achouData) {
+                            el.textContent = `Sincronizado: ${horaSinc}`;
+                            el.style.color = "#00ced1";
+                        } else {
+                            el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
+                            el.style.color = "orange";
+                        }
                     }
                 });
 
