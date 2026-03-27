@@ -83,7 +83,6 @@
             min-height: 0;
         }
 
-        /* Container horizontal para os cards de Absenteísmo */
         .linha-abs {
             display: flex;
             gap: 0.8vw;
@@ -201,11 +200,9 @@
                 <div class="status-label" id="status-frota-t">Sincronizando...</div>
             </div>
 
-            <div class="card card-split" style="flex: 0.6;">
+            <div class="card card-pequeno">
                 <h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="terc-util">-</span></div>
-                </div>
+                <span class="valor" id="terc-util">-</span>
                 <div class="status-label" id="status-terceiros">Sincronizando...</div>
             </div>
         </div>
@@ -301,7 +298,7 @@
                     ocp: "OCUPAÇÃO (%)",
                     nf: "NF'S (QTD)",
                     abs: "ABSENTEÍSMO (QTD)",
-                    absPerc: "ABSENTEÍSMO (%)", // NOVO MAPEAMENTO
+                    absPerc: "ABSENTEÍSMO (%)",
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)",
                     fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)",
                     fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)",
@@ -361,13 +358,12 @@
                     }
                 }
 
-                // Atualizando os campos na tela
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
                 document.getElementById('nf-valor').textContent = v.nf;
                 document.getElementById('abs-valor').textContent = v.abs;
-                document.getElementById('abs-perc-valor').textContent = v.absPerc; // NOVO CAMPO
+                document.getElementById('abs-perc-valor').textContent = v.absPerc;
                 document.getElementById('f-total').textContent = v.fTotal;
                 document.getElementById('f-parados').textContent = v.fParados;
                 document.getElementById('f-dispo').textContent = v.fDispo;
