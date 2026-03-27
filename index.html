@@ -69,6 +69,7 @@
             justify-content: center;
         }
 
+        /* Layout para a segunda linha */
         .container-inferior {
             display: flex;
             gap: 1.5vw;
@@ -76,8 +77,8 @@
             width: 100%;
         }
 
-        .card-split {
-            flex: 1;
+        .card-frota {
+            flex: 1; /* Ocupa metade da tela */
             display: flex;
             flex-direction: column;
         }
@@ -101,7 +102,7 @@
         .split-item:last-child { border-right: none; }
 
         .subtitulo {
-            font-size: clamp(0.55em, 0.75vw, 0.7em);
+            font-size: clamp(0.6em, 0.8vw, 0.75em);
             color: #a0aec0;
             margin-bottom: 5px;
             text-transform: uppercase;
@@ -114,11 +115,11 @@
         }
 
         .valor-frota {
-            font-size: clamp(1.4em, 3vw, 2.5em);
+            font-size: clamp(1.5em, 3.5vw, 2.8em);
         }
 
         .status-label {
-            font-size: clamp(0.45em, 0.75vw, 0.55em);
+            font-size: clamp(0.5em, 0.8vw, 0.6em);
             margin-top: 1vh;
             font-weight: normal;
             color: #00ced1;
@@ -156,7 +157,8 @@
     </div>
 
     <div class="container-inferior">
-        <div class="card card-split">
+        <!-- Card 5: Frota Entrega -->
+        <div class="card card-frota">
             <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
             <div class="split-container">
                 <div class="split-item">
@@ -179,27 +181,28 @@
             <div class="status-label" id="status-frota">Sincronizando...</div>
         </div>
 
-        <div class="card card-split">
+        <!-- Card 6: Frota Transferência -->
+        <div class="card card-frota">
             <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
             <div class="split-container">
                 <div class="split-item">
                     <span class="subtitulo">TOTAL</span>
-                    <span class="valor valor-frota" id="ft-total">-</span>
+                    <span class="valor valor-frota" id="t-total">-</span>
                 </div>
                 <div class="split-item">
                     <span class="subtitulo">PARADOS</span>
-                    <span class="valor valor-frota" id="ft-parados">-</span>
+                    <span class="valor valor-frota" id="t-parados">-</span>
                 </div>
                 <div class="split-item">
                     <span class="subtitulo">DISPONIBILIDADE</span>
-                    <span class="valor valor-frota" id="ft-dispo">-</span>
+                    <span class="valor valor-frota" id="t-dispo">-</span>
                 </div>
                 <div class="split-item">
                     <span class="subtitulo">UTILIZADOS</span>
-                    <span class="valor valor-frota" id="ft-util">-</span>
+                    <span class="valor valor-frota" id="t-util">-</span>
                 </div>
             </div>
-            <div class="status-label" id="status-frota-t">Sincronizando...</div>
+            <div class="status-label" id="status-transf">Sincronizando...</div>
         </div>
     </div>
 
@@ -221,30 +224,31 @@
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
                 if (!response.ok) throw new Error("Erro na resposta");
-                
+
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
-                
-                const idxData = cabecalho.indexOf("DATA");
+
+                // Correção: Usando includes para evitar falha caso a planilha tenha caracteres invisíveis (BOM) na primeira célula
+                const idxData = cabecalho.findIndex(txt => txt.includes("DATA"));
+
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)",
                     drop: "DROPSIZE (KG)",
                     ocp: "OCUPAÇÃO (%)",
                     nf: "NF'S (QTD)",
-                    // Frota Entrega
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)",
                     fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)",
                     fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)",
                     fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
-                    // Frota Transferência
-                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)",
-                    ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)",
-                    ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)",
-                    ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)"
+                    // Mapeamento do novo card
+                    tTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)",
+                    tParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)",
+                    tDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)",
+                    tUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)"
                 };
 
                 const idxs = {};
@@ -257,7 +261,11 @@
                 }
 
                 let achouData = false;
-                let v = { vol: "-", drop: "-", ocp: "-", nf: "-", fTotal: "-", fParados: "-", fDispo: "-", fUtil: "-", ftTotal: "-", ftParados: "-", ftDispo: "-", ftUtil: "-" };
+                let finalValores = { 
+                    vol: "-", drop: "-", ocp: "-", nf: "-", 
+                    fTotal: "-", fParados: "-", fDispo: "-", fUtil: "-",
+                    tTotal: "-", tParados: "-", tDispo: "-", tUtil: "-"
+                };
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -268,36 +276,36 @@
                             achouData = true;
                             const limpar = (idx) => {
                                 if (idx === -1 || !colunas[idx]) return "-";
-                                let val = colunas[idx].replace(/"/g, '').trim();
-                                return (val === "" || val === "null" || val === "#N/A") ? "-" : val;
+                                let v = colunas[idx].replace(/"/g, '').trim();
+                                return (v === "" || v === "null" || v === "#N/A") ? "-" : v;
                             };
 
-                            for(let key in idxs) { v[key] = limpar(idxs[key]); }
+                            for(let key in idxs) { finalValores[key] = limpar(idxs[key]); }
                             break;
                         }
                     }
                 }
 
-                // Atualizar DOM
-                document.getElementById('vol-valor').textContent = v.vol;
-                document.getElementById('drop-valor').textContent = v.drop;
-                document.getElementById('ocp-valor').textContent = v.ocp;
-                document.getElementById('nf-valor').textContent = v.nf;
+                // Atualizar KPIs superiores
+                document.getElementById('vol-valor').textContent = finalValores.vol;
+                document.getElementById('drop-valor').textContent = finalValores.drop;
+                document.getElementById('ocp-valor').textContent = finalValores.ocp;
+                document.getElementById('nf-valor').textContent = finalValores.nf;
 
-                // Entrega
-                document.getElementById('f-total').textContent = v.fTotal;
-                document.getElementById('f-parados').textContent = v.fParados;
-                document.getElementById('f-dispo').textContent = v.fDispo;
-                document.getElementById('f-util').textContent = v.fUtil;
+                // Atualizar Frota Entrega (Sem cores condicionais)
+                document.getElementById('f-total').textContent = finalValores.fTotal;
+                document.getElementById('f-parados').textContent = finalValores.fParados;
+                document.getElementById('f-dispo').textContent = finalValores.fDispo;
+                document.getElementById('f-util').textContent = finalValores.fUtil;
 
-                // Transferência
-                document.getElementById('ft-total').textContent = v.ftTotal;
-                document.getElementById('ft-parados').textContent = v.ftParados;
-                document.getElementById('ft-dispo').textContent = v.ftDispo;
-                document.getElementById('ft-util').textContent = v.ftUtil;
+                // Atualizar Frota Transferência (Novo Card)
+                document.getElementById('t-total').textContent = finalValores.tTotal;
+                document.getElementById('t-parados').textContent = finalValores.tParados;
+                document.getElementById('t-dispo').textContent = finalValores.tDispo;
+                document.getElementById('t-util').textContent = finalValores.tUtil;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota', 'status-frota-t'];
+                const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota', 'status-transf'];
 
                 statusIds.forEach(id => {
                     const el = document.getElementById(id);
