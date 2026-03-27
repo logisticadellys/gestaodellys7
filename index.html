@@ -68,10 +68,11 @@
             justify-content: center;
         }
 
+        /* Retornado para column para ocupar o tamanho original (largura total) */
         .container-frotas {
             display: flex;
-            flex-direction: row; 
-            gap: 1.5vw;
+            flex-direction: column; 
+            gap: 1.5vh;
             flex: 1;
             min-height: 0;
         }
@@ -81,13 +82,6 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 1.5vh 1vw; /* Restaurado o padding original */
-        }
-
-        /* Restaurado o tamanho original do título apenas para os cards de baixo */
-        .card-split h3 {
-            font-size: clamp(0.65em, 0.9vw, 0.8em);
-            min-height: 2.5em;
         }
 
         .split-container {
@@ -108,7 +102,7 @@
         .split-item:last-child { border-right: none; }
 
         .subtitulo {
-            font-size: clamp(0.6em, 0.8vw, 0.75em); /* Restaurado o tamanho original */
+            font-size: clamp(0.5em, 0.7vw, 0.65em);
             color: #a0aec0;
             margin-bottom: 2px;
             text-transform: uppercase;
@@ -121,7 +115,7 @@
         }
 
         .valor-frota {
-            font-size: clamp(1.5em, 3.5vw, 2.8em); /* Restaurado o tamanho original */
+            font-size: clamp(1.2em, 2.8vw, 2.2em);
         }
 
         .status-label {
@@ -129,12 +123,6 @@
             margin-top: 0.5vh;
             font-weight: normal;
             color: #00ced1;
-        }
-
-        /* Restaurado o tamanho original do status apenas para os cards de baixo */
-        .card-split .status-label {
-            font-size: clamp(0.5em, 0.8vw, 0.6em);
-            margin-top: 1vh;
         }
     </style>
 </head>
@@ -234,14 +222,14 @@
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
                 if (!response.ok) throw new Error("Erro na resposta");
-
+                
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/);
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
-
+                
                 const idxData = cabecalho.indexOf("DATA");
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)",
