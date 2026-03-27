@@ -132,10 +132,12 @@
             color: #00ced1;
         }
 
-        /* AJUSTE REALIZADO AQUI */
+        /* AJUSTE SOLICITADO */
         .card-pequeno {
-            flex: 0 0 auto !important;
-            min-height: 13.5vh; /* Alinha com a altura visual dos cards do topo */
+            flex: none !important; /* Remove o crescimento automático */
+            height: fit-content;    /* Ajusta ao conteúdo */
+            padding-top: 1.2vh;    /* Padding similar aos do topo */
+            padding-bottom: 1.2vh;
         }
     </style>
 </head>
