@@ -307,18 +307,26 @@
                 document.getElementById('terc-util').textContent = v.terceiros;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota', 'status-frota-t', 'status-terceiros'];
+                const statusIds = {
+                    'status-vol': achouData,
+                    'status-drop': achouData,
+                    'status-ocp': achouData,
+                    'status-nf': achouData,
+                    'status-frota': achouData,
+                    'status-frota-t': achouData,
+                    'status-terceiros': achouData
+                };
 
-                statusIds.forEach(id => {
+                for (let id in statusIds) {
                     const el = document.getElementById(id);
-                    if (achouData) {
+                    if (statusIds[id]) {
                         el.textContent = `Sincronizado: ${horaSinc}`;
                         el.style.color = "#00ced1";
                     } else {
                         el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
                         el.style.color = "orange";
                     }
-                });
+                }
 
             } catch (err) {
                 console.error("Erro:", err);
