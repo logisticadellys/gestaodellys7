@@ -83,6 +83,13 @@
             min-height: 0;
         }
 
+        /* Container horizontal para os cards de Absenteísmo */
+        .linha-abs {
+            display: flex;
+            gap: 0.8vw;
+            flex-shrink: 0;
+        }
+
         .card-split {
             flex: 1;
             display: flex;
@@ -137,12 +144,6 @@
             height: fit-content;    
             padding-top: 1.2vh;    
             padding-bottom: 1.2vh;
-        }
-
-        .row-absenteismo {
-            display: flex;
-            gap: 0.8vw;
-            flex-shrink: 0;
         }
     </style>
 </head>
@@ -210,7 +211,7 @@
         </div>
 
         <div class="container-coluna">
-            <div class="row-absenteismo">
+            <div class="linha-abs">
                 <div class="card card-pequeno">
                     <h3>ABSENTEÍSMO (QTD) - HOJE</h3>
                     <span class="valor" id="abs-valor">-</span>
@@ -300,7 +301,7 @@
                     ocp: "OCUPAÇÃO (%)",
                     nf: "NF'S (QTD)",
                     abs: "ABSENTEÍSMO (QTD)",
-                    absPerc: "ABSENTEÍSMO (%)",
+                    absPerc: "ABSENTEÍSMO (%)", // NOVO MAPEAMENTO
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)",
                     fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)",
                     fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)",
@@ -360,12 +361,13 @@
                     }
                 }
 
+                // Atualizando os campos na tela
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
                 document.getElementById('nf-valor').textContent = v.nf;
                 document.getElementById('abs-valor').textContent = v.abs;
-                document.getElementById('abs-perc-valor').textContent = v.absPerc;
+                document.getElementById('abs-perc-valor').textContent = v.absPerc; // NOVO CAMPO
                 document.getElementById('f-total').textContent = v.fTotal;
                 document.getElementById('f-parados').textContent = v.fParados;
                 document.getElementById('f-dispo').textContent = v.fDispo;
