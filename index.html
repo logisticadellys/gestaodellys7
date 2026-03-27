@@ -85,6 +85,7 @@
         .container-motoristas {
             display: flex;
             flex-direction: column;
+            gap: 1.5vh;
             flex: 1; 
         }
 
@@ -263,7 +264,43 @@
                 </div>
                 <div class="status-label" id="status-md">Sincronizando...</div>
             </div>
-            <div style="flex: 2;"></div> 
+
+            <div class="card card-split">
+                <h3>AUXILIAR DISTRIBUIÇÃO (QTD) - HOJE</h3>
+                <div class="split-container">
+                    <div class="split-item">
+                        <span class="subtitulo">TOTAL</span>
+                        <span class="valor valor-frota" id="ad-total">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">VAGAS EM ABERTO</span>
+                        <span class="valor valor-frota" id="ad-vagas">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">FÉRIAS</span>
+                        <span class="valor valor-frota" id="ad-ferias">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">FALTAS</span>
+                        <span class="valor valor-frota" id="ad-faltas">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">ATESTADOS</span>
+                        <span class="valor valor-frota" id="ad-atestados">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">BANCO DE HORAS</span>
+                        <span class="valor valor-frota" id="ad-banco">-</span>
+                    </div>
+                    <div class="split-item">
+                        <span class="subtitulo">UTILIZADOS</span>
+                        <span class="valor valor-frota" id="ad-util">-</span>
+                    </div>
+                </div>
+                <div class="status-label" id="status-ad">Sincronizando...</div>
+            </div>
+            
+            <div style="flex: 1;"></div> 
         </div>
     </div>
 
@@ -287,17 +324,14 @@
                 if (!response.ok) throw new Error("Erro na resposta");
                 
                 const csv = await response.text();
-                // Divide as linhas e remove linhas vazias para evitar erros
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
-                // Normalização do cabeçalho
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
                 const idxData = cabecalho.indexOf("DATA");
 
-                // Mapeamento EXATO
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)",
                     drop: "DROPSIZE (KG)",
@@ -318,7 +352,15 @@
                     mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)",
                     mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
                     mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)"
+                    mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    // Mapeamento Auxiliares
+                    adTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    adVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    adFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    adFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    adAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    adBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    adUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)"
                 };
 
                 const idxs = {};
@@ -348,7 +390,6 @@
                     }
                 }
 
-                // Aplicação nos elementos (O restante NÃO mudar)
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
@@ -363,7 +404,6 @@
                 document.getElementById('ft-util').textContent = v.ftUtil;
                 document.getElementById('terc-util').textContent = v.terceiros;
                 
-                // Motoristas
                 document.getElementById('md-total').textContent = v.mdTotal;
                 document.getElementById('md-vagas').textContent = v.mdVagas;
                 document.getElementById('md-ferias').textContent = v.mdFerias;
@@ -372,10 +412,19 @@
                 document.getElementById('md-banco').textContent = v.mdBanco;
                 document.getElementById('md-util').textContent = v.mdUtil;
 
+                // Injeção Auxiliares
+                document.getElementById('ad-total').textContent = v.adTotal;
+                document.getElementById('ad-vagas').textContent = v.adVagas;
+                document.getElementById('ad-ferias').textContent = v.adFerias;
+                document.getElementById('ad-faltas').textContent = v.adFaltas;
+                document.getElementById('ad-atestados').textContent = v.adAtestados;
+                document.getElementById('ad-banco').textContent = v.adBanco;
+                document.getElementById('ad-util').textContent = v.adUtil;
+
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 const statusIds = {
                     'status-vol': achouData, 'status-drop': achouData, 'status-ocp': achouData, 'status-nf': achouData,
-                    'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 'status-md': achouData
+                    'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 'status-md': achouData, 'status-ad': achouData
                 };
 
                 for (let id in statusIds) {
