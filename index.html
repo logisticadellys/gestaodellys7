@@ -291,11 +291,14 @@
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
-                const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
+                
+                // Normalização agressiva do cabeçalho para evitar erros de busca
+                const cabecalho = linhas[0].split(separador).map(txt => 
+                    txt.replace(/"/g, '').trim().replace(/\s+/g, ' ').toUpperCase()
+                );
                 
                 const idxData = cabecalho.indexOf("DATA");
 
-                // MAPEAMENTO CONFORME INSTRUÇÃO DOS MOTORISTAS E DEMAIS CAMPOS
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)",
                     drop: "DROPSIZE (KG)",
@@ -310,7 +313,6 @@
                     ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)",
                     ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
                     terceiros: "TERCEIROS UTILIZADOS (QTD)",
-                    // Seção Motoristas conforme solicitado:
                     mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)",
                     mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)",
                     mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)",
@@ -347,7 +349,7 @@
                     }
                 }
 
-                // Aplicação nos elementos do DOM
+                // Atualização dos elementos na tela
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
@@ -371,24 +373,22 @@
                 document.getElementById('md-util').textContent = v.mdUtil;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                const statusIds = {
-                    'status-vol': achouData, 'status-drop': achouData, 'status-ocp': achouData, 'status-nf': achouData,
-                    'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 'status-md': achouData
-                };
+                const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota', 'status-frota-t', 'status-terceiros', 'status-md'];
 
-                for (let id in statusIds) {
+                statusIds.forEach(id => {
                     const el = document.getElementById(id);
-                    if (!el) continue;
-                    if (statusIds[id]) {
-                        el.textContent = `Sincronizado: ${horaSinc}`;
-                        el.style.color = "#00ced1";
-                    } else {
-                        el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
-                        el.style.color = "orange";
+                    if (el) {
+                        if (achouData) {
+                            el.textContent = `Sincronizado: ${horaSinc}`;
+                            el.style.color = "#00ced1";
+                        } else {
+                            el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
+                            el.style.color = "orange";
+                        }
                     }
-                }
+                });
 
-            } catch (err) { console.error("Erro:", err); }
+            } catch (err) { console.error("Erro ao buscar dados:", err); }
         }
 
         setInterval(atualizarRelogio, 1000);
