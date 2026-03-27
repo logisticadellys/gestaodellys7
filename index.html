@@ -132,12 +132,21 @@
             color: #00ced1;
         }
 
-        /* AJUSTE SOLICITADO */
         .card-pequeno {
-            flex: none !important; /* Remove o crescimento automático */
-            height: fit-content;    /* Ajusta ao conteúdo */
-            padding-top: 1.2vh;    /* Padding similar aos do topo */
+            flex: none !important;
+            height: fit-content;    
+            padding-top: 1.2vh;    
             padding-bottom: 1.2vh;
+        }
+
+        /* Container para os dois cards de absenteísmo lado a lado */
+        .linha-abs {
+            display: flex;
+            gap: 0.8vw;
+            width: 100%;
+        }
+        .linha-abs .card {
+            flex: 1 !important;
         }
     </style>
 </head>
@@ -205,10 +214,17 @@
         </div>
 
         <div class="container-coluna">
-            <div class="card card-pequeno">
-                <h3>ABSENTEÍSMO (QTD) - HOJE</h3>
-                <span class="valor" id="abs-valor">-</span>
-                <div class="status-label" id="status-abs">Sincronizando...</div>
+            <div class="linha-abs">
+                <div class="card card-pequeno">
+                    <h3>ABSENTEÍSMO (QTD) - HOJE</h3>
+                    <span class="valor" id="abs-valor">-</span>
+                    <div class="status-label" id="status-abs">Sincronizando...</div>
+                </div>
+                <div class="card card-pequeno">
+                    <h3>ABSENTEÍSMO (%) - HOJE</h3>
+                    <span class="valor" id="abs-perc-valor">-</span>
+                    <div class="status-label" id="status-abs-perc">Sincronizando...</div>
+                </div>
             </div>
 
             <div class="card card-split">
@@ -288,6 +304,7 @@
                     ocp: "OCUPAÇÃO (%)",
                     nf: "NF'S (QTD)",
                     abs: "ABSENTEÍSMO (QTD)",
+                    absPerc: "ABSENTEÍSMO (%)",
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)",
                     fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)",
                     fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)",
@@ -352,6 +369,7 @@
                 document.getElementById('ocp-valor').textContent = v.ocp;
                 document.getElementById('nf-valor').textContent = v.nf;
                 document.getElementById('abs-valor').textContent = v.abs;
+                document.getElementById('abs-perc-valor').textContent = v.absPerc;
                 document.getElementById('f-total').textContent = v.fTotal;
                 document.getElementById('f-parados').textContent = v.fParados;
                 document.getElementById('f-dispo').textContent = v.fDispo;
@@ -385,7 +403,7 @@
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 const statusIds = [
-                    'status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-abs',
+                    'status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-abs', 'status-abs-perc',
                     'status-frota', 'status-frota-t', 'status-terceiros', 
                     'status-md', 'status-aux', 'status-mt'
                 ];
