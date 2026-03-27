@@ -230,6 +230,20 @@
                 </div>
                 <div class="status-label" id="status-aux">Sincronizando...</div>
             </div>
+
+            <div class="card card-split">
+                <h3>MOTORISTA TRANSFERÊNCIA (QTD) - HOJE</h3>
+                <div class="split-container">
+                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="mt-total">-</span></div>
+                    <div class="split-item"><span class="subtitulo">VAGAS EM ABERTO</span><span class="valor valor-frota" id="mt-vagas">-</span></div>
+                    <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="mt-ferias">-</span></div>
+                    <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="mt-faltas">-</span></div>
+                    <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="mt-atestados">-</span></div>
+                    <div class="split-item"><span class="subtitulo">BANCO DE HORAS</span><span class="valor valor-frota" id="mt-banco">-</span></div>
+                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="mt-util">-</span></div>
+                </div>
+                <div class="status-label" id="status-mt">Sincronizando...</div>
+            </div>
         </div>
     </div>
 
@@ -287,7 +301,14 @@
                     auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)",
                     auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
                     auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)"
+                    auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)",
+                    mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)",
+                    mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)"
                 };
 
                 const idxs = {};
@@ -344,11 +365,19 @@
                 document.getElementById('aux-atestados').textContent = v.auxAtestados;
                 document.getElementById('aux-banco').textContent = v.auxBanco;
                 document.getElementById('aux-util').textContent = v.auxUtil;
+                document.getElementById('mt-total').textContent = v.mtTotal;
+                document.getElementById('mt-vagas').textContent = v.mtVagas;
+                document.getElementById('mt-ferias').textContent = v.mtFerias;
+                document.getElementById('mt-faltas').textContent = v.mtFaltas;
+                document.getElementById('mt-atestados').textContent = v.mtAtestados;
+                document.getElementById('mt-banco').textContent = v.mtBanco;
+                document.getElementById('mt-util').textContent = v.mtUtil;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 const statusIds = {
                     'status-vol': achouData, 'status-drop': achouData, 'status-ocp': achouData, 'status-nf': achouData,
-                    'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 'status-md': achouData, 'status-aux': achouData
+                    'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 
+                    'status-md': achouData, 'status-aux': achouData, 'status-mt': achouData
                 };
 
                 for (let id in statusIds) {
