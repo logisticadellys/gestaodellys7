@@ -1,180 +1,122 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Logístico</title>
-    <style>
-        body {
-            background-color: #0b192c;
-            color: #ffffff;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 1.5vh 1.5vw;
-            font-weight: bold;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            gap: 1.5vh;
+async function fetchPlanilha() {
+            const agora = new Date();
+            const hojeCompleto = `${String(agora.getDate()).padStart(2, '0')}/${String(agora.getMonth() + 1).padStart(2, '0')}/${agora.getFullYear()}`;
+
+            try {
+                const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
+                if (!response.ok) throw new Error("Erro na resposta");
+                
+                const csv = await response.text();
+                const linhas = csv.split(/\r?\n/);
+                if (linhas.length === 0) return;
+
+                const separador = linhas[0].includes(';') ? ';' : ',';
+                
+                // Cabeçalho: Limpa apenas as aspas e espaços nas extremidades para manter o nome exato
+                const cabecalho = linhas[0].split(separador).map(txt => 
+                    txt.replace(/"/g, '').trim()
+                );
+                
+                // Localização exata dos índices
+                const idxData = cabecalho.indexOf("DATA");
+                // Nome exato conforme sua solicitação
+                const nomeColunaAlvo = "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)";
+                const idxMdTotal = cabecalho.indexOf(nomeColunaAlvo);
+
+                // Mapeamento dos demais campos (mantendo os nomes originais)
+                const mapping = {
+                    vol: "VOLUME EXPEDIDO (KG)",
+                    drop: "DROPSIZE (KG)",
+                    ocp: "OCUPAÇÃO (%)",
+                    nf: "NF'S (QTD)",
+                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)",
+                    fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)",
+                    fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)",
+                    fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
+                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)",
+                    ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)",
+                    ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)",
+                    ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
+                    terceiros: "TERCEIROS UTILIZADOS (QTD)",
+                    mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)"
+                };
+
+                let achouData = false;
+                let v = { mdTotal: "-" }; // Inicializa o valor alvo
+                for(let k in mapping) v[k] = "-";
+
+                if (idxData !== -1) {
+                    for (let i = 1; i < linhas.length; i++) {
+                        const colunas = linhas[i].split(separador);
+                        let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
+
+                        if (dataPlanilha.includes(hojeCompleto)) {
+                            achouData = true;
+                            
+                            const limpar = (idx) => {
+                                if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
+                                let val = colunas[idx].replace(/"/g, '').trim();
+                                return (val === "" || val === "null" || val === "#N/A") ? "-" : val;
+                            };
+
+                            // 1. Aplica a lógica específica para o TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)
+                            v.mdTotal = limpar(idxMdTotal);
+
+                            // 2. Preenche os outros campos
+                            for(let key in mapping) {
+                                const idxOutro = cabecalho.indexOf(mapping[key]);
+                                v[key] = limpar(idxOutro);
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // Atualização dos elementos na tela
+                document.getElementById('vol-valor').textContent = v.vol;
+                document.getElementById('drop-valor').textContent = v.drop;
+                document.getElementById('ocp-valor').textContent = v.ocp;
+                document.getElementById('nf-valor').textContent = v.nf;
+                document.getElementById('f-total').textContent = v.fTotal;
+                document.getElementById('f-parados').textContent = v.fParados;
+                document.getElementById('f-dispo').textContent = v.fDispo;
+                document.getElementById('f-util').textContent = v.fUtil;
+                document.getElementById('ft-total').textContent = v.ftTotal;
+                document.getElementById('ft-parados').textContent = v.ftParados;
+                document.getElementById('ft-dispo').textContent = v.ftDispo;
+                document.getElementById('ft-util').textContent = v.ftUtil;
+                document.getElementById('terc-util').textContent = v.terceiros;
+                
+                // O ID md-total recebe o valor da coluna TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)
+                document.getElementById('md-total').textContent = v.mdTotal;
+                
+                document.getElementById('md-vagas').textContent = v.mdVagas;
+                document.getElementById('md-ferias').textContent = v.mdFerias;
+                document.getElementById('md-faltas').textContent = v.mdFaltas;
+                document.getElementById('md-atestados').textContent = v.mdAtestados;
+                document.getElementById('md-banco').textContent = v.mdBanco;
+                document.getElementById('md-util').textContent = v.mdUtil;
+
+                const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+                const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota', 'status-frota-t', 'status-terceiros', 'status-md'];
+
+                statusIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        if (achouData) {
+                            el.textContent = `Sincronizado: ${horaSinc}`;
+                            el.style.color = "#00ced1";
+                        } else {
+                            el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
+                            el.style.color = "orange";
+                        }
+                    }
+                });
+
+            } catch (err) { console.error("Erro ao buscar dados:", err); }
         }
-
-        header { flex-shrink: 0; }
-
-        #relogio {
-            color: #00ced1; 
-            font-size: clamp(2em, 4vw, 3em);
-            display: block;
-            line-height: 1;
-        }
-
-        #data-atual {
-            color: #a0aec0; 
-            font-size: clamp(0.7em, 1vw, 0.9em);
-            text-transform: capitalize;
-            font-weight: normal;
-        }
-
-        .grid-cards {
-            display: flex;
-            gap: 1vw;
-            width: 100%;
-            flex-shrink: 0;
-        }
-
-        .card {
-            background-color: #1a365d;
-            border: 2px solid #00ced1;
-            border-radius: 15px;
-            flex: 1; 
-            padding: 1vh 0.8vw;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .card h3 {
-            margin: 0 0 0.5vh 0;
-            color: #a0aec0;
-            font-size: clamp(0.6em, 0.8vw, 0.75em);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            min-height: 2em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .secao-inferior {
-            display: flex;
-            gap: 1vw;
-            flex: 1;
-            min-height: 0;
-        }
-
-        .container-frotas {
-            display: flex;
-            flex-direction: column; 
-            gap: 1.5vh;
-            flex: 1;
-        }
-
-        .container-motoristas {
-            display: flex;
-            flex-direction: column;
-            flex: 1; 
-        }
-
-        .card-split {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .split-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex: 1;
-        }
-
-        .split-item {
-            flex: 1;
-            border-right: 1px solid rgba(160, 174, 192, 0.2);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0 2px;
-        }
-
-        .split-item:last-child { border-right: none; }
-
-        .subtitulo {
-            font-size: clamp(0.4em, 0.6vw, 0.55em);
-            color: #a0aec0;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-        }
-
-        .valor {
-            font-size: clamp(1.5em, 3.5vw, 2.5em);
-            color: #ffffff;
-            display: block;
-        }
-
-        .valor-frota {
-            font-size: clamp(1.2em, 2.8vw, 2.2em);
-        }
-
-        .status-label {
-            font-size: clamp(0.4em, 0.65vw, 0.5em);
-            margin-top: 0.5vh;
-            font-weight: normal;
-            color: #00ced1;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <span id="relogio">00:00:00</span>
-        <span id="data-atual">Carregando...</span>
-    </header>
-
-    <div class="grid-cards">
-        <div class="card">
-            <h3>VOLUME EXPEDIDO (KG)</h3>
-            <span class="valor" id="vol-valor">-</span>
-            <div class="status-label" id="status-vol">Sincronizando...</div>
-        </div>
-        <div class="card">
-            <h3>DROPSIZE (KG)</h3>
-            <span class="valor" id="drop-valor">-</span>
-            <div class="status-label" id="status-drop">Sincronizando...</div>
-        </div>
-        <div class="card">
-            <h3>OCUPAÇÃO (%)</h3>
-            <span class="valor" id="ocp-valor">-</span>
-            <div class="status-label" id="status-ocp">Sincronizando...</div>
-        </div>
-        <div class="card">
-            <h3>NF'S (QTD)</h3>
-            <span class="valor" id="nf-valor">-</span>
-            <div class="status-label" id="status-nf">Sincronizando...</div>
-        </div>
-    </div>
-
-    <div class="secao-inferior">
-        <div class="container-frotas">
-            <div class="card card-split">
-                <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item">
-                        <span class="subtitulo">TOTAL</span>
-                        <span class="valor valor-frota" id="f-total">-</span>
-                    </div>
-                    <div class="split-item">
