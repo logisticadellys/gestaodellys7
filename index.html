@@ -68,11 +68,11 @@
             justify-content: center;
         }
 
-        /* Container vertical para os cards de frota */
+        /* AJUSTE AQUI: Mudado para row para ficarem lado a lado */
         .container-frotas {
             display: flex;
-            flex-direction: column;
-            gap: 1.5vh;
+            flex-direction: row; 
+            gap: 1.5vw;
             flex: 1;
             min-height: 0;
         }
@@ -158,29 +158,6 @@
 
     <div class="container-frotas">
         <div class="card card-split">
-            <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
-            <div class="split-container">
-                <div class="split-item">
-                    <span class="subtitulo">TOTAL</span>
-                    <span class="valor valor-frota" id="f-total">-</span>
-                </div>
-                <div class="split-item">
-                    <span class="subtitulo">PARADOS</span>
-                    <span class="valor valor-frota" id="f-parados">-</span>
-                </div>
-                <div class="split-item">
-                    <span class="subtitulo">DISPONIBILIDADE</span>
-                    <span class="valor valor-frota" id="f-dispo">-</span>
-                </div>
-                <div class="split-item">
-                    <span class="subtitulo">UTILIZADOS</span>
-                    <span class="valor valor-frota" id="f-util">-</span>
-                </div>
-            </div>
-            <div class="status-label" id="status-frota">Sincronizando...</div>
-        </div>
-
-        <div class="card card-split">
             <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
             <div class="split-container">
                 <div class="split-item">
@@ -201,6 +178,29 @@
                 </div>
             </div>
             <div class="status-label" id="status-frota-t">Sincronizando...</div>
+        </div>
+
+        <div class="card card-split">
+            <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
+            <div class="split-container">
+                <div class="split-item">
+                    <span class="subtitulo">TOTAL</span>
+                    <span class="valor valor-frota" id="f-total">-</span>
+                </div>
+                <div class="split-item">
+                    <span class="subtitulo">PARADOS</span>
+                    <span class="valor valor-frota" id="f-parados">-</span>
+                </div>
+                <div class="split-item">
+                    <span class="subtitulo">DISPONIBILIDADE</span>
+                    <span class="valor valor-frota" id="f-dispo">-</span>
+                </div>
+                <div class="split-item">
+                    <span class="subtitulo">UTILIZADOS</span>
+                    <span class="valor valor-frota" id="f-util">-</span>
+                </div>
+            </div>
+            <div class="status-label" id="status-frota">Sincronizando...</div>
         </div>
     </div>
 
