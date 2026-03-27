@@ -204,6 +204,14 @@
 
         <div class="container-motoristas">
             <div class="card card-split">
+                <h3>ABSENTEÍSMO (QTD) - HOJE</h3>
+                <div class="split-container">
+                    <div class="split-item"><span class="subtitulo">ABSENTEÍSMO</span><span class="valor valor-frota" id="absent-valor">-</span></div>
+                </div>
+                <div class="status-label" id="status-absent">Sincronizando...</div>
+            </div>
+
+            <div class="card card-split">
                 <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
                 <div class="split-container">
                     <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
@@ -302,14 +310,15 @@
                     auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
                     auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)",
                     auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    // Novos mapeamentos:
                     mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)",
                     mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)",
                     mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)",
                     mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)",
                     mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)",
                     mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)",
-                    mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)"
+                    mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    // Mapeamento do novo card
+                    absent: "ABSENTEÍSMO (QTD)"
                 };
 
                 const idxs = {};
@@ -339,6 +348,7 @@
                     }
                 }
 
+                // Atualização dos valores no HTML
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
@@ -366,7 +376,6 @@
                 document.getElementById('aux-atestados').textContent = v.auxAtestados;
                 document.getElementById('aux-banco').textContent = v.auxBanco;
                 document.getElementById('aux-util').textContent = v.auxUtil;
-                // Novos campos no HTML
                 document.getElementById('mt-total').textContent = v.mtTotal;
                 document.getElementById('mt-vagas').textContent = v.mtVagas;
                 document.getElementById('mt-ferias').textContent = v.mtFerias;
@@ -374,12 +383,15 @@
                 document.getElementById('mt-atestados').textContent = v.mtAtestados;
                 document.getElementById('mt-banco').textContent = v.mtBanco;
                 document.getElementById('mt-util').textContent = v.mtUtil;
+                // Valor do novo card
+                document.getElementById('absent-valor').textContent = v.absent;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 const statusIds = {
                     'status-vol': achouData, 'status-drop': achouData, 'status-ocp': achouData, 'status-nf': achouData,
                     'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 
-                    'status-md': achouData, 'status-aux': achouData, 'status-mt': achouData
+                    'status-md': achouData, 'status-aux': achouData, 'status-mt': achouData,
+                    'status-absent': achouData
                 };
 
                 for (let id in statusIds) {
