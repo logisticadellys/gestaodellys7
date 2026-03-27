@@ -68,20 +68,19 @@
             justify-content: center;
         }
 
-        /* Estrutura para organizar as colunas */
-        .container-main {
-            display: flex;
+        /* Nova estrutura para alinhar os cards de baixo com os de cima */
+        .container-inferior {
+            display: grid;
+            grid-template-columns: 1fr 1fr 2fr; /* O último card ocupa 2 frações (espaço de 2 cards) */
             gap: 1vw;
             flex: 1;
             min-height: 0;
-            width: 100%;
         }
 
-        .coluna-painel {
+        .coluna-frotas {
             display: flex;
-            flex-direction: column; 
+            flex-direction: column;
             gap: 1.5vh;
-            width: 24.2%; /* Largura exata para alinhar com os cards de cima */
         }
 
         .card-split {
@@ -114,6 +113,7 @@
             color: #a0aec0;
             margin-bottom: 2px;
             text-transform: uppercase;
+            text-align: center;
         }
 
         .valor {
@@ -164,9 +164,8 @@
         </div>
     </div>
 
-    <div class="container-main">
-        
-        <div class="coluna-painel">
+    <div class="container-inferior">
+        <div class="coluna-frotas">
             <div class="card card-split">
                 <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
                 <div class="split-container">
@@ -188,35 +187,37 @@
                 </div>
                 <div class="status-label" id="status-frota-t">Sincronizando...</div>
             </div>
+        </div>
 
+        <div class="coluna-frotas">
             <div class="card card-split">
                 <h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="terc-util">-</span></div>
+                    <div class="split-item">
+                        <span class="subtitulo">UTILIZADOS</span>
+                        <span class="valor valor-frota" id="terc-util">-</span>
+                    </div>
                 </div>
                 <div class="status-label" id="status-terceiros">Sincronizando...</div>
             </div>
-        </div>
+            <div style="flex: 1;"></div> </div>
 
-        <div class="coluna-painel">
+        <div class="coluna-frotas">
             <div class="card card-split">
                 <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
                 <div class="split-container">
                     <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="md-vagas">-</span></div>
+                    <div class="split-item"><span class="subtitulo">VAGAS EM ABERTO</span><span class="valor valor-frota" id="md-vagas">-</span></div>
                     <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="md-ferias">-</span></div>
                     <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">ATESTA.</span><span class="valor valor-frota" id="md-atestados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">BANCO</span><span class="valor valor-frota" id="md-banco">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTILIZ.</span><span class="valor valor-frota" id="md-util">-</span></div>
+                    <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="md-atestados">-</span></div>
+                    <div class="split-item"><span class="subtitulo">BANCO DE HORAS</span><span class="valor valor-frota" id="md-banco">-</span></div>
+                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="md-util">-</span></div>
                 </div>
                 <div class="status-label" id="status-md">Sincronizando...</div>
             </div>
-            <div style="flex: 2;"></div> 
+            <div style="flex: 1;"></div>
         </div>
-
-        <div class="coluna-painel"></div>
-        <div class="coluna-painel"></div>
     </div>
 
     <script>
@@ -296,7 +297,6 @@
                     }
                 }
 
-                // Atualização dos elementos no HTML
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
@@ -311,6 +311,7 @@
                 document.getElementById('ft-util').textContent = v.ftUtil;
                 document.getElementById('terc-util').textContent = v.terceiros;
                 
+                // Dados Motorista
                 document.getElementById('md-total').textContent = v.mdTotal;
                 document.getElementById('md-vagas').textContent = v.mdVagas;
                 document.getElementById('md-ferias').textContent = v.mdFerias;
