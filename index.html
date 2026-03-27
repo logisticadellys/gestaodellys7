@@ -68,13 +68,15 @@
             justify-content: center;
         }
 
-        /* RETORNADO PARA COLUMN: Faz os cards de frota ficarem um abaixo do outro ocupando a largura total */
+        /* AJUSTE: Container centralizado e com largura reduzida para os cards de frota */
         .container-frotas {
             display: flex;
             flex-direction: column; 
             gap: 1.5vh;
             flex: 1;
             min-height: 0;
+            width: 80%; /* Reduz a largura dos cards */
+            margin: 0 auto; /* Centraliza horizontalmente */
         }
 
         .card-split {
@@ -158,29 +160,6 @@
 
     <div class="container-frotas">
         <div class="card card-split">
-            <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
-            <div class="split-container">
-                <div class="split-item">
-                    <span class="subtitulo">TOTAL</span>
-                    <span class="valor valor-frota" id="ft-total">-</span>
-                </div>
-                <div class="split-item">
-                    <span class="subtitulo">PARADOS</span>
-                    <span class="valor valor-frota" id="ft-parados">-</span>
-                </div>
-                <div class="split-item">
-                    <span class="subtitulo">DISPONIBILIDADE</span>
-                    <span class="valor valor-frota" id="ft-dispo">-</span>
-                </div>
-                <div class="split-item">
-                    <span class="subtitulo">UTILIZADOS</span>
-                    <span class="valor valor-frota" id="ft-util">-</span>
-                </div>
-            </div>
-            <div class="status-label" id="status-frota-t">Sincronizando...</div>
-        </div>
-
-        <div class="card card-split">
             <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
             <div class="split-container">
                 <div class="split-item">
@@ -201,6 +180,29 @@
                 </div>
             </div>
             <div class="status-label" id="status-frota">Sincronizando...</div>
+        </div>
+
+        <div class="card card-split">
+            <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
+            <div class="split-container">
+                <div class="split-item">
+                    <span class="subtitulo">TOTAL</span>
+                    <span class="valor valor-frota" id="ft-total">-</span>
+                </div>
+                <div class="split-item">
+                    <span class="subtitulo">PARADOS</span>
+                    <span class="valor valor-frota" id="ft-parados">-</span>
+                </div>
+                <div class="split-item">
+                    <span class="subtitulo">DISPONIBILIDADE</span>
+                    <span class="valor valor-frota" id="ft-dispo">-</span>
+                </div>
+                <div class="split-item">
+                    <span class="subtitulo">UTILIZADOS</span>
+                    <span class="valor valor-frota" id="ft-util">-</span>
+                </div>
+            </div>
+            <div class="status-label" id="status-frota-t">Sincronizando...</div>
         </div>
     </div>
 
