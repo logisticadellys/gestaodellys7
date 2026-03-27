@@ -90,7 +90,7 @@
         }
 
         .card-split {
-            flex: 1;
+            flex: 2; /* Mantém os cards grandes com proporção maior */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -138,11 +138,12 @@
             color: #00ced1;
         }
 
+        /* AJUSTE AQUI: Removido o height fit-content para ele crescer como os cards do topo */
         .card-pequeno {
-            flex: 1;
-            height: fit-content;    
-            padding-top: 1.2vh;    
-            padding-bottom: 1.2vh;
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
     </style>
 </head>
@@ -358,6 +359,15 @@
                     }
                 }
 
+                // Atualização dos elementos do DOM
+                for(let key in v) {
+                    const el = document.getElementById(key === 'terceiros' ? 'terc-util' : 
+                                    key === 'absPerc' ? 'abs-perc-valor' : 
+                                    key.replace(/([A-Z])/g, "-$1").toLowerCase().replace('f-total','f-total'));
+                    // Note: IDs no HTML são manuais, o mapeamento acima é apenas ilustrativo para o loop. 
+                }
+
+                // (Manter as atribuições manuais para garantir que os IDs corretos sejam usados)
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
