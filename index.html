@@ -206,9 +206,9 @@
             <div class="card card-split">
                 <h3>ABSENTEÍSMO (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">ABSENTEÍSMO</span><span class="valor valor-frota" id="absent-valor">-</span></div>
+                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="abs-valor">-</span></div>
                 </div>
-                <div class="status-label" id="status-absent">Sincronizando...</div>
+                <div class="status-label" id="status-abs">Sincronizando...</div>
             </div>
 
             <div class="card card-split">
@@ -317,8 +317,7 @@
                     mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)",
                     mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)",
                     mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
-                    // Mapeamento do novo card
-                    absent: "ABSENTEÍSMO (QTD)"
+                    absenteismo: "ABSENTEÍSMO (QTD)"
                 };
 
                 const idxs = {};
@@ -348,7 +347,6 @@
                     }
                 }
 
-                // Atualização dos valores no HTML
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
@@ -383,15 +381,13 @@
                 document.getElementById('mt-atestados').textContent = v.mtAtestados;
                 document.getElementById('mt-banco').textContent = v.mtBanco;
                 document.getElementById('mt-util').textContent = v.mtUtil;
-                // Valor do novo card
-                document.getElementById('absent-valor').textContent = v.absent;
+                document.getElementById('abs-valor').textContent = v.absenteismo;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 const statusIds = {
                     'status-vol': achouData, 'status-drop': achouData, 'status-ocp': achouData, 'status-nf': achouData,
                     'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 
-                    'status-md': achouData, 'status-aux': achouData, 'status-mt': achouData,
-                    'status-absent': achouData
+                    'status-md': achouData, 'status-aux': achouData, 'status-mt': achouData, 'status-abs': achouData
                 };
 
                 for (let id in statusIds) {
