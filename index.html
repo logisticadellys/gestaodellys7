@@ -85,8 +85,8 @@
         .container-motoristas {
             display: flex;
             flex-direction: column;
-            gap: 1.5vh;
             flex: 1; 
+            gap: 1.5vh;
         }
 
         .card-split {
@@ -174,22 +174,10 @@
             <div class="card card-split">
                 <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item">
-                        <span class="subtitulo">TOTAL</span>
-                        <span class="valor valor-frota" id="f-total">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">PARADOS</span>
-                        <span class="valor valor-frota" id="f-parados">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">DISPO.</span>
-                        <span class="valor valor-frota" id="f-dispo">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">UTILIZ.</span>
-                        <span class="valor valor-frota" id="f-util">-</span>
-                    </div>
+                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
+                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados">-</span></div>
+                    <div class="split-item"><span class="subtitulo">DISPO.</span><span class="valor valor-frota" id="f-dispo">-</span></div>
+                    <div class="split-item"><span class="subtitulo">UTILIZ.</span><span class="valor valor-frota" id="f-util">-</span></div>
                 </div>
                 <div class="status-label" id="status-frota">Sincronizando...</div>
             </div>
@@ -197,22 +185,10 @@
             <div class="card card-split">
                 <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item">
-                        <span class="subtitulo">TOTAL</span>
-                        <span class="valor valor-frota" id="ft-total">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">PARADOS</span>
-                        <span class="valor valor-frota" id="ft-parados">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">DISPO.</span>
-                        <span class="valor valor-frota" id="ft-dispo">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">UTILIZ.</span>
-                        <span class="valor valor-frota" id="ft-util">-</span>
-                    </div>
+                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
+                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
+                    <div class="split-item"><span class="subtitulo">DISPO.</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
+                    <div class="split-item"><span class="subtitulo">UTILIZ.</span><span class="valor valor-frota" id="ft-util">-</span></div>
                 </div>
                 <div class="status-label" id="status-frota-t">Sincronizando...</div>
             </div>
@@ -220,10 +196,7 @@
             <div class="card card-split">
                 <h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item">
-                        <span class="subtitulo">UTILIZADOS</span>
-                        <span class="valor valor-frota" id="terc-util">-</span>
-                    </div>
+                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="terc-util">-</span></div>
                 </div>
                 <div class="status-label" id="status-terceiros">Sincronizando...</div>
             </div>
@@ -233,34 +206,13 @@
             <div class="card card-split">
                 <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item">
-                        <span class="subtitulo">TOTAL</span>
-                        <span class="valor valor-frota" id="md-total">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">VAGAS EM ABERTO</span>
-                        <span class="valor valor-frota" id="md-vagas">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">FÉRIAS</span>
-                        <span class="valor valor-frota" id="md-ferias">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">FALTAS</span>
-                        <span class="valor valor-frota" id="md-faltas">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">ATESTADOS</span>
-                        <span class="valor valor-frota" id="md-atestados">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">BANCO DE HORAS</span>
-                        <span class="valor valor-frota" id="md-banco">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">UTILIZADOS</span>
-                        <span class="valor valor-frota" id="md-util">-</span>
-                    </div>
+                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
+                    <div class="split-item"><span class="subtitulo">VAGAS EM ABERTO</span><span class="valor valor-frota" id="md-vagas">-</span></div>
+                    <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="md-ferias">-</span></div>
+                    <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas">-</span></div>
+                    <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="md-atestados">-</span></div>
+                    <div class="split-item"><span class="subtitulo">BANCO DE HORAS</span><span class="valor valor-frota" id="md-banco">-</span></div>
+                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="md-util">-</span></div>
                 </div>
                 <div class="status-label" id="status-md">Sincronizando...</div>
             </div>
@@ -268,39 +220,16 @@
             <div class="card card-split">
                 <h3>AUXILIAR DISTRIBUIÇÃO (QTD) - HOJE</h3>
                 <div class="split-container">
-                    <div class="split-item">
-                        <span class="subtitulo">TOTAL</span>
-                        <span class="valor valor-frota" id="ad-total">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">VAGAS EM ABERTO</span>
-                        <span class="valor valor-frota" id="ad-vagas">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">FÉRIAS</span>
-                        <span class="valor valor-frota" id="ad-ferias">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">FALTAS</span>
-                        <span class="valor valor-frota" id="ad-faltas">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">ATESTADOS</span>
-                        <span class="valor valor-frota" id="ad-atestados">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">BANCO DE HORAS</span>
-                        <span class="valor valor-frota" id="ad-banco">-</span>
-                    </div>
-                    <div class="split-item">
-                        <span class="subtitulo">UTILIZADOS</span>
-                        <span class="valor valor-frota" id="ad-util">-</span>
-                    </div>
+                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="aux-total">-</span></div>
+                    <div class="split-item"><span class="subtitulo">VAGAS EM ABERTO</span><span class="valor valor-frota" id="aux-vagas">-</span></div>
+                    <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="aux-ferias">-</span></div>
+                    <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="aux-faltas">-</span></div>
+                    <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="aux-atestados">-</span></div>
+                    <div class="split-item"><span class="subtitulo">BANCO DE HORAS</span><span class="valor valor-frota" id="aux-banco">-</span></div>
+                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="aux-util">-</span></div>
                 </div>
-                <div class="status-label" id="status-ad">Sincronizando...</div>
+                <div class="status-label" id="status-aux">Sincronizando...</div>
             </div>
-            
-            <div style="flex: 1;"></div> 
         </div>
     </div>
 
@@ -329,7 +258,6 @@
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
-                
                 const idxData = cabecalho.indexOf("DATA");
 
                 const mapping = {
@@ -353,14 +281,13 @@
                     mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
                     mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)",
                     mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    // Mapeamento Auxiliares
-                    adTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    adVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    adFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    adFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    adAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    adBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    adUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)"
+                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)"
                 };
 
                 const idxs = {};
@@ -403,7 +330,6 @@
                 document.getElementById('ft-dispo').textContent = v.ftDispo;
                 document.getElementById('ft-util').textContent = v.ftUtil;
                 document.getElementById('terc-util').textContent = v.terceiros;
-                
                 document.getElementById('md-total').textContent = v.mdTotal;
                 document.getElementById('md-vagas').textContent = v.mdVagas;
                 document.getElementById('md-ferias').textContent = v.mdFerias;
@@ -411,20 +337,18 @@
                 document.getElementById('md-atestados').textContent = v.mdAtestados;
                 document.getElementById('md-banco').textContent = v.mdBanco;
                 document.getElementById('md-util').textContent = v.mdUtil;
-
-                // Injeção Auxiliares
-                document.getElementById('ad-total').textContent = v.adTotal;
-                document.getElementById('ad-vagas').textContent = v.adVagas;
-                document.getElementById('ad-ferias').textContent = v.adFerias;
-                document.getElementById('ad-faltas').textContent = v.adFaltas;
-                document.getElementById('ad-atestados').textContent = v.adAtestados;
-                document.getElementById('ad-banco').textContent = v.adBanco;
-                document.getElementById('ad-util').textContent = v.adUtil;
+                document.getElementById('aux-total').textContent = v.auxTotal;
+                document.getElementById('aux-vagas').textContent = v.auxVagas;
+                document.getElementById('aux-ferias').textContent = v.auxFerias;
+                document.getElementById('aux-faltas').textContent = v.auxFaltas;
+                document.getElementById('aux-atestados').textContent = v.auxAtestados;
+                document.getElementById('aux-banco').textContent = v.auxBanco;
+                document.getElementById('aux-util').textContent = v.auxUtil;
 
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 const statusIds = {
                     'status-vol': achouData, 'status-drop': achouData, 'status-ocp': achouData, 'status-nf': achouData,
-                    'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 'status-md': achouData, 'status-ad': achouData
+                    'status-frota': achouData, 'status-frota-t': achouData, 'status-terceiros': achouData, 'status-md': achouData, 'status-aux': achouData
                 };
 
                 for (let id in statusIds) {
