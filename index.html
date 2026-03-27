@@ -68,14 +68,13 @@
             justify-content: center;
         }
 
-        /* AJUSTE: Largura reduzida para alinhar com o primeiro card de cima */
         .container-frotas {
             display: flex;
             flex-direction: column; 
             gap: 1.5vh;
             flex: 1;
             min-height: 0;
-            width: 24.2%; /* Alinhado com a largura de 1 card do grid superior */
+            width: 24.2%; 
             margin-left: 0; 
         }
 
@@ -204,6 +203,17 @@
             </div>
             <div class="status-label" id="status-frota-t">Sincronizando...</div>
         </div>
+
+        <div class="card card-split">
+            <h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3>
+            <div class="split-container">
+                <div class="split-item">
+                    <span class="subtitulo">UTILIZADOS</span>
+                    <span class="valor valor-frota" id="terc-util">-</span>
+                </div>
+            </div>
+            <div class="status-label" id="status-terceiros">Sincronizando...</div>
+        </div>
     </div>
 
     <script>
@@ -245,7 +255,8 @@
                     ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)",
                     ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)",
                     ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)",
-                    ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)"
+                    ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
+                    terceiros: "TERCEIROS UTILIZADOS (QTD)"
                 };
 
                 const idxs = {};
@@ -258,7 +269,7 @@
                 }
 
                 let achouData = false;
-                let v = { vol: "-", drop: "-", ocp: "-", nf: "-", fTotal: "-", fParados: "-", fDispo: "-", fUtil: "-", ftTotal: "-", ftParados: "-", ftDispo: "-", ftUtil: "-" };
+                let v = { vol: "-", drop: "-", ocp: "-", nf: "-", fTotal: "-", fParados: "-", fDispo: "-", fUtil: "-", ftTotal: "-", ftParados: "-", ftDispo: "-", ftUtil: "-", terceiros: "-" };
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -293,8 +304,10 @@
                 document.getElementById('ft-dispo').textContent = v.ftDispo;
                 document.getElementById('ft-util').textContent = v.ftUtil;
 
+                document.getElementById('terc-util').textContent = v.terceiros;
+
                 const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota', 'status-frota-t'];
+                const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-frota', 'status-frota-t', 'status-terceiros'];
 
                 statusIds.forEach(id => {
                     const el = document.getElementById(id);
