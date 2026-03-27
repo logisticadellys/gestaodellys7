@@ -83,14 +83,8 @@
             min-height: 0;
         }
 
-        .linha-abs {
-            display: flex;
-            gap: 0.8vw;
-            flex-shrink: 0;
-        }
-
         .card-split {
-            flex: 2; /* Mantém os cards grandes com proporção maior */
+            flex: 1; 
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -137,14 +131,6 @@
             font-weight: normal;
             color: #00ced1;
         }
-
-        /* AJUSTE AQUI: Removido o height fit-content para ele crescer como os cards do topo */
-        .card-pequeno {
-            flex: 1; 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
     </style>
 </head>
 <body>
@@ -177,6 +163,24 @@
         </div>
     </div>
 
+    <div class="grid-cards">
+        <div class="card">
+            <h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3>
+            <span class="valor" id="terc-util">-</span>
+            <div class="status-label" id="status-terceiros">Sincronizando...</div>
+        </div>
+        <div class="card">
+            <h3>ABSENTEÍSMO (QTD) - HOJE</h3>
+            <span class="valor" id="abs-valor">-</span>
+            <div class="status-label" id="status-abs">Sincronizando...</div>
+        </div>
+        <div class="card">
+            <h3>ABSENTEÍSMO (%) - HOJE</h3>
+            <span class="valor" id="abs-perc-valor">-</span>
+            <div class="status-label" id="status-abs-perc">Sincronizando...</div>
+        </div>
+    </div>
+
     <div class="secao-inferior">
         <div class="container-coluna">
             <div class="card card-split">
@@ -200,28 +204,9 @@
                 </div>
                 <div class="status-label" id="status-frota-t">Sincronizando...</div>
             </div>
-
-            <div class="card card-pequeno">
-                <h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3>
-                <span class="valor" id="terc-util">-</span>
-                <div class="status-label" id="status-terceiros">Sincronizando...</div>
-            </div>
         </div>
 
         <div class="container-coluna">
-            <div class="linha-abs">
-                <div class="card card-pequeno">
-                    <h3>ABSENTEÍSMO (QTD) - HOJE</h3>
-                    <span class="valor" id="abs-valor">-</span>
-                    <div class="status-label" id="status-abs">Sincronizando...</div>
-                </div>
-                <div class="card card-pequeno">
-                    <h3>ABSENTEÍSMO (%) - HOJE</h3>
-                    <span class="valor" id="abs-perc-valor">-</span>
-                    <div class="status-label" id="status-abs-perc">Sincronizando...</div>
-                </div>
-            </div>
-
             <div class="card card-split">
                 <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
                 <div class="split-container">
@@ -360,14 +345,6 @@
                 }
 
                 // Atualização dos elementos do DOM
-                for(let key in v) {
-                    const el = document.getElementById(key === 'terceiros' ? 'terc-util' : 
-                                    key === 'absPerc' ? 'abs-perc-valor' : 
-                                    key.replace(/([A-Z])/g, "-$1").toLowerCase().replace('f-total','f-total'));
-                    // Note: IDs no HTML são manuais, o mapeamento acima é apenas ilustrativo para o loop. 
-                }
-
-                // (Manter as atribuições manuais para garantir que os IDs corretos sejam usados)
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
