@@ -68,7 +68,6 @@
             justify-content: center;
         }
 
-        /* Container principal inferior */
         .secao-inferior {
             display: flex;
             gap: 1vw;
@@ -80,10 +79,9 @@
             display: flex;
             flex-direction: column; 
             gap: 1.5vh;
-            flex: 1; /* Ocupa metade da largura (correspondendo aos 2 primeiros cards de cima) */
+            flex: 1;
         }
 
-        /* Card motorista ajustado para ocupar a largura de 2 cards (50% da tela aprox) */
         .container-motoristas {
             display: flex;
             flex-direction: column;
@@ -116,7 +114,7 @@
         .split-item:last-child { border-right: none; }
 
         .subtitulo {
-            font-size: clamp(0.4em, 0.6vw, 0.55em); /* Diminuído para caber 7 partes */
+            font-size: clamp(0.4em, 0.6vw, 0.55em);
             color: #a0aec0;
             margin-bottom: 2px;
             text-transform: uppercase;
@@ -265,7 +263,8 @@
                 </div>
                 <div class="status-label" id="status-md">Sincronizando...</div>
             </div>
-            <div style="flex: 2;"></div> </div>
+            <div style="flex: 2;"></div> 
+        </div>
     </div>
 
     <script>
@@ -292,9 +291,12 @@
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
+                // Cabeçalho normalizado: Remove espaços extras e aspas para comparação exata
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
                 const idxData = cabecalho.indexOf("DATA");
+
+                // Mapeamento EXATO conforme sua instrução
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)",
                     drop: "DROPSIZE (KG)",
@@ -320,11 +322,8 @@
 
                 const idxs = {};
                 for (let key in mapping) {
-                    if(key === 'nf') {
-                        idxs[key] = cabecalho.findIndex(txt => txt.includes("NF") && txt.includes("QTD"));
-                    } else {
-                        idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
-                    }
+                    // Busca por nome exato no cabeçalho
+                    idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 }
 
                 let achouData = false;
@@ -339,7 +338,7 @@
                         if (dataPlanilha.includes(hojeCompleto)) {
                             achouData = true;
                             const limpar = (idx) => {
-                                if (idx === -1 || !colunas[idx]) return "-";
+                                if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
                                 let val = colunas[idx].replace(/"/g, '').trim();
                                 return (val === "" || val === "null" || val === "#N/A") ? "-" : val;
                             };
@@ -349,6 +348,7 @@
                     }
                 }
 
+                // Aplicação nos elementos
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
@@ -363,7 +363,6 @@
                 document.getElementById('ft-util').textContent = v.ftUtil;
                 document.getElementById('terc-util').textContent = v.terceiros;
                 
-                // Novos valores motorista
                 document.getElementById('md-total').textContent = v.mdTotal;
                 document.getElementById('md-vagas').textContent = v.mdVagas;
                 document.getElementById('md-ferias').textContent = v.mdFerias;
