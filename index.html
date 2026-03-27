@@ -291,12 +291,11 @@
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
-                // Cabeçalho normalizado: Remove espaços extras e aspas para comparação exata
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
                 const idxData = cabecalho.indexOf("DATA");
 
-                // Mapeamento EXATO conforme sua instrução
+                // MAPEAMENTO CONFORME INSTRUÇÃO DOS MOTORISTAS E DEMAIS CAMPOS
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)",
                     drop: "DROPSIZE (KG)",
@@ -311,6 +310,7 @@
                     ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)",
                     ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
                     terceiros: "TERCEIROS UTILIZADOS (QTD)",
+                    // Seção Motoristas conforme solicitado:
                     mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)",
                     mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)",
                     mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)",
@@ -322,7 +322,6 @@
 
                 const idxs = {};
                 for (let key in mapping) {
-                    // Busca por nome exato no cabeçalho
                     idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 }
 
@@ -348,7 +347,7 @@
                     }
                 }
 
-                // Aplicação nos elementos
+                // Aplicação nos elementos do DOM
                 document.getElementById('vol-valor').textContent = v.vol;
                 document.getElementById('drop-valor').textContent = v.drop;
                 document.getElementById('ocp-valor').textContent = v.ocp;
