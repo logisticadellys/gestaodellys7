@@ -20,22 +20,60 @@
             gap: 2.5vh;
         }
 
-        header { flex-shrink: 0; }
+        /* AJUSTE NO HEADER PARA COMPORTAR TÍTULO E LOGO */
+        header { 
+            flex-shrink: 0; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #1a365d;
+            padding-bottom: 1vh;
+        }
+
+        .header-left { flex: 1; }
+        
+        .header-center { 
+            flex: 2; 
+            text-align: center; 
+        }
+
+        .header-right { 
+            flex: 1; 
+            display: flex; 
+            justify-content: flex-end; 
+            align-items: center;
+        }
+
+        #titulo-principal {
+            font-size: clamp(1.5em, 3vw, 2.5em);
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .logo-dellys {
+            height: clamp(60px, 10vh, 90px); /* Tamanho responsivo para a logo */
+            width: auto;
+            filter: drop-shadow(0 0 5px rgba(0, 206, 209, 0.3));
+        }
 
         #relogio {
             color: #00ced1; 
-            font-size: clamp(2.5em, 5vw, 3.8em); /* AUMENTADO */
+            font-size: clamp(2.5em, 4vw, 3.5em); 
             display: block;
             line-height: 1;
         }
 
         #data-atual {
             color: #a0aec0; 
-            font-size: clamp(1em, 1.4vw, 1.3em); /* AUMENTADO */
+            font-size: clamp(0.9em, 1.2vw, 1.1em); 
             text-transform: capitalize;
             font-weight: normal;
         }
 
+        /* RESTANTE DO ESTILO PERMANECE IGUAL */
         .grid-cards {
             display: flex;
             gap: 2vw; 
@@ -48,7 +86,7 @@
             border: 2px solid #00ced1;
             border-radius: 12px;
             flex: 1; 
-            padding: 1vh 0.8vw; /* Ajuste leve no padding */
+            padding: 1vh 0.8vw;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             display: flex;
@@ -59,7 +97,6 @@
         .card h3 {
             margin: 0 0 0.5vh 0;
             color: #a0aec0;
-            /* AUMENTADO: Títulos principais */
             font-size: clamp(1.2em, 1.6vw, 1.7em); 
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -110,7 +147,6 @@
         .split-item:last-child { border-right: none; }
 
         .subtitulo {
-            /* AUMENTADO: Subtítulos (TOTAL, VAGAS, etc) */
             font-size: clamp(0.85em, 1.1vw, 1.2em);
             color: #a0aec0;
             margin-bottom: 2px;
@@ -118,14 +154,12 @@
         }
 
         .valor {
-            /* AUMENTADO: Valores principais */
             font-size: clamp(2.2em, 4.5vw, 4em);
             color: #ffffff;
             display: block;
         }
 
         .valor-frota {
-            /* AUMENTADO: Valores dos containers de divisão */
             font-size: clamp(1.6em, 2.8vw, 2.6em);
         }
     </style>
@@ -133,8 +167,18 @@
 <body>
 
     <header>
-        <span id="relogio">00:00:00</span>
-        <span id="data-atual">Carregando...</span>
+        <div class="header-left">
+            <span id="relogio">00:00:00</span>
+            <span id="data-atual">Carregando...</span>
+        </div>
+        
+        <div class="header-center">
+            <h1 id="titulo-principal">GESTÃO DELLYS FILIAL 7</h1>
+        </div>
+
+        <div class="header-right">
+            <img src="logo_dellys.png" alt="Logo Dellys" class="logo-dellys">
+        </div>
     </header>
 
     <div class="grid-cards">
