@@ -20,12 +20,10 @@
             gap: 2.5vh;
         }
 
-        /* Header organizado para evitar tela branca */
         header { 
             flex-shrink: 0; 
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            position: relative; /* Necessário para posicionar logo e título sem empurrar os cards */
+            min-height: 10vh;
         }
 
         #relogio {
@@ -42,20 +40,22 @@
             font-weight: normal;
         }
 
-        .header-central {
-            text-align: center;
-            flex: 1;
-        }
-
+        /* Título e Logo flutuando para não afetar o grid */
         #titulo-gestao {
+            position: absolute;
+            left: 50%;
+            top: 10%;
+            transform: translateX(-50%);
             margin: 0;
             font-size: 1.8vw;
-            letter-spacing: 2px;
-            color: #ffffff;
+            white-space: nowrap;
         }
 
         #logo-topo {
-            height: 8vh;
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 9vh;
             width: auto;
         }
 
@@ -152,13 +152,9 @@
 <body>
 
     <header>
-        <div>
-            <span id="relogio">00:00:00</span>
-            <span id="data-atual">Carregando...</span>
-        </div>
-        <div class="header-central">
-            <h1 id="titulo-gestao">GESTÃO DELLYS - FILIAL 7</h1>
-        </div>
+        <span id="relogio">00:00:00</span>
+        <span id="data-atual">Carregando...</span>
+        <h1 id="titulo-gestao">GESTÃO DELLYS - FILIAL 7</h1>
         <img src="logo dellys_77202515462.png" alt="Logo" id="logo-topo">
     </header>
 
