@@ -58,7 +58,7 @@
 
         .card h3 {
             margin: 0 0 0.4vh 0;
-            /* COR ALTERADA: Gelo (#e2e8f0) para melhor leitura */
+            /* COR ATUALIZADA: Gelo para melhor contraste */
             color: #e2e8f0;
             font-size: clamp(0.95em, 1.2vw, 1.3em);
             text-transform: uppercase;
@@ -111,7 +111,7 @@
 
         .subtitulo {
             font-size: clamp(0.65em, 0.85vw, 0.95em);
-            /* COR ALTERADA: Turquesa (#00ced1) para destacar categorias */
+            /* COR ATUALIZADA: Turquesa para destaque visual */
             color: #00ced1;
             margin-bottom: 2px;
             text-transform: uppercase;
@@ -119,7 +119,6 @@
 
         .valor {
             font-size: clamp(1.6em, 3.2vw, 2.5em);
-            /* MANTIDO: Branco para máximo contraste */
             color: #ffffff;
             display: block;
         }
@@ -306,7 +305,6 @@
                     idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 }
 
-                let achouData = false;
                 let v = {};
                 for(let k in mapping) v[k] = "-";
 
@@ -316,7 +314,6 @@
                         let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
 
                         if (dataPlanilha.includes(hojeCompleto)) {
-                            achouData = true;
                             const limpar = (idx) => {
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
                                 let val = colunas[idx].replace(/"/g, '').trim();
