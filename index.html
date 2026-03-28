@@ -10,47 +10,47 @@
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 1vh 1vw; 
+            padding: 0.8vh 0.8vw; 
             font-weight: bold;
             overflow: hidden;
             height: 100vh;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            gap: 1.5vh; /* Espaçamento reduzido */
+            gap: 1vh; /* Gap reduzido para caber tudo */
         }
 
-        header { flex-shrink: 0; }
+        header { flex-shrink: 0; margin-bottom: 0.5vh; }
 
         #relogio {
             color: #00ced1; 
-            font-size: clamp(1.4em, 2.5vw, 1.8em);
+            font-size: clamp(1.2em, 2.2vw, 1.6em);
             display: block;
             line-height: 1;
         }
 
         #data-atual {
             color: #a0aec0; 
-            font-size: clamp(0.6em, 0.8vw, 0.75em);
+            font-size: clamp(0.55em, 0.75vw, 0.7em);
             text-transform: capitalize;
             font-weight: normal;
         }
 
         .grid-cards {
             display: flex;
-            gap: 1.2vw; 
+            gap: 1vw; 
             width: 100%;
             flex-shrink: 0;
         }
 
         .card {
             background-color: #1a365d;
-            border: 2px solid #00ced1;
+            border: 1.5px solid #00ced1;
             border-radius: 8px;
             flex: 1; 
-            padding: 0.5vh 0.4vw;
+            padding: 0.4vh 0.3vw;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -58,12 +58,12 @@
         }
 
         .card h3 {
-            margin: 0 0 0.2vh 0;
+            margin: 0 0 0.1vh 0;
             color: #a0aec0;
-            font-size: clamp(0.65em, 0.9vw, 0.9em);
+            font-size: clamp(0.55em, 0.8vw, 0.8em);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            min-height: 1.2em;
+            letter-spacing: 0.3px;
+            min-height: 1.1em;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -71,15 +71,15 @@
 
         .secao-inferior {
             display: flex;
-            gap: 1.2vw; 
+            gap: 1vw; 
             flex: 1;
-            min-height: 0;
+            min-height: 0; /* Impede que a seção empurre o layout */
         }
 
         .container-coluna {
             display: flex;
             flex-direction: column; 
-            gap: 1.5vh; 
+            gap: 1vh; 
             flex: 1;
             min-height: 0;
         }
@@ -88,7 +88,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
         }
 
         .split-container {
@@ -96,6 +96,7 @@
             justify-content: space-around;
             align-items: center;
             flex: 1;
+            width: 100%;
         }
 
         .split-item {
@@ -110,20 +111,20 @@
         .split-item:last-child { border-right: none; }
 
         .subtitulo {
-            font-size: clamp(0.45em, 0.65vw, 0.7em);
+            font-size: clamp(0.4em, 0.55vw, 0.6em);
             color: #a0aec0;
             margin-bottom: 1px;
             text-transform: uppercase;
         }
 
         .valor {
-            font-size: clamp(1em, 2.2vw, 1.8em);
+            font-size: clamp(0.9em, 2vw, 1.5em);
             color: #ffffff;
             display: block;
         }
 
         .valor-frota {
-            font-size: clamp(0.85em, 1.6vw, 1.4em);
+            font-size: clamp(0.8em, 1.4vw, 1.2em);
         }
     </style>
 </head>
@@ -135,65 +136,43 @@
     </header>
 
     <div class="grid-cards">
-        <div class="card">
-            <h3>VOLUME EXPEDIDO (KG)</h3>
-            <span class="valor" id="vol-valor">-</span>
-        </div>
-        <div class="card">
-            <h3>DROPSIZE (KG)</h3>
-            <span class="valor" id="drop-valor">-</span>
-        </div>
-        <div class="card">
-            <h3>OCUPAÇÃO (%)</h3>
-            <span class="valor" id="ocp-valor">-</span>
-        </div>
-        <div class="card">
-            <h3>NF'S (QTD)</h3>
-            <span class="valor" id="nf-valor">-</span>
-        </div>
+        <div class="card"><h3>VOLUME EXPEDIDO (KG)</h3><span class="valor" id="vol-valor">-</span></div>
+        <div class="card"><h3>DROPSIZE (KG)</h3><span class="valor" id="drop-valor">-</span></div>
+        <div class="card"><h3>OCUPAÇÃO (%)</h3><span class="valor" id="ocp-valor">-</span></div>
+        <div class="card"><h3>NF'S (QTD)</h3><span class="valor" id="nf-valor">-</span></div>
     </div>
 
     <div class="grid-cards">
-        <div class="card">
-            <h3>TERCEIROS UTILIZADOS</h3>
-            <span class="valor" id="terc-util">-</span>
-        </div>
-        <div class="card">
-            <h3>ABSENTEÍSMO (QTD)</h3>
-            <span class="valor" id="abs-valor">-</span>
-        </div>
-        <div class="card">
-            <h3>ABSENTEÍSMO (%)</h3>
-            <span class="valor" id="abs-perc-valor">-</span>
-        </div>
+        <div class="card"><h3>TERCEIROS UTILIZADOS</h3><span class="valor" id="terc-util">-</span></div>
+        <div class="card"><h3>ABSENTEÍSMO (QTD)</h3><span class="valor" id="abs-valor">-</span></div>
+        <div class="card"><h3>ABSENTEÍSMO (%)</h3><span class="valor" id="abs-perc-valor">-</span></div>
     </div>
 
     <div class="secao-inferior">
         <div class="container-coluna">
             <div class="card card-split">
-                <h3>FROTA PRÓPRIA ENTREGA (QTD)</h3>
+                <h3>FROTA PRÓPRIA ENTREGA</h3>
                 <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">DISPO.</span><span class="valor valor-frota" id="f-dispo">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="f-util">-</span></div>
+                    <div class="split-item"><span class="subtitulo">TOT</span><span class="valor valor-frota" id="f-total">-</span></div>
+                    <div class="split-item"><span class="subtitulo">PAR</span><span class="valor valor-frota" id="f-parados">-</span></div>
+                    <div class="split-item"><span class="subtitulo">DIS</span><span class="valor valor-frota" id="f-dispo">-</span></div>
+                    <div class="split-item"><span class="subtitulo">UTI</span><span class="valor valor-frota" id="f-util">-</span></div>
                 </div>
             </div>
-
             <div class="card card-split">
-                <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD)</h3>
+                <h3>FROTA PRÓPRIA TRANSF.</h3>
                 <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">DISPO.</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="ft-util">-</span></div>
+                    <div class="split-item"><span class="subtitulo">TOT</span><span class="valor valor-frota" id="ft-total">-</span></div>
+                    <div class="split-item"><span class="subtitulo">PAR</span><span class="valor valor-frota" id="ft-parados">-</span></div>
+                    <div class="split-item"><span class="subtitulo">DIS</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
+                    <div class="split-item"><span class="subtitulo">UTI</span><span class="valor valor-frota" id="ft-util">-</span></div>
                 </div>
             </div>
         </div>
 
         <div class="container-coluna">
             <div class="card card-split">
-                <h3>MOTORISTA DISTRIBUIÇÃO (QTD)</h3>
+                <h3>MOTORISTA DISTRIB.</h3>
                 <div class="split-container">
                     <div class="split-item"><span class="subtitulo">TOT</span><span class="valor valor-frota" id="md-total">-</span></div>
                     <div class="split-item"><span class="subtitulo">VAG</span><span class="valor valor-frota" id="md-vagas">-</span></div>
@@ -204,9 +183,8 @@
                     <div class="split-item"><span class="subtitulo">UTI</span><span class="valor valor-frota" id="md-util">-</span></div>
                 </div>
             </div>
-
             <div class="card card-split">
-                <h3>AUXILIAR DISTRIBUIÇÃO (QTD)</h3>
+                <h3>AUXILIAR DISTRIB.</h3>
                 <div class="split-container">
                     <div class="split-item"><span class="subtitulo">TOT</span><span class="valor valor-frota" id="aux-total">-</span></div>
                     <div class="split-item"><span class="subtitulo">VAG</span><span class="valor valor-frota" id="aux-vagas">-</span></div>
@@ -217,9 +195,8 @@
                     <div class="split-item"><span class="subtitulo">UTI</span><span class="valor valor-frota" id="aux-util">-</span></div>
                 </div>
             </div>
-
             <div class="card card-split">
-                <h3>MOTORISTA TRANSFERÊNCIA (QTD)</h3>
+                <h3>MOTORISTA TRANSF.</h3>
                 <div class="split-container">
                     <div class="split-item"><span class="subtitulo">TOT</span><span class="valor valor-frota" id="mt-total">-</span></div>
                     <div class="split-item"><span class="subtitulo">VAG</span><span class="valor valor-frota" id="mt-vagas">-</span></div>
@@ -254,8 +231,7 @@
 
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
-                if (!response.ok) throw new Error("Erro na resposta");
-                
+                if (!response.ok) throw new Error("Erro");
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
@@ -265,49 +241,17 @@
                 const idxData = cabecalho.indexOf("DATA");
 
                 const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)",
-                    drop: "DROPSIZE (KG)",
-                    ocp: "OCUPAÇÃO (%)",
-                    nf: "NF'S (QTD)",
-                    abs: "ABSENTEÍSMO (QTD)",
-                    absPerc: "ABSENTEÍSMO (%)",
-                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)",
-                    fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)",
-                    fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)",
-                    fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
-                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)",
-                    ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)",
-                    ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)",
-                    ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
-                    terceiros: "TERCEIROS UTILIZADOS (QTD)",
-                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)",
-                    mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)",
-                    mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)",
-                    mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)",
-                    mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)",
-                    mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)",
-                    mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)"
+                    vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)", nf: "NF'S (QTD)",
+                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)",
+                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
+                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
+                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)"
                 };
 
                 const idxs = {};
-                for (let key in mapping) {
-                    idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
-                }
-
+                for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 let v = {};
                 for(let k in mapping) v[k] = "-";
 
@@ -315,14 +259,13 @@
                     for (let i = 1; i < linhas.length; i++) {
                         const colunas = linhas[i].split(separador);
                         let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
-
                         if (dataPlanilha.includes(hoje1) || dataPlanilha.includes(hoje2)) {
                             const limpar = (idx) => {
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
                                 let val = colunas[idx].replace(/"/g, '').trim();
                                 return (val === "" || val === "null" || val === "#N/A") ? "-" : val;
                             };
-                            for(let key in idxs) { v[key] = limpar(idxs[key]); }
+                            for(let key in idxs) v[key] = limpar(idxs[key]);
                             break;
                         }
                     }
@@ -342,8 +285,7 @@
                     const el = document.getElementById(id);
                     if(el) el.textContent = ids[id];
                 }
-
-            } catch (err) { console.error("Erro:", err); }
+            } catch (err) { console.error(err); }
         }
 
         setInterval(atualizarRelogio, 1000);
