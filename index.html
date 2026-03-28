@@ -125,11 +125,9 @@
             font-size: clamp(1em, 2vw, 1.6em);
         }
 
+        /* Removido a exibição das labels de status */
         .status-label {
-            font-size: clamp(0.3em, 0.55vw, 0.4em);
-            margin-top: 0.2vh;
-            font-weight: normal;
-            color: #00ced1;
+            display: none;
         }
     </style>
 </head>
@@ -144,22 +142,18 @@
         <div class="card">
             <h3>VOLUME EXPEDIDO (KG) - HOJE</h3>
             <span class="valor" id="vol-valor">-</span>
-            <div class="status-label" id="status-vol">Sincronizando...</div>
         </div>
         <div class="card">
             <h3>DROPSIZE (KG) - HOJE</h3>
             <span class="valor" id="drop-valor">-</span>
-            <div class="status-label" id="status-drop">Sincronizando...</div>
         </div>
         <div class="card">
             <h3>OCUPAÇÃO (%) - HOJE</h3>
             <span class="valor" id="ocp-valor">-</span>
-            <div class="status-label" id="status-ocp">Sincronizando...</div>
         </div>
         <div class="card">
             <h3>NF'S (QTD) - HOJE</h3>
             <span class="valor" id="nf-valor">-</span>
-            <div class="status-label" id="status-nf">Sincronizando...</div>
         </div>
     </div>
 
@@ -167,17 +161,14 @@
         <div class="card">
             <h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3>
             <span class="valor" id="terc-util">-</span>
-            <div class="status-label" id="status-terceiros">Sincronizando...</div>
         </div>
         <div class="card">
             <h3>ABSENTEÍSMO (QTD) - HOJE</h3>
             <span class="valor" id="abs-valor">-</span>
-            <div class="status-label" id="status-abs">Sincronizando...</div>
         </div>
         <div class="card">
             <h3>ABSENTEÍSMO (%) - HOJE</h3>
             <span class="valor" id="abs-perc-valor">-</span>
-            <div class="status-label" id="status-abs-perc">Sincronizando...</div>
         </div>
     </div>
 
@@ -191,7 +182,6 @@
                     <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="f-dispo">-</span></div>
                     <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="f-util">-</span></div>
                 </div>
-                <div class="status-label" id="status-frota">Sincronizando...</div>
             </div>
 
             <div class="card card-split">
@@ -202,7 +192,6 @@
                     <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
                     <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util">-</span></div>
                 </div>
-                <div class="status-label" id="status-frota-t">Sincronizando...</div>
             </div>
         </div>
 
@@ -218,7 +207,6 @@
                     <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="md-banco">-</span></div>
                     <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="md-util">-</span></div>
                 </div>
-                <div class="status-label" id="status-md">Sincronizando...</div>
             </div>
 
             <div class="card card-split">
@@ -232,7 +220,6 @@
                     <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="aux-banco">-</span></div>
                     <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="aux-util">-</span></div>
                 </div>
-                <div class="status-label" id="status-aux">Sincronizando...</div>
             </div>
 
             <div class="card card-split">
@@ -246,7 +233,6 @@
                     <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="mt-banco">-</span></div>
                     <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="mt-util">-</span></div>
                 </div>
-                <div class="status-label" id="status-mt">Sincronizando...</div>
             </div>
         </div>
     </div>
@@ -358,21 +344,6 @@
                     const el = document.getElementById(id);
                     if(el) el.textContent = ids[id];
                 }
-
-                const horaSinc = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                const statusIds = ['status-vol', 'status-drop', 'status-ocp', 'status-nf', 'status-abs', 'status-abs-perc', 'status-frota', 'status-frota-t', 'status-terceiros', 'status-md', 'status-aux', 'status-mt'];
-
-                statusIds.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (!el) return;
-                    if (achouData) {
-                        el.textContent = `Sincronizado: ${horaSinc}`;
-                        el.style.color = "#00ced1";
-                    } else {
-                        el.textContent = `Aguardando dado de hoje (${hojeCompleto})`;
-                        el.style.color = "orange";
-                    }
-                });
 
             } catch (err) { console.error("Erro:", err); }
         }
