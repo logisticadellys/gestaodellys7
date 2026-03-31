@@ -20,20 +20,22 @@
             gap: 2.5vh;
         }
 
-        header { flex-shrink: 0; }
-
-        #relogio {
-            color: #00ced1; 
-            font-size: clamp(1.6em, 3vw, 2.2em);
-            display: block;
-            line-height: 1;
+        /* Estilização do Novo Título */
+        header { 
+            flex-shrink: 0; 
+            text-align: center;
+            padding: 1vh 0;
+            border-bottom: 1px solid rgba(46, 204, 113, 0.2);
         }
 
-        #data-atual {
-            color: #a0aec0; 
-            font-size: clamp(0.65em, 0.9vw, 0.8em);
-            text-transform: capitalize;
-            font-weight: normal;
+        .titulo-painel {
+            color: #2ecc71; /* Verde esmeralda menos chamativo */
+            font-size: clamp(1.5em, 3.5vw, 2.4em);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .grid-cards {
@@ -129,8 +131,7 @@
 <body>
 
     <header>
-        <span id="relogio">00:00:00</span>
-        <span id="data-atual">Carregando...</span>
+        <h1 class="titulo-painel">GESTÃO À VISTA - FILIAL 7</h1>
     </header>
 
     <div class="grid-cards">
@@ -233,14 +234,6 @@
     </div>
 
     <script>
-        function atualizarRelogio() {
-            const agora = new Date();
-            const fHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-            const fData = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'long', weekday: 'long', year: 'numeric' };
-            document.getElementById('relogio').textContent = agora.toLocaleTimeString('pt-BR', fHora);
-            document.getElementById('data-atual').textContent = agora.toLocaleDateString('pt-BR', fData);
-        }
-
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
 
         async function fetchPlanilha() {
@@ -344,8 +337,6 @@
             } catch (err) { console.error("Erro:", err); }
         }
 
-        setInterval(atualizarRelogio, 1000);
-        atualizarRelogio();
         fetchPlanilha();
         setInterval(fetchPlanilha, 60000); 
     </script>
