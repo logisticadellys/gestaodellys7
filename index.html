@@ -20,21 +20,24 @@
             gap: 2.5vh;
         }
 
-        /* Estilização do Header com Logo */
+        /* Estilização do Header com Logo à Esquerda e Título Centralizado */
         header { 
             flex-shrink: 0; 
+            position: relative;
             display: flex;
             align-items: center;
-            justify-content: center; /* Centraliza o conjunto logo+título */
-            gap: 20px; /* Espaço entre a logo e o texto */
+            justify-content: center;
             padding: 1vh 0;
             border-bottom: 1px solid rgba(46, 204, 113, 0.2);
+            min-height: 8vh;
         }
 
         .logo-img {
-            height: clamp(40px, 6vh, 60px); /* Tamanho proporcional ao título */
+            position: absolute;
+            left: 0;
+            height: clamp(40px, 6vh, 60px);
             width: auto;
-            background-color: #0b192c; /* Mesma cor do fundo do trabalho */
+            background-color: #0b192c; /* Mesma cor do fundo */
         }
 
         .titulo-painel {
@@ -45,6 +48,7 @@
             margin: 0;
             font-weight: 800;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-align: center;
         }
 
         .grid-cards {
