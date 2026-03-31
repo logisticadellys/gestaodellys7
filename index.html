@@ -20,25 +20,24 @@
             gap: 2.5vh;
         }
 
-        /* Estilização do Novo Título com Logo */
+        /* Estilização do Título com Logo à Esquerda */
         header { 
             flex-shrink: 0; 
-            display: flex;
+            display: flex; /* Adicionado para alinhar lado a lado */
             align-items: center;
-            justify-content: center; /* Centraliza o conjunto logo + título */
+            justify-content: center;
             gap: 20px; /* Espaço entre a logo e o texto */
             padding: 1vh 0;
             border-bottom: 1px solid rgba(46, 204, 113, 0.2);
         }
 
         .logo-dellys {
-            height: clamp(40px, 6vh, 60px); /* Ajusta o tamanho proporcionalmente */
+            height: clamp(40px, 6vh, 60px); /* Tamanho da logo */
             width: auto;
-            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
         }
 
         .titulo-painel {
-            color: #2ecc71; /* Verde esmeralda menos chamativo */
+            color: #2ecc71;
             font-size: clamp(1.5em, 3.5vw, 2.4em);
             text-transform: uppercase;
             letter-spacing: 3px;
