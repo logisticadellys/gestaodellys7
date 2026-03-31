@@ -20,12 +20,21 @@
             gap: 2.5vh;
         }
 
-        /* Estilização do Novo Título */
+        /* Ajuste do Header para alinhar Logo e Título */
         header { 
             flex-shrink: 0; 
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* Espaço entre a logo e o texto */
             padding: 1vh 0;
             border-bottom: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .logo-img {
+            height: clamp(40px, 6vh, 65px); /* Tamanho proporcional ao título */
+            width: auto;
+            background-color: #0b192c; /* Garante a cor de fundo idêntica */
         }
 
         .titulo-painel {
@@ -131,6 +140,7 @@
 <body>
 
     <header>
+        <img src="dellyslogo.png" alt="Logo Delly's" class="logo-img">
         <h1 class="titulo-painel">GESTÃO À VISTA - FILIAL 7</h1>
     </header>
 
