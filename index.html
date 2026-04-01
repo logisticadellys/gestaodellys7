@@ -528,7 +528,7 @@
                     datasets: [{
                         label: 'Volume (KG)',
                         data: valores,
-                        backgroundColor: '#00ced1',
+                        backgroundColor: '#1a365d',
                         borderColor: '#00ced1',
                         borderWidth: 1,
                         borderRadius: 2,
@@ -569,9 +569,8 @@
             const ctx = document.getElementById('graficoMensal').getContext('2d');
             if (chartMensalInstance) chartMensalInstance.destroy();
 
-            // Cálculo dinâmico para garantir folga no topo (evita encostar no título)
             const maxValor = Math.max(...valores);
-            const tetoSugerido = maxValor > 0 ? maxValor * 1.25 : 1000;
+            const tetoSugerido = maxValor > 0 ? maxValor * 1.35 : 1000;
 
             chartMensalInstance = new Chart(ctx, {
                 type: 'bar',
@@ -580,7 +579,7 @@
                     datasets: [{
                         label: 'Volume Mensal (KG)',
                         data: valores,
-                        backgroundColor: '#00ced1',
+                        backgroundColor: '#1a365d',
                         borderColor: '#00ced1',
                         borderWidth: 1,
                         borderRadius: 2,
@@ -590,15 +589,16 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { top: 20 } }, // Alinha altura com o outro gráfico
+                    layout: { padding: { top: 30 } }, 
                     plugins: {
                         datalabels: {
                             display: true,
-                            anchor: 'center', // Fixa o valor dentro da barra
-                            align: 'center',
-                            color: '#ffffff', // VALORES EM BRANCO
-                            rotation: -90,    // VALORES NA VERTICAL
-                            font: { weight: 'bold', size: 12 },
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 5,
+                            color: '#ffffff',
+                            rotation: -90,
+                            font: { weight: 'bold', size: 11 },
                             formatter: (value) => value > 0 ? value.toLocaleString('pt-BR') : ''
                         },
                         title: {
@@ -612,13 +612,17 @@
                     },
                     scales: {
                         y: {
-                            display: false, // Remove a linha/escala lateral
+                            display: false,
                             beginAtZero: true,
-                            suggestedMax: tetoSugerido // Garante que a barra não encoste no topo
+                            suggestedMax: tetoSugerido 
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#ffffff', font: { size: 9 } }
+                            ticks: { 
+                                color: '#ffffff', 
+                                font: { size: 9 },
+                                padding: 10 
+                            }
                         }
                     }
                 }
