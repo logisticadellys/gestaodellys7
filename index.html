@@ -236,7 +236,7 @@
 
         .chart-container {
             background-color: #1a365d;
-            border: 2px solid #2ecc71;
+            border: 2px solid #00ced1;
             border-radius: 12px;
             padding: 1.5vh;
             position: relative;
@@ -366,10 +366,10 @@
             <div class="chart-container">
                 <canvas id="graficoMensal"></canvas>
             </div>
-            <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
+            <div class="chart-container" style="border-style: dashed; border-color: #00ced1; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
                 <span>GRÁFICO 3</span>
             </div>
-            <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
+            <div class="chart-container" style="border-style: dashed; border-color: #00ced1; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
                 <span>GRÁFICO 4</span>
             </div>
         </div>
@@ -460,7 +460,6 @@
                 let v = {};
                 for(let k in mapping) v[k] = "-";
 
-                // Preparação dos dados para os gráficos
                 const ultimoDiaMes = new Date(ano, agora.getMonth() + 1, 0).getDate();
                 const labelsDiarioCompleto = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
                 const dadosDiarioCompleto = Array(ultimoDiaMes).fill(0);
@@ -471,7 +470,6 @@
                         const colunas = linhas[i].split(separador);
                         let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
 
-                        // Captura dados do card HOJE
                         if (dataPlanilha.includes(hojeBusca)) {
                             const limpar = (idx) => {
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
@@ -481,17 +479,14 @@
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        // Processamento para os Gráficos
                         let valorVolRaw = colunas[idxVolExp] ? colunas[idxVolExp].replace(/"/g, '').trim() : "";
                         if (valorVolRaw !== "" && valorVolRaw !== "-" && valorVolRaw !== "null" && valorVolRaw !== "#N/A") {
                             let num = parseFloat(valorVolRaw.replace(/\./g, '').replace(',', '.'));
                             if (!isNaN(num)) {
-                                // Gráfico Diário (Apenas mês atual) - Preenchendo a posição correta no array de 1 a 31
                                 if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
                                     let diaP = parseInt(dataPlanilha.split('/')[0]);
                                     if(diaP <= ultimoDiaMes) dadosDiarioCompleto[diaP - 1] = num;
                                 }
-                                // Gráfico Mensal (Ano 2026)
                                 if (dataPlanilha.includes("/2026")) {
                                     let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
                                     if (mIdx >= 0 && mIdx < 12) acumuladoMensal[mIdx] += num;
@@ -501,7 +496,6 @@
                     }
                 }
 
-                // Atualiza Cards
                 const ids = {
                     'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf,
                     'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros,
@@ -534,8 +528,8 @@
                     datasets: [{
                         label: 'Volume (KG)',
                         data: valores,
-                        backgroundColor: '#4fd1c5',
-                        borderColor: '#4fd1c5',
+                        backgroundColor: '#00ced1',
+                        borderColor: '#00ced1',
                         borderWidth: 1,
                         borderRadius: 2,
                         barPercentage: 0.7
@@ -550,7 +544,8 @@
                             display: true,
                             text: `VOLUME EXPEDIDO (KG) - ${mesNome}`,
                             color: '#a0aec0',
-                            font: { size: 16, weight: 'bold' }
+                            font: { size: 16, weight: 'bold' },
+                            padding: { bottom: 10 }
                         },
                         legend: { display: false }
                     },
@@ -580,8 +575,8 @@
                     datasets: [{
                         label: 'Volume Mensal (KG)',
                         data: valores,
-                        backgroundColor: '#4fd1c5',
-                        borderColor: '#4fd1c5',
+                        backgroundColor: '#00ced1',
+                        borderColor: '#00ced1',
                         borderWidth: 1,
                         borderRadius: 2,
                         barPercentage: 0.6
@@ -590,21 +585,23 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { top: 30 } },
+                    layout: { padding: { top: 0 } },
                     plugins: {
                         datalabels: {
                             display: true,
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#ffffff',
-                            font: { weight: 'bold', size: 11 },
+                            anchor: 'center',
+                            align: 'center',
+                            color: '#0b192c',
+                            rotation: -90,
+                            font: { weight: 'bold', size: 12 },
                             formatter: (value) => value > 0 ? value.toLocaleString('pt-BR') : ''
                         },
                         title: {
                             display: true,
                             text: 'VOLUME EXPEDIDO (KG) - MENSAL (2026)',
                             color: '#a0aec0',
-                            font: { size: 16, weight: 'bold' }
+                            font: { size: 16, weight: 'bold' },
+                            padding: { bottom: 10 }
                         },
                         legend: { display: false }
                     },
