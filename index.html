@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Logístico</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         body {
             background-color: #0b192c;
@@ -147,13 +146,13 @@
             background-color: #1a365d;
             border: 2px solid #00ced1;
             border-radius: 12px;
-            flex: 1; 
             padding: 0.8vh 0.6vw;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             display: flex;
             flex-direction: column;
             justify-content: center;
+            flex: 1;
         }
 
         .card h3 {
@@ -225,22 +224,25 @@
             font-size: clamp(1em, 2vw, 1.6em);
         }
 
-        /* GRID PARA VÁRIOS GRÁFICOS NA TELA 2 */
-        .grid-graficos {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 colunas */
-            grid-template-rows: repeat(2, 1fr);    /* 2 linhas */
-            gap: 20px;
+        /* TELA 2 - CONFIGURAÇÃO DOS GRÁFICOS */
+        .wrapper-graficos {
+            display: flex;
+            flex-wrap: wrap; /* Permite colocar outros ao lado no futuro */
+            gap: 2vw;
+            align-items: flex-start;
+            justify-content: flex-start;
             flex: 1;
-            min-height: 0;
         }
 
         .chart-container {
+            width: 48%; /* Gráfico menor para caber outros ao lado */
+            height: 45vh;
             background-color: #1a365d;
-            border: 2px solid #2ecc71;
+            border: 2px solid #00ced1; /* Cor alinhada ao Dropsize da Tela 1 */
             border-radius: 12px;
             padding: 1.5vh;
-            position: relative;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
     </style>
 </head>
@@ -360,29 +362,16 @@
     </div>
 
     <div id="tela2" class="tela">
-        <div class="grid-graficos">
+        <div class="wrapper-graficos">
             <div class="chart-container">
                 <canvas id="graficoVolume"></canvas>
             </div>
-            
-            <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
-                <span>GRÁFICO 2</span>
             </div>
-            <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
-                <span>GRÁFICO 3</span>
-            </div>
-            <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
-                <span>GRÁFICO 4</span>
-            </div>
-        </div>
     </div>
 
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
         
-        // Registrar o plugin de labels
-        Chart.register(ChartDataLabels);
-
         let autoMode = false;
         let tempoRestante = 15;
         let telaAtual = 1;
@@ -392,11 +381,16 @@
             autoMode = !autoMode;
             const btn = document.getElementById('btn-auto-toggle');
             const timerDisp = document.getElementById('timer-display');
+            
             if (autoMode) {
-                btn.textContent = "Auto: ON"; btn.className = "btn-auto auto-on";
-                tempoRestante = 15; timerDisp.textContent = tempoRestante; timerDisp.style.visibility = "visible";
+                btn.textContent = "Auto: ON";
+                btn.className = "btn-auto auto-on";
+                tempoRestante = 15;
+                timerDisp.textContent = tempoRestante;
+                timerDisp.style.visibility = "visible";
             } else {
-                btn.textContent = "Auto: OFF"; btn.className = "btn-auto auto-off";
+                btn.textContent = "Auto: OFF";
+                btn.className = "btn-auto auto-off";
                 timerDisp.style.visibility = "hidden";
             }
         }
@@ -410,17 +404,26 @@
             if (autoMode) {
                 tempoRestante--;
                 document.getElementById('timer-display').textContent = tempoRestante;
-                if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 15; }
+                
+                if (tempoRestante <= 0) {
+                    alternarTelas();
+                    tempoRestante = 15;
+                }
             }
         }, 1000);
 
         function alternarTelas() {
             const t1 = document.getElementById('tela1');
             const t2 = document.getElementById('tela2');
+            
             if (telaAtual === 1) {
-                t1.classList.remove('ativa'); t2.classList.add('ativa'); telaAtual = 2;
+                t1.classList.remove('ativa');
+                t2.classList.add('ativa');
+                telaAtual = 2;
             } else {
-                t2.classList.remove('ativa'); t1.classList.add('ativa'); telaAtual = 1;
+                t2.classList.remove('ativa');
+                t1.classList.add('ativa');
+                telaAtual = 1;
             }
         }
 
@@ -436,6 +439,8 @@
 
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
+                if (!response.ok) throw new Error("Erro na resposta");
+                
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
@@ -508,12 +513,14 @@
                 }
 
                 renderizarGrafico(labelsGrafico, dadosGrafico, mesAtualNome);
+
             } catch (err) { console.error("Erro:", err); }
         }
 
         function renderizarGrafico(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
+            
+            if (chartInstance) { chartInstance.destroy(); }
 
             chartInstance = new Chart(ctx, {
                 type: 'bar',
@@ -522,53 +529,47 @@
                     datasets: [{
                         label: 'Volume (KG)',
                         data: valores,
-                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
-                        borderColor: '#2ecc71',
-                        borderWidth: 2,
-                        borderRadius: 4
+                        backgroundColor: '#00ced1', // Azul claro solicitado
+                        borderColor: '#00ced1',
+                        borderWidth: 1,
+                        borderRadius: 2,
+                        barPercentage: 0.6, // Colunas mais finas e padronizadas
+                        categoryPercentage: 0.8
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { top: 30 } },
                     plugins: {
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#ffffff',
-                            font: { weight: 'bold', size: 10 },
-                            formatter: (value) => value.toLocaleString('pt-BR')
-                        },
                         title: {
                             display: true,
                             text: `VOLUME EXPEDIDO (KG) - ${mesNome}`,
-                            color: '#2ecc71',
-                            font: { size: clampSize(14, 18), weight: 'bold' },
-                            padding: { bottom: 10 }
+                            color: '#00ced1', // Mesma cor do título DROPSIZE da tela 1
+                            font: { size: clamp(14, 1.8vw, 20), weight: 'bold' },
+                            padding: { bottom: 15 }
                         },
                         legend: { display: false }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#ffffff', font: { size: 10 } }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#ffffff', font: { weight: 'bold', size: 10 } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#ffffff', font: { size: 10 } }
+                            ticks: { color: '#ffffff', font: { weight: 'bold', size: 10 } },
+                            title: {
+                                display: true,
+                                text: 'DIAS',
+                                color: '#a0aec0',
+                                font: { size: 12, weight: 'bold' },
+                                padding: { top: 10 }
+                            }
                         }
                     }
                 }
             });
-        }
-
-        function clampSize(min, max) {
-            let size = window.innerWidth * 0.015;
-            if(size < min) return min;
-            if(size > max) return max;
-            return size;
         }
 
         fetchPlanilha();
