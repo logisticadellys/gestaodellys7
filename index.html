@@ -38,29 +38,31 @@
             width: auto;
         }
 
-        /* Container de Controles - Centralizado à Direita */
+        /* Container de Controles (Direita) */
         .controles-painel {
             position: absolute;
             right: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center; /* Centraliza os itens verticalmente entre si */
-            gap: 6px;
-            top: -4px;
+            align-items: center; /* Alinha o timer com a coluna de botões */
+            gap: 12px;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
-        .superior-controles {
+        /* Coluna que agrupa Botão Auto e Setas */
+        .coluna-botoes {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            align-items: center; /* Centraliza as setas em relação ao botão Auto */
+            gap: 6px;
         }
 
         #timer-display {
-            color: #a0aec0; /* Cor cinza menos chamativa */
+            color: #a0aec0; /* Cinza menos chamativo */
             font-size: 0.85em;
-            width: 22px;
-            height: 22px;
-            border: 2px solid #a0aec0; /* Borda cinza */
+            width: 24px;
+            height: 24px;
+            border: 1.5px solid #a0aec0;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -70,7 +72,7 @@
         }
 
         .btn-auto {
-            padding: 2px 10px;
+            padding: 3px 12px;
             border-radius: 12px;
             border: none;
             cursor: pointer;
@@ -78,29 +80,32 @@
             text-transform: uppercase;
             transition: 0.3s;
             font-size: 0.65em;
-            width: 70px; /* Largura fixa para ajudar no alinhamento das setas */
+            width: 85px; /* Largura fixa para ajudar no alinhamento das setas */
         }
 
         .nav-manual {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             justify-content: center;
-            width: 100%;
         }
 
         .btn-nav {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(46, 204, 113, 0.4);
+            color: white;
             cursor: pointer;
-            padding: 0;
-            font-size: 1em;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.75em;
             transition: 0.2s;
-            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-nav:hover {
-            color: #2ecc71;
+            background: #2ecc71;
+            color: #0b192c;
         }
 
         .auto-on { background-color: #2ecc71; color: #fff; }
@@ -228,13 +233,13 @@
         <img src="dellyslogo.png" alt="Logo" class="logo-img">
         <h1 class="titulo-painel">GESTÃO À VISTA - FILIAL 7</h1>
         <div class="controles-painel">
-            <div class="superior-controles">
-                <span id="timer-display">15</span>
+            <span id="timer-display">15</span>
+            <div class="coluna-botoes">
                 <button id="btn-auto-toggle" class="btn-auto auto-off" onclick="toggleAuto()">Auto: OFF</button>
-            </div>
-            <div class="nav-manual">
-                <button class="btn-nav" onclick="mudarTelaManual(-1)">&#9664;</button>
-                <button class="btn-nav" onclick="mudarTelaManual(1)">&#9654;</button>
+                <div class="nav-manual">
+                    <button class="btn-nav" onclick="mudarTelaManual(-1)">&#10094;</button>
+                    <button class="btn-nav" onclick="mudarTelaManual(1)">&#10095;</button>
+                </div>
             </div>
         </div>
     </header>
@@ -380,6 +385,7 @@
             if (autoMode) {
                 tempoRestante--;
                 document.getElementById('timer-display').textContent = tempoRestante;
+                
                 if (tempoRestante <= 0) {
                     alternarTelas();
                     tempoRestante = 15;
@@ -390,6 +396,7 @@
         function alternarTelas() {
             const t1 = document.getElementById('tela1');
             const t2 = document.getElementById('tela2');
+            
             if (telaAtual === 1) {
                 t1.classList.remove('ativa');
                 t2.classList.add('ativa');
@@ -411,6 +418,7 @@
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
                 if (!response.ok) throw new Error("Erro na resposta");
+                
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
@@ -431,6 +439,7 @@
 
                 const idxs = {};
                 for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
+
                 let v = {};
                 for(let k in mapping) v[k] = "-";
 
