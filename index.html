@@ -538,6 +538,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: { padding: { top: 20 } },
                     plugins: {
                         datalabels: { display: false },
                         title: {
@@ -568,9 +569,9 @@
             const ctx = document.getElementById('graficoMensal').getContext('2d');
             if (chartMensalInstance) chartMensalInstance.destroy();
 
-            // Calcula o limite superior para os valores não passarem da linha de cima (folga de 15%)
-            const maxVal = Math.max(...valores);
-            const limiteSuperior = maxVal > 0 ? maxVal * 1.15 : 100;
+            // Cálculo dinâmico para garantir folga no topo (evita encostar no título)
+            const maxValor = Math.max(...valores);
+            const tetoSugerido = maxValor > 0 ? maxValor * 1.25 : 1000;
 
             chartMensalInstance = new Chart(ctx, {
                 type: 'bar',
@@ -589,14 +590,15 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { top: 20 } },
+                    layout: { padding: { top: 20 } }, // Alinha altura com o outro gráfico
                     plugins: {
                         datalabels: {
                             display: true,
-                            anchor: 'end',
-                            align: 'top',
+                            anchor: 'center', // Fixa o valor dentro da barra
+                            align: 'center',
                             color: '#ffffff', // VALORES EM BRANCO
-                            font: { weight: 'bold', size: 11 },
+                            rotation: -90,    // VALORES NA VERTICAL
+                            font: { weight: 'bold', size: 12 },
                             formatter: (value) => value > 0 ? value.toLocaleString('pt-BR') : ''
                         },
                         title: {
@@ -610,9 +612,9 @@
                     },
                     scales: {
                         y: {
-                            display: false,
+                            display: false, // Remove a linha/escala lateral
                             beginAtZero: true,
-                            suggestedMax: limiteSuperior // FIXA O LIMITE NO TOPO
+                            suggestedMax: tetoSugerido // Garante que a barra não encoste no topo
                         },
                         x: {
                             grid: { display: false },
