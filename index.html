@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Logístico</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         body {
             background-color: #0b192c;
@@ -224,14 +225,22 @@
             font-size: clamp(1em, 2vw, 1.6em);
         }
 
-        /* Estilo específico para o container do gráfico na Tela 2 */
-        .chart-container {
+        /* GRID PARA VÁRIOS GRÁFICOS NA TELA 2 */
+        .grid-graficos {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 colunas */
+            grid-template-rows: repeat(2, 1fr);    /* 2 linhas */
+            gap: 20px;
             flex: 1;
+            min-height: 0;
+        }
+
+        .chart-container {
             background-color: #1a365d;
             border: 2px solid #2ecc71;
             border-radius: 12px;
-            padding: 2vh;
-            min-height: 0;
+            padding: 1.5vh;
+            position: relative;
         }
     </style>
 </head>
@@ -351,14 +360,29 @@
     </div>
 
     <div id="tela2" class="tela">
-        <div class="chart-container">
-            <canvas id="graficoVolume"></canvas>
+        <div class="grid-graficos">
+            <div class="chart-container">
+                <canvas id="graficoVolume"></canvas>
+            </div>
+            
+            <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
+                <span>GRÁFICO 2</span>
+            </div>
+            <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
+                <span>GRÁFICO 3</span>
+            </div>
+            <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
+                <span>GRÁFICO 4</span>
+            </div>
         </div>
     </div>
 
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
         
+        // Registrar o plugin de labels
+        Chart.register(ChartDataLabels);
+
         let autoMode = false;
         let tempoRestante = 15;
         let telaAtual = 1;
@@ -368,16 +392,11 @@
             autoMode = !autoMode;
             const btn = document.getElementById('btn-auto-toggle');
             const timerDisp = document.getElementById('timer-display');
-            
             if (autoMode) {
-                btn.textContent = "Auto: ON";
-                btn.className = "btn-auto auto-on";
-                tempoRestante = 15;
-                timerDisp.textContent = tempoRestante;
-                timerDisp.style.visibility = "visible";
+                btn.textContent = "Auto: ON"; btn.className = "btn-auto auto-on";
+                tempoRestante = 15; timerDisp.textContent = tempoRestante; timerDisp.style.visibility = "visible";
             } else {
-                btn.textContent = "Auto: OFF";
-                btn.className = "btn-auto auto-off";
+                btn.textContent = "Auto: OFF"; btn.className = "btn-auto auto-off";
                 timerDisp.style.visibility = "hidden";
             }
         }
@@ -391,26 +410,17 @@
             if (autoMode) {
                 tempoRestante--;
                 document.getElementById('timer-display').textContent = tempoRestante;
-                
-                if (tempoRestante <= 0) {
-                    alternarTelas();
-                    tempoRestante = 15;
-                }
+                if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 15; }
             }
         }, 1000);
 
         function alternarTelas() {
             const t1 = document.getElementById('tela1');
             const t2 = document.getElementById('tela2');
-            
             if (telaAtual === 1) {
-                t1.classList.remove('ativa');
-                t2.classList.add('ativa');
-                telaAtual = 2;
+                t1.classList.remove('ativa'); t2.classList.add('ativa'); telaAtual = 2;
             } else {
-                t2.classList.remove('ativa');
-                t1.classList.add('ativa');
-                telaAtual = 1;
+                t2.classList.remove('ativa'); t1.classList.add('ativa'); telaAtual = 1;
             }
         }
 
@@ -421,14 +431,11 @@
             const ano = agora.getFullYear();
             const hojeBusca = `${dia}/${mesNum}/${ano}`;
 
-            // Nomes dos meses para o título
             const mesesExtenso = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
             const mesAtualNome = mesesExtenso[agora.getMonth()];
 
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
-                if (!response.ok) throw new Error("Erro na resposta");
-                
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
@@ -439,7 +446,6 @@
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVolExp = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
 
-                // Mapping original para Tela 1
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)", nf: "NF'S (QTD)",
                     abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)",
@@ -456,7 +462,6 @@
                 let v = {};
                 for(let k in mapping) v[k] = "-";
 
-                // Arrays para o gráfico
                 const labelsGrafico = [];
                 const dadosGrafico = [];
 
@@ -465,7 +470,6 @@
                         const colunas = linhas[i].split(separador);
                         let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
 
-                        // Lógica Tela 1 (Hoje)
                         if (dataPlanilha.includes(hojeBusca)) {
                             const limpar = (idx) => {
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
@@ -475,17 +479,12 @@
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        // Lógica Tela 2 (Gráfico do Mês Atual)
-                        // Verifica se a data contém "/MM/AAAA" do mês atual
                         if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
                             let valorVol = colunas[idxVolExp] ? colunas[idxVolExp].replace(/"/g, '').trim() : "";
-                            
-                            // Só adiciona se tiver valor numérico válido
                             if (valorVol !== "" && valorVol !== "-" && valorVol !== "null" && valorVol !== "#N/A") {
-                                // Converte para número (trata padrão brasileiro 1.000,00 ou americano 1000.00)
                                 let num = parseFloat(valorVol.replace(/\./g, '').replace(',', '.'));
                                 if (!isNaN(num)) {
-                                    labelsGrafico.push(dataPlanilha.split('/')[0]); // Pega só o dia "01"
+                                    labelsGrafico.push(dataPlanilha.split('/')[0]); 
                                     dadosGrafico.push(num);
                                 }
                             }
@@ -493,7 +492,6 @@
                     }
                 }
 
-                // Atualiza IDs da Tela 1
                 const ids = {
                     'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf,
                     'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros,
@@ -509,18 +507,13 @@
                     if(el) el.textContent = ids[id];
                 }
 
-                // Criar/Atualizar Gráfico
                 renderizarGrafico(labelsGrafico, dadosGrafico, mesAtualNome);
-
             } catch (err) { console.error("Erro:", err); }
         }
 
         function renderizarGrafico(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d');
-            
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
+            if (chartInstance) chartInstance.destroy();
 
             chartInstance = new Chart(ctx, {
                 type: 'bar',
@@ -532,35 +525,50 @@
                         backgroundColor: 'rgba(46, 204, 113, 0.7)',
                         borderColor: '#2ecc71',
                         borderWidth: 2,
-                        borderRadius: 5
+                        borderRadius: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: { padding: { top: 30 } },
                     plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value) => value.toLocaleString('pt-BR')
+                        },
                         title: {
                             display: true,
                             text: `VOLUME EXPEDIDO (KG) - ${mesNome}`,
                             color: '#2ecc71',
-                            font: { size: 24, weight: 'bold' },
-                            padding: { bottom: 20 }
+                            font: { size: clampSize(14, 18), weight: 'bold' },
+                            padding: { bottom: 10 }
                         },
                         legend: { display: false }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#ffffff', font: { weight: 'bold' } }
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#ffffff', font: { size: 10 } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#ffffff', font: { weight: 'bold' } }
+                            ticks: { color: '#ffffff', font: { size: 10 } }
                         }
                     }
                 }
             });
+        }
+
+        function clampSize(min, max) {
+            let size = window.innerWidth * 0.015;
+            if(size < min) return min;
+            if(size > max) return max;
+            return size;
         }
 
         fetchPlanilha();
