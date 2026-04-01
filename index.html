@@ -460,10 +460,10 @@
                 let v = {};
                 for(let k in mapping) v[k] = "-";
 
-                const labelsGrafico = [];
-                const dadosGrafico = [];
-                
-                // Variáveis para o consolidado mensal
+                // Preparação dos dados para os gráficos
+                const ultimoDiaMes = new Date(ano, agora.getMonth() + 1, 0).getDate();
+                const labelsDiarioCompleto = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
+                const dadosDiarioCompleto = Array(ultimoDiaMes).fill(0);
                 const acumuladoMensal = Array(12).fill(0);
 
                 if (idxData !== -1) {
@@ -486,15 +486,14 @@
                         if (valorVolRaw !== "" && valorVolRaw !== "-" && valorVolRaw !== "null" && valorVolRaw !== "#N/A") {
                             let num = parseFloat(valorVolRaw.replace(/\./g, '').replace(',', '.'));
                             if (!isNaN(num)) {
-                                // Gráfico Diário (Apenas mês atual)
+                                // Gráfico Diário (Apenas mês atual) - Preenchendo a posição correta no array de 1 a 31
                                 if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
-                                    labelsGrafico.push(dataPlanilha.split('/')[0]); 
-                                    dadosGrafico.push(num);
+                                    let diaP = parseInt(dataPlanilha.split('/')[0]);
+                                    if(diaP <= ultimoDiaMes) dadosDiarioCompleto[diaP - 1] = num;
                                 }
                                 // Gráfico Mensal (Ano 2026)
                                 if (dataPlanilha.includes("/2026")) {
-                                    let partes = dataPlanilha.split('/');
-                                    let mIdx = parseInt(partes[1]) - 1;
+                                    let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
                                     if (mIdx >= 0 && mIdx < 12) acumuladoMensal[mIdx] += num;
                                 }
                             }
@@ -518,7 +517,7 @@
                     if(el) el.textContent = ids[id];
                 }
 
-                renderizarGraficoDiario(labelsGrafico, dadosGrafico, mesAtualNome);
+                renderizarGraficoDiario(labelsDiarioCompleto, dadosDiarioCompleto, mesAtualNome);
                 renderizarGraficoMensal(mesesExtenso, acumuladoMensal);
 
             } catch (err) { console.error("Erro:", err); }
@@ -527,10 +526,6 @@
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d');
             if (chartInstance) chartInstance.destroy();
-
-            // Lógica para escala Y estável
-            const maxVal = valores.length > 0 ? Math.max(...valores) : 0;
-            const suggestedMax = maxVal + (maxVal * 0.1);
 
             chartInstance = new Chart(ctx, {
                 type: 'bar',
@@ -543,7 +538,7 @@
                         borderColor: '#4fd1c5',
                         borderWidth: 1,
                         borderRadius: 2,
-                        barPercentage: 0.5
+                        barPercentage: 0.7
                     }]
                 },
                 options: {
@@ -562,14 +557,12 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            suggestedMax: suggestedMax,
                             grid: { color: 'rgba(255, 255, 255, 0.05)' },
                             ticks: { color: '#ffffff', font: { size: 10 } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#ffffff', font: { size: 10 } },
-                            title: { display: true, text: 'DIAS', color: '#a0aec0' }
+                            ticks: { color: '#ffffff', font: { size: 9 } }
                         }
                     }
                 }
@@ -591,14 +584,22 @@
                         borderColor: '#4fd1c5',
                         borderWidth: 1,
                         borderRadius: 2,
-                        barPercentage: 0.5
+                        barPercentage: 0.6
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: { padding: { top: 30 } },
                     plugins: {
-                        datalabels: { display: false },
+                        datalabels: {
+                            display: true,
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 11 },
+                            formatter: (value) => value > 0 ? value.toLocaleString('pt-BR') : ''
+                        },
                         title: {
                             display: true,
                             text: 'VOLUME EXPEDIDO (KG) - MENSAL (2026)',
@@ -609,9 +610,8 @@
                     },
                     scales: {
                         y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#ffffff', font: { size: 10 } }
+                            display: false,
+                            beginAtZero: true
                         },
                         x: {
                             grid: { display: false },
