@@ -363,9 +363,8 @@
             <div class="chart-container">
                 <canvas id="graficoVolume"></canvas>
             </div>
-            
-            <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
-                <span>GRÁFICO 2</span>
+            <div class="chart-container">
+                <canvas id="graficoMensal"></canvas>
             </div>
             <div class="chart-container" style="border-style: dashed; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
                 <span>GRÁFICO 3</span>
@@ -385,6 +384,7 @@
         let tempoRestante = 15;
         let telaAtual = 1;
         let chartInstance = null;
+        let chartMensalInstance = null;
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -462,12 +462,16 @@
 
                 const labelsGrafico = [];
                 const dadosGrafico = [];
+                
+                // Variáveis para o consolidado mensal
+                const acumuladoMensal = Array(12).fill(0);
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
                         const colunas = linhas[i].split(separador);
                         let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
 
+                        // Captura dados do card HOJE
                         if (dataPlanilha.includes(hojeBusca)) {
                             const limpar = (idx) => {
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
@@ -477,19 +481,28 @@
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
-                            let valorVol = colunas[idxVolExp] ? colunas[idxVolExp].replace(/"/g, '').trim() : "";
-                            if (valorVol !== "" && valorVol !== "-" && valorVol !== "null" && valorVol !== "#N/A") {
-                                let num = parseFloat(valorVol.replace(/\./g, '').replace(',', '.'));
-                                if (!isNaN(num)) {
+                        // Processamento para os Gráficos
+                        let valorVolRaw = colunas[idxVolExp] ? colunas[idxVolExp].replace(/"/g, '').trim() : "";
+                        if (valorVolRaw !== "" && valorVolRaw !== "-" && valorVolRaw !== "null" && valorVolRaw !== "#N/A") {
+                            let num = parseFloat(valorVolRaw.replace(/\./g, '').replace(',', '.'));
+                            if (!isNaN(num)) {
+                                // Gráfico Diário (Apenas mês atual)
+                                if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
                                     labelsGrafico.push(dataPlanilha.split('/')[0]); 
                                     dadosGrafico.push(num);
+                                }
+                                // Gráfico Mensal (Ano 2026)
+                                if (dataPlanilha.includes("/2026")) {
+                                    let partes = dataPlanilha.split('/');
+                                    let mIdx = parseInt(partes[1]) - 1;
+                                    if (mIdx >= 0 && mIdx < 12) acumuladoMensal[mIdx] += num;
                                 }
                             }
                         }
                     }
                 }
 
+                // Atualiza Cards
                 const ids = {
                     'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf,
                     'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros,
@@ -505,13 +518,19 @@
                     if(el) el.textContent = ids[id];
                 }
 
-                renderizarGrafico(labelsGrafico, dadosGrafico, mesAtualNome);
+                renderizarGraficoDiario(labelsGrafico, dadosGrafico, mesAtualNome);
+                renderizarGraficoMensal(mesesExtenso, acumuladoMensal);
+
             } catch (err) { console.error("Erro:", err); }
         }
 
-        function renderizarGrafico(labels, valores, mesNome) {
+        function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d');
             if (chartInstance) chartInstance.destroy();
+
+            // Lógica para escala Y estável
+            const maxVal = valores.length > 0 ? Math.max(...valores) : 0;
+            const suggestedMax = maxVal + (maxVal * 0.1);
 
             chartInstance = new Chart(ctx, {
                 type: 'bar',
@@ -524,24 +543,67 @@
                         borderColor: '#4fd1c5',
                         borderWidth: 1,
                         borderRadius: 2,
-                        barPercentage: 0.5,
-                        categoryPercentage: 0.8
+                        barPercentage: 0.5
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { top: 10, bottom: 10 } },
                     plugins: {
-                        datalabels: {
-                            display: false
-                        },
+                        datalabels: { display: false },
                         title: {
                             display: true,
                             text: `VOLUME EXPEDIDO (KG) - ${mesNome}`,
                             color: '#a0aec0',
-                            font: { size: 16, weight: 'bold' },
-                            padding: { bottom: 20 }
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: suggestedMax,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#ffffff', font: { size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#ffffff', font: { size: 10 } },
+                            title: { display: true, text: 'DIAS', color: '#a0aec0' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderizarGraficoMensal(labels, valores) {
+            const ctx = document.getElementById('graficoMensal').getContext('2d');
+            if (chartMensalInstance) chartMensalInstance.destroy();
+
+            chartMensalInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Volume Mensal (KG)',
+                        data: valores,
+                        backgroundColor: '#4fd1c5',
+                        borderColor: '#4fd1c5',
+                        borderWidth: 1,
+                        borderRadius: 2,
+                        barPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: { display: false },
+                        title: {
+                            display: true,
+                            text: 'VOLUME EXPEDIDO (KG) - MENSAL (2026)',
+                            color: '#a0aec0',
+                            font: { size: 16, weight: 'bold' }
                         },
                         legend: { display: false }
                     },
@@ -553,14 +615,7 @@
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#ffffff', font: { size: 10 } },
-                            title: {
-                                display: true,
-                                text: 'DIAS',
-                                color: '#a0aec0',
-                                font: { size: 12, weight: 'bold' },
-                                padding: { top: 10 }
-                            }
+                            ticks: { color: '#ffffff', font: { size: 9 } }
                         }
                     }
                 }
