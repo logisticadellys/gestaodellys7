@@ -127,6 +127,7 @@
             gap: 2.5vh; 
             flex: 1; 
             animation: fadeIn 0.5s ease-in-out;
+            min-height: 0;
         }
         .tela.ativa { display: flex; }
 
@@ -224,23 +225,24 @@
             font-size: clamp(1em, 2vw, 1.6em);
         }
 
-        /* TELA 2 - CONFIGURAÇÃO DOS GRÁFICOS */
+        /* TELA 2 - CONFIGURAÇÃO DO GRÁFICO REDUZIDO */
         .wrapper-graficos {
             display: flex;
-            flex-wrap: wrap; /* Permite colocar outros ao lado no futuro */
-            gap: 2vw;
+            flex-wrap: wrap;
+            gap: 20px;
             align-items: flex-start;
             justify-content: flex-start;
             flex: 1;
+            width: 100%;
         }
 
         .chart-container {
-            width: 48%; /* Gráfico menor para caber outros ao lado */
+            width: 45%; /* Diminuído para caber outros ao lado */
             height: 45vh;
             background-color: #1a365d;
-            border: 2px solid #00ced1; /* Cor alinhada ao Dropsize da Tela 1 */
+            border: 2px solid #00ced1;
             border-radius: 12px;
-            padding: 1.5vh;
+            padding: 15px;
             box-sizing: border-box;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
@@ -381,7 +383,6 @@
             autoMode = !autoMode;
             const btn = document.getElementById('btn-auto-toggle');
             const timerDisp = document.getElementById('timer-display');
-            
             if (autoMode) {
                 btn.textContent = "Auto: ON";
                 btn.className = "btn-auto auto-on";
@@ -404,7 +405,6 @@
             if (autoMode) {
                 tempoRestante--;
                 document.getElementById('timer-display').textContent = tempoRestante;
-                
                 if (tempoRestante <= 0) {
                     alternarTelas();
                     tempoRestante = 15;
@@ -415,7 +415,6 @@
         function alternarTelas() {
             const t1 = document.getElementById('tela1');
             const t2 = document.getElementById('tela2');
-            
             if (telaAtual === 1) {
                 t1.classList.remove('ativa');
                 t2.classList.add('ativa');
@@ -433,24 +432,17 @@
             const mesNum = String(agora.getMonth() + 1).padStart(2, '0');
             const ano = agora.getFullYear();
             const hojeBusca = `${dia}/${mesNum}/${ano}`;
-
             const mesesExtenso = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
             const mesAtualNome = mesesExtenso[agora.getMonth()];
 
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
-                if (!response.ok) throw new Error("Erro na resposta");
-                
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
-                if (linhas.length === 0) return;
-
                 const separador = linhas[0].includes(';') ? ';' : ',';
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
                 const idxData = cabecalho.indexOf("DATA");
-                const idxVolExp = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
-
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)", nf: "NF'S (QTD)",
                     abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)",
@@ -463,35 +455,32 @@
 
                 const idxs = {};
                 for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
-
                 let v = {};
                 for(let k in mapping) v[k] = "-";
 
                 const labelsGrafico = [];
                 const dadosGrafico = [];
 
-                if (idxData !== -1) {
-                    for (let i = 1; i < linhas.length; i++) {
-                        const colunas = linhas[i].split(separador);
-                        let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
+                for (let i = 1; i < linhas.length; i++) {
+                    const colunas = linhas[i].split(separador);
+                    let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
 
-                        if (dataPlanilha.includes(hojeBusca)) {
-                            const limpar = (idx) => {
-                                if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
-                                let val = colunas[idx].replace(/"/g, '').trim();
-                                return (val === "" || val === "null" || val === "#N/A") ? "-" : val;
-                            };
-                            for(let key in idxs) v[key] = limpar(idxs[key]);
-                        }
+                    if (dataPlanilha.includes(hojeBusca)) {
+                        const limpar = (idx) => {
+                            if (idx === -1 || colunas[idx] === undefined) return "-";
+                            let val = colunas[idx].replace(/"/g, '').trim();
+                            return (val === "" || val === "null" || val === "#N/A") ? "-" : val;
+                        };
+                        for(let key in idxs) v[key] = limpar(idxs[key]);
+                    }
 
-                        if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
-                            let valorVol = colunas[idxVolExp] ? colunas[idxVolExp].replace(/"/g, '').trim() : "";
-                            if (valorVol !== "" && valorVol !== "-" && valorVol !== "null" && valorVol !== "#N/A") {
-                                let num = parseFloat(valorVol.replace(/\./g, '').replace(',', '.'));
-                                if (!isNaN(num)) {
-                                    labelsGrafico.push(dataPlanilha.split('/')[0]); 
-                                    dadosGrafico.push(num);
-                                }
+                    if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
+                        let valRaw = colunas[idxs.vol] ? colunas[idxs.vol].replace(/"/g, '').trim() : "";
+                        if (valRaw !== "" && valRaw !== "-" && valRaw !== "null") {
+                            let num = parseFloat(valRaw.replace(/\./g, '').replace(',', '.'));
+                            if (!isNaN(num)) {
+                                labelsGrafico.push(dataPlanilha.split('/')[0]);
+                                dadosGrafico.push(num);
                             }
                         }
                     }
@@ -507,21 +496,14 @@
                     'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil
                 };
 
-                for(let id in ids) {
-                    const el = document.getElementById(id);
-                    if(el) el.textContent = ids[id];
-                }
-
+                for(let id in ids) { if(document.getElementById(id)) document.getElementById(id).textContent = ids[id]; }
                 renderizarGrafico(labelsGrafico, dadosGrafico, mesAtualNome);
-
             } catch (err) { console.error("Erro:", err); }
         }
 
         function renderizarGrafico(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d');
-            
-            if (chartInstance) { chartInstance.destroy(); }
-
+            if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -532,8 +514,7 @@
                         backgroundColor: '#00ced1', // Azul claro solicitado
                         borderColor: '#00ced1',
                         borderWidth: 1,
-                        borderRadius: 2,
-                        barPercentage: 0.6, // Colunas mais finas e padronizadas
+                        barPercentage: 0.6,
                         categoryPercentage: 0.8
                     }]
                 },
@@ -544,27 +525,25 @@
                         title: {
                             display: true,
                             text: `VOLUME EXPEDIDO (KG) - ${mesNome}`,
-                            color: '#00ced1', // Mesma cor do título DROPSIZE da tela 1
-                            font: { size: clamp(14, 1.8vw, 20), weight: 'bold' },
-                            padding: { bottom: 15 }
+                            color: '#00ced1', // Cor igual ao card Dropsize
+                            font: { size: 16, weight: 'bold' }
                         },
                         legend: { display: false }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#ffffff', font: { weight: 'bold', size: 10 } }
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#ffffff', font: { size: 10 } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#ffffff', font: { weight: 'bold', size: 10 } },
+                            ticks: { color: '#ffffff', font: { size: 10 } },
                             title: {
                                 display: true,
                                 text: 'DIAS',
                                 color: '#a0aec0',
-                                font: { size: 12, weight: 'bold' },
-                                padding: { top: 10 }
+                                font: { size: 12, weight: 'bold' }
                             }
                         }
                     }
