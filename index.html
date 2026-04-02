@@ -128,8 +128,8 @@
             gap: 2.5vh; 
             flex: 1; 
             min-height: 0;
-            /* Animação suave com desfoque e escala */
-            animation: suaveEntrada 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Transição ajustada para ser mais lenta (2.5s) e suave */
+            animation: suaveEntrada 2.5s ease-in-out;
         }
 
         .tela.ativa { display: flex; }
@@ -137,8 +137,8 @@
         @keyframes suaveEntrada {
             0% { 
                 opacity: 0; 
-                filter: blur(10px);
-                transform: scale(0.98);
+                filter: blur(15px);
+                transform: scale(0.97);
             }
             100% { 
                 opacity: 1; 
