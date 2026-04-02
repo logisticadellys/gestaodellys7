@@ -390,6 +390,14 @@
         let chartOcupDiario = null;
         let chartOcupMensal = null;
 
+        // Listener para redimensionamento
+        window.addEventListener('resize', () => {
+            if (chartInstance) chartInstance.resize();
+            if (chartMensalInstance) chartMensalInstance.resize();
+            if (chartOcupDiario) chartOcupDiario.resize();
+            if (chartOcupMensal) chartOcupMensal.resize();
+        });
+
         function toggleAuto() {
             autoMode = !autoMode;
             const btn = document.getElementById('btn-auto-toggle');
@@ -595,26 +603,31 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, barPercentage: 0.7 },
-                        { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false }
+                        { label: '', data: ocup, backgroundColor: cores, borderRadius: 2, barPercentage: 0.7, order: 1 },
+                        { label: '', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 0 }
                     ]
                 },
                 options: {
                     ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true),
                     plugins: {
                         ...getCommonOptions().plugins,
+                        title: {
+                            display: true,
+                            text: `OCUPAÇÃO (%) - ${mesNome}`,
+                            color: '#a0aec0',
+                            font: { size: 15, weight: 'bold' }
+                        },
                         datalabels: { display: false },
                         legend: {
                             display: true,
                             position: 'top',
                             labels: {
-                                color: '#ffffff',
-                                font: { size: 10, weight: 'bold' },
-                                boxWidth: 12,
+                                color: 'transparent',
+                                font: { size: 10 },
                                 generateLabels: (chart) => [
-                                    { text: `META (${metaValor.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 },
-                                    { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71' },
-                                    { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c' }
+                                    { text: '', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 },
+                                    { text: '', fillStyle: '#2ecc71', strokeStyle: '#2ecc71' },
+                                    { text: '', fillStyle: '#e74c3c', strokeStyle: '#e74c3c' }
                                 ]
                             }
                         }
