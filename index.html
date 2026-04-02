@@ -635,13 +635,13 @@
                             display: true,
                             position: 'top',
                             labels: {
-                                color: '#ffffff', // Título da legenda em BRANCO
+                                color: '#ffffff', // GARANTE COR BRANCA NOS TÍTULOS DAS LEGENDAS
                                 font: { size: 10, weight: 'bold' },
                                 boxWidth: 12,
                                 generateLabels: (chart) => [
-                                    { text: `META (${metaValor.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 },
-                                    { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71' },
-                                    { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c' }
+                                    { text: `META (${metaValor.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' },
+                                    { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71', fontColor: '#ffffff' },
+                                    { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c', fontColor: '#ffffff' }
                                 ]
                             }
                         }
@@ -670,7 +670,7 @@
                             display: true,
                             position: 'top',
                             labels: {
-                                color: '#ffffff', // Título da legenda em BRANCO
+                                color: '#ffffff', // GARANTE COR BRANCA NOS TÍTULOS DAS LEGENDAS
                                 font: { size: 10, weight: 'bold' },
                                 boxWidth: 12
                             }
