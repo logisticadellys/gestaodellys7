@@ -492,7 +492,6 @@
                         let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
                         if (!dataPlanilha) continue;
 
-                        // Captura dados do HOJE para os CARDS
                         if (dataPlanilha.includes(hojeBusca)) {
                             const limpar = (idx) => {
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
@@ -502,7 +501,6 @@
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        // Processamento para Gráficos
                         const converter = (val) => {
                             if (!val || val === "-" || val === "null" || val === "#N/A") return 0;
                             return parseFloat(val.replace(/"/g, '').replace(/\./g, '').replace(',', '.').replace('%', '')) || 0;
@@ -512,7 +510,6 @@
                         let valOcup = converter(colunas[idxOcup]);
                         let valMeta = converter(colunas[idxMetaOcup]);
 
-                        // Lógica Diária (Mês Atual)
                         if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
                             let diaP = parseInt(dataPlanilha.split('/')[0]);
                             if(diaP <= ultimoDiaMes) {
@@ -522,7 +519,6 @@
                             }
                         }
 
-                        // Lógica Mensal (Ano Atual)
                         if (dataPlanilha.includes(`/${ano}`)) {
                             let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
                             if (mIdx >= 0 && mIdx < 12) {
@@ -537,11 +533,9 @@
                     }
                 }
 
-                // Cálculo das médias de ocupação mensal
                 const mediasOcupMensal = somaOcupMensal.map((soma, i) => contagemDiasMensal[i] > 0 ? soma / contagemDiasMensal[i] : 0);
                 const mediasMetaOcupMensal = somaMetaOcupMensal.map((soma, i) => contagemDiasMensal[i] > 0 ? soma / contagemDiasMensal[i] : 0);
 
-                // Atualizar Cards
                 const idsCards = {
                     'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf,
                     'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros,
@@ -553,7 +547,6 @@
                 };
                 for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
-                // Renderização dos 4 Gráficos
                 renderizarGraficoDiario(labelsDiario, dadosVolDiario, mesAtualNome);
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal);
                 renderizarOcupacaoDiaria(labelsDiario, dadosOcupDiario, dadosMetaOcupDiario, mesAtualNome);
@@ -561,8 +554,6 @@
 
             } catch (err) { console.error("Erro:", err); }
         }
-
-        // --- FUNÇÕES DE RENDERIZAÇÃO DE GRÁFICOS ---
 
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d');
@@ -601,16 +592,62 @@
         function renderizarOcupacaoDiaria(labels, ocup, meta, mesNome) {
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d');
             if (chartOcupDiario) chartOcupDiario.destroy();
+
+            const coresColunas = ocup.map((valor, index) => {
+                if (valor === 0) return 'rgba(160, 174, 192, 0.2)';
+                return valor >= meta[index] ? '#2ecc71' : '#e74c3c';
+            });
+
+            const mediaMetaVal = meta.reduce((a, b) => a + b, 0) / (meta.filter(m => m > 0).length || 1);
+
             chartOcupDiario = new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Ocupação (%)', data: ocup, borderColor: '#00ced1', backgroundColor: 'rgba(0, 206, 209, 0.2)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 2 },
-                        { label: 'Meta', data: meta, borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false }
+                        { 
+                            label: 'Ocupação (%)', 
+                            data: ocup, 
+                            backgroundColor: coresColunas,
+                            borderRadius: 4,
+                            barPercentage: 0.8
+                        },
+                        { label: `META (Média: ${mediaMetaVal.toFixed(1)}%)`, data: [], borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], type: 'line' },
+                        { label: 'META BATIDA', data: [], backgroundColor: '#2ecc71' },
+                        { label: 'META NÃO BATIDA', data: [], backgroundColor: '#e74c3c' }
                     ]
                 },
-                options: getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true)
+                options: {
+                    ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true),
+                    plugins: {
+                        ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true).plugins,
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: '#ffffff',
+                                font: { size: 10 },
+                                boxWidth: 12,
+                                filter: (item) => item.text !== 'Ocupação (%)'
+                            }
+                        },
+                        datalabels: {
+                            display: true,
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value) => value > 0 ? value.toFixed(1) + '%' : ''
+                        }
+                    },
+                    scales: {
+                        y: { display: false },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#ffffff', font: { size: 9 } }
+                        }
+                    }
+                }
             });
         }
 
@@ -630,7 +667,6 @@
             });
         }
 
-        // Função auxiliar para padronizar as opções e o alinhamento dos títulos
         function getCommonOptions(titulo, showDataLabels, isPercentage = false) {
             return {
                 responsive: true,
@@ -656,7 +692,7 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        display: !showDataLabels, // Oculta o eixo se mostrar datalabels para não poluir
+                        display: !showDataLabels,
                         grid: { color: 'rgba(255, 255, 255, 0.05)' },
                         ticks: { color: '#ffffff', font: { size: 10 } }
                     },
