@@ -128,7 +128,6 @@
             gap: 2.5vh; 
             flex: 1; 
             min-height: 0;
-            /* Transição ajustada para ser mais lenta (2.5s) e suave */
             animation: suaveEntrada 2.5s ease-in-out;
         }
 
@@ -377,11 +376,11 @@
             <div class="chart-container">
                 <canvas id="graficoMensal"></canvas>
             </div>
-            <div class="chart-container" style="border-style: dashed; border-color: #00ced1; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
-                <span>GRÁFICO 3</span>
+            <div class="chart-container">
+                <canvas id="graficoOcupacaoDiario"></canvas>
             </div>
-            <div class="chart-container" style="border-style: dashed; border-color: #00ced1; opacity: 0.3; display: flex; align-items: center; justify-content: center;">
-                <span>GRÁFICO 4</span>
+            <div class="chart-container">
+                <canvas id="graficoOcupacaoMensal"></canvas>
             </div>
         </div>
     </div>
@@ -396,6 +395,8 @@
         let telaAtual = 1;
         let chartInstance = null;
         let chartMensalInstance = null;
+        let chartOcupDiario = null;
+        let chartOcupMensal = null;
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -454,6 +455,8 @@
                 
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVolExp = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
+                const idxOcup = cabecalho.indexOf("OCUPAÇÃO (%)");
+                const idxMetaOcup = cabecalho.indexOf("META OCUPAÇÃO (%)");
 
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)", nf: "NF'S (QTD)",
@@ -472,15 +475,24 @@
                 for(let k in mapping) v[k] = "-";
 
                 const ultimoDiaMes = new Date(ano, agora.getMonth() + 1, 0).getDate();
-                const labelsDiarioCompleto = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
-                const dadosDiarioCompleto = Array(ultimoDiaMes).fill(0);
-                const acumuladoMensal = Array(12).fill(0);
+                const labelsDiario = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
+                
+                const dadosVolDiario = Array(ultimoDiaMes).fill(0);
+                const dadosOcupDiario = Array(ultimoDiaMes).fill(0);
+                const dadosMetaOcupDiario = Array(ultimoDiaMes).fill(0);
+
+                const acumuladoVolMensal = Array(12).fill(0);
+                const somaOcupMensal = Array(12).fill(0);
+                const somaMetaOcupMensal = Array(12).fill(0);
+                const contagemDiasMensal = Array(12).fill(0);
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
                         const colunas = linhas[i].split(separador);
                         let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
+                        if (!dataPlanilha) continue;
 
+                        // Captura dados do HOJE para os CARDS
                         if (dataPlanilha.includes(hojeBusca)) {
                             const limpar = (idx) => {
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
@@ -490,24 +502,47 @@
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        let valorVolRaw = colunas[idxVolExp] ? colunas[idxVolExp].replace(/"/g, '').trim() : "";
-                        if (valorVolRaw !== "" && valorVolRaw !== "-" && valorVolRaw !== "null" && valorVolRaw !== "#N/A") {
-                            let num = parseFloat(valorVolRaw.replace(/\./g, '').replace(',', '.'));
-                            if (!isNaN(num)) {
-                                if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
-                                    let diaP = parseInt(dataPlanilha.split('/')[0]);
-                                    if(diaP <= ultimoDiaMes) dadosDiarioCompleto[diaP - 1] = num;
-                                }
-                                if (dataPlanilha.includes("/2026")) {
-                                    let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
-                                    if (mIdx >= 0 && mIdx < 12) acumuladoMensal[mIdx] += num;
+                        // Processamento para Gráficos
+                        const converter = (val) => {
+                            if (!val || val === "-" || val === "null" || val === "#N/A") return 0;
+                            return parseFloat(val.replace(/"/g, '').replace(/\./g, '').replace(',', '.').replace('%', '')) || 0;
+                        };
+
+                        let valVol = converter(colunas[idxVolExp]);
+                        let valOcup = converter(colunas[idxOcup]);
+                        let valMeta = converter(colunas[idxMetaOcup]);
+
+                        // Lógica Diária (Mês Atual)
+                        if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
+                            let diaP = parseInt(dataPlanilha.split('/')[0]);
+                            if(diaP <= ultimoDiaMes) {
+                                dadosVolDiario[diaP - 1] = valVol;
+                                dadosOcupDiario[diaP - 1] = valOcup;
+                                dadosMetaOcupDiario[diaP - 1] = valMeta;
+                            }
+                        }
+
+                        // Lógica Mensal (Ano Atual)
+                        if (dataPlanilha.includes(`/${ano}`)) {
+                            let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
+                            if (mIdx >= 0 && mIdx < 12) {
+                                acumuladoVolMensal[mIdx] += valVol;
+                                if (valOcup > 0) {
+                                    somaOcupMensal[mIdx] += valOcup;
+                                    somaMetaOcupMensal[mIdx] += valMeta;
+                                    contagemDiasMensal[mIdx]++;
                                 }
                             }
                         }
                     }
                 }
 
-                const ids = {
+                // Cálculo das médias de ocupação mensal
+                const mediasOcupMensal = somaOcupMensal.map((soma, i) => contagemDiasMensal[i] > 0 ? soma / contagemDiasMensal[i] : 0);
+                const mediasMetaOcupMensal = somaMetaOcupMensal.map((soma, i) => contagemDiasMensal[i] > 0 ? soma / contagemDiasMensal[i] : 0);
+
+                // Atualizar Cards
+                const idsCards = {
                     'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf,
                     'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros,
                     'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil,
@@ -516,22 +551,22 @@
                     'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil,
                     'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil
                 };
+                for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
-                for(let id in ids) {
-                    const el = document.getElementById(id);
-                    if(el) el.textContent = ids[id];
-                }
-
-                renderizarGraficoDiario(labelsDiarioCompleto, dadosDiarioCompleto, mesAtualNome);
-                renderizarGraficoMensal(mesesExtenso, acumuladoMensal);
+                // Renderização dos 4 Gráficos
+                renderizarGraficoDiario(labelsDiario, dadosVolDiario, mesAtualNome);
+                renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal);
+                renderizarOcupacaoDiaria(labelsDiario, dadosOcupDiario, dadosMetaOcupDiario, mesAtualNome);
+                renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaOcupMensal);
 
             } catch (err) { console.error("Erro:", err); }
         }
 
+        // --- FUNÇÕES DE RENDERIZAÇÃO DE GRÁFICOS ---
+
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d');
             if (chartInstance) chartInstance.destroy();
-
             chartInstance = new Chart(ctx, {
                 type: 'line', 
                 data: {
@@ -539,54 +574,16 @@
                     datasets: [{
                         label: 'Volume (KG)',
                         data: valores,
-                        backgroundColor: 'rgba(0, 206, 209, 0.4)', 
-                        borderColor: '#00ced1', 
-                        borderWidth: 3,
-                        fill: true, 
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointBackgroundColor: '#00ced1'
+                        backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, pointBackgroundColor: '#00ced1'
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 10 } },
-                    plugins: {
-                        datalabels: { 
-                            display: false 
-                        },
-                        title: {
-                            display: true,
-                            text: `VOLUME EXPEDIDO (KG) - ${mesNome}`,
-                            color: '#a0aec0',
-                            font: { size: 16, weight: 'bold' },
-                            padding: { bottom: 10 }
-                        },
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#ffffff', font: { size: 10 } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#ffffff', font: { size: 9 } }
-                        }
-                    }
-                }
+                options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false)
             });
         }
 
         function renderizarGraficoMensal(labels, valores) {
             const ctx = document.getElementById('graficoMensal').getContext('2d');
             if (chartMensalInstance) chartMensalInstance.destroy();
-
-            const maxValor = Math.max(...valores);
-            const tetoSugerido = maxValor > 0 ? maxValor * 1.35 : 1000;
-
             chartMensalInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -594,55 +591,81 @@
                     datasets: [{
                         label: 'Volume Mensal (KG)',
                         data: valores,
-                        backgroundColor: 'rgba(0, 206, 209, 0.8)',
-                        borderColor: '#00ced1',
-                        borderWidth: 1,
-                        borderRadius: 2,
-                        barPercentage: 0.6
+                        backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 25 } }, 
-                    plugins: {
-                        datalabels: {
-                            display: true,
-                            anchor: 'end', 
-                            align: 'top',  
-                            offset: 2,
-                            color: '#ffffff',
-                            font: { weight: 'bold', size: 10 },
-                            textStrokeColor: 'rgba(0, 0, 0, 0.7)',
-                            textStrokeWidth: 2,
-                            formatter: (value) => value > 0 ? value.toLocaleString('pt-BR') : ''
-                        },
-                        title: {
-                            display: true,
-                            text: 'VOLUME EXPEDIDO (KG) - MENSAL (2026)',
-                            color: '#a0aec0',
-                            font: { size: 16, weight: 'bold' },
-                            padding: { bottom: 10 }
-                        },
-                        legend: { display: false }
+                options: getCommonOptions('VOLUME EXPEDIDO (KG) - MENSAL (2026)', true)
+            });
+        }
+
+        function renderizarOcupacaoDiaria(labels, ocup, meta, mesNome) {
+            const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d');
+            if (chartOcupDiario) chartOcupDiario.destroy();
+            chartOcupDiario = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Ocupação (%)', data: ocup, borderColor: '#00ced1', backgroundColor: 'rgba(0, 206, 209, 0.2)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 2 },
+                        { label: 'Meta', data: meta, borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false }
+                    ]
+                },
+                options: getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true)
+            });
+        }
+
+        function renderizarOcupacaoMensal(labels, ocup, meta) {
+            const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d');
+            if (chartOcupMensal) chartOcupMensal.destroy();
+            chartOcupMensal = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 },
+                        { label: 'Meta', data: meta, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false }
+                    ]
+                },
+                options: getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true)
+            });
+        }
+
+        // Função auxiliar para padronizar as opções e o alinhamento dos títulos
+        function getCommonOptions(titulo, showDataLabels, isPercentage = false) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { top: 25 } }, 
+                plugins: {
+                    datalabels: {
+                        display: showDataLabels,
+                        anchor: 'end', align: 'top', offset: 2, color: '#ffffff',
+                        font: { weight: 'bold', size: 10 },
+                        textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2,
+                        formatter: (value) => value > 0 ? (isPercentage ? value.toFixed(1) + '%' : value.toLocaleString('pt-BR')) : ''
                     },
-                    scales: {
-                        y: {
-                            display: false,
-                            beginAtZero: true,
-                            suggestedMax: tetoSugerido 
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { 
-                                color: '#ffffff', 
-                                font: { size: 9 },
-                                padding: 8 
-                            }
-                        }
+                    title: {
+                        display: true,
+                        text: titulo,
+                        color: '#a0aec0',
+                        font: { size: 16, weight: 'bold' },
+                        padding: { bottom: 10 }
+                    },
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        display: !showDataLabels, // Oculta o eixo se mostrar datalabels para não poluir
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#ffffff', font: { size: 10 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 }
                     }
                 }
-            });
+            };
         }
 
         fetchPlanilha();
