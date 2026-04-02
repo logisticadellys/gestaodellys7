@@ -581,7 +581,7 @@
             const ctx = document.getElementById('graficoMensal').getContext('2d');
             if (chartMensalInstance) chartMensalInstance.destroy();
             let options = getCommonOptions('VOLUME EXPEDIDO (KG) - MENSAL (2026)', true);
-            options.scales.y.display = false; // TIRA OS VALORES DO LADO ESQUERDO
+            options.scales.y.display = false; 
 
             chartMensalInstance = new Chart(ctx, {
                 type: 'bar',
@@ -640,7 +640,7 @@
                         datalabels: { display: false },
                         legend: {
                             display: true,
-                            position: 'top',
+                            position: 'bottom',
                             labels: {
                                 color: '#ffffff',
                                 font: { size: 10, weight: 'bold' },
@@ -677,7 +677,8 @@
                             backgroundColor: cores, 
                             borderRadius: 2, 
                             barPercentage: 0.6, 
-                            order: 2 
+                            order: 2,
+                            datalabels: { display: true }
                         },
                         { 
                             label: 'META', 
@@ -688,7 +689,8 @@
                             borderDash: [5, 5], 
                             pointRadius: 0, 
                             fill: false, 
-                            order: 1 
+                            order: 1,
+                            datalabels: { display: false }
                         }
                     ]
                 },
@@ -698,7 +700,7 @@
                         ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins,
                         legend: {
                             display: true,
-                            position: 'top',
+                            position: 'bottom',
                             labels: {
                                 color: '#ffffff',
                                 font: { size: 10, weight: 'bold' },
