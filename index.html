@@ -696,8 +696,18 @@
                 },
                 options: {
                     ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true),
+                    // Ajuste de espaçamento específico para o gráfico mensal
+                    layout: {
+                        padding: {
+                            top: 25 // Espaço extra para as etiquetas não colarem no título
+                        }
+                    },
                     plugins: {
                         ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins,
+                        datalabels: {
+                            ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins.datalabels,
+                            offset: 5 // Distancia um pouco mais o valor do topo da coluna
+                        },
                         legend: {
                             display: true,
                             position: 'bottom',
