@@ -432,7 +432,6 @@
             const mesNum = String(agora.getMonth() + 1).padStart(2, '0');
             const ano = agora.getFullYear();
             const hojeBusca = `${dia}/${mesNum}/${ano}`;
-
             const mesesExtenso = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
             const mesAtualNome = mesesExtenso[agora.getMonth()];
 
@@ -581,68 +580,42 @@
             });
         }
 
-        function renderizarOcupacaoDiaria(labels, ocup, meta, mesNome) {
+        function renderizarOcupacaoDiaria(labels, ocup, metaArr, mesNome) {
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d');
             if (chartOcupDiario) chartOcupDiario.destroy();
 
-            // Lógica de cores condicional
-            const coresColunas = ocup.map((valor, i) => {
-                const metaDia = meta[i] || 0;
-                if (valor === 0) return 'rgba(0,0,0,0)';
-                return valor >= metaDia ? '#2ecc71' : '#e74c3c';
+            const metaValor = metaArr.find(v => v > 0) || 0;
+            const cores = ocup.map((v, i) => {
+                if (v === 0) return 'rgba(255, 255, 255, 0.1)';
+                return v >= metaArr[i] ? '#2ecc71' : '#e74c3c';
             });
-
-            // Pega o valor da meta para a legenda (média ou primeiro valor encontrado)
-            const valorMetaLegenda = meta.find(m => m > 0) || 0;
 
             chartOcupDiario = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        {
-                            label: 'Ocupação (%)',
-                            data: ocup,
-                            backgroundColor: coresColunas,
-                            borderRadius: 2,
-                            barPercentage: 0.7
-                        },
-                        {
-                            label: 'META',
-                            data: meta,
-                            type: 'line',
-                            borderColor: '#ffff00',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            pointRadius: 0,
-                            fill: false
-                        }
+                        { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, barPercentage: 0.7 },
+                        { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true),
                     plugins: {
+                        ...getCommonOptions().plugins,
                         datalabels: { display: false },
-                        title: {
-                            display: true,
-                            text: `OCUPAÇÃO (%) - ${mesNome}`,
-                            color: '#a0aec0',
-                            font: { size: 16, weight: 'bold' }
-                        },
                         legend: {
                             display: true,
                             position: 'top',
                             labels: {
                                 color: '#ffffff',
-                                font: { weight: 'bold' },
-                                generateLabels: (chart) => {
-                                    return [
-                                        { text: `META (${valorMetaLegenda}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', fontColor: '#ffffff' },
-                                        { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71', fontColor: '#ffffff' },
-                                        { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c', fontColor: '#ffffff' }
-                                    ];
-                                }
+                                font: { size: 10, weight: 'bold' },
+                                boxWidth: 12,
+                                generateLabels: (chart) => [
+                                    { text: `META (${metaValor.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 },
+                                    { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71' },
+                                    { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c' }
+                                ]
                             }
                         }
                     },
@@ -651,16 +624,11 @@
                             beginAtZero: true,
                             grid: { color: 'rgba(255, 255, 255, 0.05)' },
                             ticks: {
-                                color: (ctx) => ctx.tick.value === valorMetaLegenda ? '#ffff00' : '#ffffff',
-                                font: { 
-                                    weight: (ctx) => ctx.tick.value === valorMetaLegenda ? 'bold' : 'normal' 
-                                }
+                                color: (ctx) => ctx.value === metaValor ? '#ffff00' : '#ffffff',
+                                font: { size: 10, weight: (ctx) => ctx.value === metaValor ? 'bold' : 'normal' }
                             }
                         },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#ffffff', font: { size: 9 } }
-                        }
+                        x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 } } }
                     }
                 }
             });
@@ -686,7 +654,7 @@
             return {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: { padding: { top: 25 } }, 
+                layout: { padding: { top: 10 } }, 
                 plugins: {
                     datalabels: {
                         display: showDataLabels,
@@ -699,7 +667,7 @@
                         display: true,
                         text: titulo,
                         color: '#a0aec0',
-                        font: { size: 16, weight: 'bold' },
+                        font: { size: 15, weight: 'bold' },
                         padding: { bottom: 10 }
                     },
                     legend: { display: false }
@@ -707,7 +675,7 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        display: !showDataLabels,
+                        display: true,
                         grid: { color: 'rgba(255, 255, 255, 0.05)' },
                         ticks: { color: '#ffffff', font: { size: 10 } }
                     },
