@@ -528,8 +528,8 @@
                     datasets: [{
                         label: 'Volume (KG)',
                         data: valores,
-                        backgroundColor: '#2ecc71',
-                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(0, 206, 209, 0.8)',
+                        borderColor: '#00ced1',
                         borderWidth: 1,
                         borderRadius: 2,
                         barPercentage: 0.7
@@ -540,7 +540,16 @@
                     maintainAspectRatio: false,
                     layout: { padding: { top: 25 } },
                     plugins: {
-                        datalabels: { display: false },
+                        datalabels: { 
+                            display: true,
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            textStrokeColor: 'rgba(0, 0, 0, 0.7)',
+                            textStrokeWidth: 2,
+                            formatter: (value) => value > 0 ? value.toLocaleString('pt-BR') : ''
+                        },
                         title: {
                             display: true,
                             text: `VOLUME EXPEDIDO (KG) - ${mesNome}`,
@@ -579,8 +588,8 @@
                     datasets: [{
                         label: 'Volume Mensal (KG)',
                         data: valores,
-                        backgroundColor: '#2ecc71',
-                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(0, 206, 209, 0.8)',
+                        borderColor: '#00ced1',
                         borderWidth: 1,
                         borderRadius: 2,
                         barPercentage: 0.6
@@ -597,8 +606,10 @@
                             align: 'top',  
                             offset: 2,
                             color: '#ffffff',
-                            rotation: -90,
-                            font: { weight: 'bold', size: 11 },
+                            rotation: 0,
+                            font: { weight: 'bold', size: 10 },
+                            textStrokeColor: 'rgba(0, 0, 0, 0.7)',
+                            textStrokeWidth: 2,
                             formatter: (value) => value > 0 ? value.toLocaleString('pt-BR') : ''
                         },
                         title: {
