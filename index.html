@@ -234,6 +234,7 @@
             gap: 20px;
             flex: 1;
             min-height: 0;
+            height: 100%;
         }
 
         .chart-container {
@@ -242,6 +243,7 @@
             border-radius: 12px;
             padding: 1.5vh;
             position: relative;
+            min-height: 0; /* Essencial para o Chart.js não estourar */
         }
     </style>
 </head>
@@ -390,14 +392,6 @@
         let chartOcupDiario = null;
         let chartOcupMensal = null;
 
-        // Listener para redimensionamento
-        window.addEventListener('resize', () => {
-            if (chartInstance) chartInstance.resize();
-            if (chartMensalInstance) chartMensalInstance.resize();
-            if (chartOcupDiario) chartOcupDiario.resize();
-            if (chartOcupMensal) chartOcupMensal.resize();
-        });
-
         function toggleAuto() {
             autoMode = !autoMode;
             const btn = document.getElementById('btn-auto-toggle');
@@ -432,7 +426,17 @@
             } else {
                 t2.classList.remove('ativa'); t1.classList.add('ativa'); telaAtual = 1;
             }
+            // Força o redimensionamento dos gráficos ao trocar de tela
+            window.dispatchEvent(new Event('resize'));
         }
+
+        // Listener para redimensionar quando sair de tela cheia
+        window.addEventListener('resize', () => {
+            if(chartInstance) chartInstance.resize();
+            if(chartMensalInstance) chartMensalInstance.resize();
+            if(chartOcupDiario) chartOcupDiario.resize();
+            if(chartOcupMensal) chartOcupMensal.resize();
+        });
 
         async function fetchPlanilha() {
             const agora = new Date();
@@ -603,31 +607,43 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: '', data: ocup, backgroundColor: cores, borderRadius: 2, barPercentage: 0.7, order: 1 },
-                        { label: '', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 0 }
+                        { 
+                            label: 'Ocupação (%)', 
+                            data: ocup, 
+                            backgroundColor: cores, 
+                            borderRadius: 2, 
+                            barPercentage: 0.7,
+                            order: 2 // Ordem maior fica atrás
+                        },
+                        { 
+                            label: 'META', 
+                            data: metaArr, 
+                            type: 'line', 
+                            borderColor: '#ffff00', 
+                            borderWidth: 2, 
+                            borderDash: [5, 5], 
+                            pointRadius: 0, 
+                            fill: false,
+                            order: 1 // Ordem menor fica na frente
+                        }
                     ]
                 },
                 options: {
                     ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true),
                     plugins: {
-                        ...getCommonOptions().plugins,
-                        title: {
-                            display: true,
-                            text: `OCUPAÇÃO (%) - ${mesNome}`,
-                            color: '#a0aec0',
-                            font: { size: 15, weight: 'bold' }
-                        },
+                        ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true).plugins,
                         datalabels: { display: false },
                         legend: {
                             display: true,
                             position: 'top',
                             labels: {
-                                color: 'transparent',
-                                font: { size: 10 },
+                                color: '#ffffff', // Título das legendas em branco
+                                font: { size: 10, weight: 'bold' },
+                                boxWidth: 12,
                                 generateLabels: (chart) => [
-                                    { text: '', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 },
-                                    { text: '', fillStyle: '#2ecc71', strokeStyle: '#2ecc71' },
-                                    { text: '', fillStyle: '#e74c3c', strokeStyle: '#e74c3c' }
+                                    { text: `META (${metaValor.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 },
+                                    { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71' },
+                                    { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c' }
                                 ]
                             }
                         }
@@ -655,18 +671,32 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 },
-                        { label: 'Meta', data: meta, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false }
+                        { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6, order: 2 },
+                        { label: 'Meta', data: meta, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 }
                     ]
                 },
-                options: getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true)
+                options: {
+                    ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true),
+                    plugins: {
+                        ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins,
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#ffffff', // Títulos das legendas em branco
+                                font: { size: 10, weight: 'bold' },
+                                boxWidth: 12
+                            }
+                        }
+                    }
+                }
             });
         }
 
         function getCommonOptions(titulo, showDataLabels, isPercentage = false) {
             return {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: false, // Permite que o gráfico se ajuste ao container
                 layout: { padding: { top: 10 } }, 
                 plugins: {
                     datalabels: {
