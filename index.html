@@ -486,6 +486,7 @@
                 const somaOcupMensal = Array(12).fill(0);
                 const somaMetaOcupMensal = Array(12).fill(0);
                 const contagemDiasMensal = Array(12).fill(0);
+                const contagemDiasMetaMensal = Array(12).fill(0);
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -524,9 +525,12 @@
                             let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
                             if (mIdx >= 0 && mIdx < 12) {
                                 acumuladoVolMensal[mIdx] += valVol;
+                                if (valVol > 0) {
+                                    somaMetaOcupMensal[mIdx] += valMeta;
+                                    contagemDiasMetaMensal[mIdx]++;
+                                }
                                 if (valOcup > 0) {
                                     somaOcupMensal[mIdx] += valOcup;
-                                    somaMetaOcupMensal[mIdx] += valMeta;
                                     contagemDiasMensal[mIdx]++;
                                 }
                             }
@@ -535,7 +539,7 @@
                 }
 
                 const mediasOcupMensal = somaOcupMensal.map((soma, i) => contagemDiasMensal[i] > 0 ? soma / contagemDiasMensal[i] : 0);
-                const mediasMetaOcupMensal = somaMetaOcupMensal.map((soma, i) => contagemDiasMensal[i] > 0 ? soma / contagemDiasMensal[i] : 0);
+                const mediasMetaOcupMensal = somaMetaOcupMensal.map((soma, i) => contagemDiasMetaMensal[i] > 0 ? soma / contagemDiasMetaMensal[i] : 0);
 
                 const idsCards = {
                     'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf,
@@ -576,6 +580,9 @@
         function renderizarGraficoMensal(labels, valores) {
             const ctx = document.getElementById('graficoMensal').getContext('2d');
             if (chartMensalInstance) chartMensalInstance.destroy();
+            let options = getCommonOptions('VOLUME EXPEDIDO (KG) - MENSAL (2026)', true);
+            options.scales.y.display = false; // TIRA OS VALORES DO LADO ESQUERDO
+
             chartMensalInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -586,7 +593,7 @@
                         backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6
                     }]
                 },
-                options: getCommonOptions('VOLUME EXPEDIDO (KG) - MENSAL (2026)', true)
+                options: options
             });
         }
 
@@ -635,7 +642,7 @@
                             display: true,
                             position: 'top',
                             labels: {
-                                color: '#ffffff', // GARANTE COR BRANCA NOS TÍTULOS DAS LEGENDAS
+                                color: '#ffffff',
                                 font: { size: 10, weight: 'bold' },
                                 boxWidth: 12,
                                 generateLabels: (chart) => [
@@ -653,13 +660,36 @@
         function renderizarOcupacaoMensal(labels, ocup, meta) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d');
             if (chartOcupMensal) chartOcupMensal.destroy();
+
+            const cores = ocup.map((v, i) => {
+                if (v === 0) return 'rgba(255, 255, 255, 0.1)';
+                return v >= meta[i] ? '#2ecc71' : '#e74c3c';
+            });
+
             chartOcupMensal = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6, order: 2 },
-                        { label: 'Meta', data: meta, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 }
+                        { 
+                            label: 'Ocupação (%)', 
+                            data: ocup, 
+                            backgroundColor: cores, 
+                            borderRadius: 2, 
+                            barPercentage: 0.6, 
+                            order: 2 
+                        },
+                        { 
+                            label: 'META', 
+                            data: meta, 
+                            type: 'line', 
+                            borderColor: '#ffff00', 
+                            borderWidth: 2, 
+                            borderDash: [5, 5], 
+                            pointRadius: 0, 
+                            fill: false, 
+                            order: 1 
+                        }
                     ]
                 },
                 options: {
@@ -670,9 +700,14 @@
                             display: true,
                             position: 'top',
                             labels: {
-                                color: '#ffffff', // GARANTE COR BRANCA NOS TÍTULOS DAS LEGENDAS
+                                color: '#ffffff',
                                 font: { size: 10, weight: 'bold' },
-                                boxWidth: 12
+                                boxWidth: 12,
+                                generateLabels: (chart) => [
+                                    { text: 'META', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' },
+                                    { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71', fontColor: '#ffffff' },
+                                    { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c', fontColor: '#ffffff' }
+                                ]
                             }
                         }
                     }
