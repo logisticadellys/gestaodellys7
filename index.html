@@ -134,16 +134,8 @@
         .tela.ativa { display: flex; }
 
         @keyframes suaveEntrada {
-            0% { 
-                opacity: 0; 
-                filter: blur(15px);
-                transform: scale(0.97);
-            }
-            100% { 
-                opacity: 1; 
-                filter: blur(0);
-                transform: scale(1);
-            }
+            0% { opacity: 0; filter: blur(15px); transform: scale(0.97); }
+            100% { opacity: 1; filter: blur(0); transform: scale(1); }
         }
 
         .grid-cards {
@@ -593,8 +585,15 @@
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d');
             if (chartOcupDiario) chartOcupDiario.destroy();
 
-            // Calcula a média da meta para desenhar a linha reta amarela
-            const metaMedia = meta.reduce((a, b) => a + b, 0) / (meta.filter(m => m > 0).length || 1);
+            // Lógica de cores condicional
+            const coresColunas = ocup.map((valor, i) => {
+                const metaDia = meta[i] || 0;
+                if (valor === 0) return 'rgba(0,0,0,0)';
+                return valor >= metaDia ? '#2ecc71' : '#e74c3c';
+            });
+
+            // Pega o valor da meta para a legenda (média ou primeiro valor encontrado)
+            const valorMetaLegenda = meta.find(m => m > 0) || 0;
 
             chartOcupDiario = new Chart(ctx, {
                 type: 'bar',
@@ -604,63 +603,58 @@
                         {
                             label: 'Ocupação (%)',
                             data: ocup,
-                            // Verde se >= meta, Vermelho se < meta
-                            backgroundColor: ocup.map(v => v >= metaMedia ? '#2ecc71' : '#e74c3c'),
-                            borderColor: ocup.map(v => v >= metaMedia ? '#2ecc71' : '#e74c3c'),
-                            borderWidth: 1,
+                            backgroundColor: coresColunas,
                             borderRadius: 2,
                             barPercentage: 0.7
                         },
                         {
-                            label: `META (${metaMedia.toFixed(1)}%)`,
-                            data: Array(labels.length).fill(metaMedia),
+                            label: 'META',
+                            data: meta,
                             type: 'line',
                             borderColor: '#ffff00',
                             borderWidth: 2,
                             borderDash: [5, 5],
                             pointRadius: 0,
-                            fill: false,
-                            order: -1
+                            fill: false
                         }
                     ]
                 },
                 options: {
-                    ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true),
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        ...getCommonOptions().plugins,
+                        datalabels: { display: false },
+                        title: {
+                            display: true,
+                            text: `OCUPAÇÃO (%) - ${mesNome}`,
+                            color: '#a0aec0',
+                            font: { size: 16, weight: 'bold' }
+                        },
                         legend: {
                             display: true,
-                            position: 'bottom',
+                            position: 'top',
                             labels: {
                                 color: '#ffffff',
-                                font: { size: 10 },
-                                usePointStyle: true,
+                                font: { weight: 'bold' },
                                 generateLabels: (chart) => {
                                     return [
-                                        { text: `META (${metaMedia.toFixed(1)}%)`, strokeStyle: '#ffff00', lineWidth: 2, fillStyle: 'transparent', hidden: false },
-                                        { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71', hidden: false },
-                                        { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c', hidden: false }
+                                        { text: `META (${valorMetaLegenda}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', fontColor: '#ffffff' },
+                                        { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71', fontColor: '#ffffff' },
+                                        { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c', fontColor: '#ffffff' }
                                     ];
                                 }
                             }
-                        },
-                        datalabels: {
-                            display: true,
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#ffffff',
-                            font: { weight: 'bold', size: 9 },
-                            formatter: (value) => value > 0 ? value.toFixed(1) + '%' : ''
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { 
-                                color: '#ffff00', // Valores da esquerda em amarelo
-                                font: { size: 10, weight: 'bold' },
-                                callback: (value) => value + '%'
+                            ticks: {
+                                color: (ctx) => ctx.tick.value === valorMetaLegenda ? '#ffff00' : '#ffffff',
+                                font: { 
+                                    weight: (ctx) => ctx.tick.value === valorMetaLegenda ? 'bold' : 'normal' 
+                                }
                             }
                         },
                         x: {
