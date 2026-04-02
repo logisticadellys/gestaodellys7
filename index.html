@@ -678,7 +678,12 @@
                             borderRadius: 2, 
                             barPercentage: 0.6, 
                             order: 2,
-                            datalabels: { display: true }
+                            datalabels: { 
+                                display: true,
+                                anchor: 'center', // Fixa o ponto de ancoragem no centro da coluna
+                                align: 'center',  // Alinha o texto no centro do ponto de ancoragem
+                                offset: 0         // Remove qualquer deslocamento
+                            }
                         },
                         { 
                             label: 'META', 
@@ -696,12 +701,16 @@
                 },
                 options: {
                     ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true),
-                    // Mantive apenas o ajuste dos rótulos para não colar na coluna
+                    layout: {
+                        padding: {
+                            top: 25 
+                        }
+                    },
                     plugins: {
                         ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins,
                         datalabels: {
                             ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins.datalabels,
-                            offset: 5 
+                            // As configurações individuais do dataset acima sobrescrevem estas se houver conflito
                         },
                         legend: {
                             display: true,
