@@ -522,10 +522,11 @@
                         }
 
                         if (dataPlanilha.includes(`/${ano}`)) {
-                            let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
+                            let partes = dataPlanilha.split('/');
+                            let mIdx = parseInt(partes[1]) - 1;
                             if (mIdx >= 0 && mIdx < 12) {
                                 acumuladoVolMensal[mIdx] += valVol;
-                                if (valVol > 0) {
+                                if (valMeta > 0) {
                                     somaMetaOcupMensal[mIdx] += valMeta;
                                     contagemDiasMetaMensal[mIdx]++;
                                 }
@@ -680,9 +681,9 @@
                             order: 2,
                             datalabels: { 
                                 display: true,
-                                anchor: 'center', // Fixa o ponto de ancoragem no centro da coluna
-                                align: 'center',  // Alinha o texto no centro do ponto de ancoragem
-                                offset: 0         // Remove qualquer deslocamento
+                                anchor: 'center', 
+                                align: 'center',  
+                                offset: 0         
                             }
                         },
                         { 
@@ -710,7 +711,6 @@
                         ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins,
                         datalabels: {
                             ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins.datalabels,
-                            // As configurações individuais do dataset acima sobrescrevem estas se houver conflito
                         },
                         legend: {
                             display: true,
