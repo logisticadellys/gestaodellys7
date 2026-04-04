@@ -237,17 +237,20 @@
                         let valOcup = converter(colunas[idxOcup]);
                         let valMeta = converter(colunas[idxMetaOcup]);
 
+                        // Filtro diário (mês atual)
                         if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
                             let diaP = parseInt(dataPlanilha.split('/')[0]);
                             if(diaP <= ultimoDiaMes) {
-                                dadosVolDiarioRaw[diaP - 1] = valVol;
-                                dadosOcupDiarioRaw[diaP - 1] = valOcup;
-                                dadosMetaOcupDiarioRaw[diaP - 1] = valMeta;
+                                if(valVol !== null) dadosVolDiarioRaw[diaP - 1] = valVol;
+                                if(valOcup !== null) dadosOcupDiarioRaw[diaP - 1] = valOcup;
+                                if(valMeta !== null) dadosMetaOcupDiarioRaw[diaP - 1] = valMeta;
                             }
                         }
 
+                        // Acumulado/Médias mensais (ano corrente)
                         if (dataPlanilha.includes(`/${ano}`)) {
-                            let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
+                            let partes = dataPlanilha.split('/');
+                            let mIdx = parseInt(partes[1]) - 1;
                             if (mIdx >= 0 && mIdx < 12) {
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
                                 if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
@@ -275,7 +278,7 @@
 
                 renderizarGraficoDiario(labelsDiarioFiltrado, dadosVolFiltrado, mesAtualNome);
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal);
-                renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupDiarioRaw, dadosMetaOcupDiarioRaw, mesAtualNome);
+                renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupFiltrado, dadosMetaFiltrado, mesAtualNome);
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal);
             } catch (err) { console.error("Erro:", err); }
         }
@@ -294,7 +297,7 @@
         function renderizarOcupacaoDiaria(labels, ocup, metaArr, mesNome) {
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
             const metaV = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
-            const cores = ocup.map((v, i) => (v === null || v === 0) ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
+            const cores = ocup.map((v, i) => (v === 0) ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
             const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true);
             chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2 }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 } ] }, options: { ...options, plugins: { ...options.plugins, datalabels: { display: false }, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
         }
