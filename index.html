@@ -485,7 +485,7 @@
                 const acumuladoVolMensal = Array(12).fill(0);
                 const somaOcupMensal = Array(12).fill(0);
                 const somaMetaOcupMensal = Array(12).fill(0);
-                const contagemDiasMensal = Array(12).fill(0);
+                const contagemDiasOcupMensal = Array(12).fill(0);
                 const contagemDiasMetaMensal = Array(12).fill(0);
 
                 if (idxData !== -1) {
@@ -505,13 +505,15 @@
 
                         const converter = (val) => {
                             if (!val || val === "-" || val === "null" || val === "#N/A") return null;
-                            return parseFloat(val.replace(/"/g, '').replace(/\./g, '').replace(',', '.').replace('%', ''));
+                            let n = parseFloat(val.replace(/"/g, '').replace(/\./g, '').replace(',', '.').replace('%', ''));
+                            return isNaN(n) ? null : n;
                         };
 
                         let valVol = converter(colunas[idxVolExp]);
                         let valOcup = converter(colunas[idxOcup]);
                         let valMeta = converter(colunas[idxMetaOcup]);
 
+                        // Lógica Diária (Mês atual)
                         if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
                             let diaP = parseInt(dataPlanilha.split('/')[0]);
                             if(diaP <= ultimoDiaMes) {
@@ -521,18 +523,19 @@
                             }
                         }
 
+                        // Lógica Mensal (Acumulados do ano)
                         if (dataPlanilha.includes(`/${ano}`)) {
                             let partes = dataPlanilha.split('/');
                             let mIdx = parseInt(partes[1]) - 1;
                             if (mIdx >= 0 && mIdx < 12) {
                                 acumuladoVolMensal[mIdx] += (valVol || 0);
-                                if (valMeta > 0) {
+                                if (valMeta !== null) {
                                     somaMetaOcupMensal[mIdx] += valMeta;
                                     contagemDiasMetaMensal[mIdx]++;
                                 }
-                                if (valOcup > 0) {
+                                if (valOcup !== null) {
                                     somaOcupMensal[mIdx] += valOcup;
-                                    contagemDiasMensal[mIdx]++;
+                                    contagemDiasOcupMensal[mIdx]++;
                                 }
                             }
                         }
@@ -553,7 +556,7 @@
                     }
                 }
 
-                const mediasOcupMensal = somaOcupMensal.map((soma, i) => contagemDiasMensal[i] > 0 ? soma / contagemDiasMensal[i] : 0);
+                const mediasOcupMensal = somaOcupMensal.map((soma, i) => contagemDiasOcupMensal[i] > 0 ? soma / contagemDiasOcupMensal[i] : 0);
                 const mediasMetaOcupMensal = somaMetaOcupMensal.map((soma, i) => contagemDiasMetaMensal[i] > 0 ? soma / contagemDiasMetaMensal[i] : 0);
 
                 const idsCards = {
@@ -616,7 +619,6 @@
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d');
             if (chartOcupDiario) chartOcupDiario.destroy();
 
-            const metaValor = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
             const cores = ocup.map((v, i) => {
                 if (v === 0) return 'rgba(255, 255, 255, 0.1)';
                 return v >= metaArr[i] ? '#2ecc71' : '#e74c3c';
@@ -661,7 +663,7 @@
                                 font: { size: 10, weight: 'bold' },
                                 boxWidth: 12,
                                 generateLabels: (chart) => [
-                                    { text: `META (${metaValor.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' },
+                                    { text: 'META', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' },
                                     { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71', fontColor: '#ffffff' },
                                     { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c', fontColor: '#ffffff' }
                                 ]
@@ -676,8 +678,10 @@
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d');
             if (chartOcupMensal) chartOcupMensal.destroy();
 
+            // Lógica de cores baseada na comparação entre as médias mensais
             const cores = ocup.map((v, i) => {
-                if (v === 0) return 'rgba(255, 255, 255, 0.1)';
+                if (v === 0 || v === null) return 'rgba(255, 255, 255, 0.1)';
+                // Verifica se a média de ocupação do mês bateu a média da meta do mês
                 return v >= meta[i] ? '#2ecc71' : '#e74c3c';
             });
 
@@ -696,8 +700,7 @@
                             datalabels: { 
                                 display: true,
                                 anchor: 'center', 
-                                align: 'center',  
-                                offset: 0         
+                                align: 'center'
                             }
                         },
                         { 
@@ -716,16 +719,9 @@
                 },
                 options: {
                     ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true),
-                    layout: {
-                        padding: {
-                            top: 25 
-                        }
-                    },
+                    layout: { padding: { top: 25 } },
                     plugins: {
                         ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins,
-                        datalabels: {
-                            ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins.datalabels,
-                        },
                         legend: {
                             display: true,
                             position: 'bottom',
@@ -734,7 +730,7 @@
                                 font: { size: 10, weight: 'bold' },
                                 boxWidth: 12,
                                 generateLabels: (chart) => [
-                                    { text: 'META', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' },
+                                    { text: 'MÉDIA META', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' },
                                     { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71', fontColor: '#ffffff' },
                                     { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c', fontColor: '#ffffff' }
                                 ]
@@ -756,7 +752,7 @@
                         anchor: 'end', align: 'top', offset: 2, color: '#ffffff',
                         font: { weight: 'bold', size: 10 },
                         textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2,
-                        formatter: (value) => value > 0 ? (isPercentage ? value.toFixed(1) + '%' : value.toLocaleString('pt-BR')) : ''
+                        formatter: (value) => (value > 0 && value !== null) ? (isPercentage ? value.toFixed(1) + '%' : value.toLocaleString('pt-BR')) : ''
                     },
                     title: {
                         display: true,
