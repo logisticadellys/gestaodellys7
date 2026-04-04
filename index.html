@@ -250,8 +250,8 @@
                             let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
                             if (mIdx >= 0 && mIdx < 12) {
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
-                                if (valOcup !== null) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
-                                if (valMeta !== null) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
+                                if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
+                                if (valMeta !== null && valMeta > 0) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
                             }
                         }
                     }
@@ -275,7 +275,7 @@
 
                 renderizarGraficoDiario(labelsDiarioFiltrado, dadosVolFiltrado, mesAtualNome);
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal);
-                renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupFiltrado, dadosMetaFiltrado, mesAtualNome);
+                renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupDiarioRaw, dadosMetaOcupDiarioRaw, mesAtualNome);
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal);
             } catch (err) { console.error("Erro:", err); }
         }
@@ -294,14 +294,16 @@
         function renderizarOcupacaoDiaria(labels, ocup, metaArr, mesNome) {
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
             const metaV = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
-            const cores = ocup.map((v, i) => v === 0 ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
-            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2 }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 } ] }, options: { ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true), plugins: { ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true).plugins, datalabels: { display: false }, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
+            const cores = ocup.map((v, i) => (v === null || v === 0) ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
+            const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true);
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2 }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 } ] }, options: { ...options, plugins: { ...options.plugins, datalabels: { display: false }, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
         }
 
         function renderizarOcupacaoMensal(labels, ocup, meta) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
-            const cores = ocup.map((v, i) => v === 0 ? 'rgba(255,255,255,0.1)' : (v >= meta[i] ? '#2ecc71' : '#e74c3c'));
-            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, barPercentage: 0.6, order: 2, datalabels: { display: true, anchor: 'center', align: 'center' } }, { label: 'META', data: meta, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1, datalabels: { display: false } } ] }, options: { ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true), layout: { padding: { top: 25 } }, plugins: { ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: 'META', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
+            const cores = ocup.map((v, i) => (v === 0) ? 'rgba(255,255,255,0.1)' : (v >= meta[i] ? '#2ecc71' : '#e74c3c'));
+            const options = getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true);
+            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, barPercentage: 0.6, order: 2, datalabels: { display: true, anchor: 'center', align: 'center' } }, { label: 'META', data: meta, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1, datalabels: { display: false } } ] }, options: { ...options, layout: { padding: { top: 25 } }, plugins: { ...options.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: 'META', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
         }
 
         function getCommonOptions(titulo, showDL, isPerc = false) { return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 2, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : v.toLocaleString('pt-BR')) : '' }, title: { display: true, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 10 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; }
