@@ -7,244 +7,36 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
-        body {
-            background-color: #0b192c;
-            color: #ffffff;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 1.2vh 1.2vw; 
-            font-weight: bold;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            gap: 2.5vh;
-        }
-
-        header { 
-            flex-shrink: 0; 
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1vh 0;
-            border-bottom: 1px solid rgba(46, 204, 113, 0.2);
-            min-height: 8vh;
-        }
-
-        .logo-img {
-            position: absolute;
-            left: 0;
-            height: clamp(40px, 6vh, 60px);
-            width: auto;
-        }
-
-        .controles-painel {
-            position: absolute;
-            right: 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .coluna-botoes {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-
-        #timer-display {
-            color: #a0aec0;
-            font-size: 0.85em;
-            width: 24px;
-            height: 24px;
-            border: 1.5px solid #a0aec0;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            visibility: hidden;
-        }
-
-        .btn-auto {
-            padding: 3px 12px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: 0.3s;
-            font-size: 0.65em;
-            width: 85px;
-        }
-
-        .nav-manual {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .btn-nav {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(46, 204, 113, 0.4);
-            color: white;
-            cursor: pointer;
-            padding: 2px 10px;
-            border-radius: 4px;
-            font-size: 0.75em;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-nav:hover {
-            background: #2ecc71;
-            color: #0b192c;
-        }
-
+        body { background-color: #0b192c; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 1.2vh 1.2vw; font-weight: bold; overflow: hidden; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; gap: 2.5vh; }
+        header { flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 1vh 0; border-bottom: 1px solid rgba(46, 204, 113, 0.2); min-height: 8vh; }
+        .logo-img { position: absolute; left: 0; height: clamp(40px, 6vh, 60px); width: auto; }
+        .controles-painel { position: absolute; right: 0; display: flex; align-items: center; gap: 12px; top: 50%; transform: translateY(-50%); }
+        .coluna-botoes { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        #timer-display { color: #a0aec0; font-size: 0.85em; width: 24px; height: 24px; border: 1.5px solid #a0aec0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; visibility: hidden; }
+        .btn-auto { padding: 3px 12px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; font-size: 0.65em; width: 85px; }
+        .nav-manual { display: flex; gap: 8px; justify-content: center; }
+        .btn-nav { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(46, 204, 113, 0.4); color: white; cursor: pointer; padding: 2px 10px; border-radius: 4px; font-size: 0.75em; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-nav:hover { background: #2ecc71; color: #0b192c; }
         .auto-on { background-color: #2ecc71; color: #fff; }
         .auto-off { background-color: #e74c3c; color: #fff; }
-
-        .titulo-painel {
-            color: #2ecc71;
-            font-size: clamp(1.5em, 3.2vw, 2.2em);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin: 0;
-            font-weight: 800;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            text-align: center;
-        }
-
-        .tela { 
-            display: none; 
-            flex-direction: column; 
-            gap: 2.5vh; 
-            flex: 1; 
-            min-height: 0;
-            animation: suaveEntrada 2.5s ease-in-out;
-        }
-
+        .titulo-painel { color: #2ecc71; font-size: clamp(1.5em, 3.2vw, 2.2em); text-transform: uppercase; letter-spacing: 3px; margin: 0; font-weight: 800; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); text-align: center; }
+        .tela { display: none; flex-direction: column; gap: 2.5vh; flex: 1; min-height: 0; animation: suaveEntrada 2.5s ease-in-out; }
         .tela.ativa { display: flex; }
-
-        @keyframes suaveEntrada {
-            0% { opacity: 0; filter: blur(15px); transform: scale(0.97); }
-            100% { opacity: 1; filter: blur(0); transform: scale(1); }
-        }
-
-        .grid-cards {
-            display: flex;
-            gap: 2vw; 
-            width: 100%;
-            flex-shrink: 0;
-        }
-
-        .card {
-            background-color: #1a365d;
-            border: 2px solid #00ced1;
-            border-radius: 12px;
-            flex: 1; 
-            padding: 0.8vh 0.6vw;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .card h3 {
-            margin: 0 0 0.4vh 0;
-            color: #a0aec0;
-            font-size: clamp(0.85em, 1.1vw, 1.1em);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            min-height: 1.6em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .secao-inferior {
-            display: flex;
-            gap: 2vw; 
-            flex: 1;
-            min-height: 0;
-        }
-
-        .container-coluna {
-            display: flex;
-            flex-direction: column; 
-            gap: 2.2vh; 
-            flex: 1;
-            min-height: 0;
-        }
-
-        .card-split {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .split-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex: 1;
-        }
-
-        .split-item {
-            flex: 1;
-            border-right: 1px solid rgba(160, 174, 192, 0.2);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0 2px;
-        }
-
+        @keyframes suaveEntrada { 0% { opacity: 0; filter: blur(15px); transform: scale(0.97); } 100% { opacity: 1; filter: blur(0); transform: scale(1); } }
+        .grid-cards { display: flex; gap: 2vw; width: 100%; flex-shrink: 0; }
+        .card { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; flex: 1; padding: 0.8vh 0.6vw; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: center; }
+        .card h3 { margin: 0 0 0.4vh 0; color: #a0aec0; font-size: clamp(0.85em, 1.1vw, 1.1em); text-transform: uppercase; letter-spacing: 1px; min-height: 1.6em; display: flex; align-items: center; justify-content: center; }
+        .secao-inferior { display: flex; gap: 2vw; flex: 1; min-height: 0; }
+        .container-coluna { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; min-height: 0; }
+        .card-split { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .split-container { display: flex; justify-content: space-around; align-items: center; flex: 1; }
+        .split-item { flex: 1; border-right: 1px solid rgba(160, 174, 192, 0.2); display: flex; flex-direction: column; align-items: center; padding: 0 2px; }
         .split-item:last-child { border-right: none; }
-
-        .subtitulo {
-            font-size: clamp(0.55em, 0.75vw, 0.8em);
-            color: #a0aec0;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-        }
-
-        .valor {
-            font-size: clamp(1.2em, 2.8vw, 2em);
-            color: #ffffff;
-            display: block;
-        }
-
-        .valor-frota {
-            font-size: clamp(1em, 2vw, 1.6em);
-        }
-
-        .grid-graficos {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); 
-            grid-template-rows: repeat(2, 1fr);    
-            gap: 20px;
-            flex: 1;
-            min-height: 0;
-            height: 100%;
-        }
-
-        .chart-container {
-            background-color: #1a365d;
-            border: 2px solid #00ced1;
-            border-radius: 12px;
-            padding: 1.5vh;
-            position: relative;
-            min-height: 0; 
-        }
+        .subtitulo { font-size: clamp(0.55em, 0.75vw, 0.8em); color: #a0aec0; margin-bottom: 2px; text-transform: uppercase; }
+        .valor { font-size: clamp(1.2em, 2.8vw, 2em); color: #ffffff; display: block; }
+        .valor-frota { font-size: clamp(1em, 2vw, 1.6em); }
+        .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; min-height: 0; height: 100%; }
+        .chart-container { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; padding: 1.5vh; position: relative; min-height: 0; }
     </style>
 </head>
 <body>
@@ -266,39 +58,16 @@
 
     <div id="tela1" class="tela ativa">
         <div class="grid-cards">
-            <div class="card">
-                <h3>VOLUME EXPEDIDO (KG) - HOJE</h3>
-                <span class="valor" id="vol-valor">-</span>
-            </div>
-            <div class="card">
-                <h3>DROPSIZE (KG) - HOJE</h3>
-                <span class="valor" id="drop-valor">-</span>
-            </div>
-            <div class="card">
-                <h3>OCUPAÇÃO (%) - HOJE</h3>
-                <span class="valor" id="ocp-valor">-</span>
-            </div>
-            <div class="card">
-                <h3>NF'S (QTD) - HOJE</h3>
-                <span class="valor" id="nf-valor">-</span>
-            </div>
+            <div class="card"><h3>VOLUME EXPEDIDO (KG) - HOJE</h3><span class="valor" id="vol-valor">-</span></div>
+            <div class="card"><h3>DROPSIZE (KG) - HOJE</h3><span class="valor" id="drop-valor">-</span></div>
+            <div class="card"><h3>OCUPAÇÃO (%) - HOJE</h3><span class="valor" id="ocp-valor">-</span></div>
+            <div class="card"><h3>NF'S (QTD) - HOJE</h3><span class="valor" id="nf-valor">-</span></div>
         </div>
-
         <div class="grid-cards">
-            <div class="card">
-                <h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3>
-                <span class="valor" id="terc-util">-</span>
-            </div>
-            <div class="card">
-                <h3>ABSENTEÍSMO (QTD) - HOJE</h3>
-                <span class="valor" id="abs-valor">-</span>
-            </div>
-            <div class="card">
-                <h3>ABSENTEÍSMO (%) - HOJE</h3>
-                <span class="valor" id="abs-perc-valor">-</span>
-            </div>
+            <div class="card"><h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
+            <div class="card"><h3>ABSENTEÍSMO (QTD) - HOJE</h3><span class="valor" id="abs-valor">-</span></div>
+            <div class="card"><h3>ABSENTEÍSMO (%) - HOJE</h3><span class="valor" id="abs-perc-valor">-</span></div>
         </div>
-
         <div class="secao-inferior">
             <div class="container-coluna">
                 <div class="card card-split">
@@ -320,7 +89,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="container-coluna">
                 <div class="card card-split">
                     <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
@@ -364,77 +132,40 @@
 
     <div id="tela2" class="tela">
         <div class="grid-graficos">
-            <div class="chart-container">
-                <canvas id="graficoVolume"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="graficoMensal"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="graficoOcupacaoDiario"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="graficoOcupacaoMensal"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="graficoVolume"></canvas></div>
+            <div class="chart-container"><canvas id="graficoMensal"></canvas></div>
+            <div class="chart-container"><canvas id="graficoOcupacaoDiario"></canvas></div>
+            <div class="chart-container"><canvas id="graficoOcupacaoMensal"></canvas></div>
         </div>
     </div>
 
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
-        
         Chart.register(ChartDataLabels);
 
-        let autoMode = false;
-        let tempoRestante = 15;
-        let telaAtual = 1;
-        let chartInstance = null;
-        let chartMensalInstance = null;
-        let chartOcupDiario = null;
-        let chartOcupMensal = null;
+        let autoMode = false; let tempoRestante = 15; let telaAtual = 1;
+        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal;
 
         function toggleAuto() {
             autoMode = !autoMode;
             const btn = document.getElementById('btn-auto-toggle');
             const timerDisp = document.getElementById('timer-display');
-            if (autoMode) {
-                btn.textContent = "Auto: ON"; btn.className = "btn-auto auto-on";
-                tempoRestante = 15; timerDisp.textContent = tempoRestante; timerDisp.style.visibility = "visible";
-            } else {
-                btn.textContent = "Auto: OFF"; btn.className = "btn-auto auto-off";
-                timerDisp.style.visibility = "hidden";
-            }
+            if (autoMode) { btn.textContent = "Auto: ON"; btn.className = "btn-auto auto-on"; tempoRestante = 15; timerDisp.textContent = tempoRestante; timerDisp.style.visibility = "visible"; }
+            else { btn.textContent = "Auto: OFF"; btn.className = "btn-auto auto-off"; timerDisp.style.visibility = "hidden"; }
         }
 
-        function mudarTelaManual(direcao) {
-            if (autoMode) tempoRestante = 15;
-            alternarTelas();
-        }
+        function mudarTelaManual(direcao) { if (autoMode) tempoRestante = 15; alternarTelas(); }
 
-        setInterval(() => {
-            if (autoMode) {
-                tempoRestante--;
-                document.getElementById('timer-display').textContent = tempoRestante;
-                if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 15; }
-            }
-        }, 1000);
+        setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 15; } } }, 1000);
 
         function alternarTelas() {
-            const t1 = document.getElementById('tela1');
-            const t2 = document.getElementById('tela2');
-            if (telaAtual === 1) {
-                t1.classList.remove('ativa'); t2.classList.add('ativa'); telaAtual = 2;
-            } else {
-                t2.classList.remove('ativa'); t1.classList.add('ativa'); telaAtual = 1;
-            }
+            const t1 = document.getElementById('tela1'); const t2 = document.getElementById('tela2');
+            if (telaAtual === 1) { t1.classList.remove('ativa'); t2.classList.add('ativa'); telaAtual = 2; }
+            else { t2.classList.remove('ativa'); t1.classList.add('ativa'); telaAtual = 1; }
             window.dispatchEvent(new Event('resize'));
         }
 
-        window.addEventListener('resize', () => {
-            if(chartInstance) chartInstance.resize();
-            if(chartMensalInstance) chartMensalInstance.resize();
-            if(chartOcupDiario) chartOcupDiario.resize();
-            if(chartOcupMensal) chartOcupMensal.resize();
-        });
+        window.addEventListener('resize', () => { if(chartInstance) chartInstance.resize(); if(chartMensalInstance) chartMensalInstance.resize(); if(chartOcupDiario) chartOcupDiario.resize(); if(chartOcupMensal) chartOcupMensal.resize(); });
 
         async function fetchPlanilha() {
             const agora = new Date();
@@ -469,11 +200,8 @@
                     mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)"
                 };
 
-                const idxs = {};
-                for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
-
-                let v = {};
-                for(let k in mapping) v[k] = "-";
+                const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
+                let v = {}; for(let k in mapping) v[k] = "-";
 
                 const ultimoDiaMes = new Date(ano, agora.getMonth() + 1, 0).getDate();
                 const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
@@ -484,9 +212,9 @@
 
                 const acumuladoVolMensal = Array(12).fill(0);
                 const somaOcupMensal = Array(12).fill(0);
-                const somaMetaOcupMensal = Array(12).fill(0);
-                const contagemDiasOcupMensal = Array(12).fill(0);
-                const contagemDiasMetaMensal = Array(12).fill(0);
+                const contOcupMensal = Array(12).fill(0);
+                const somaMetaMensal = Array(12).fill(0);
+                const contMetaMensal = Array(12).fill(0);
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -494,26 +222,21 @@
                         let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
                         if (!dataPlanilha) continue;
 
-                        if (dataPlanilha.includes(hojeBusca)) {
-                            const limpar = (idx) => {
-                                if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-";
-                                let val = colunas[idx].replace(/"/g, '').trim();
-                                return (val === "" || val === "null" || val === "#N/A") ? "-" : val;
-                            };
-                            for(let key in idxs) v[key] = limpar(idxs[key]);
-                        }
-
                         const converter = (val) => {
                             if (!val || val === "-" || val === "null" || val === "#N/A") return null;
                             let n = parseFloat(val.replace(/"/g, '').replace(/\./g, '').replace(',', '.').replace('%', ''));
                             return isNaN(n) ? null : n;
                         };
 
+                        if (dataPlanilha.includes(hojeBusca)) {
+                            const limpar = (idx) => { if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; let val = colunas[idx].replace(/"/g, '').trim(); return (val === "" || val === "null" || val === "#N/A") ? "-" : val; };
+                            for(let key in idxs) v[key] = limpar(idxs[key]);
+                        }
+
                         let valVol = converter(colunas[idxVolExp]);
                         let valOcup = converter(colunas[idxOcup]);
                         let valMeta = converter(colunas[idxMetaOcup]);
 
-                        // Lógica Diária (Mês atual)
                         if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
                             let diaP = parseInt(dataPlanilha.split('/')[0]);
                             if(diaP <= ultimoDiaMes) {
@@ -523,30 +246,18 @@
                             }
                         }
 
-                        // Lógica Mensal (Acumulados do ano)
                         if (dataPlanilha.includes(`/${ano}`)) {
-                            let partes = dataPlanilha.split('/');
-                            let mIdx = parseInt(partes[1]) - 1;
+                            let mIdx = parseInt(dataPlanilha.split('/')[1]) - 1;
                             if (mIdx >= 0 && mIdx < 12) {
-                                acumuladoVolMensal[mIdx] += (valVol || 0);
-                                if (valMeta !== null) {
-                                    somaMetaOcupMensal[mIdx] += valMeta;
-                                    contagemDiasMetaMensal[mIdx]++;
-                                }
-                                if (valOcup !== null) {
-                                    somaOcupMensal[mIdx] += valOcup;
-                                    contagemDiasOcupMensal[mIdx]++;
-                                }
+                                if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
+                                if (valOcup !== null) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
+                                if (valMeta !== null) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
                             }
                         }
                     }
                 }
 
-                const labelsDiarioFiltrado = [];
-                const dadosVolFiltrado = [];
-                const dadosOcupFiltrado = [];
-                const dadosMetaFiltrado = [];
-
+                const labelsDiarioFiltrado = []; const dadosVolFiltrado = []; const dadosOcupFiltrado = []; const dadosMetaFiltrado = [];
                 for (let i = 0; i < labelsDiarioBase.length; i++) {
                     if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null) {
                         labelsDiarioFiltrado.push(labelsDiarioBase[i]);
@@ -556,230 +267,46 @@
                     }
                 }
 
-                const mediasOcupMensal = somaOcupMensal.map((soma, i) => contagemDiasOcupMensal[i] > 0 ? soma / contagemDiasOcupMensal[i] : 0);
-                const mediasMetaOcupMensal = somaMetaOcupMensal.map((soma, i) => contagemDiasMetaMensal[i] > 0 ? soma / contagemDiasMetaMensal[i] : 0);
+                const mediasOcupMensal = somaOcupMensal.map((s, i) => contOcupMensal[i] > 0 ? s / contOcupMensal[i] : 0);
+                const mediasMetaMensal = somaMetaMensal.map((s, i) => contMetaMensal[i] > 0 ? s / contMetaMensal[i] : 0);
 
-                const idsCards = {
-                    'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf,
-                    'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros,
-                    'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil,
-                    'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil,
-                    'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil,
-                    'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil,
-                    'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil
-                };
+                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
                 for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
                 renderizarGraficoDiario(labelsDiarioFiltrado, dadosVolFiltrado, mesAtualNome);
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal);
                 renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupFiltrado, dadosMetaFiltrado, mesAtualNome);
-                renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaOcupMensal);
-
+                renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal);
             } catch (err) { console.error("Erro:", err); }
         }
 
         function renderizarGraficoDiario(labels, valores, mesNome) {
-            const ctx = document.getElementById('graficoVolume').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
-                type: 'line', 
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Volume (KG)',
-                        data: valores,
-                        backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, pointBackgroundColor: '#00ced1'
-                    }]
-                },
-                options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false)
-            });
+            const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false) });
         }
 
         function renderizarGraficoMensal(labels, valores) {
-            const ctx = document.getElementById('graficoMensal').getContext('2d');
-            if (chartMensalInstance) chartMensalInstance.destroy();
-            let options = getCommonOptions('VOLUME EXPEDIDO (KG) - MENSAL (2026)', true);
-            options.scales.y.display = false; 
-
-            chartMensalInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Volume Mensal (KG)',
-                        data: valores,
-                        backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6
-                    }]
-                },
-                options: options
-            });
+            const ctx = document.getElementById('graficoMensal').getContext('2d'); if (chartMensalInstance) chartMensalInstance.destroy();
+            let opt = getCommonOptions('VOLUME EXPEDIDO (KG) - MENSAL (2026)', true); opt.scales.y.display = false;
+            chartMensalInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume Mensal (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
 
         function renderizarOcupacaoDiaria(labels, ocup, metaArr, mesNome) {
-            const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d');
-            if (chartOcupDiario) chartOcupDiario.destroy();
-
-            const cores = ocup.map((v, i) => {
-                if (v === 0) return 'rgba(255, 255, 255, 0.1)';
-                return v >= metaArr[i] ? '#2ecc71' : '#e74c3c';
-            });
-
-            chartOcupDiario = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { 
-                            label: 'Ocupação (%)', 
-                            data: ocup, 
-                            backgroundColor: cores, 
-                            borderRadius: 2, 
-                            barPercentage: 0.7,
-                            order: 2 
-                        },
-                        { 
-                            label: 'META', 
-                            data: metaArr, 
-                            type: 'line', 
-                            borderColor: '#ffff00', 
-                            borderWidth: 2, 
-                            borderDash: [5, 5], 
-                            pointRadius: 0, 
-                            fill: false,
-                            order: 1 
-                        }
-                    ]
-                },
-                options: {
-                    ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true),
-                    plugins: {
-                        ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true).plugins,
-                        datalabels: { display: false },
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                color: '#ffffff',
-                                font: { size: 10, weight: 'bold' },
-                                boxWidth: 12,
-                                generateLabels: (chart) => [
-                                    { text: 'META', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' },
-                                    { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71', fontColor: '#ffffff' },
-                                    { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c', fontColor: '#ffffff' }
-                                ]
-                            }
-                        }
-                    }
-                }
-            });
+            const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
+            const metaV = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
+            const cores = ocup.map((v, i) => v === 0 ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2 }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 } ] }, options: { ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true), plugins: { ...getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true).plugins, datalabels: { display: false }, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
         }
 
         function renderizarOcupacaoMensal(labels, ocup, meta) {
-            const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d');
-            if (chartOcupMensal) chartOcupMensal.destroy();
-
-            // Lógica de cores baseada na comparação entre as médias mensais
-            const cores = ocup.map((v, i) => {
-                if (v === 0 || v === null) return 'rgba(255, 255, 255, 0.1)';
-                // Verifica se a média de ocupação do mês bateu a média da meta do mês
-                return v >= meta[i] ? '#2ecc71' : '#e74c3c';
-            });
-
-            chartOcupMensal = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { 
-                            label: 'Ocupação (%)', 
-                            data: ocup, 
-                            backgroundColor: cores, 
-                            borderRadius: 2, 
-                            barPercentage: 0.6, 
-                            order: 2,
-                            datalabels: { 
-                                display: true,
-                                anchor: 'center', 
-                                align: 'center'
-                            }
-                        },
-                        { 
-                            label: 'META', 
-                            data: meta, 
-                            type: 'line', 
-                            borderColor: '#ffff00', 
-                            borderWidth: 2, 
-                            borderDash: [5, 5], 
-                            pointRadius: 0, 
-                            fill: false, 
-                            order: 1,
-                            datalabels: { display: false }
-                        }
-                    ]
-                },
-                options: {
-                    ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true),
-                    layout: { padding: { top: 25 } },
-                    plugins: {
-                        ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins,
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                color: '#ffffff',
-                                font: { size: 10, weight: 'bold' },
-                                boxWidth: 12,
-                                generateLabels: (chart) => [
-                                    { text: 'MÉDIA META', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' },
-                                    { text: 'META BATIDA', fillStyle: '#2ecc71', strokeStyle: '#2ecc71', fontColor: '#ffffff' },
-                                    { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', strokeStyle: '#e74c3c', fontColor: '#ffffff' }
-                                ]
-                            }
-                        }
-                    }
-                }
-            });
+            const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
+            const cores = ocup.map((v, i) => v === 0 ? 'rgba(255,255,255,0.1)' : (v >= meta[i] ? '#2ecc71' : '#e74c3c'));
+            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, barPercentage: 0.6, order: 2, datalabels: { display: true, anchor: 'center', align: 'center' } }, { label: 'META', data: meta, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1, datalabels: { display: false } } ] }, options: { ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true), layout: { padding: { top: 25 } }, plugins: { ...getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true).plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: 'META', fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
         }
 
-        function getCommonOptions(titulo, showDataLabels, isPercentage = false) {
-            return {
-                responsive: true,
-                maintainAspectRatio: false, 
-                layout: { padding: { top: 10 } }, 
-                plugins: {
-                    datalabels: {
-                        display: showDataLabels,
-                        anchor: 'end', align: 'top', offset: 2, color: '#ffffff',
-                        font: { weight: 'bold', size: 10 },
-                        textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2,
-                        formatter: (value) => (value > 0 && value !== null) ? (isPercentage ? value.toFixed(1) + '%' : value.toLocaleString('pt-BR')) : ''
-                    },
-                    title: {
-                        display: true,
-                        text: titulo,
-                        color: '#a0aec0',
-                        font: { size: 15, weight: 'bold' },
-                        padding: { bottom: 10 }
-                    },
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        display: true,
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#ffffff', font: { size: 10 } }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 }
-                    }
-                }
-            };
-        }
+        function getCommonOptions(titulo, showDL, isPerc = false) { return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 2, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : v.toLocaleString('pt-BR')) : '' }, title: { display: true, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 10 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; }
 
-        fetchPlanilha();
-        setInterval(fetchPlanilha, 60000); 
+        fetchPlanilha(); setInterval(fetchPlanilha, 60000);
     </script>
 </body>
 </html>
