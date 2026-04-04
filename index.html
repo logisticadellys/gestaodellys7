@@ -197,7 +197,7 @@
                     ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
                     mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
                     auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)"
+                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)"
                 };
 
                 const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
@@ -213,8 +213,7 @@
                 const acumuladoVolMensal = Array(12).fill(0);
                 const somaOcupMensal = Array(12).fill(0);
                 const contOcupMensal = Array(12).fill(0);
-                const somaMetaMensal = Array(12).fill(0);
-                const contMetaMensal = Array(12).fill(0);
+                const metaMensalFixa = Array(12).fill(0); // Para pegar o primeiro valor do mês
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -252,7 +251,8 @@
                             if (mIdx >= 0 && mIdx < 12) {
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
                                 if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
-                                if (valMeta !== null && valMeta > 0) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
+                                // Lógica nova: pega o primeiro valor de meta válido do mês e trava
+                                if (valMeta !== null && valMeta > 0 && metaMensalFixa[mIdx] === 0) { metaMensalFixa[mIdx] = valMeta; }
                             }
                         }
                     }
@@ -269,15 +269,14 @@
                 }
 
                 const mediasOcupMensal = somaOcupMensal.map((s, i) => contOcupMensal[i] > 0 ? s / contOcupMensal[i] : 0);
-                const mediasMetaMensal = somaMetaMensal.map((s, i) => contMetaMensal[i] > 0 ? s / contMetaMensal[i] : 0);
 
-                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
+                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal };
                 for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
                 renderizarGraficoDiario(labelsDiarioFiltrado, dadosVolFiltrado, mesAtualNome);
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal);
                 renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupFiltrado, dadosMetaFiltrado, mesAtualNome);
-                renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal);
+                renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, metaMensalFixa);
             } catch (err) { console.error("Erro:", err); }
         }
 
@@ -297,7 +296,7 @@
             const metaV = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
             const cores = ocup.map((v, i) => (v === 0) ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
             const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true);
-            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2 }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 } ] }, options: { ...options, plugins: { ...options.plugins, datalabels: { display: false }, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, barPercentage: 0.6, order: 2 }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 } ] }, options: { ...options, plugins: { ...options.plugins, datalabels: { display: false }, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
         }
 
         function renderizarOcupacaoMensal(labels, ocup, meta) {
