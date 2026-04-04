@@ -85,7 +85,7 @@
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
                         <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util">-</span></div>
+                        <div class="split-item"><span class="valor valor-frota" id="ft-util">-</span></div>
                     </div>
                 </div>
             </div>
@@ -224,8 +224,7 @@
 
                         const converter = (val) => {
                             if (!val || val === "-" || val === "null" || val === "#N/A") return null;
-                            // Limpa qualquer espaço, substitui vírgula por ponto e remove o símbolo de %
-                            let n = parseFloat(val.replace(/"/g, '').replace(/\s/g, '').replace(',', '.').replace('%', ''));
+                            let n = parseFloat(val.replace(/"/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.').replace('%', ''));
                             return isNaN(n) ? null : n;
                         };
 
@@ -238,10 +237,8 @@
                         let valOcup = converter(colunas[idxOcup]);
                         let valMeta = converter(colunas[idxMetaOcup]);
 
-                        // Filtro diário (mês atual)
                         if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
-                            let partesD = dataPlanilha.split('/');
-                            let diaP = parseInt(partesD[0]);
+                            let diaP = parseInt(dataPlanilha.split('/')[0]);
                             if(diaP <= ultimoDiaMes) {
                                 if(valVol !== null) dadosVolDiarioRaw[diaP - 1] = valVol;
                                 if(valOcup !== null) dadosOcupDiarioRaw[diaP - 1] = valOcup;
@@ -249,14 +246,13 @@
                             }
                         }
 
-                        // Acumulado/Médias mensais (ano corrente)
                         if (dataPlanilha.includes(`/${ano}`)) {
-                            let partesM = dataPlanilha.split('/');
-                            let mIdx = parseInt(partesM[1]) - 1;
+                            let partes = dataPlanilha.split('/');
+                            let mIdx = parseInt(partes[1]) - 1;
                             if (mIdx >= 0 && mIdx < 12) {
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
-                                if (valOcup !== null) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
-                                if (valMeta !== null) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
+                                if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
+                                if (valMeta !== null && valMeta > 0) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
                             }
                         }
                     }
