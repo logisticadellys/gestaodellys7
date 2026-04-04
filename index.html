@@ -476,11 +476,11 @@
                 for(let k in mapping) v[k] = "-";
 
                 const ultimoDiaMes = new Date(ano, agora.getMonth() + 1, 0).getDate();
-                const labelsDiario = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
+                const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
                 
-                const dadosVolDiario = Array(ultimoDiaMes).fill(0);
-                const dadosOcupDiario = Array(ultimoDiaMes).fill(0);
-                const dadosMetaOcupDiario = Array(ultimoDiaMes).fill(0);
+                const dadosVolDiarioRaw = Array(ultimoDiaMes).fill(null);
+                const dadosOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
+                const dadosMetaOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
 
                 const acumuladoVolMensal = Array(12).fill(0);
                 const somaOcupMensal = Array(12).fill(0);
@@ -504,8 +504,8 @@
                         }
 
                         const converter = (val) => {
-                            if (!val || val === "-" || val === "null" || val === "#N/A") return 0;
-                            return parseFloat(val.replace(/"/g, '').replace(/\./g, '').replace(',', '.').replace('%', '')) || 0;
+                            if (!val || val === "-" || val === "null" || val === "#N/A") return null;
+                            return parseFloat(val.replace(/"/g, '').replace(/\./g, '').replace(',', '.').replace('%', ''));
                         };
 
                         let valVol = converter(colunas[idxVolExp]);
@@ -515,9 +515,9 @@
                         if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
                             let diaP = parseInt(dataPlanilha.split('/')[0]);
                             if(diaP <= ultimoDiaMes) {
-                                dadosVolDiario[diaP - 1] = valVol;
-                                dadosOcupDiario[diaP - 1] = valOcup;
-                                dadosMetaOcupDiario[diaP - 1] = valMeta;
+                                dadosVolDiarioRaw[diaP - 1] = valVol;
+                                dadosOcupDiarioRaw[diaP - 1] = valOcup;
+                                dadosMetaOcupDiarioRaw[diaP - 1] = valMeta;
                             }
                         }
 
@@ -525,7 +525,7 @@
                             let partes = dataPlanilha.split('/');
                             let mIdx = parseInt(partes[1]) - 1;
                             if (mIdx >= 0 && mIdx < 12) {
-                                acumuladoVolMensal[mIdx] += valVol;
+                                acumuladoVolMensal[mIdx] += (valVol || 0);
                                 if (valMeta > 0) {
                                     somaMetaOcupMensal[mIdx] += valMeta;
                                     contagemDiasMetaMensal[mIdx]++;
@@ -536,6 +536,20 @@
                                 }
                             }
                         }
+                    }
+                }
+
+                const labelsDiarioFiltrado = [];
+                const dadosVolFiltrado = [];
+                const dadosOcupFiltrado = [];
+                const dadosMetaFiltrado = [];
+
+                for (let i = 0; i < labelsDiarioBase.length; i++) {
+                    if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null) {
+                        labelsDiarioFiltrado.push(labelsDiarioBase[i]);
+                        dadosVolFiltrado.push(dadosVolDiarioRaw[i] || 0);
+                        dadosOcupFiltrado.push(dadosOcupDiarioRaw[i] || 0);
+                        dadosMetaFiltrado.push(dadosMetaOcupDiarioRaw[i] || 0);
                     }
                 }
 
@@ -553,9 +567,9 @@
                 };
                 for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
-                renderizarGraficoDiario(labelsDiario, dadosVolDiario, mesAtualNome);
+                renderizarGraficoDiario(labelsDiarioFiltrado, dadosVolFiltrado, mesAtualNome);
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal);
-                renderizarOcupacaoDiaria(labelsDiario, dadosOcupDiario, dadosMetaOcupDiario, mesAtualNome);
+                renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupFiltrado, dadosMetaFiltrado, mesAtualNome);
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaOcupMensal);
 
             } catch (err) { console.error("Erro:", err); }
@@ -602,7 +616,7 @@
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d');
             if (chartOcupDiario) chartOcupDiario.destroy();
 
-            const metaValor = metaArr.find(v => v > 0) || 0;
+            const metaValor = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
             const cores = ocup.map((v, i) => {
                 if (v === 0) return 'rgba(255, 255, 255, 0.1)';
                 return v >= metaArr[i] ? '#2ecc71' : '#e74c3c';
