@@ -237,7 +237,6 @@
                         let valOcup = converter(colunas[idxOcup]);
                         let valMeta = converter(colunas[idxMetaOcup]);
 
-                        // Filtro robusto para o ano de 2026
                         let partesData = dataPlanilha.split('/');
                         if (partesData.length === 3) {
                             let dP = parseInt(partesData[0]);
@@ -246,17 +245,21 @@
 
                             if (aP === 2026) {
                                 let mIdx = mP - 1;
-                                // Volume Diário (mês atual)
                                 if (mP === parseInt(mesNum) && dP <= ultimoDiaMes) {
                                     if(valVol !== null) dadosVolDiarioRaw[dP - 1] = valVol;
                                     if(valOcup !== null) dadosOcupDiarioRaw[dP - 1] = valOcup;
                                     if(valMeta !== null) dadosMetaOcupDiarioRaw[dP - 1] = valMeta;
                                 }
-                                // Acumulados Mensais (2026)
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
                                 if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
-                                // LÓGICA DA META: Soma e conta para calcular a média mensal posterior
-                                if (valMeta !== null && valMeta > 0) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
+                                
+                                // AJUSTE SOLICITADO NA LÓGICA DA META MENSAL:
+                                if (valMeta !== null && valMeta > 0) { 
+                                    // Se o valor for decimal (ex: 0.60), converte para 60 para garantir a média correta de 60%
+                                    let metaTratada = valMeta < 1 ? valMeta * 100 : valMeta;
+                                    somaMetaMensal[mIdx] += metaTratada; 
+                                    contMetaMensal[mIdx]++; 
+                                }
                             }
                         }
                     }
@@ -272,7 +275,6 @@
                     }
                 }
 
-                // Cálculo das médias finais para o gráfico mensal
                 const mediasOcupMensal = somaOcupMensal.map((s, i) => contOcupMensal[i] > 0 ? s / contOcupMensal[i] : 0);
                 const mediasMetaMensal = somaMetaMensal.map((s, i) => contMetaMensal[i] > 0 ? s / contMetaMensal[i] : 0);
 
