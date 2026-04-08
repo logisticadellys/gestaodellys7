@@ -302,15 +302,11 @@
 
         function renderizarOcupacaoMensal(labelsBase, ocup, meta, ano) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
-            const labelsComMeta = labelsBase.map((m, i) => {
-                const metaValor = meta[i] > 0 ? meta[i].toFixed(1) : '0.0';
-                return [m, `(META: ${metaValor}%)` ];
-            });
             const options = getCommonOptions(`OCUPAÇÃO (%) - MENSAL (${ano})`, true, true);
             chartOcupMensal = new Chart(ctx, { 
                 type: 'bar', 
                 data: { 
-                    labels: labelsComMeta, 
+                    labels: labelsBase, // Meta removida do label inferior
                     datasets: [ { 
                         label: 'Ocupação (%)', 
                         data: ocup, 
@@ -320,7 +316,11 @@
                         borderRadius: 2, 
                         barPercentage: 0.6, 
                         order: 2, 
-                        datalabels: { display: true, anchor: 'center', align: 'center' } 
+                        datalabels: { 
+                            display: true, 
+                            anchor: 'end', // Posicionado em cima da coluna
+                            align: 'top'    // Posicionado em cima da coluna
+                        } 
                     } ] 
                 }, 
                 options: { 
