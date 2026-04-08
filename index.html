@@ -296,17 +296,18 @@
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
             const metaV = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
             const cores = ocup.map((v, i) => (v === 0) ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
-            const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true);
-            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2 }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 } ] }, options: { ...options, plugins: { ...options.plugins, datalabels: { display: false }, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' }, { text: 'META BATIDA', fillStyle: '#2ecc71', fontColor: '#ffffff' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', fontColor: '#ffffff' } ] } } } } });
+            const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true); // Ativado datalabels
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2, datalabels: { display: true, anchor: 'center', align: 'center' } }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1, datalabels: { display: false } } ] }, options: { ...options, plugins: { ...options.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' }, { text: 'META BATIDA', fillStyle: '#2ecc71', fontColor: '#ffffff' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', fontColor: '#ffffff' } ] } } } } });
         }
 
         function renderizarOcupacaoMensal(labelsBase, ocup, meta, ano) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
-            const options = getCommonOptions(`OCUPAÇÃO (%) - MENSAL (${ano})`, true, true);
+            // Utilizando mesmas opções base do gráfico de volume mensal para manter estilo e tamanho
+            let opt = getCommonOptions(`OCUPAÇÃO (%) - MENSAL (${ano})`, true, true); opt.scales.y.display = false;
             chartOcupMensal = new Chart(ctx, { 
                 type: 'bar', 
                 data: { 
-                    labels: labelsBase, // Meta removida do label inferior
+                    labels: labelsBase,
                     datasets: [ { 
                         label: 'Ocupação (%)', 
                         data: ocup, 
@@ -315,30 +316,10 @@
                         borderWidth: 1,
                         borderRadius: 2, 
                         barPercentage: 0.6, 
-                        order: 2, 
-                        datalabels: { 
-                            display: true, 
-                            anchor: 'end', // Posicionado em cima da coluna
-                            align: 'top'    // Posicionado em cima da coluna
-                        } 
+                        order: 2
                     } ] 
                 }, 
-                options: { 
-                    ...options, 
-                    layout: { padding: { top: 25 } }, 
-                    plugins: { 
-                        ...options.plugins, 
-                        legend: { display: false } 
-                    },
-                    scales: {
-                        ...options.scales,
-                        y: { display: false },
-                        x: {
-                            ...options.scales.x,
-                            ticks: { ...options.scales.x.ticks, font: { size: 8 } }
-                        }
-                    }
-                } 
+                options: opt 
             });
         }
 
