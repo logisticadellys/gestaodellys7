@@ -171,8 +171,8 @@
             const agora = new Date();
             const dia = String(agora.getDate()).padStart(2, '0');
             const mesNum = String(agora.getMonth() + 1).padStart(2, '0');
-            const anoFixo = 2026; 
-            const hojeBusca = `${dia}/${mesNum}/${anoFixo}`;
+            const anoAtual = agora.getFullYear(); 
+            const hojeBusca = `${dia}/${mesNum}/${anoAtual}`;
             const mesesExtenso = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
             const mesAtualNome = mesesExtenso[agora.getMonth()];
 
@@ -183,7 +183,7 @@
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
-                const cabecalho = linhas[0].split(separador).map(txt => text = txt.replace(/"/g, '').trim().toUpperCase());
+                const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVolExp = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
@@ -203,7 +203,7 @@
                 const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 let v = {}; for(let k in mapping) v[k] = "-";
 
-                const ultimoDiaMes = new Date(anoFixo, agora.getMonth() + 1, 0).getDate();
+                const ultimoDiaMes = new Date(anoAtual, agora.getMonth() + 1, 0).getDate();
                 const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
                 
                 const dadosVolDiarioRaw = Array(ultimoDiaMes).fill(null);
@@ -243,7 +243,7 @@
                             let mP = parseInt(partesData[1]);
                             let aP = parseInt(partesData[2]);
 
-                            if (aP === 2026) {
+                            if (aP === anoAtual) {
                                 let mIdx = mP - 1;
                                 if (mP === parseInt(mesNum) && dP <= ultimoDiaMes) {
                                     if(valVol !== null) dadosVolDiarioRaw[dP - 1] = valVol;
@@ -275,9 +275,9 @@
                 for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
                 renderizarGraficoDiario(labelsDiarioFiltrado, dadosVolFiltrado, mesAtualNome);
-                renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal);
+                renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal, anoAtual);
                 renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupFiltrado, dadosMetaFiltrado, mesAtualNome);
-                renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal);
+                renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal, anoAtual);
             } catch (err) { console.error("Erro:", err); }
         }
 
@@ -286,9 +286,9 @@
             chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false) });
         }
 
-        function renderizarGraficoMensal(labels, valores) {
+        function renderizarGraficoMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoMensal').getContext('2d'); if (chartMensalInstance) chartMensalInstance.destroy();
-            let opt = getCommonOptions('VOLUME EXPEDIDO (KG) - MENSAL (2026)', true); opt.scales.y.display = false;
+            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - MENSAL (${ano})`, true); opt.scales.y.display = false;
             chartMensalInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume Mensal (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
 
@@ -297,14 +297,49 @@
             const metaV = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
             const cores = ocup.map((v, i) => (v === 0) ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
             const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, false, true);
-            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2 }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 } ] }, options: { ...options, plugins: { ...options.plugins, datalabels: { display: false }, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2 }, { text: 'META BATIDA', fillStyle: '#2ecc71' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c' } ] } } } } });
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2 }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1 } ] }, options: { ...options, plugins: { ...options.plugins, datalabels: { display: false }, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' }, { text: 'META BATIDA', fillStyle: '#2ecc71', fontColor: '#ffffff' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', fontColor: '#ffffff' } ] } } } } });
         }
 
-        function renderizarOcupacaoMensal(labels, ocup, meta) {
+        function renderizarOcupacaoMensal(labelsBase, ocup, meta, ano) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
-            const cores = ocup.map((v, i) => (v === 0) ? 'rgba(255,255,255,0.1)' : (v >= meta[i] ? '#2ecc71' : '#e74c3c'));
-            const options = getCommonOptions('OCUPAÇÃO (%) - MENSAL (2026)', true, true);
-            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, barPercentage: 0.6, order: 2, datalabels: { display: true, anchor: 'center', align: 'center' } } ] }, options: { ...options, layout: { padding: { top: 25 } }, plugins: { ...options.plugins, legend: { display: false } } } });
+            const labelsComMeta = labelsBase.map((m, i) => {
+                const metaValor = meta[i] > 0 ? meta[i].toFixed(1) : '0.0';
+                return [m, `(META: ${metaValor}%)` ];
+            });
+            const options = getCommonOptions(`OCUPAÇÃO (%) - MENSAL (${ano})`, true, true);
+            chartOcupMensal = new Chart(ctx, { 
+                type: 'bar', 
+                data: { 
+                    labels: labelsComMeta, 
+                    datasets: [ { 
+                        label: 'Ocupação (%)', 
+                        data: ocup, 
+                        backgroundColor: 'rgba(0, 206, 209, 0.8)', 
+                        borderColor: '#00ced1',
+                        borderWidth: 1,
+                        borderRadius: 2, 
+                        barPercentage: 0.6, 
+                        order: 2, 
+                        datalabels: { display: true, anchor: 'center', align: 'center' } 
+                    } ] 
+                }, 
+                options: { 
+                    ...options, 
+                    layout: { padding: { top: 25 } }, 
+                    plugins: { 
+                        ...options.plugins, 
+                        legend: { display: false } 
+                    },
+                    scales: {
+                        ...options.scales,
+                        y: { display: false },
+                        x: {
+                            ...options.scales.x,
+                            ticks: { ...options.scales.x.ticks, font: { size: 8 } }
+                        }
+                    }
+                } 
+            });
         }
 
         function getCommonOptions(titulo, showDL, isPerc = false) { return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 2, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : v.toLocaleString('pt-BR')) : '' }, title: { display: true, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 10 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; }
