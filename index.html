@@ -171,8 +171,8 @@
             const agora = new Date();
             const dia = String(agora.getDate()).padStart(2, '0');
             const mesNum = String(agora.getMonth() + 1).padStart(2, '0');
-            const ano = agora.getFullYear();
-            const hojeBusca = `${dia}/${mesNum}/${ano}`;
+            const anoFixo = 2026; // Força o ano de 2026 conforme solicitado
+            const hojeBusca = `${dia}/${mesNum}/${anoFixo}`;
             const mesesExtenso = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
             const mesAtualNome = mesesExtenso[agora.getMonth()];
 
@@ -203,7 +203,7 @@
                 const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 let v = {}; for(let k in mapping) v[k] = "-";
 
-                const ultimoDiaMes = new Date(ano, agora.getMonth() + 1, 0).getDate();
+                const ultimoDiaMes = new Date(anoFixo, agora.getMonth() + 1, 0).getDate();
                 const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
                 
                 const dadosVolDiarioRaw = Array(ultimoDiaMes).fill(null);
@@ -237,21 +237,25 @@
                         let valOcup = converter(colunas[idxOcup]);
                         let valMeta = converter(colunas[idxMetaOcup]);
 
-                        if (dataPlanilha.includes(`/${mesNum}/${ano}`)) {
-                            let diaP = parseInt(dataPlanilha.split('/')[0]);
-                            if(diaP <= ultimoDiaMes) {
-                                if(valVol !== null) dadosVolDiarioRaw[diaP - 1] = valVol;
-                                if(valOcup !== null) dadosOcupDiarioRaw[diaP - 1] = valOcup;
-                                if(valMeta !== null) dadosMetaOcupDiarioRaw[diaP - 1] = valMeta;
-                            }
-                        }
+                        // Filtro robusto para o ano de 2026
+                        let partesData = dataPlanilha.split('/');
+                        if (partesData.length === 3) {
+                            let dP = parseInt(partesData[0]);
+                            let mP = parseInt(partesData[1]);
+                            let aP = parseInt(partesData[2]);
 
-                        if (dataPlanilha.includes(`/${ano}`)) {
-                            let partes = dataPlanilha.split('/');
-                            let mIdx = parseInt(partes[1]) - 1;
-                            if (mIdx >= 0 && mIdx < 12) {
+                            if (aP === 2026) {
+                                let mIdx = mP - 1;
+                                // Volume Diário (mês atual)
+                                if (mP === parseInt(mesNum) && dP <= ultimoDiaMes) {
+                                    if(valVol !== null) dadosVolDiarioRaw[dP - 1] = valVol;
+                                    if(valOcup !== null) dadosOcupDiarioRaw[dP - 1] = valOcup;
+                                    if(valMeta !== null) dadosMetaOcupDiarioRaw[dP - 1] = valMeta;
+                                }
+                                // Acumulados Mensais (2026)
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
                                 if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
+                                // LÓGICA DA META: Soma e conta para calcular a média mensal posterior
                                 if (valMeta !== null && valMeta > 0) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
                             }
                         }
@@ -268,6 +272,7 @@
                     }
                 }
 
+                // Cálculo das médias finais para o gráfico mensal
                 const mediasOcupMensal = somaOcupMensal.map((s, i) => contOcupMensal[i] > 0 ? s / contOcupMensal[i] : 0);
                 const mediasMetaMensal = somaMetaMensal.map((s, i) => contMetaMensal[i] > 0 ? s / contMetaMensal[i] : 0);
 
