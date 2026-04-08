@@ -243,6 +243,7 @@
                             let mP = parseInt(partesData[1]);
                             let aP = parseInt(partesData[2]);
 
+                            // Filtrar apenas dados do ano atual
                             if (aP === anoAtual) {
                                 let mIdx = mP - 1;
                                 if (mP === parseInt(mesNum) && dP <= ultimoDiaMes) {
@@ -303,6 +304,7 @@
         function renderizarOcupacaoMensal(labelsBase, ocup, meta, ano) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
             
+            // Gerar labels do Eixo X com a média da meta entre parênteses
             const labelsComMeta = labelsBase.map((m, i) => {
                 const metaValor = meta[i] > 0 ? meta[i].toFixed(1) : '0.0';
                 return [m, `(META: ${metaValor}%)` ];
@@ -338,7 +340,7 @@
                             ...options.scales.x,
                             ticks: {
                                 ...options.scales.x.ticks,
-                                font: { size: 8 }
+                                font: { size: 8 } // Fonte menor para acomodar a meta
                             }
                         }
                     }
