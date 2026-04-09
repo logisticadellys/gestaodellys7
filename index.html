@@ -344,7 +344,7 @@
             const cores = ocup.map((v, i) => (v === 0) ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
             const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true); 
             options.scales.y.display = false; 
-            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2, datalabels: { display: true, anchor: 'center', align: 'center' } }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1, datalabels: { display: false } } ] }, options: { ...options, plugins: { ...options.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' }, { text: 'META BATIDA', fillStyle: '#2ecc71', fontColor: '#ffffff' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', fontColor: '#ffffff' } ] } } } } });
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2, datalabels: { display: true, anchor: 'center', align: 'center' } }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1, datalabels: { display: false } } ] }, options: { ...options, plugins: { ...options.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' }, { text: 'META ATINGIDA', fillStyle: '#2ecc71', fontColor: '#ffffff' }, { text: 'META NÃO ATINGIDA', fillStyle: '#e74c3c', fontColor: '#ffffff' } ] } } } } });
         }
 
         function renderizarOcupacaoMensal(labelsBase, ocup, meta, ano) {
@@ -364,7 +364,12 @@
 
         function renderizarDropMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
-            let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true); opt.scales.y.display = false;
+            let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true); 
+            opt.scales.y.display = false;
+            opt.layout.padding.top = 25; // Aumentado para dar espaço ao valor
+            opt.plugins.datalabels.offset = 10; // Afasta o valor da coluna
+            opt.plugins.datalabels.formatter = (v) => v > 0 ? Math.round(v).toLocaleString('pt-BR') : ''; // Arredonda para inteiro
+            
             chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Dropsize Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
 
