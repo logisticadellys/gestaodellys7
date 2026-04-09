@@ -85,7 +85,7 @@
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
                         <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
-                        <div class="split-item"><span class="valor valor-frota" id="ft-util">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util">-</span></div>
                     </div>
                 </div>
             </div>
@@ -139,12 +139,21 @@
         </div>
     </div>
 
+    <div id="tela3" class="tela">
+        <div class="grid-graficos">
+            <div class="chart-container"><canvas id="graficoDropsizeDiario"></canvas></div>
+            <div style="visibility: hidden;"></div>
+            <div style="visibility: hidden;"></div>
+            <div style="visibility: hidden;"></div>
+        </div>
+    </div>
+
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
         Chart.register(ChartDataLabels);
 
         let autoMode = false; let tempoRestante = 15; let telaAtual = 1;
-        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal;
+        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario;
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -154,18 +163,43 @@
             else { btn.textContent = "Auto: OFF"; btn.className = "btn-auto auto-off"; timerDisp.style.visibility = "hidden"; }
         }
 
-        function mudarTelaManual(direcao) { if (autoMode) tempoRestante = 15; alternarTelas(); }
+        function mudarTelaManual(direcao) { 
+            if (autoMode) tempoRestante = 15;
+            if (direcao === 1) {
+                telaAtual = telaAtual === 3 ? 1 : telaAtual + 1;
+            } else {
+                telaAtual = telaAtual === 1 ? 3 : telaAtual - 1;
+            }
+            aplicarExibicaoTela();
+        }
 
         setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 15; } } }, 1000);
 
         function alternarTelas() {
-            const t1 = document.getElementById('tela1'); const t2 = document.getElementById('tela2');
-            if (telaAtual === 1) { t1.classList.remove('ativa'); t2.classList.add('ativa'); telaAtual = 2; }
-            else { t2.classList.remove('ativa'); t1.classList.add('ativa'); telaAtual = 1; }
+            telaAtual = telaAtual === 3 ? 1 : telaAtual + 1;
+            aplicarExibicaoTela();
+        }
+
+        function aplicarExibicaoTela() {
+            const t1 = document.getElementById('tela1'); 
+            const t2 = document.getElementById('tela2');
+            const t3 = document.getElementById('tela3');
+            t1.classList.remove('ativa'); t2.classList.remove('ativa'); t3.classList.remove('ativa');
+            
+            if (telaAtual === 1) t1.classList.add('ativa');
+            else if (telaAtual === 2) t2.classList.add('ativa');
+            else t3.classList.add('ativa');
+            
             window.dispatchEvent(new Event('resize'));
         }
 
-        window.addEventListener('resize', () => { if(chartInstance) chartInstance.resize(); if(chartMensalInstance) chartMensalInstance.resize(); if(chartOcupDiario) chartOcupDiario.resize(); if(chartOcupMensal) chartOcupMensal.resize(); });
+        window.addEventListener('resize', () => { 
+            if(chartInstance) chartInstance.resize(); 
+            if(chartMensalInstance) chartMensalInstance.resize(); 
+            if(chartOcupDiario) chartOcupDiario.resize(); 
+            if(chartOcupMensal) chartOcupMensal.resize();
+            if(chartDropDiario) chartDropDiario.resize();
+        });
 
         async function fetchPlanilha() {
             const agora = new Date();
@@ -189,6 +223,7 @@
                 const idxVolExp = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
                 const idxOcup = cabecalho.indexOf("OCUPAÇÃO (%)");
                 const idxMetaOcup = cabecalho.indexOf("META OCUPAÇÃO (%)");
+                const idxDropSize = cabecalho.indexOf("DROPSIZE (KG)");
 
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)", nf: "NF'S (QTD)",
@@ -209,6 +244,7 @@
                 const dadosVolDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosMetaOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
+                const dadosDropDiarioRaw = Array(ultimoDiaMes).fill(null);
 
                 const acumuladoVolMensal = Array(12).fill(0);
                 const somaOcupMensal = Array(12).fill(0);
@@ -236,6 +272,7 @@
                         let valVol = converter(colunas[idxVolExp]);
                         let valOcup = converter(colunas[idxOcup]);
                         let valMeta = converter(colunas[idxMetaOcup]);
+                        let valDrop = converter(colunas[idxDropSize]);
 
                         let partesData = dataPlanilha.split('/');
                         if (partesData.length === 3) {
@@ -249,6 +286,7 @@
                                     if(valVol !== null) dadosVolDiarioRaw[dP - 1] = valVol;
                                     if(valOcup !== null) dadosOcupDiarioRaw[dP - 1] = valOcup;
                                     if(valMeta !== null) dadosMetaOcupDiarioRaw[dP - 1] = valMeta;
+                                    if(valDrop !== null) dadosDropDiarioRaw[dP - 1] = valDrop;
                                 }
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
                                 if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
@@ -258,13 +296,14 @@
                     }
                 }
 
-                const labelsDiarioFiltrado = []; const dadosVolFiltrado = []; const dadosOcupFiltrado = []; const dadosMetaFiltrado = [];
+                const labelsDiarioFiltrado = []; const dadosVolFiltrado = []; const dadosOcupFiltrado = []; const dadosMetaFiltrado = []; const dadosDropFiltrado = [];
                 for (let i = 0; i < labelsDiarioBase.length; i++) {
-                    if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null) {
+                    if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null || dadosDropDiarioRaw[i] !== null) {
                         labelsDiarioFiltrado.push(labelsDiarioBase[i]);
                         dadosVolFiltrado.push(dadosVolDiarioRaw[i] || 0);
                         dadosOcupFiltrado.push(dadosOcupDiarioRaw[i] || 0);
                         dadosMetaFiltrado.push(dadosMetaOcupDiarioRaw[i] || 0);
+                        dadosDropFiltrado.push(dadosDropDiarioRaw[i] || 0);
                     }
                 }
 
@@ -278,6 +317,7 @@
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal, anoAtual);
                 renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupFiltrado, dadosMetaFiltrado, mesAtualNome);
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal, anoAtual);
+                renderizarDropDiario(labelsDiarioFiltrado, dadosDropFiltrado, mesAtualNome);
             } catch (err) { console.error("Erro:", err); }
         }
 
@@ -297,29 +337,22 @@
             const metaV = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
             const cores = ocup.map((v, i) => (v === 0) ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
             const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true); 
-            options.scales.y.display = false; // Remove valores do canto esquerdo
+            options.scales.y.display = false; 
             chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2, datalabels: { display: true, anchor: 'center', align: 'center' } }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1, datalabels: { display: false } } ] }, options: { ...options, plugins: { ...options.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' }, { text: 'META BATIDA', fillStyle: '#2ecc71', fontColor: '#ffffff' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', fontColor: '#ffffff' } ] } } } } });
         }
 
         function renderizarOcupacaoMensal(labelsBase, ocup, meta, ano) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
             let opt = getCommonOptions(`OCUPAÇÃO (%) - ${ano} (MÉDIA)`, true, true); opt.scales.y.display = false;
-            chartOcupMensal = new Chart(ctx, { 
+            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labelsBase, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6, order: 2 } ] }, options: opt });
+        }
+
+        function renderizarDropDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
+            chartDropDiario = new Chart(ctx, { 
                 type: 'bar', 
-                data: { 
-                    labels: labelsBase,
-                    datasets: [ { 
-                        label: 'Ocupação (%)', 
-                        data: ocup, 
-                        backgroundColor: 'rgba(0, 206, 209, 0.8)', 
-                        borderColor: '#00ced1',
-                        borderWidth: 1,
-                        borderRadius: 2, 
-                        barPercentage: 0.6, 
-                        order: 2
-                    } ] 
-                }, 
-                options: opt 
+                data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, 
+                options: getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, true) 
             });
         }
 
