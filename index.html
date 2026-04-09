@@ -288,7 +288,7 @@
 
         function renderizarGraficoMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoMensal').getContext('2d'); if (chartMensalInstance) chartMensalInstance.destroy();
-            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - MENSAL (${ano})`, true); opt.scales.y.display = false;
+            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano} (SOMA)`, true); opt.scales.y.display = false;
             chartMensalInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume Mensal (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
 
@@ -296,14 +296,14 @@
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
             const metaV = metaArr.length > 0 ? (metaArr.find(v => v > 0) || 0) : 0;
             const cores = ocup.map((v, i) => (v === 0) ? 'rgba(255,255,255,0.1)' : (v >= metaArr[i] ? '#2ecc71' : '#e74c3c'));
-            const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true); // Ativado datalabels
+            const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true); 
+            options.scales.y.display = false; // Remove valores do canto esquerdo
             chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: cores, borderRadius: 2, order: 2, datalabels: { display: true, anchor: 'center', align: 'center' } }, { label: 'META', data: metaArr, type: 'line', borderColor: '#ffff00', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, order: 1, datalabels: { display: false } } ] }, options: { ...options, plugins: { ...options.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12, generateLabels: (chart) => [ { text: `META (${metaV.toFixed(1)}%)`, fillStyle: '#ffff00', strokeStyle: '#ffff00', lineWidth: 2, fontColor: '#ffffff' }, { text: 'META BATIDA', fillStyle: '#2ecc71', fontColor: '#ffffff' }, { text: 'META NÃO BATIDA', fillStyle: '#e74c3c', fontColor: '#ffffff' } ] } } } } });
         }
 
         function renderizarOcupacaoMensal(labelsBase, ocup, meta, ano) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
-            // Utilizando mesmas opções base do gráfico de volume mensal para manter estilo e tamanho
-            let opt = getCommonOptions(`OCUPAÇÃO (%) - MENSAL (${ano})`, true, true); opt.scales.y.display = false;
+            let opt = getCommonOptions(`OCUPAÇÃO (%) - ${ano} (MÉDIA)`, true, true); opt.scales.y.display = false;
             chartOcupMensal = new Chart(ctx, { 
                 type: 'bar', 
                 data: { 
