@@ -328,7 +328,7 @@
 
         function renderizarGraficoMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoMensal').getContext('2d'); if (chartMensalInstance) chartMensalInstance.destroy();
-            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano} (SOMA)`, true); opt.scales.y.display = false;
+            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano} (TOTAL)`, true); opt.scales.y.display = false;
             chartMensalInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume Mensal (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
 
@@ -350,9 +350,9 @@
         function renderizarDropDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
             chartDropDiario = new Chart(ctx, { 
-                type: 'bar', 
-                data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, 
-                options: getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, true) 
+                type: 'line', 
+                data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, 
+                options: getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, false) 
             });
         }
 
