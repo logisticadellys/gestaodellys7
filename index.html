@@ -143,7 +143,7 @@
         <div class="grid-graficos">
             <div class="chart-container"><canvas id="graficoDropsizeDiario"></canvas></div>
             <div class="chart-container"><canvas id="graficoDropMensal"></canvas></div>
-            <div style="visibility: hidden;"></div>
+            <div class="chart-container"><canvas id="graficoNfDiario"></canvas></div>
             <div style="visibility: hidden;"></div>
         </div>
     </div>
@@ -153,7 +153,7 @@
         Chart.register(ChartDataLabels);
 
         let autoMode = false; let tempoRestante = 15; let telaAtual = 1;
-        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal;
+        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario;
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -190,6 +190,7 @@
             if(chartInstance) chartInstance.resize(); if(chartMensalInstance) chartMensalInstance.resize(); 
             if(chartOcupDiario) chartOcupDiario.resize(); if(chartOcupMensal) chartOcupMensal.resize();
             if(chartDropDiario) chartDropDiario.resize(); if(chartDropMensal) chartDropMensal.resize();
+            if(chartNfDiario) chartNfDiario.resize();
         });
 
         async function fetchPlanilha() {
@@ -215,6 +216,7 @@
                 const idxOcup = cabecalho.indexOf("OCUPAÇÃO (%)");
                 const idxMetaOcup = cabecalho.indexOf("META OCUPAÇÃO (%)");
                 const idxDropSize = cabecalho.indexOf("DROPSIZE (KG)");
+                const idxNfQtdCol = cabecalho.indexOf("NF'S (QTD)");
 
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)", nf: "NF'S (QTD)",
@@ -236,6 +238,7 @@
                 const dadosOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosMetaOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosDropDiarioRaw = Array(ultimoDiaMes).fill(null);
+                const dadosNfDiarioRaw = Array(ultimoDiaMes).fill(null);
 
                 const acumuladoVolMensal = Array(12).fill(0);
                 const somaOcupMensal = Array(12).fill(0);
@@ -266,6 +269,7 @@
                         let valOcup = converter(colunas[idxOcup]);
                         let valMeta = converter(colunas[idxMetaOcup]);
                         let valDrop = converter(colunas[idxDropSize]);
+                        let valNf = converter(colunas[idxNfQtdCol]);
 
                         let partesData = dataPlanilha.split('/');
                         if (partesData.length === 3) {
@@ -277,6 +281,7 @@
                                     if(valOcup !== null) dadosOcupDiarioRaw[dP - 1] = valOcup;
                                     if(valMeta !== null) dadosMetaOcupDiarioRaw[dP - 1] = valMeta;
                                     if(valDrop !== null) dadosDropDiarioRaw[dP - 1] = valDrop;
+                                    if(valNf !== null) dadosNfDiarioRaw[dP - 1] = valNf;
                                 }
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
                                 if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
@@ -287,14 +292,15 @@
                     }
                 }
 
-                const labelsDiarioFiltrado = []; const dadosVolFiltrado = []; const dadosOcupFiltrado = []; const dadosMetaFiltrado = []; const dadosDropFiltrado = [];
+                const labelsDiarioFiltrado = []; const dadosVolFiltrado = []; const dadosOcupFiltrado = []; const dadosMetaFiltrado = []; const dadosDropFiltrado = []; const dadosNfFiltrado = [];
                 for (let i = 0; i < labelsDiarioBase.length; i++) {
-                    if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null || dadosDropDiarioRaw[i] !== null) {
+                    if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null || dadosDropDiarioRaw[i] !== null || dadosNfDiarioRaw[i] !== null) {
                         labelsDiarioFiltrado.push(labelsDiarioBase[i]);
                         dadosVolFiltrado.push(dadosVolDiarioRaw[i] || 0);
                         dadosOcupFiltrado.push(dadosOcupDiarioRaw[i] || 0);
                         dadosMetaFiltrado.push(dadosMetaOcupDiarioRaw[i] || 0);
                         dadosDropFiltrado.push(dadosDropDiarioRaw[i] || 0);
+                        dadosNfFiltrado.push(dadosNfDiarioRaw[i] || 0);
                     }
                 }
 
@@ -311,6 +317,7 @@
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal, anoAtual);
                 renderizarDropDiario(labelsDiarioFiltrado, dadosDropFiltrado, mesAtualNome);
                 renderizarDropMensal(mesesExtenso, mediasDropMensal, anoAtual);
+                renderizarNfDiario(labelsDiarioFiltrado, dadosNfFiltrado, mesAtualNome);
             } catch (err) { console.error("Erro:", err); }
         }
 
@@ -352,15 +359,24 @@
             const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
             let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true);
             
-            // Ajustes específicos solicitados:
-            opt.plugins.title.padding = { bottom: 30 }; // Alinhamento vertical do título
-            opt.plugins.datalabels.offset = 2; // Padrão de distância do Volume Expedido Total
+            // Ajustes solicitados de alinhamento e padrão de distância
+            opt.plugins.title.padding = { bottom: 30 }; 
+            opt.plugins.datalabels.offset = 2; 
             opt.scales.y.display = false;
             
             chartDropMensal = new Chart(ctx, { 
                 type: 'bar', 
                 data: { labels: labels, datasets: [{ label: 'Dropsize Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, 
                 options: opt 
+            });
+        }
+
+        function renderizarNfDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
+            chartNfDiario = new Chart(ctx, { 
+                type: 'line', 
+                data: { labels: labels, datasets: [{ label: "NF's (QTD)", data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, 
+                options: getCommonOptions(`NF'S (QTD) - ${mesNome}`, false) 
             });
         }
 
