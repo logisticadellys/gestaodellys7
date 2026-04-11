@@ -366,10 +366,11 @@
             const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
             let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true); 
             opt.scales.y.display = false;
-            // Padronização com o gráfico de Volume Mensal
+            // Ajuste específico para posicionar valores acima da coluna com espaçamento
+            opt.layout.padding.top = 25; // Aumenta espaço superior para evitar encostar no título
             opt.plugins.datalabels.anchor = 'end';
-            opt.plugins.datalabels.align = 'start';
-            opt.plugins.datalabels.offset = 2;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 8;
             opt.plugins.datalabels.formatter = (v) => v > 0 ? Math.round(v).toLocaleString('pt-BR') : '';
             
             chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Dropsize Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
