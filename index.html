@@ -144,7 +144,7 @@
             <div class="chart-container"><canvas id="graficoDropsizeDiario"></canvas></div>
             <div class="chart-container"><canvas id="graficoDropMensal"></canvas></div>
             <div class="chart-container"><canvas id="graficoNfDiario"></canvas></div>
-            <div style="visibility: hidden;"></div>
+            <div class="chart-container"><canvas id="graficoNfMensal"></canvas></div>
         </div>
     </div>
 
@@ -153,7 +153,7 @@
         Chart.register(ChartDataLabels);
 
         let autoMode = false; let tempoRestante = 15; let telaAtual = 1;
-        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario;
+        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal;
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -190,7 +190,7 @@
             if(chartInstance) chartInstance.resize(); if(chartMensalInstance) chartMensalInstance.resize(); 
             if(chartOcupDiario) chartOcupDiario.resize(); if(chartOcupMensal) chartOcupMensal.resize();
             if(chartDropDiario) chartDropDiario.resize(); if(chartDropMensal) chartDropMensal.resize();
-            if(chartNfDiario) chartNfDiario.resize();
+            if(chartNfDiario) chartNfDiario.resize(); if(chartNfMensal) chartNfMensal.resize();
         });
 
         async function fetchPlanilha() {
@@ -247,6 +247,7 @@
                 const contMetaMensal = Array(12).fill(0);
                 const somaDropMensal = Array(12).fill(0);
                 const contDropMensal = Array(12).fill(0);
+                const acumuladoNfMensal = Array(12).fill(0);
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -284,6 +285,7 @@
                                     if(valNf !== null) dadosNfDiarioRaw[dP - 1] = valNf;
                                 }
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
+                                if (valNf !== null) acumuladoNfMensal[mIdx] += valNf;
                                 if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
                                 if (valMeta !== null && valMeta > 0) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
                                 if (valDrop !== null && valDrop > 0) { somaDropMensal[mIdx] += valDrop; contDropMensal[mIdx]++; }
@@ -318,6 +320,7 @@
                 renderizarDropDiario(labelsDiarioFiltrado, dadosDropFiltrado, mesAtualNome);
                 renderizarDropMensal(mesesExtenso, mediasDropMensal, anoAtual);
                 renderizarNfDiario(labelsDiarioFiltrado, dadosNfFiltrado, mesAtualNome);
+                renderizarNfMensal(mesesExtenso, acumuladoNfMensal, anoAtual);
             } catch (err) { console.error("Erro:", err); }
         }
 
@@ -358,17 +361,10 @@
         function renderizarDropMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
             let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true);
-            
-            // Ajustes solicitados de alinhamento e padrão de distância
             opt.plugins.title.padding = { bottom: 30 }; 
             opt.plugins.datalabels.offset = 2; 
             opt.scales.y.display = false;
-            
-            chartDropMensal = new Chart(ctx, { 
-                type: 'bar', 
-                data: { labels: labels, datasets: [{ label: 'Dropsize Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, 
-                options: opt 
-            });
+            chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Dropsize Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
 
         function renderizarNfDiario(labels, valores, mesNome) {
@@ -377,6 +373,19 @@
                 type: 'line', 
                 data: { labels: labels, datasets: [{ label: "NF's (QTD)", data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, 
                 options: getCommonOptions(`NF'S (QTD) - ${mesNome}`, false) 
+            });
+        }
+
+        function renderizarNfMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
+            let opt = getCommonOptions(`NF'S (QTD) - ${ano} (TOTAL)`, true);
+            opt.plugins.title.padding = { bottom: 30 };
+            opt.plugins.datalabels.offset = 2;
+            opt.scales.y.display = false;
+            chartNfMensal = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: labels, datasets: [{ label: "NF's Mensal (QTD)", data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, 
+                options: opt 
             });
         }
 
