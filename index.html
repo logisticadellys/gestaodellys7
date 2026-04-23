@@ -64,7 +64,7 @@
             <div class="card"><h3>NF'S (QTD) - HOJE</h3><span class="valor" id="nf-valor">-</span></div>
         </div>
         <div class="grid-cards">
-            <div class="card"><h3 style="font-size: 0.95em;">TERCEIROS UTILIZADOS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
+            <div class="card"><h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (QTD) - HOJE</h3><span class="valor" id="abs-valor">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (%) - HOJE</h3><span class="valor" id="abs-perc-valor">-</span></div>
             <div class="card"><h3>CLIENTES (QTD) - HOJE</h3><span class="valor" id="cli-valor">-</span></div>
@@ -338,7 +338,6 @@
             });
         }
 
-        // GRÁFICO REFEITO CONFORME SOLICITADO
         function renderizarDropDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
             chartDropDiario = new Chart(ctx, { 
@@ -366,7 +365,7 @@
                         },
                         y: {
                             beginAtZero: true,
-                            suggestedMax: Math.max(...valores) * 1.15, // Garante que a "montanha" não seja cortada
+                            suggestedMax: Math.max(...valores) * 1.15,
                             grid: { color: 'rgba(255,255,255,0.05)' },
                             ticks: { color: '#a0aec0' }
                         }
