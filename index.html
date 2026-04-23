@@ -386,7 +386,7 @@
                     labels: labels, 
                     datasets: [
                         { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'top', offset: 2 } },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 179, 0, 0.4)', borderColor: '#ffb300', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'bottom', offset: 2 } }
+                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'bottom', offset: 2 } }
                     ] 
                 }, 
                 options: {
@@ -402,21 +402,17 @@
         function renderizarNfMensal(labels, valoresNf, valoresCli, ano) {
             const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
-            opt.plugins.title.padding = { bottom: 35 };
-            opt.plugins.datalabels.offset = 12; // Aumentado para descer os valores da borda superior
-            opt.plugins.datalabels.rotation = -90; 
-            opt.plugins.datalabels.textStrokeWidth = 3; // Melhor legibilidade
+            opt.plugins.title.padding = { bottom: 30 };
+            opt.plugins.datalabels.offset = 2;
+            opt.plugins.datalabels.rotation = -90; // Valores na Vertical
             opt.scales.y.display = false;
-            // Ajuste no eixo Y para diminuir visualmente as colunas e não bater no título
-            opt.scales.y.suggestedMax = Math.max(...valoresNf, ...valoresCli) * 1.35; 
-
             chartNfMensal = new Chart(ctx, { 
                 type: 'bar', 
                 data: { 
                     labels: labels, 
                     datasets: [
                         { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 179, 0, 0.8)', borderColor: '#ffb300', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }
+                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }
                     ] 
                 }, 
                 options: {
