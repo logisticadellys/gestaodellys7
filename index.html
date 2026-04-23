@@ -251,6 +251,7 @@
                 const somaDropMensal = Array(12).fill(0);
                 const contDropMensal = Array(12).fill(0);
                 const acumuladoNfMensal = Array(12).fill(0);
+                const acumuladoCliMensal = Array(12).fill(0);
 
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
@@ -291,6 +292,7 @@
                                 }
                                 if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
                                 if (valNf !== null) acumuladoNfMensal[mIdx] += valNf;
+                                if (valCli !== null) acumuladoCliMensal[mIdx] += valCli;
                                 if (valOcup !== null && valOcup > 0) { somaOcupMensal[mIdx] += valOcup; contOcupMensal[mIdx]++; }
                                 if (valMeta !== null && valMeta > 0) { somaMetaMensal[mIdx] += valMeta; contMetaMensal[mIdx]++; }
                                 if (valDrop !== null && valDrop > 0) { somaDropMensal[mIdx] += valDrop; contDropMensal[mIdx]++; }
@@ -326,13 +328,13 @@
                 renderizarDropDiario(labelsDiarioFiltrado, dadosDropFiltrado, mesAtualNome);
                 renderizarDropMensal(mesesExtenso, mediasDropMensal, anoAtual);
                 renderizarNfDiario(labelsDiarioFiltrado, dadosNfFiltrado, dadosCliFiltrado, mesAtualNome);
-                renderizarNfMensal(mesesExtenso, acumuladoNfMensal, anoAtual);
+                renderizarNfMensal(mesesExtenso, acumuladoNfMensal, acumuladoCliMensal, anoAtual);
             } catch (err) { console.error("Erro:", err); }
         }
 
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
-            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, true); opt.scales.y.display = false;
+            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false); opt.scales.y.display = true;
             chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
 
@@ -397,16 +399,28 @@
             });
         }
 
-        function renderizarNfMensal(labels, valores, ano) {
+        function renderizarNfMensal(labels, valoresNf, valoresCli, ano) {
             const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
-            let opt = getCommonOptions(`NF'S (QTD) - ${ano} (TOTAL)`, true);
+            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
             opt.plugins.title.padding = { bottom: 30 };
             opt.plugins.datalabels.offset = 2;
             opt.scales.y.display = false;
             chartNfMensal = new Chart(ctx, { 
                 type: 'bar', 
-                data: { labels: labels, datasets: [{ label: "NF's Mensal (QTD)", data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, 
-                options: opt 
+                data: { 
+                    labels: labels, 
+                    datasets: [
+                        { label: "NF's Mensal (QTD)", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 },
+                        { label: "Clientes Mensal (QTD)", data: valoresCli, backgroundColor: 'rgba(231, 76, 60, 0.8)', borderColor: '#e74c3c', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }
+                    ] 
+                }, 
+                options: {
+                    ...opt,
+                    plugins: {
+                        ...opt.plugins,
+                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } }
+                    }
+                }
             });
         }
 
