@@ -325,7 +325,7 @@
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal, anoAtual);
                 renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupFiltrado, dadosMetaFiltrado, mesAtualNome);
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal, anoAtual);
-                renderizarDropDiario(labelsDiarioFiltrado, dadosDropFiltrado, mesAtualNome);
+                renderizarDropDiario(labelsDiarioFiltrado, dadosDropDiarioRaw, mesAtualNome);
                 renderizarDropMensal(mesesExtenso, mediasDropMensal, anoAtual);
                 renderizarNfDiario(labelsDiarioFiltrado, dadosNfFiltrado, dadosCliFiltrado, mesAtualNome);
                 renderizarNfMensal(mesesExtenso, acumuladoNfMensal, acumuladoCliMensal, anoAtual);
@@ -361,62 +361,54 @@
         function renderizarDropDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
             let opt = getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, true); opt.scales.y.display = false;
-            chartDropDiario = new Chart(ctx, { 
-                type: 'line', 
-                data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, 
-                options: opt
-            });
+            chartDropDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
 
         function renderizarDropMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
-            let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true);
-            opt.plugins.title.padding = { bottom: 30 }; 
-            opt.plugins.datalabels.offset = 2; 
-            opt.scales.y.display = false;
+            let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true); opt.scales.y.display = false;
             chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Dropsize Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
 
         function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
             const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true); opt.scales.y.display = false;
-            chartNfDiario = new Chart(ctx, { 
-                type: 'line', 
-                data: { 
-                    labels: labels, 
-                    datasets: [
-                        { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'top', offset: 2 } },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 179, 0, 0.4)', borderColor: '#ffb300', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'bottom', offset: 2 } }
-                    ] 
-                }, 
-                options: {
-                    ...opt,
-                    plugins: {
-                        ...opt.plugins,
-                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } }
-                    }
-                }
-            });
+            chartNfDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [
+                { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'top', offset: 2 } },
+                { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 179, 0, 0.4)', borderColor: '#ffb300', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'bottom', offset: 2 } }
+            ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
 
         function renderizarNfMensal(labels, valoresNf, valoresCli, ano) {
             const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
+            
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
             opt.plugins.title.padding = { bottom: 35 };
-            opt.plugins.datalabels.offset = 12; // Aumentado para descer os valores da borda superior
-            opt.plugins.datalabels.rotation = -90; 
-            opt.plugins.datalabels.textStrokeWidth = 3; // Melhor legibilidade
             opt.scales.y.display = false;
-            // Ajuste no eixo Y para diminuir visualmente as colunas e não bater no título
-            opt.scales.y.suggestedMax = Math.max(...valoresNf, ...valoresCli) * 1.35; 
+            opt.scales.y.suggestedMax = Math.max(...valoresNf, ...valoresCli) * 1.15; // Espaço para não bater no título
+
+            // AJUSTE ESPECÍFICO DE DATALABELS PARA O GRÁFICO 2026 (TOTAL)
+            opt.plugins.datalabels = {
+                display: true,
+                anchor: 'end',
+                align: 'start', // Coloca dentro da barra (topo)
+                offset: 5,      // Distância do topo da barra para dentro
+                rotation: -90,  // Rotação vertical
+                color: '#ffffff',
+                font: { weight: 'bold', size: 10 },
+                backgroundColor: 'rgba(0, 0, 0, 0.4)', // Fundo para destacar o número
+                borderRadius: 3,
+                padding: 4,
+                formatter: (v) => v > 0 ? Math.round(v).toLocaleString('pt-BR') : ''
+            };
 
             chartNfMensal = new Chart(ctx, { 
                 type: 'bar', 
                 data: { 
                     labels: labels, 
                     datasets: [
-                        { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 179, 0, 0.8)', borderColor: '#ffb300', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }
+                        { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.8, categoryPercentage: 0.8 },
+                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 179, 0, 0.8)', borderColor: '#ffb300', borderWidth: 1, borderRadius: 2, barPercentage: 0.8, categoryPercentage: 0.8 }
                     ] 
                 }, 
                 options: {
