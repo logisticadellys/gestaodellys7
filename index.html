@@ -385,8 +385,8 @@
                 data: { 
                     labels: labels, 
                     datasets: [
-                        { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'top', offset: 2 } },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'bottom', offset: 2 } }
+                        { label: "NF'S (QTD)", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'top', offset: 2 } },
+                        { label: "CLIENTES (QTD)", data: valoresCli, backgroundColor: 'rgba(231, 76, 60, 0.4)', borderColor: '#e74c3c', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'bottom', offset: 2 } }
                     ] 
                 }, 
                 options: {
@@ -404,15 +404,14 @@
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
             opt.plugins.title.padding = { bottom: 30 };
             opt.plugins.datalabels.offset = 2;
-            opt.plugins.datalabels.rotation = -90; // Valores na Vertical
             opt.scales.y.display = false;
             chartNfMensal = new Chart(ctx, { 
                 type: 'bar', 
                 data: { 
                     labels: labels, 
                     datasets: [
-                        { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }
+                        { label: "NF's Mensal (QTD)", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 },
+                        { label: "Clientes Mensal (QTD)", data: valoresCli, backgroundColor: 'rgba(231, 76, 60, 0.8)', borderColor: '#e74c3c', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }
                     ] 
                 }, 
                 options: {
