@@ -332,7 +332,8 @@
 
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false) });
+            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, true); opt.scales.y.display = false;
+            chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
 
         function renderizarGraficoMensal(labels, valores, ano) {
@@ -357,10 +358,11 @@
 
         function renderizarDropDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
+            let opt = getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, true); opt.scales.y.display = false;
             chartDropDiario = new Chart(ctx, { 
                 type: 'line', 
                 data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, 
-                options: getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, false) 
+                options: opt
             });
         }
 
@@ -375,19 +377,20 @@
 
         function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
             const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
+            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true); opt.scales.y.display = false;
             chartNfDiario = new Chart(ctx, { 
                 type: 'line', 
                 data: { 
                     labels: labels, 
                     datasets: [
-                        { label: "NF'S (QTD)", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: false } },
-                        { label: "CLIENTES (QTD)", data: valoresCli, backgroundColor: 'rgba(231, 76, 60, 0.4)', borderColor: '#e74c3c', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: false } }
+                        { label: "NF'S (QTD)", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'top', offset: 2 } },
+                        { label: "CLIENTES (QTD)", data: valoresCli, backgroundColor: 'rgba(231, 76, 60, 0.4)', borderColor: '#e74c3c', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, datalabels: { display: true, align: 'bottom', offset: 2 } }
                     ] 
                 }, 
                 options: {
-                    ...getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, false),
+                    ...opt,
                     plugins: {
-                        ...getCommonOptions().plugins,
+                        ...opt.plugins,
                         legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } }
                     }
                 }
@@ -407,7 +410,7 @@
             });
         }
 
-        function getCommonOptions(titulo, showDL, isPerc = false) { return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 2, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 10 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; }
+        function getCommonOptions(titulo, showDL, isPerc = false) { return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 15 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; }
 
         fetchPlanilha(); setInterval(fetchPlanilha, 60000);
     </script>
