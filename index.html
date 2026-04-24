@@ -67,6 +67,7 @@
             <div class="card"><h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (QTD) - HOJE</h3><span class="valor" id="abs-valor">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (%) - HOJE</h3><span class="valor" id="abs-perc-valor">-</span></div>
+            <div class="card"><h3>CLIENTES (QTD) - HOJE</h3><span class="valor" id="cli-valor">-</span></div>
         </div>
         <div class="secao-inferior">
             <div class="container-coluna">
@@ -217,10 +218,11 @@
                 const idxMetaOcup = cabecalho.indexOf("META OCUPAÇÃO (%)");
                 const idxDropSize = cabecalho.indexOf("DROPSIZE (KG)");
                 const idxNfQtdCol = cabecalho.indexOf("NF'S (QTD)");
+                const idxCliQtdCol = cabecalho.indexOf("CLIENTES (QTD)");
 
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)", nf: "NF'S (QTD)",
-                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)",
+                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
                     ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
                     mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
@@ -310,7 +312,7 @@
                 const mediasMetaMensal = somaMetaMensal.map((s, i) => contMetaMensal[i] > 0 ? s / contMetaMensal[i] : 0);
                 const mediasDropMensal = somaDropMensal.map((s, i) => contDropMensal[i] > 0 ? s / contDropMensal[i] : 0);
 
-                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
+                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'cli-valor': v.cli, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
                 for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
                 renderizarGraficoDiario(labelsDiarioFiltrado, dadosVolFiltrado, mesAtualNome);
