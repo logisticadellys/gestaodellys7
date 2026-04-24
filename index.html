@@ -222,9 +222,7 @@
 
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)", nf: "NF'S (QTD)",
-                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", 
-                    terceiros: "TERCEIROS UTILIZADOS (QTD)", 
-                    cli: "CLIENTES (QTD)",
+                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
                     ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
                     mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
@@ -258,8 +256,8 @@
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
                         const colunas = linhas[i].split(separador);
-                        let dataRaw = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
-                        if (!dataRaw) continue;
+                        let dataPlanilhaRaw = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
+                        if (!dataPlanilhaRaw) continue;
 
                         const converter = (val) => {
                             if (!val || val === "-" || val === "null" || val === "#N/A") return null;
@@ -267,12 +265,12 @@
                             return isNaN(n) ? null : n;
                         };
 
-                        // AJUSTE CARD TERCEIROS: Verifica se a data da linha bate exatamente com hoje
-                        if (dataRaw === hojeBusca) {
+                        // LÓGICA DE ATUALIZAÇÃO DOS CARDS (HOJE)
+                        if (dataPlanilhaRaw === hojeBusca) {
                             const limpar = (idx) => { 
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; 
                                 let val = colunas[idx].replace(/"/g, '').trim(); 
-                                return (val === "" || val === "null" || val === "#N/A") ? "-" : val; 
+                                return (val === "" || val === "-" || val === "null" || val === "#N/A") ? "-" : val; 
                             };
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
@@ -284,12 +282,12 @@
                         let valNf = converter(colunas[idxNfQtdCol]);
                         let valCli = converter(colunas[idxCliQtdCol]);
 
-                        let partesData = dataRaw.split('/');
+                        let partesData = dataPlanilhaRaw.split('/');
                         if (partesData.length === 3) {
                             let dP = parseInt(partesData[0]); let mP = parseInt(partesData[1]); let aP = parseInt(partesData[2]);
                             if (aP === anoAtual) {
                                 let mIdx = mP - 1;
-                                if (mP === (agora.getMonth() + 1) && dP <= ultimoDiaMes) {
+                                if (mP === parseInt(mesNum) && dP <= ultimoDiaMes) {
                                     if(valVol !== null) dadosVolDiarioRaw[dP - 1] = valVol;
                                     if(valOcup !== null) dadosOcupDiarioRaw[dP - 1] = valOcup;
                                     if(valMeta !== null) dadosMetaOcupDiarioRaw[dP - 1] = valMeta;
