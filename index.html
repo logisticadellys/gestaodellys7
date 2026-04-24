@@ -358,7 +358,7 @@
         function renderizarDropDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
             let opt = getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, true);
-            opt.scales.y.display = false; // Tira os valores do lado esquerdo
+            opt.scales.y.display = false;
             chartDropDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
 
@@ -371,14 +371,14 @@
         function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
             const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true);
-            opt.scales.y.display = false; // Tira os valores do lado esquerdo
+            opt.scales.y.display = false;
             chartNfDiario = new Chart(ctx, { 
-                type: 'bar', 
+                type: 'line', // Mudado para line para o estilo montanha
                 data: { 
                     labels: labels, 
                     datasets: [
-                        { label: "NF'S", data: valoresNf, backgroundColor: '#00ced1', borderRadius: 2, barPercentage: 0.6 },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderRadius: 2, barPercentage: 0.6 }
+                        { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.5)', borderColor: '#00ced1', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
+                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 255, 0, 0.5)', borderColor: '#ffff00', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }
                     ] 
                 }, 
                 options: {
