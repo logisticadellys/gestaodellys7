@@ -325,7 +325,7 @@
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal, anoAtual);
                 renderizarOcupacaoDiaria(labelsDiarioFiltrado, dadosOcupFiltrado, dadosMetaFiltrado, mesAtualNome);
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal, anoAtual);
-                renderizarDropDiario(labelsDiarioFiltrado, dadosDropFiltrado, mesAtualNome);
+                renderizarDropDiario(labelsDiarioFiltrado, dadosDropDiarioRaw, mesAtualNome);
                 renderizarDropMensal(mesesExtenso, mediasDropMensal, anoAtual);
                 renderizarNfDiario(labelsDiarioFiltrado, dadosNfFiltrado, dadosCliFiltrado, mesAtualNome);
                 renderizarNfMensal(mesesExtenso, acumuladoNfMensal, acumuladoCliMensal, anoAtual);
@@ -403,11 +403,12 @@
             const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
             opt.plugins.title.padding = { bottom: 35 };
-            opt.plugins.datalabels.offset = 12; // Aumentado para descer os valores da borda superior
-            opt.plugins.datalabels.rotation = -90; 
-            opt.plugins.datalabels.textStrokeWidth = 3; // Melhor legibilidade
+            
+            // Alteração solicitada: colocar os valores na diagonal
+            opt.plugins.datalabels.rotation = -45; 
+            opt.plugins.datalabels.offset = 8; 
+            opt.plugins.datalabels.textStrokeWidth = 3; 
             opt.scales.y.display = false;
-            // Ajuste no eixo Y para diminuir visualmente as colunas e não bater no título
             opt.scales.y.suggestedMax = Math.max(...valoresNf, ...valoresCli) * 1.35; 
 
             chartNfMensal = new Chart(ctx, { 
