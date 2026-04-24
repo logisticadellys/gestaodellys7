@@ -358,34 +358,27 @@
         function renderizarDropDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
             let opt = getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, true);
-            opt.scales.y.display = false; // Removido eixo esquerdo
-            chartDropDiario = new Chart(ctx, { 
-                type: 'line', 
-                data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, 
-                options: opt 
-            });
+            opt.scales.y.display = false; // Tira os valores do lado esquerdo
+            chartDropDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
 
         function renderizarDropMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
-            let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true);
-            opt.plugins.title.padding = { bottom: 30 }; 
-            opt.plugins.datalabels.offset = 2; 
-            opt.scales.y.display = false;
+            let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true); opt.scales.y.display = false;
             chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Dropsize Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
 
         function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
             const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true);
-            opt.scales.y.display = false; // Removido eixo esquerdo
+            opt.scales.y.display = false; // Tira os valores do lado esquerdo
             chartNfDiario = new Chart(ctx, { 
                 type: 'bar', 
                 data: { 
                     labels: labels, 
                     datasets: [
-                        { label: "NF'S", data: valoresNf, backgroundColor: '#00ced1', borderRadius: 2, barPercentage: 0.7 },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderRadius: 2, barPercentage: 0.7 }
+                        { label: "NF'S", data: valoresNf, backgroundColor: '#00ced1', borderRadius: 2, barPercentage: 0.6 },
+                        { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderRadius: 2, barPercentage: 0.6 }
                     ] 
                 }, 
                 options: {
@@ -400,18 +393,11 @@
 
         function renderizarNfMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
-            let opt = getCommonOptions(`NF'S (QTD) - ${ano} (TOTAL)`, true);
-            opt.plugins.title.padding = { bottom: 30 };
-            opt.plugins.datalabels.offset = 2;
-            opt.scales.y.display = false;
-            chartNfMensal = new Chart(ctx, { 
-                type: 'bar', 
-                data: { labels: labels, datasets: [{ label: \"NF's Mensal (QTD)\", data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, 
-                options: opt 
-            });
+            let opt = getCommonOptions(`NF'S (QTD) - ${ano} (TOTAL)`, true); opt.scales.y.display = false;
+            chartNfMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: "NF's Mensal (QTD)", data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
 
-        function getCommonOptions(titulo, showDL, isPerc = false) { return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 2, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, title: { display: true, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 10 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; }
+        function getCommonOptions(titulo, showDL, isPerc = false) { return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 15 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; }
 
         fetchPlanilha(); setInterval(fetchPlanilha, 60000);
     </script>
