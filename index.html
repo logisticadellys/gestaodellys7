@@ -403,12 +403,11 @@
             const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
             opt.plugins.title.padding = { bottom: 35 };
-            
-            // Alteração solicitada: colocar os valores na diagonal
-            opt.plugins.datalabels.rotation = -45; 
-            opt.plugins.datalabels.offset = 8; 
-            opt.plugins.datalabels.textStrokeWidth = 3; 
+            opt.plugins.datalabels.offset = 12; // Aumentado para descer os valores da borda superior
+            opt.plugins.datalabels.rotation = -90; 
+            opt.plugins.datalabels.textStrokeWidth = 3; // Melhor legibilidade
             opt.scales.y.display = false;
+            // Ajuste no eixo Y para diminuir visualmente as colunas e não bater no título
             opt.scales.y.suggestedMax = Math.max(...valoresNf, ...valoresCli) * 1.35; 
 
             chartNfMensal = new Chart(ctx, { 
