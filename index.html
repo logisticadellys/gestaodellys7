@@ -256,8 +256,8 @@
                 if (idxData !== -1) {
                     for (let i = 1; i < linhas.length; i++) {
                         const colunas = linhas[i].split(separador);
-                        let dataPlanilhaRaw = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
-                        if (!dataPlanilhaRaw) continue;
+                        let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
+                        if (!dataPlanilha) continue;
 
                         const converter = (val) => {
                             if (!val || val === "-" || val === "null" || val === "#N/A") return null;
@@ -265,12 +265,12 @@
                             return isNaN(n) ? null : n;
                         };
 
-                        // LÓGICA DE ATUALIZAÇÃO DOS CARDS (HOJE)
-                        if (dataPlanilhaRaw === hojeBusca) {
+                        // BUSCA EXATA PELA DATA DE HOJE
+                        if (dataPlanilha === hojeBusca) {
                             const limpar = (idx) => { 
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; 
                                 let val = colunas[idx].replace(/"/g, '').trim(); 
-                                return (val === "" || val === "-" || val === "null" || val === "#N/A") ? "-" : val; 
+                                return (val === "" || val === "null" || val === "#N/A" || val === "-") ? "-" : val; 
                             };
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
@@ -282,7 +282,7 @@
                         let valNf = converter(colunas[idxNfQtdCol]);
                         let valCli = converter(colunas[idxCliQtdCol]);
 
-                        let partesData = dataPlanilhaRaw.split('/');
+                        let partesData = dataPlanilha.split('/');
                         if (partesData.length === 3) {
                             let dP = parseInt(partesData[0]); let mP = parseInt(partesData[1]); let aP = parseInt(partesData[2]);
                             if (aP === anoAtual) {
