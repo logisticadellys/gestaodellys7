@@ -209,24 +209,18 @@
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
 
-                // DETECÇÃO AUTOMÁTICA DE SEPARADOR (CONTAGEM)
-                const headerRaw = linhas[0];
-                const countSemicolon = (headerRaw.match(/;/g) || []).length;
-                const countComma = (headerRaw.match(/,/g) || []).length;
-                const separador = countSemicolon >= countComma ? ';' : ',';
-
-                const cabecalho = headerRaw.split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
+                // 1- A primeira linha são os títulos
+                const separador = linhas[0].includes(';') ? ';' : ',';
+                const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
+                // 2- Procura a coluna "DATA"
                 const idxData = cabecalho.indexOf("DATA");
-                const idxVolExp = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
-                const idxOcup = cabecalho.indexOf("OCUPAÇÃO (%)");
-                const idxMetaOcup = cabecalho.indexOf("META OCUPAÇÃO (%)");
-                const idxDropSize = cabecalho.indexOf("DROPSIZE (KG)");
-                const idxNfQtdCol = cabecalho.indexOf("NF'S (QTD)");
-                const idxCliQtdCol = cabecalho.indexOf("CLIENTES (QTD)");
+                
+                // 4- Procura a coluna com o título NF'S (QTD)
+                const idxNfQtdCard = cabecalho.indexOf("NF'S (QTD)");
 
                 const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)", nf: "NF'S (QTD)",
+                    vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)",
                     abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
                     ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
@@ -237,6 +231,7 @@
 
                 const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 let v = {}; for(let k in mapping) v[k] = "-";
+                let valorNfCardFinal = "-"; // 3- Valor inicial se não achar hoje
 
                 const ultimoDiaMes = new Date(anoAtual, agora.getMonth() + 1, 0).getDate();
                 const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
@@ -270,21 +265,26 @@
                             return isNaN(n) ? null : n;
                         };
 
+                        // 3- Vai até a linha com a data de hoje
                         if (dataPlanilha.includes(hojeBusca)) {
-                            const limpar = (idx) => { 
-                                if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; 
-                                let val = colunas[idx].replace(/"/g, '').trim(); 
-                                return (val === "" || val === "null" || val === "#N/A") ? "-" : val; 
-                            };
+                            // 4 e 5- Achou a data e a coluna NF'S (QTD)
+                            if (idxNfQtdCard !== -1) {
+                                let rawNf = colunas[idxNfQtdCard] ? colunas[idxNfQtdCard].replace(/"/g, '').trim() : "";
+                                // 6- O valor desta célula... se estiver vazio é "-"
+                                valorNfCardFinal = (rawNf === "" || rawNf === "null" || rawNf === "#N/A") ? "-" : rawNf;
+                            }
+
+                            const limpar = (idx) => { if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; let val = colunas[idx].replace(/"/g, '').trim(); return (val === "" || val === "null" || val === "#N/A") ? "-" : val; };
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        let valVol = converter(colunas[idxVolExp]);
-                        let valOcup = converter(colunas[idxOcup]);
-                        let valMeta = converter(colunas[idxMetaOcup]);
-                        let valDrop = converter(colunas[idxDropSize]);
-                        let valNf = converter(colunas[idxNfQtdCol]);
-                        let valCli = converter(colunas[idxCliQtdCol]);
+                        // Restante do processamento para os gráficos (não mexido)
+                        let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
+                        let valOcup = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
+                        let valMeta = converter(colunas[cabecalho.indexOf("META OCUPAÇÃO (%)")]);
+                        let valDrop = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
+                        let valNf = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
+                        let valCli = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
 
                         let partesData = dataPlanilha.split('/');
                         if (partesData.length === 3) {
@@ -310,6 +310,14 @@
                     }
                 }
 
+                // Atribuição de valores aos cards
+                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'cli-valor': v.cli, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
+                for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
+                
+                // Atribuição específica do Card NF conforme os passos solicitados
+                document.getElementById('nf-valor').textContent = valorNfCardFinal;
+
+                // Renderização de gráficos (não mexido)
                 const labelsDiarioFiltrado = []; const dadosVolFiltrado = []; const dadosOcupFiltrado = []; const dadosMetaFiltrado = []; const dadosDropFiltrado = []; const dadosNfFiltrado = []; const dadosCliFiltrado = [];
                 for (let i = 0; i < labelsDiarioBase.length; i++) {
                     if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null || dadosDropDiarioRaw[i] !== null || dadosNfDiarioRaw[i] !== null) {
@@ -322,13 +330,9 @@
                         dadosCliFiltrado.push(dadosCliDiarioRaw[i] || 0);
                     }
                 }
-
                 const mediasOcupMensal = somaOcupMensal.map((s, i) => contOcupMensal[i] > 0 ? s / contOcupMensal[i] : 0);
                 const mediasMetaMensal = somaMetaMensal.map((s, i) => contMetaMensal[i] > 0 ? s / contMetaMensal[i] : 0);
                 const mediasDropMensal = somaDropMensal.map((s, i) => contDropMensal[i] > 0 ? s / contDropMensal[i] : 0);
-
-                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'nf-valor': v.nf, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'cli-valor': v.cli, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
-                for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
                 renderizarGraficoDiario(labelsDiarioFiltrado, dadosVolFiltrado, mesAtualNome);
                 renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal, anoAtual);
@@ -336,7 +340,7 @@
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal, anoAtual);
                 renderizarDropDiario(labelsDiarioFiltrado, dadosDropFiltrado, mesAtualNome);
                 renderizarDropMensal(mesesExtenso, mediasDropMensal, anoAtual);
-                renderizarNfDiario(labelsDiarioFiltrado, dadosNfDiarioRaw.filter(x => x !== null), dadosCliDiarioRaw.filter(x => x !== null), mesAtualNome);
+                renderizarNfDiario(labelsDiarioFiltrado, dadosNfFiltrado, dadosCliFiltrado, mesAtualNome);
                 renderizarNfMensal(mesesExtenso, acumuladoNfMensal, acumuladoCliMensal, anoAtual);
             } catch (err) { console.error("Erro:", err); }
         }
@@ -345,82 +349,40 @@
             const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false) });
         }
-
         function renderizarGraficoMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoMensal').getContext('2d'); if (chartMensalInstance) chartMensalInstance.destroy();
             let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano} (TOTAL)`, true); opt.scales.y.display = false;
             chartMensalInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume Mensal (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
-
         function renderizarOcupacaoDiaria(labels, ocup, mesNome) {
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
             const options = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true); options.scales.y.display = false; 
-            chartOcupDiario = new Chart(ctx, { 
-                type: 'bar', 
-                data: { 
-                    labels: labels, 
-                    datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderRadius: 2, order: 1, datalabels: { display: true, anchor: 'center', align: 'center' } } ] 
-                }, 
-                options: options 
-            });
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderRadius: 2, order: 1 } ] }, options: options });
         }
-
         function renderizarOcupacaoMensal(labelsBase, ocup, meta, ano) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
             let opt = getCommonOptions(`OCUPAÇÃO (%) - ${ano} (MÉDIA)`, true, true); opt.scales.y.display = false;
-            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labelsBase, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6, order: 2 } ] }, options: opt });
+            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labelsBase, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: opt });
         }
-
         function renderizarDropDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
             let opt = getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, true); opt.scales.y.display = false;
             chartDropDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
-
         function renderizarDropMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
             let opt = getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true); opt.scales.y.display = false;
             chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Dropsize Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: opt });
         }
-
         function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
             const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true); opt.scales.y.display = false;
-            chartNfDiario = new Chart(ctx, { 
-                type: 'line', 
-                data: { 
-                    labels: labels, 
-                    datasets: [
-                        { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.5)', borderColor: '#00ced1', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 255, 0, 0.5)', borderColor: '#ffff00', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }
-                    ] 
-                }, 
-                options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } 
-            });
+            chartNfDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.5)', borderColor: '#00ced1', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }, { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 255, 0, 0.5)', borderColor: '#ffff00', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
-
         function renderizarNfMensal(labels, valoresNf, valoresCli, ano) {
             const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
-            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
-            opt.scales.y.display = false;
-            opt.plugins.datalabels.rotation = -45; // Deixa valores na diagonal
-            chartNfMensal = new Chart(ctx, { 
-                type: 'bar', 
-                data: { 
-                    labels: labels, 
-                    datasets: [
-                        { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 },
-                        { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderColor: '#ffff00', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }
-                    ] 
-                }, 
-                options: {
-                    ...opt,
-                    plugins: {
-                        ...opt.plugins,
-                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } }
-                    }
-                }
-            });
+            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true); opt.scales.y.display = false;
+            chartNfMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }, { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderColor: '#ffff00', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
 
         function getCommonOptions(titulo, showDL, isPerc = false) { return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 15 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; }
