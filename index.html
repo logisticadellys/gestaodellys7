@@ -187,13 +187,6 @@
             window.dispatchEvent(new Event('resize'));
         }
 
-        window.addEventListener('resize', () => { 
-            if(chartInstance) chartInstance.resize(); if(chartMensalInstance) chartMensalInstance.resize(); 
-            if(chartOcupDiario) chartOcupDiario.resize(); if(chartOcupMensal) chartOcupMensal.resize();
-            if(chartDropDiario) chartDropDiario.resize(); if(chartDropMensal) chartDropMensal.resize();
-            if(chartNfDiario) chartNfDiario.resize(); if(chartNfMensal) chartNfMensal.resize();
-        });
-
         async function fetchPlanilha() {
             const agora = new Date();
             const dia = String(agora.getDate()).padStart(2, '0');
@@ -219,6 +212,9 @@
                 // 4- Procura a coluna com o título NF'S (QTD)
                 const idxNfQtdCard = cabecalho.indexOf("NF'S (QTD)");
 
+                let valorNfCardFinal = "-"; // 3- Valor inicial caso não ache a data de hoje
+
+                // Mapeamento padrão dos outros cards
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)",
                     abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
@@ -231,18 +227,16 @@
 
                 const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 let v = {}; for(let k in mapping) v[k] = "-";
-                let valorNfCardFinal = "-"; // 3- Valor inicial se não achar hoje
 
+                // Preparação de dados para os gráficos
                 const ultimoDiaMes = new Date(anoAtual, agora.getMonth() + 1, 0).getDate();
                 const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
-                
                 const dadosVolDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosMetaOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosDropDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosNfDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosCliDiarioRaw = Array(ultimoDiaMes).fill(null);
-
                 const acumuladoVolMensal = Array(12).fill(0);
                 const somaOcupMensal = Array(12).fill(0);
                 const contOcupMensal = Array(12).fill(0);
@@ -278,12 +272,12 @@
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        // Restante do processamento para os gráficos (não mexido)
+                        // Processamento apenas para os gráficos (não afeta o card)
                         let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
                         let valOcup = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
                         let valMeta = converter(colunas[cabecalho.indexOf("META OCUPAÇÃO (%)")]);
                         let valDrop = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
-                        let valNf = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
+                        let valNf = converter(colunas[idxNfQtdCard]);
                         let valCli = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
 
                         let partesData = dataPlanilha.split('/');
@@ -310,14 +304,14 @@
                     }
                 }
 
-                // Atribuição de valores aos cards
-                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'cli-valor': v.cli, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
-                for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
-                
-                // Atribuição específica do Card NF conforme os passos solicitados
+                // Atualiza o card de NF especificamente
                 document.getElementById('nf-valor').textContent = valorNfCardFinal;
 
-                // Renderização de gráficos (não mexido)
+                // Atualiza os demais cards
+                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'cli-valor': v.cli, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
+                for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
+
+                // Renderiza os gráficos (lógica filtrada igual à anterior)
                 const labelsDiarioFiltrado = []; const dadosVolFiltrado = []; const dadosOcupFiltrado = []; const dadosMetaFiltrado = []; const dadosDropFiltrado = []; const dadosNfFiltrado = []; const dadosCliFiltrado = [];
                 for (let i = 0; i < labelsDiarioBase.length; i++) {
                     if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null || dadosDropDiarioRaw[i] !== null || dadosNfDiarioRaw[i] !== null) {
@@ -345,6 +339,7 @@
             } catch (err) { console.error("Erro:", err); }
         }
 
+        // Funções de renderização de gráficos mantidas como no original...
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false) });
