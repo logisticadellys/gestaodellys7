@@ -209,13 +209,13 @@
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
 
-                // LÓGICA DE AUTODETECÇÃO DE SEPARADOR
-                const cabecalhoBruto = linhas[0];
-                const countVirgula = (cabecalhoBruto.match(/,/g) || []).length;
-                const countPontoVirgula = (cabecalhoBruto.match(/;/g) || []).length;
-                const separador = countPontoVirgula >= countVirgula ? ';' : ',';
+                // DETECÇÃO AUTOMÁTICA DE SEPARADOR (CONTAGEM)
+                const headerRaw = linhas[0];
+                const countSemicolon = (headerRaw.match(/;/g) || []).length;
+                const countComma = (headerRaw.match(/,/g) || []).length;
+                const separador = countSemicolon >= countComma ? ';' : ',';
 
-                const cabecalho = cabecalhoBruto.split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
+                const cabecalho = headerRaw.split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVolExp = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
@@ -270,12 +270,11 @@
                             return isNaN(n) ? null : n;
                         };
 
-                        // BUSCA EXATA PELA DATA DE HOJE
-                        if (dataPlanilha === hojeBusca) {
+                        if (dataPlanilha.includes(hojeBusca)) {
                             const limpar = (idx) => { 
                                 if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; 
                                 let val = colunas[idx].replace(/"/g, '').trim(); 
-                                return (val === "" || val === "null" || val === "#N/A" || val === "-") ? "-" : val; 
+                                return (val === "" || val === "null" || val === "#N/A") ? "-" : val; 
                             };
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
@@ -337,7 +336,7 @@
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal, anoAtual);
                 renderizarDropDiario(labelsDiarioFiltrado, dadosDropFiltrado, mesAtualNome);
                 renderizarDropMensal(mesesExtenso, mediasDropMensal, anoAtual);
-                renderizarNfDiario(labelsDiarioFiltrado, dadosNfFiltrado, dadosCliFiltrado, mesAtualNome);
+                renderizarNfDiario(labelsDiarioFiltrado, dadosNfDiarioRaw.filter(x => x !== null), dadosCliDiarioRaw.filter(x => x !== null), mesAtualNome);
                 renderizarNfMensal(mesesExtenso, acumuladoNfMensal, acumuladoCliMensal, anoAtual);
             } catch (err) { console.error("Erro:", err); }
         }
