@@ -209,8 +209,13 @@
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
 
-                const separador = linhas[0].includes(';') ? ';' : ',';
-                const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
+                // LÓGICA DE AUTODETECÇÃO DE SEPARADOR
+                const cabecalhoBruto = linhas[0];
+                const countVirgula = (cabecalhoBruto.match(/,/g) || []).length;
+                const countPontoVirgula = (cabecalhoBruto.match(/;/g) || []).length;
+                const separador = countPontoVirgula >= countVirgula ? ';' : ',';
+
+                const cabecalho = cabecalhoBruto.split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
                 const idxData = cabecalho.indexOf("DATA");
                 const idxVolExp = cabecalho.indexOf("VOLUME EXPEDIDO (KG)");
