@@ -194,6 +194,17 @@
             if(chartNfDiario) chartNfDiario.resize(); if(chartNfMensal) chartNfMensal.resize();
         });
 
+        // FUNÇÃO DE SEGURANÇA PARA DECIMAIS
+        function safeSplit(row) {
+            const res = []; let inQ = false; let cur = '';
+            for (let char of row) {
+                if (char === '"') inQ = !inQ;
+                else if (char === ',' && !inQ) { res.push(cur.trim()); cur = ''; }
+                else cur += char;
+            }
+            res.push(cur.trim()); return res;
+        }
+
         async function fetchPlanilha() {
             const agora = new Date();
             const dia = String(agora.getDate()).padStart(2, '0');
@@ -209,13 +220,11 @@
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
 
-                const separador = linhas[0].includes(';') ? ';' : ',';
-                const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
+                const cabecalho = safeSplit(linhas[0]).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
                 const idxData = cabecalho.indexOf("DATA");
                 const idxOcupCol = cabecalho.indexOf("OCUPAÇÃO (%)");
                 
-                // Mapeamento para todos os cards
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", nf: "NF'S (QTD)",
                     abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
@@ -232,117 +241,79 @@
                 const ultimoDiaMes = new Date(anoAtual, agora.getMonth() + 1, 0).getDate();
                 const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
                 
-                const dadosVolDiarioRaw = Array(ultimoDiaMes).fill(null);
-                const dadosOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
-                const dadosMetaOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
-                const dadosDropDiarioRaw = Array(ultimoDiaMes).fill(null);
-                const dadosNfDiarioRaw = Array(ultimoDiaMes).fill(null);
-                const dadosCliDiarioRaw = Array(ultimoDiaMes).fill(null);
+                const dVolR = Array(ultimoDiaMes).fill(null); const dOcpR = Array(ultimoDiaMes).fill(null);
+                const dDropR = Array(ultimoDiaMes).fill(null); const dNfR = Array(ultimoDiaMes).fill(null); const dCliR = Array(ultimoDiaMes).fill(null);
 
-                const acumuladoVolMensal = Array(12).fill(0);
-                const somaOcupMensal = Array(12).fill(0);
-                const contOcupMensal = Array(12).fill(0);
-                const somaMetaMensal = Array(12).fill(0);
-                const contMetaMensal = Array(12).fill(0);
-                const somaDropMensal = Array(12).fill(0);
-                const contDropMensal = Array(12).fill(0);
-                const acumuladoNfMensal = Array(12).fill(0);
-                const acumuladoCliMensal = Array(12).fill(0);
+                const acVolM = Array(12).fill(0); const sOcpM = Array(12).fill(0); const cOcpM = Array(12).fill(0);
+                const sMetaM = Array(12).fill(0); const cMetaM = Array(12).fill(0);
+                const sDropM = Array(12).fill(0); const cDropM = Array(12).fill(0);
+                const acNfM = Array(12).fill(0); const acCliM = Array(12).fill(0);
 
-                // RESET INICIAL DO CARD DE OCUPAÇÃO
-                document.getElementById('ocp-valor').textContent = "-";
+                const converter = (val) => {
+                    if (!val || val === "-" || val === "null" || val === "#N/A") return null;
+                    let n = parseFloat(val.replace(/"/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.').replace('%', ''));
+                    return isNaN(n) ? null : n;
+                };
 
-                if (idxData !== -1) {
-                    for (let i = 1; i < linhas.length; i++) {
-                        const colunas = linhas[i].split(separador);
-                        let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
-                        if (!dataPlanilha) continue;
+                for (let i = 1; i < linhas.length; i++) {
+                    const colunas = safeSplit(linhas[i]);
+                    let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
+                    if (!dataPlanilha) continue;
 
-                        const converter = (val) => {
-                            if (!val || val === "-" || val === "null" || val === "#N/A") return null;
-                            let n = parseFloat(val.replace(/"/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.').replace('%', ''));
-                            return isNaN(n) ? null : n;
-                        };
-
-                        // PROCURAR DATA DE HOJE
-                        if (dataPlanilha.includes(hojeBusca)) {
-                            // LÓGICA OCUPAÇÃO (%) - HOJE (PASSO 4 E 5)
-                            if (idxOcupCol !== -1) {
-                                let valorOcup = colunas[idxOcupCol] ? colunas[idxOcupCol].replace(/"/g, '').trim() : "";
-                                document.getElementById('ocp-valor').textContent = (valorOcup === "" || valorOcup === "null") ? "-" : valorOcup;
-                            }
-
-                            // PROCESSAR DEMAIS CARDS
-                            const limpar = (idx) => { 
-                                if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; 
-                                let val = colunas[idx].replace(/"/g, '').trim(); 
-                                return (val === "" || val === "null" || val === "#N/A") ? "-" : val; 
-                            };
-                            for(let key in idxs) v[key] = limpar(idxs[key]);
+                    if (dataPlanilha.includes(hojeBusca)) {
+                        for(let key in idxs) {
+                            let rawVal = colunas[idxs[key]] || "-";
+                            v[key] = rawVal.replace(/"/g, '').trim() || "-";
                         }
+                        if (idxOcupCol !== -1) v.ocp = (colunas[idxOcupCol] || "-").replace(/"/g, '').trim();
+                    }
 
-                        // PROCESSAR DADOS PARA GRÁFICOS
-                        let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
-                        let valOcupG = converter(colunas[idxOcupCol]);
-                        let valMetaG = converter(colunas[cabecalho.indexOf("META OCUPAÇÃO (%)")]);
-                        let valDropG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
-                        let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
-                        let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
+                    let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
+                    let valOcupG = converter(colunas[idxOcupCol]);
+                    let valMetaG = converter(colunas[cabecalho.indexOf("META OCUPAÇÃO (%)")]);
+                    let valDropG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
+                    let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
+                    let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
 
-                        let partesData = dataPlanilha.split('/');
-                        if (partesData.length === 3) {
-                            let dP = parseInt(partesData[0]); let mP = parseInt(partesData[1]); let aP = parseInt(partesData[2]);
-                            if (aP === anoAtual) {
-                                let mIdx = mP - 1;
-                                if (mP === (agora.getMonth() + 1) && dP <= ultimoDiaMes) {
-                                    if(valVol !== null) dadosVolDiarioRaw[dP - 1] = valVol;
-                                    if(valOcupG !== null) dadosOcupDiarioRaw[dP - 1] = valOcupG;
-                                    if(valMetaG !== null) dadosMetaOcupDiarioRaw[dP - 1] = valMetaG;
-                                    if(valDropG !== null) dadosDropDiarioRaw[dP - 1] = valDropG;
-                                    if(valNfG !== null) dadosNfDiarioRaw[dP - 1] = valNfG;
-                                    if(valCliG !== null) dadosCliDiarioRaw[dP - 1] = valCliG;
-                                }
-                                if (valVol !== null) acumuladoVolMensal[mIdx] += valVol;
-                                if (valNfG !== null) acumuladoNfMensal[mIdx] += valNfG;
-                                if (valCliG !== null) acumuladoCliMensal[mIdx] += valCliG;
-                                if (valOcupG !== null && valOcupG > 0) { somaOcupMensal[mIdx] += valOcupG; contOcupMensal[mIdx]++; }
-                                if (valMetaG !== null && valMetaG > 0) { somaMetaMensal[mIdx] += valMetaG; contMetaMensal[mIdx]++; }
-                                if (valDropG !== null && valDropG > 0) { somaDropMensal[mIdx] += valDropG; contDropMensal[mIdx]++; }
+                    let pD = dataPlanilha.split('/');
+                    if (pD.length === 3) {
+                        let dP = parseInt(pD[0]); let mP = parseInt(pD[1]); let aP = parseInt(pD[2]);
+                        if (aP === anoAtual) {
+                            let mIdx = mP - 1;
+                            if (mP === (agora.getMonth() + 1) && dP <= ultimoDiaMes) {
+                                if(valVol !== null) dVolR[dP-1] = valVol; if(valOcupG !== null) dOcpR[dP-1] = valOcupG;
+                                if(valDropG !== null) dDropR[dP-1] = valDropG; if(valNfG !== null) dNfR[dP-1] = valNfG; if(valCliG !== null) dCliR[dP-1] = valCliG;
                             }
+                            if (valVol !== null) acVolM[mIdx] += valVol; if (valNfG !== null) acNfM[mIdx] += valNfG; if (valCliG !== null) acCliM[mIdx] += valCliG;
+                            if (valOcupG !== null && valOcupG > 0) { sOcpM[mIdx] += valOcupG; cOcpM[mIdx]++; }
+                            if (valMetaG !== null && valMetaG > 0) { sMetaM[mIdx] += valMetaG; cMetaM[mIdx]++; }
+                            if (valDropG !== null && valDropG > 0) { sDropM[mIdx] += valDropG; cDropM[mIdx]++; }
                         }
                     }
                 }
 
-                // ATUALIZAR TODOS OS CARDS (EXCETO OCUPAÇÃO QUE JÁ FOI FEITO ACIMA)
-                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'nf-valor': v.nf, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'cli-valor': v.cli, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
-                for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
+                // ATUALIZAR CARDS
+                const ids = { 'vol-valor':v.vol, 'drop-valor':v.drop, 'nf-valor':v.nf, 'ocp-valor':v.ocp, 'abs-valor':v.abs, 'abs-perc-valor':v.absPerc, 'terc-util':v.terceiros, 'cli-valor':v.cli, 'f-total':v.fTotal, 'f-parados':v.fParados, 'f-dispo':v.fDispo, 'f-util':v.fUtil, 'ft-total':v.ftTotal, 'ft-parados':v.ftParados, 'ft-dispo':v.ftDispo, 'ft-util':v.ftUtil, 'md-total':v.mdTotal, 'md-vagas':v.mdVagas, 'md-ferias':v.mdFerias, 'md-faltas':v.mdFaltas, 'md-atestados':v.mdAtestados, 'md-banco':v.mdBanco, 'md-util':v.mdUtil, 'aux-total':v.auxTotal, 'aux-vagas':v.auxVagas, 'aux-ferias':v.auxFerias, 'aux-faltas':v.auxFaltas, 'aux-atestados':v.auxAtestados, 'aux-banco':v.auxBanco, 'aux-util':v.auxUtil, 'mt-total':v.mtTotal, 'mt-vagas':v.mtVagas, 'mt-ferias':v.mtFerias, 'mt-faltas':v.mtFaltas, 'mt-atestados':v.mtAtestados, 'mt-banco':v.mtBanco, 'mt-util':v.mtUtil };
+                for(let id in ids) { let el = document.getElementById(id); if(el) el.textContent = ids[id]; }
 
-                // FILTRAGEM E RENDERIZAÇÃO DE GRÁFICOS
-                const labelsDiarioFiltrado = []; const dVolF = []; const dOcupF = []; const dDropF = []; const dNfF = []; const dCliF = [];
+                const labF = []; const dVF = []; const dOF = []; const dDF = []; const dNF = []; const dCF = [];
                 for (let i = 0; i < labelsDiarioBase.length; i++) {
-                    if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null) {
-                        labelsDiarioFiltrado.push(labelsDiarioBase[i]);
-                        dVolF.push(dadosVolDiarioRaw[i] || 0);
-                        dOcupF.push(dadosOcupDiarioRaw[i] || 0);
-                        dDropF.push(dadosDropDiarioRaw[i] || 0);
-                        dNfF.push(dadosNfDiarioRaw[i] || 0);
-                        dCliF.push(dadosCliDiarioRaw[i] || 0);
-                    }
+                    if (dVolR[i] !== null || dOcpR[i] !== null) { labF.push(labelsDiarioBase[i]); dVF.push(dVolR[i]||0); dOF.push(dOcpR[i]||0); dDF.push(dDropR[i]||0); dNF.push(dNfR[i]||0); dCF.push(dCliR[i]||0); }
                 }
 
-                renderizarGraficoDiario(labelsDiarioFiltrado, dVolF, mesAtualNome);
-                renderizarGraficoMensal(mesesExtenso, acumuladoVolMensal, anoAtual);
-                renderizarOcupacaoDiaria(labelsDiarioFiltrado, dOcupF, mesAtualNome);
-                renderizarOcupacaoMensal(mesesExtenso, somaOcupMensal.map((s,i) => contOcupMensal[i]>0?s/contOcupMensal[i]:0), somaMetaMensal.map((s,i) => contMetaMensal[i]>0?s/contMetaMensal[i]:0), anoAtual);
-                renderizarDropDiario(labelsDiarioFiltrado, dDropF, mesAtualNome);
-                renderizarDropMensal(mesesExtenso, somaDropMensal.map((s,i) => contDropMensal[i]>0?s/contDropMensal[i]:0), anoAtual);
-                renderizarNfDiario(labelsDiarioFiltrado, dNfF, dCliF, mesAtualNome);
-                renderizarNfMensal(mesesExtenso, acumuladoNfMensal, acumuladoCliMensal, anoAtual);
+                renderizarGraficoDiario(labF, dVF, mesAtualNome);
+                renderizarGraficoMensal(mesesExtenso, acVolM, anoAtual);
+                renderizarOcupacaoDiaria(labF, dOF, mesAtualNome);
+                renderizarOcupacaoMensal(mesesExtenso, sOcpM.map((s,i)=>cOcpM[i]>0?s/cOcpM[i]:0), sMetaM.map((s,i)=>cMetaM[i]>0?s/cMetaM[i]:0), anoAtual);
+                renderizarDropDiario(labF, dDF, mesAtualNome);
+                renderizarDropMensal(mesesExtenso, sDropM.map((s,i)=>cDropM[i]>0?s/cDropM[i]:0), anoAtual);
+                renderizarNfDiario(labF, dNF, dCF, mesAtualNome);
+                renderizarNfMensal(mesesExtenso, acNfM, acCliM, anoAtual);
 
-            } catch (err) { console.error("Erro:", err); }
+            } catch (err) { console.error(err); }
         }
 
-        // FUNÇÕES DE RENDERIZAÇÃO IGUAIS AO ORIGINAL (SEM ALTERAÇÕES)
+        // AS FUNÇÕES DE RENDERIZAÇÃO ABAIXO NÃO FORAM ALTERADAS PARA MANTER OS SEUS NOVOS GRÁFICOS
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false) });
