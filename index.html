@@ -210,19 +210,19 @@
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
-                // 1- A primeira linha são os títulos
+                // 1. As primeiras colunas são os títulos
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
-                // 2- Procura a coluna "DATA" e a coluna "NF'S (QTD)"
+                // 2. Procurar a coluna DATA e a coluna OCUPAÇÃO (%)
                 const idxData = cabecalho.indexOf("DATA");
-                const idxNfQtdCol = cabecalho.indexOf("NF'S (QTD)");
+                const idxOcupCol = cabecalho.indexOf("OCUPAÇÃO (%)");
 
-                // Valores padrão
-                let nfHojeValor = "-"; 
+                // Variável para o card Ocupação Hoje
+                let ocupacaoHoje = "-";
 
-                // Outros mapeamentos originais
+                // Outros mapeamentos
                 const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", ocp: "OCUPAÇÃO (%)",
+                    vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", nf: "NF'S (QTD)",
                     abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
                     ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
@@ -230,18 +230,20 @@
                     auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
                     mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)"
                 };
+
                 const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 let v = {}; for(let k in mapping) v[k] = "-";
 
-                // Gráficos
                 const ultimoDiaMes = new Date(anoAtual, agora.getMonth() + 1, 0).getDate();
                 const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
+                
                 const dadosVolDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosMetaOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosDropDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosNfDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosCliDiarioRaw = Array(ultimoDiaMes).fill(null);
+
                 const acumuladoVolMensal = Array(12).fill(0);
                 const somaOcupMensal = Array(12).fill(0);
                 const contOcupMensal = Array(12).fill(0);
@@ -264,28 +266,26 @@
                             return isNaN(n) ? null : n;
                         };
 
-                        // 3- Vai até a linha com a data de hoje
+                        // 3. Encontrar a data de hoje
                         if (dataPlanilha.includes(hojeBusca)) {
-                            // 4- Achou a data de hoje, procura a coluna com o título NF'S (QTD)
-                            if (idxNfQtdCol !== -1) {
-                                // 5- Vai até a mesma linha da data de hoje
-                                let rawNf = colunas[idxNfQtdCol] ? colunas[idxNfQtdCol].replace(/"/g, '').trim() : "";
-                                // 6- o valor desta celula é o valor... se estiver vazio é "-"
-                                nfHojeValor = (rawNf === "" || rawNf === "null" || rawNf === "#N/A") ? "-" : rawNf;
+                            // 4. Procurar a coluna OCUPAÇÃO (%) e ir até a mesma linha
+                            if (idxOcupCol !== -1) {
+                                let rawOcup = colunas[idxOcupCol] ? colunas[idxOcupCol].replace(/"/g, '').trim() : "";
+                                // 5. Valor obrigatório da célula ou "-" se branco
+                                ocupacaoHoje = (rawOcup === "" || rawOcup === "null" || rawOcup === "#N/A") ? "-" : rawOcup;
                             }
 
-                            // Limpeza dos demais campos do card
                             const limpar = (idx) => { if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; let val = colunas[idx].replace(/"/g, '').trim(); return (val === "" || val === "null" || val === "#N/A") ? "-" : val; };
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        // Processamento para Gráficos
+                        // Processamento para gráficos
                         let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
-                        let valOcup = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
+                        let valOcup = converter(colunas[idxOcupCol]);
                         let valMeta = converter(colunas[cabecalho.indexOf("META OCUPAÇÃO (%)")]);
                         let valDrop = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
-                        let valNf = converter(colunas[idxNfQtdCol]);
-                        let valCli = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
+                        let valNf = converter(cabecalho.indexOf("NF'S (QTD)"));
+                        let valCli = converter(cabecalho.indexOf("CLIENTES (QTD)"));
 
                         let partesData = dataPlanilha.split('/');
                         if (partesData.length === 3) {
@@ -312,12 +312,12 @@
                 }
 
                 // Aplicação nos cards
-                document.getElementById('nf-valor').textContent = nfHojeValor;
+                document.getElementById('ocp-valor').textContent = ocupacaoHoje;
 
-                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'ocp-valor': v.ocp, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'cli-valor': v.cli, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
+                const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'nf-valor': v.nf, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'cli-valor': v.cli, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
                 for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
-                // Renderização de Gráficos
+                // Gráficos
                 const labelsDiarioFiltrado = []; const dadosVolFiltrado = []; const dadosOcupFiltrado = []; const dadosMetaFiltrado = []; const dadosDropFiltrado = []; const dadosNfFiltrado = []; const dadosCliFiltrado = [];
                 for (let i = 0; i < labelsDiarioBase.length; i++) {
                     if (dadosVolDiarioRaw[i] !== null || dadosOcupDiarioRaw[i] !== null || dadosDropDiarioRaw[i] !== null || dadosNfDiarioRaw[i] !== null) {
