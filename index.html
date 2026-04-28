@@ -187,13 +187,6 @@
             window.dispatchEvent(new Event('resize'));
         }
 
-        window.addEventListener('resize', () => { 
-            if(chartInstance) chartInstance.resize(); if(chartMensalInstance) chartMensalInstance.resize(); 
-            if(chartOcupDiario) chartOcupDiario.resize(); if(chartOcupMensal) chartOcupMensal.resize();
-            if(chartDropDiario) chartDropDiario.resize(); if(chartDropMensal) chartDropMensal.resize();
-            if(chartNfDiario) chartNfDiario.resize(); if(chartNfMensal) chartNfMensal.resize();
-        });
-
         async function fetchPlanilha() {
             const agora = new Date();
             const dia = String(agora.getDate()).padStart(2, '0');
@@ -215,7 +208,6 @@
                 const idxData = cabecalho.indexOf("DATA");
                 const idxOcupCol = cabecalho.indexOf("OCUPAÇÃO (%)");
                 
-                // Resetando o card Ocupação antes da busca
                 document.getElementById('ocp-valor').textContent = "-";
 
                 const mapping = {
@@ -232,8 +224,6 @@
                 let v = {}; for(let k in mapping) v[k] = "-";
 
                 const ultimoDiaMes = new Date(anoAtual, agora.getMonth() + 1, 0).getDate();
-                const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
-                
                 const dadosVolDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
                 const dadosMetaOcupDiarioRaw = Array(ultimoDiaMes).fill(null);
@@ -264,18 +254,21 @@
                         };
 
                         if (dataPlanilha.includes(hojeBusca)) {
-                            // Lógica Estrita para OCUPAÇÃO (%) - HOJE
+                            // LÓGICA REFORÇADA PARA OCUPAÇÃO (%) - HOJE
                             if (idxOcupCol !== -1) {
-                                let valorCelula = colunas[idxOcupCol] ? colunas[idxOcupCol].replace(/"/g, '').trim() : "";
-                                document.getElementById('ocp-valor').textContent = (valorCelula === "" || valorCelula === "null" || valorCelula === "#N/A") ? "-" : valorCelula;
+                                let valorBruto = colunas[idxOcupCol] ? colunas[idxOcupCol].replace(/"/g, '').trim() : "";
+                                // Se o Sheets enviar decimal puro (ex: 0.615)
+                                if (!valorBruto.includes(',') && !valorBruto.includes('%') && !isNaN(parseFloat(valorBruto))) {
+                                    let num = parseFloat(valorBruto);
+                                    if (num > 0 && num < 1) valorBruto = (num * 100).toFixed(2).replace('.', ',') + "%";
+                                }
+                                document.getElementById('ocp-valor').textContent = (valorBruto === "" || valorBruto === "null") ? "-" : valorBruto;
                             }
 
-                            // Outros Cards
                             const limpar = (idx) => { if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; let val = colunas[idx].replace(/"/g, '').trim(); return (val === "" || val === "null" || val === "#N/A") ? "-" : val; };
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        // Captura para Gráficos (continua numérico)
                         let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
                         let valOcup = converter(colunas[idxOcupCol]);
                         let valMeta = converter(colunas[cabecalho.indexOf("META OCUPAÇÃO (%)")]);
@@ -333,7 +326,7 @@
                 renderizarOcupacaoMensal(mesesExtenso, mediasOcupMensal, mediasMetaMensal, anoAtual);
                 renderizarDropDiario(labelsDiarioFiltrado, dadosDropFiltrado, mesAtualNome);
                 renderizarDropMensal(mesesExtenso, mediasDropMensal, anoAtual);
-                renderizarNfDiario(labelsDiarioFiltrado, dadosNfFiltrado, dadosCliFiltrado, mesAtualNome);
+                renderizarNfDiario(labelsDiarioFiltrado, dadosNfDiarioRaw, dadosCliDiarioRaw, mesAtualNome);
                 renderizarNfMensal(mesesExtenso, acumuladoNfMensal, acumuladoCliMensal, anoAtual);
             } catch (err) { console.error("Erro:", err); }
         }
@@ -383,13 +376,18 @@
             const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
             opt.scales.y.display = false;
-            opt.plugins.datalabels.rotation = -45;
             chartNfMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }, { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderColor: '#ffff00', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
 
         function getCommonOptions(titulo, showDL, isPerc = false) { return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 15 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; }
 
         fetchPlanilha(); setInterval(fetchPlanilha, 60000);
+        window.addEventListener('resize', () => { 
+            if(chartInstance) chartInstance.resize(); if(chartMensalInstance) chartMensalInstance.resize(); 
+            if(chartOcupDiario) chartOcupDiario.resize(); if(chartOcupMensal) chartOcupMensal.resize();
+            if(chartDropDiario) chartDropDiario.resize(); if(chartDropMensal) chartDropMensal.resize();
+            if(chartNfDiario) chartNfDiario.resize(); if(chartNfMensal) chartNfMensal.resize();
+        });
     </script>
 </body>
 </html>
