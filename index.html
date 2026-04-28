@@ -326,7 +326,12 @@
 
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false) });
+            // AQUI: Forçando exibição do eixo Y apenas para este gráfico
+            chartInstance = new Chart(ctx, { 
+                type: 'line', 
+                data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, 
+                options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false, false, true) 
+            });
         }
         function renderizarGraficoMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoMensal').getContext('2d'); if (chartMensalInstance) chartMensalInstance.destroy();
@@ -358,8 +363,41 @@
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
             chartNfMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }, { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderColor: '#ffff00', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
-        function getCommonOptions(titulo, showDL, isPerc = false) { 
-            return { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5 } }, plugins: { datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 15 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, display: false }, x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } } }; 
+
+        // Modificado para aceitar showY como parâmetro
+        function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
+            return { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
+                plugins: { 
+                    datalabels: { 
+                        display: showDL, 
+                        anchor: 'end', 
+                        align: 'top', 
+                        offset: 4, 
+                        color: '#ffffff', 
+                        font: { weight: 'bold', size: 10 }, 
+                        textStrokeColor: 'rgba(0, 0, 0, 0.7)', 
+                        textStrokeWidth: 2, 
+                        formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' 
+                    }, 
+                    title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 15 } }, 
+                    legend: { display: false } 
+                }, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        display: showY, 
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#ffffff', font: { size: 10 } } 
+                    }, 
+                    x: { 
+                        grid: { display: false }, 
+                        ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } 
+                    } 
+                } 
+            }; 
         }
 
         fetchPlanilha(); setInterval(fetchPlanilha, 60000);
