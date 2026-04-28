@@ -210,17 +210,12 @@
                 if (linhas.length === 0) return;
 
                 const separador = linhas[0].includes(';') ? ';' : ',';
-                // 1. As primeiras colunas são os títulos
                 const cabecalho = linhas[0].split(separador).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 
-                // 2. Procurar a coluna DATA e a coluna OCUPAÇÃO (%)
+                // Mapeamento de índices
                 const idxData = cabecalho.indexOf("DATA");
                 const idxOcupCol = cabecalho.indexOf("OCUPAÇÃO (%)");
 
-                // Variável para o card Ocupação Hoje
-                let ocupacaoHoje = "-";
-
-                // Outros mapeamentos
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", nf: "NF'S (QTD)",
                     abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
@@ -233,6 +228,7 @@
 
                 const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
                 let v = {}; for(let k in mapping) v[k] = "-";
+                let valorOcupacaoHoje = "-"; // Card OCUPAÇÃO (%) - HOJE
 
                 const ultimoDiaMes = new Date(anoAtual, agora.getMonth() + 1, 0).getDate();
                 const labelsDiarioBase = Array.from({length: ultimoDiaMes}, (_, i) => String(i + 1).padStart(2, '0'));
@@ -266,33 +262,37 @@
                             return isNaN(n) ? null : n;
                         };
 
-                        // 3. Encontrar a data de hoje
+                        // LÓGICA ESTRETA PARA O CARD OCUPAÇÃO E OUTROS DADOS DE HOJE
                         if (dataPlanilha.includes(hojeBusca)) {
-                            // 4. Procurar a coluna OCUPAÇÃO (%) e ir até a mesma linha
+                            // Regra Ocupação Hoje
                             if (idxOcupCol !== -1) {
                                 let rawOcup = colunas[idxOcupCol] ? colunas[idxOcupCol].replace(/"/g, '').trim() : "";
-                                // 5. Valor obrigatório da célula ou "-" se branco
-                                ocupacaoHoje = (rawOcup === "" || rawOcup === "null" || rawOcup === "#N/A") ? "-" : rawOcup;
+                                valorOcupacaoHoje = (rawOcup === "" || rawOcup === "null" || rawOcup === "#N/A") ? "-" : rawOcup;
                             }
-
-                            const limpar = (idx) => { if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; let val = colunas[idx].replace(/"/g, '').trim(); return (val === "" || val === "null" || val === "#N/A") ? "-" : val; };
+                            
+                            // Outros Cards
+                            const limpar = (idx) => { 
+                                if (idx === -1 || idx === undefined || colunas[idx] === undefined) return "-"; 
+                                let val = colunas[idx].replace(/"/g, '').trim(); 
+                                return (val === "" || val === "null" || val === "#N/A") ? "-" : val; 
+                            };
                             for(let key in idxs) v[key] = limpar(idxs[key]);
                         }
 
-                        // Processamento para gráficos
+                        // Processamento para Gráficos
                         let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
                         let valOcup = converter(colunas[idxOcupCol]);
                         let valMeta = converter(colunas[cabecalho.indexOf("META OCUPAÇÃO (%)")]);
                         let valDrop = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
-                        let valNf = converter(cabecalho.indexOf("NF'S (QTD)"));
-                        let valCli = converter(cabecalho.indexOf("CLIENTES (QTD)"));
+                        let valNf = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
+                        let valCli = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
 
                         let partesData = dataPlanilha.split('/');
                         if (partesData.length === 3) {
                             let dP = parseInt(partesData[0]); let mP = parseInt(partesData[1]); let aP = parseInt(partesData[2]);
                             if (aP === anoAtual) {
                                 let mIdx = mP - 1;
-                                if (mP === parseInt(mesNum) && dP <= ultimoDiaMes) {
+                                if (mP === (agora.getMonth() + 1) && dP <= ultimoDiaMes) {
                                     if(valVol !== null) dadosVolDiarioRaw[dP - 1] = valVol;
                                     if(valOcup !== null) dadosOcupDiarioRaw[dP - 1] = valOcup;
                                     if(valMeta !== null) dadosMetaOcupDiarioRaw[dP - 1] = valMeta;
@@ -312,8 +312,8 @@
                 }
 
                 // Aplicação nos cards
-                document.getElementById('ocp-valor').textContent = ocupacaoHoje;
-
+                document.getElementById('ocp-valor').textContent = valorOcupacaoHoje;
+                
                 const idsCards = { 'vol-valor': v.vol, 'drop-valor': v.drop, 'nf-valor': v.nf, 'abs-valor': v.abs, 'abs-perc-valor': v.absPerc, 'terc-util': v.terceiros, 'cli-valor': v.cli, 'f-total': v.fTotal, 'f-parados': v.fParados, 'f-dispo': v.fDispo, 'f-util': v.fUtil, 'ft-total': v.ftTotal, 'ft-parados': v.ftParados, 'ft-dispo': v.ftDispo, 'ft-util': v.ftUtil, 'md-total': v.mdTotal, 'md-vagas': v.mdVagas, 'md-ferias': v.mdFerias, 'md-faltas': v.mdFaltas, 'md-atestados': v.mdAtestados, 'md-banco': v.mdBanco, 'md-util': v.mdUtil, 'aux-total': v.auxTotal, 'aux-vagas': v.auxVagas, 'aux-ferias': v.auxFerias, 'aux-faltas': v.auxFaltas, 'aux-atestados': v.auxAtestados, 'aux-banco': v.auxBanco, 'aux-util': v.auxUtil, 'mt-total': v.mtTotal, 'mt-vagas': v.mtVagas, 'mt-ferias': v.mtFerias, 'mt-faltas': v.mtFaltas, 'mt-atestados': v.mtAtestados, 'mt-banco': v.mtBanco, 'mt-util': v.mtUtil };
                 for(let id in idsCards) { const el = document.getElementById(id); if(el) el.textContent = idsCards[id]; }
 
