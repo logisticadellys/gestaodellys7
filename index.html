@@ -35,7 +35,7 @@
         .subtitulo { font-size: clamp(0.55em, 0.75vw, 0.8em); color: #a0aec0; margin-bottom: 2px; text-transform: uppercase; }
         .valor { font-size: clamp(1.2em, 2.8vw, 2em); color: #ffffff; display: block; }
         .valor-frota { font-size: clamp(1em, 2vw, 1.6em); }
-        .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; min-height: 0; height: 100%; padding-top: 1.5vh; }
+        .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; min-height: 0; height: 100%; }
         .chart-container { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; padding: 1.5vh; position: relative; min-height: 0; }
     </style>
 </head>
@@ -163,7 +163,7 @@
         Chart.register(ChartDataLabels);
 
         let autoMode = false; let tempoRestante = 90; let telaAtual = 1;
-        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal;
+        let charts = {};
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -188,17 +188,15 @@
         }
 
         function aplicarExibicaoTela() {
-            const t1 = document.getElementById('tela1'); const t2 = document.getElementById('tela2'); const t3 = document.getElementById('tela3'); const t4 = document.getElementById('tela4');
-            t1.classList.remove('ativa'); t2.classList.remove('ativa'); t3.classList.remove('ativa'); t4.classList.remove('ativa');
-            if (telaAtual === 1) t1.classList.add('ativa');
-            else if (telaAtual === 2) t2.classList.add('ativa');
-            else if (telaAtual === 3) t3.classList.add('ativa');
-            else t4.classList.add('ativa');
+            const telas = [1, 2, 3, 4];
+            telas.forEach(num => {
+                document.getElementById(`tela${num}`).classList.toggle('ativa', telaAtual === num);
+            });
             window.dispatchEvent(new Event('resize'));
         }
 
         window.addEventListener('resize', () => { 
-            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal].forEach(c => c && c.resize());
+            Object.values(charts).forEach(c => c && c.resize());
         });
 
         function safeSplit(row) {
@@ -259,27 +257,15 @@
                     const valorPara = (key) => parseFloat(colunas[indices[key]]?.replace(/\./g, '').replace(',', '.') || 0);
 
                     if (dataStr === hojeBusca) {
-                        dadosHoje = {
-                            vol: valorPara('vol'), drop: valorPara('drop'), ocp: valorPara('ocp'), nf: valorPara('nf'),
-                            abs: valorPara('abs'), absPerc: valorPara('absPerc'), terceiros: valorPara('terceiros'), cli: valorPara('cli'),
-                            fTotal: valorPara('fTotal'), fParados: valorPara('fParados'), fDispo: valorPara('fDispo'), fUtil: valorPara('fUtil'),
-                            ftTotal: valorPara('ftTotal'), ftParados: valorPara('ftParados'), ftDispo: valorPara('ftDispo'), ftUtil: valorPara('ftUtil'),
-                            mdTotal: valorPara('mdTotal'), mdVagas: valorPara('mdVagas'), mdFerias: valorPara('mdFerias'), mdFaltas: valorPara('mdFaltas'), mdAtestados: valorPara('mdAtestados'), mdBanco: valorPara('mdBanco'), mdUtil: valorPara('mdUtil'),
-                            auxTotal: valorPara('auxTotal'), auxVagas: valorPara('auxVagas'), auxFerias: valorPara('auxFerias'), auxFaltas: valorPara('auxFaltas'), auxAtestados: valorPara('auxAtestados'), auxBanco: valorPara('auxBanco'), auxUtil: valorPara('auxUtil'),
-                            mtTotal: valorPara('mtTotal'), mtVagas: valorPara('mtVagas'), mtFerias: valorPara('mtFerias'), mtFaltas: valorPara('mtFaltas'), mtAtestados: valorPara('mtAtestados'), mtBanco: valorPara('mtBanco'), mtUtil: valorPara('mtUtil')
-                        };
+                        dadosHoje = {};
+                        for(let k in mapping) dadosHoje[k] = valorPara(k);
                     }
                     if (m === (mesDeExibicaoIdx + 1) && a === anoDeExibicao) {
                         dadosMensal.push({ dia: d, vol: valorPara('vol'), ocp: valorPara('ocp'), drop: valorPara('drop'), nf: valorPara('nf'), ns: valorPara('ns'), re: valorPara('re') });
                     }
                     if (d === 1) {
                         const mNome = mesesExtenso[m - 1].substring(0, 3);
-                        dadosAcumuladoMes.vol.push({ label: mNome, value: valorPara('vol') });
-                        dadosAcumuladoMes.ocp.push({ label: mNome, value: valorPara('ocp') });
-                        dadosAcumuladoMes.drop.push({ label: mNome, value: valorPara('drop') });
-                        dadosAcumuladoMes.nf.push({ label: mNome, value: valorPara('nf') });
-                        dadosAcumuladoMes.ns.push({ label: mNome, value: valorPara('ns') });
-                        dadosAcumuladoMes.re.push({ label: mNome, value: valorPara('re') });
+                        for(let k of ['vol', 'ocp', 'drop', 'nf', 'ns', 're']) dadosAcumuladoMes[k].push({ label: mNome, value: valorPara(k) });
                     }
                 }
 
@@ -296,65 +282,68 @@
                     setV('mt-total', dadosHoje.mtTotal); setV('mt-vagas', dadosHoje.mtVagas); setV('mt-ferias', dadosHoje.mtFerias); setV('mt-faltas', dadosHoje.mtFaltas); setV('mt-atestados', dadosHoje.mtAtestados); setV('mt-banco', dadosHoje.mtBanco); setV('mt-util', dadosHoje.mtUtil);
                 }
 
-                dadosMensal.sort((a, b) => a.dia - b.dia); const labelsD = dadosMensal.map(d => d.dia); const labelsM = dadosAcumuladoMes.vol.map(d => d.label);
-                
-                const up = (inst, id, type, lbl, data, tit, dl, p) => {
-                    if (inst) inst.destroy();
-                    const ctx = document.getElementById(id).getContext('2d');
-                    return new Chart(ctx, {
+                const labelsD = dadosMensal.sort((a,b)=>a.dia-b.dia).map(d => d.dia);
+                const labelsM = dadosAcumuladoMes.vol.map(d => d.label);
+
+                const createChart = (id, type, label, data, labels, title, isPerc) => {
+                    if (charts[id]) charts[id].destroy();
+                    charts[id] = new Chart(document.getElementById(id), {
                         type: type,
-                        data: { 
-                            labels: (id.toLowerCase().includes('mensal') || id.toLowerCase().includes('acumulado')) ? labelsM : labelsD, 
-                            datasets: [{ 
-                                label: lbl, data: data, 
-                                backgroundColor: id.includes('Ocupacao') || id.includes('Ns') ? 'rgba(0, 206, 209, 0.2)' : 'rgba(46, 204, 113, 0.8)', 
-                                borderColor: id.includes('Ocupacao') || id.includes('Ns') ? '#00ced1' : '#2ecc71', 
-                                borderWidth: 1, borderRadius: 2, fill: type==='line', tension: 0.3, barPercentage: 0.6 
-                            }] 
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: label,
+                                data: data,
+                                backgroundColor: (id.includes('Ocupacao') || id.includes('Ns')) ? 'rgba(0, 206, 209, 0.2)' : 'rgba(46, 204, 113, 0.8)',
+                                borderColor: (id.includes('Ocupacao') || id.includes('Ns')) ? '#00ced1' : '#2ecc71',
+                                borderWidth: 1,
+                                fill: type === 'line',
+                                tension: 0.3,
+                                barPercentage: 0.6
+                            }]
                         },
-                        options: getCommonOptions(tit, dl, p)
+                        options: getCommonOptions(title, true, isPerc)
                     });
                 };
 
-                chartInstance = up(chartInstance, 'graficoVolume', 'bar', 'Volume (KG)', dadosMensal.map(d => d.vol), `VOLUME EXPEDIDO (KG) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, true, false);
-                chartMensalInstance = up(chartMensalInstance, 'graficoMensal', 'bar', 'Volume (KG)', dadosAcumuladoMes.vol.map(d => d.value), `VOLUME EXPEDIDO (KG) - ${anoDeExibicao} (TOTAL)`, true, false);
-                chartOcupDiario = up(chartOcupDiario, 'graficoOcupacaoDiario', 'line', 'Ocupação (%)', dadosMensal.map(d => d.ocp), `OCUPAÇÃO (%) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, true, true);
-                chartOcupMensal = up(chartOcupMensal, 'graficoOcupacaoMensal', 'bar', 'Ocupação (%)', dadosAcumuladoMes.ocp.map(d => d.value), `OCUPAÇÃO (%) - ${anoDeExibicao} (TOTAL)`, true, true);
-                chartDropDiario = up(chartDropDiario, 'graficoDropsizeDiario', 'bar', 'Dropsize (KG)', dadosMensal.map(d => d.drop), `DROPSIZE (KG) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, true, false);
-                chartDropMensal = up(chartDropMensal, 'graficoDropMensal', 'bar', 'Dropsize (KG)', dadosAcumuladoMes.drop.map(d => d.value), `DROPSIZE (KG) - ${anoDeExibicao} (TOTAL)`, true, false);
-                chartNfDiario = up(chartNfDiario, 'graficoNfDiario', 'bar', "NF'S", dadosMensal.map(d => d.nf), `NF'S (QTD) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, true, false);
-                chartNfMensal = up(chartNfMensal, 'graficoNfMensal', 'bar', "NF'S", dadosAcumuladoMes.nf.map(d => d.value), `NF'S (QTD) - ${anoDeExibicao} (TOTAL)`, true, false);
-                chartNsDiario = up(chartNsDiario, 'graficoNsDiario', 'line', 'NS (%)', dadosMensal.map(d => d.ns), `NÍVEL DE SERVIÇO (%) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, true, true);
-                chartNsMensal = up(chartNsMensal, 'graficoNsMensal', 'bar', 'NS (%)', dadosAcumuladoMes.ns.map(d => d.value), `NÍVEL DE SERVIÇO (%) - ${anoDeExibicao} (TOTAL)`, true, true);
-                chartReDiario = up(chartReDiario, 'graficoReDiario', 'bar', 'Reentregas', dadosMensal.map(d => d.re), `REENTREGAS D+2 (QTD) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, true, false);
-                chartReMensal = up(chartReMensal, 'graficoReMensal', 'bar', 'Reentregas', dadosAcumuladoMes.re.map(d => d.value), `REENTREGAS D+2 (QTD) - ${anoDeExibicao} (TOTAL)`, true, false);
+                createChart('graficoVolume', 'bar', 'Volume', dadosMensal.map(d=>d.vol), labelsD, `VOLUME EXPEDIDO (KG) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, false);
+                createChart('graficoMensal', 'bar', 'Volume', dadosAcumuladoMes.vol.map(d=>d.value), labelsM, `VOLUME EXPEDIDO (KG) - ${anoDeExibicao} (TOTAL)`, false);
+                createChart('graficoOcupacaoDiario', 'line', 'Ocupação', dadosMensal.map(d=>d.ocp), labelsD, `OCUPAÇÃO (%) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, true);
+                createChart('graficoOcupacaoMensal', 'bar', 'Ocupação', dadosAcumuladoMes.ocp.map(d=>d.value), labelsM, `OCUPAÇÃO (%) - ${anoDeExibicao} (TOTAL)`, true);
+                createChart('graficoDropsizeDiario', 'bar', 'Dropsize', dadosMensal.map(d=>d.drop), labelsD, `DROPSIZE (KG) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, false);
+                createChart('graficoDropMensal', 'bar', 'Dropsize', dadosAcumuladoMes.drop.map(d=>d.value), labelsM, `DROPSIZE (KG) - ${anoDeExibicao} (TOTAL)`, false);
+                createChart('graficoNfDiario', 'bar', 'NF', dadosMensal.map(d=>d.nf), labelsD, `NF'S (QTD) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, false);
+                createChart('graficoNfMensal', 'bar', 'NF', dadosAcumuladoMes.nf.map(d=>d.value), labelsM, `NF'S (QTD) - ${anoDeExibicao} (TOTAL)`, false);
+                createChart('graficoNsDiario', 'line', 'NS', dadosMensal.map(d=>d.ns), labelsD, `NÍVEL DE SERVIÇO (%) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, true);
+                createChart('graficoNsMensal', 'bar', 'NS', dadosAcumuladoMes.ns.map(d=>d.value), labelsM, `NÍVEL DE SERVIÇO (%) - ${anoDeExibicao} (TOTAL)`, true);
+                createChart('graficoReDiario', 'bar', 'Reentrega', dadosMensal.map(d=>d.re), labelsD, `REENTREGAS D+2 (QTD) - ${mesExibicaoNome}/${anoDeExibicao} (DIÁRIO)`, false);
+                createChart('graficoReMensal', 'bar', 'Reentrega', dadosAcumuladoMes.re.map(d=>d.value), labelsM, `REENTREGAS D+2 (QTD) - ${anoDeExibicao} (TOTAL)`, false);
 
-            } catch (error) { console.error("Erro ao buscar dados:", error); }
+            } catch (e) { console.error(e); }
         }
 
-        function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
+        function getCommonOptions(titulo, showDL, isPerc = false) { 
             return { 
                 responsive: true, maintainAspectRatio: false, 
-                layout: { padding: { top: 40, bottom: 5, right: 10 } }, 
+                layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
                 plugins: { 
                     datalabels: { 
                         display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', 
                         font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, 
                         formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' 
                     }, 
-                    title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 15 } }, 
+                    title: { 
+                        display: !!titulo, 
+                        text: titulo, 
+                        color: '#a0aec0', 
+                        font: { size: 15, weight: 'bold' }, 
+                        padding: { bottom: 40 } /* AJUSTE FEITO AQUI: AUMENTADO DE 15 PARA 40 */
+                    }, 
                     legend: { display: false } 
                 }, 
                 scales: { 
-                    y: { 
-                        beginAtZero: true, display: showY, 
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        ticks: { color: '#ffffff', font: { size: 10 } } 
-                    }, 
-                    x: { 
-                        grid: { display: false }, 
-                        ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } 
-                    } 
+                    y: { beginAtZero: true, display: false }, 
+                    x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } 
                 } 
             }; 
         }
