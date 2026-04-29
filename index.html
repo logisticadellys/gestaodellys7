@@ -198,9 +198,15 @@
 
         function aplicarExibicaoTela() {
             const telas = document.querySelectorAll('.tela');
-            telas.forEach((t, i) => { t.classList.toggle('ativa', i + 1 === telaAtual); });
+            telas.forEach((t, i) => {
+                t.classList.toggle('ativa', i + 1 === telaAtual);
+            });
             window.dispatchEvent(new Event('resize'));
         }
+
+        window.addEventListener('resize', () => { 
+            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal].forEach(c => c && c.resize());
+        });
 
         function safeSplit(row) {
             const res = []; let inQ = false; let cur = '';
@@ -297,6 +303,7 @@
                     let pD = dataPlanilha.split('/');
                     if (pD.length === 3) {
                         let dP = parseInt(pD[0]); let mP = parseInt(pD[1]); let aP = parseInt(pD[2]);
+                        
                         if (aP === anoDeExibicao && mP === (mesDeExibicaoIdx + 1)) {
                             if (dP <= ultimoDiaMesExibicao) {
                                 if(valVol !== null) dVolR[dP-1] = valVol; if(valOcupG !== null) dOcpR[dP-1] = valOcupG;
@@ -325,9 +332,11 @@
 
                 const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
-                    labF.push(String(i + 1).padStart(2, '0'));
-                    vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
-                    vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
+                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null) {
+                        labF.push(String(i + 1).padStart(2, '0'));
+                        vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
+                        vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
+                    }
                 }
 
                 renderizarGraficoDiario(labF, vVolF, mesExibicaoNome);
@@ -414,6 +423,7 @@
         function renderizarOtifDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoOtifDiario').getContext('2d'); if (chartOtifDiario) chartOtifDiario.destroy();
             let opt = getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true, true);
+            // Configura os valores na diagonal
             opt.plugins.datalabels.rotation = -45;
             opt.plugins.datalabels.align = 'top';
             chartOtifDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'OTIF (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
