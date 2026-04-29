@@ -161,7 +161,7 @@
     <div id="tela5" class="tela">
         <div class="grid-graficos">
             <div class="chart-container"><canvas id="graficoDevolucaoDiario"></canvas></div>
-            <div class="chart-container"></div>
+            <div class="chart-container"><canvas id="graficoDevolucaoMensal"></canvas></div>
             <div class="chart-container"></div>
             <div class="chart-container"></div>
         </div>
@@ -172,7 +172,7 @@
         Chart.register(ChartDataLabels);
 
         let autoMode = false; let tempoRestante = 90; let telaAtual = 1;
-        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario;
+        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal;
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -208,7 +208,7 @@
         }
 
         window.addEventListener('resize', () => { 
-            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario].forEach(c => c && c.resize());
+            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal].forEach(c => c && c.resize());
         });
 
         function safeSplit(row) {
@@ -271,6 +271,8 @@
                 const acNfM = Array(12).fill(0); const acCliM = Array(12).fill(0);
                 const sNsM = Array(12).fill(0); const cNsM = Array(12).fill(0);
                 const acReM = Array(12).fill(0);
+                const sDevTotM = Array(12).fill(0); const cDevTotM = Array(12).fill(0);
+                const sDevOpM = Array(12).fill(0); const cDevOpM = Array(12).fill(0);
 
                 const converter = (val) => {
                     if (!val || val === "-" || val === "null" || val === "#N/A") return null;
@@ -316,6 +318,8 @@
                             if (valOcupG !== null && valOcupG > 0) { sOcpM[mIdx] += valOcupG; cOcpM[mIdx]++; }
                             if (valDropG !== null && valDropG > 0) { sDropM[mIdx] += valDropG; cDropM[mIdx]++; }
                             if (valNsG !== null && valNsG > 0) { sNsM[mIdx] += valNsG; cNsM[mIdx]++; }
+                            if (valDevTotG !== null && valDevTotG > 0) { sDevTotM[mIdx] += valDevTotG; cDevTotM[mIdx]++; }
+                            if (valDevOpG !== null && valDevOpG > 0) { sDevOpM[mIdx] += valDevOpG; cDevOpM[mIdx]++; }
                         }
                     }
                 }
@@ -345,6 +349,7 @@
                 renderizarReDiario(labF, vReF, mesExibicaoNome);
                 renderizarReMensal(mesesExtenso, acReM, anoAtual);
                 renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
+                renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
 
             } catch (err) { console.error("Erro:", err); }
         }
@@ -403,6 +408,11 @@
             const ctx = document.getElementById('graficoDevolucaoDiario').getContext('2d'); if (chartDevolDiario) chartDevolDiario.destroy();
             let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X DEVOLUÇÃO OPERAÇÃO (%) - ${mesNome}`, true, true);
             chartDevolDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: "DEVOLUÇÃO TOTAL", data: valoresTot, borderColor: '#e74c3c', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 }, { label: "DEVOLUÇÃO OPERAÇÃO", data: valoresOp, borderColor: '#f39c12', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
+        }
+        function renderizarDevolucaoMensal(labels, valoresTot, valoresOp, ano) {
+            const ctx = document.getElementById('graficoDevolucaoMensal').getContext('2d'); if (chartDevolMensal) chartDevolMensal.destroy();
+            let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X DEVOLUÇÃO OPERAÇÃO (%) - ${ano} (MÉDIA)`, true, true);
+            chartDevolMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "DEVOLUÇÃO TOTAL", data: valoresTot, backgroundColor: '#e74c3c', borderRadius: 2, barPercentage: 0.6 }, { label: "DEVOLUÇÃO OPERAÇÃO", data: valoresOp, backgroundColor: '#f39c12', borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
 
         function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
