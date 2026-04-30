@@ -429,9 +429,7 @@
         }
         function renderizarOtifDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoOtifDiario').getContext('2d'); if (chartOtifDiario) chartOtifDiario.destroy();
-            let opt = getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true, false); // showY = false para tirar valores da esquerda
-            opt.plugins.datalabels.rotation = -45;
-            opt.plugins.datalabels.align = 'top';
+            let opt = getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true, false);
             chartOtifDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'OTIF (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
         function renderizarOtifMensal(labels, valores, ano) {
