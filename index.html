@@ -373,8 +373,10 @@
         }
         function renderizarOcupacaoDiaria(labels, ocup, mesNome) {
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
-            let opt = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true, false);
-            opt.scales.x.ticks = { color: '#ffffff', font: { size: 9 }, maxRotation: 45, minRotation: 45 };
+            let opt = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true);
+            // Configuração para colocar os valores na diagonal apenas neste gráfico
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
             chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderRadius: 2 } ] }, options: opt });
         }
         function renderizarOcupacaoMensal(labels, ocup, ano) {
@@ -401,9 +403,7 @@
         }
         function renderizarNsDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoNsDiario').getContext('2d'); if (chartNsDiario) chartNsDiario.destroy();
-            let opt = getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${mesNome}`, true, true, false);
-            opt.scales.x.ticks = { color: '#ffffff', font: { size: 9 }, maxRotation: 45, minRotation: 45 };
-            chartNsDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Nível de Serviço (%)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderRadius: 2 } ] }, options: opt });
+            chartNsDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Nível de Serviço (%)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderRadius: 2 } ] }, options: getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${mesNome}`, false, true, true) });
         }
         function renderizarNsMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoNsMensal').getContext('2d'); if (chartNsMensal) chartNsMensal.destroy();
@@ -429,7 +429,7 @@
         }
         function renderizarOtifDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoOtifDiario').getContext('2d'); if (chartOtifDiario) chartOtifDiario.destroy();
-            let opt = getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true, false);
+            let opt = getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true, true);
             chartOtifDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'OTIF (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
         function renderizarOtifMensal(labels, valores, ano) {
