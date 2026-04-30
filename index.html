@@ -270,6 +270,8 @@
                 const acNfM = Array(12).fill(0); const acCliM = Array(12).fill(0);
                 const sNsM = Array(12).fill(0); const cNsM = Array(12).fill(0);
                 const acReM = Array(12).fill(0);
+                
+                // Mapeamento das colunas de média anual de devolução solicitado
                 const sDevTotM = Array(12).fill(0); const cDevTotM = Array(12).fill(0);
                 const sDevOpM = Array(12).fill(0); const cDevOpM = Array(12).fill(0);
                 const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
@@ -299,6 +301,10 @@
                     let valDevTotG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%)")]);
                     let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
                     let valOtifG = converter(colunas[idxs.otif]);
+                    
+                    // Colunas específicas para a média anual solicitada
+                    let valDevTotMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%) MÊS")]);
+                    let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
 
                     let pD = dataPlanilha.split('/');
                     if (pD.length === 3) {
@@ -320,8 +326,8 @@
                             if (valOcupG !== null && valOcupG > 0) { sOcpM[mIdx] += valOcupG; cOcpM[mIdx]++; }
                             if (valDropG !== null && valDropG > 0) { sDropM[mIdx] += valDropG; cDropM[mIdx]++; }
                             if (valNsG !== null && valNsG > 0) { sNsM[mIdx] += valNsG; cNsM[mIdx]++; }
-                            if (valDevTotG !== null && valDevTotG > 0) { sDevTotM[mIdx] += valDevTotG; cDevTotM[mIdx]++; }
-                            if (valDevOpG !== null && valDevOpG > 0) { sDevOpM[mIdx] += valDevOpG; cDevOpM[mIdx]++; }
+                            if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
+                            if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
                             if (valOtifG !== null && valOtifG > 0) { sOtifM[mIdx] += valOtifG; cOtifM[mIdx]++; }
                         }
                     }
@@ -359,7 +365,6 @@
             } catch (err) { console.error("Erro:", err); }
         }
 
-        // FUNÇÕES DOS GRÁFICOS
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, false, false, true) });
@@ -423,7 +428,6 @@
         function renderizarOtifDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoOtifDiario').getContext('2d'); if (chartOtifDiario) chartOtifDiario.destroy();
             let opt = getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true, true);
-            // Configura os valores na diagonal
             opt.plugins.datalabels.rotation = -45;
             opt.plugins.datalabels.align = 'top';
             chartOtifDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'OTIF (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
