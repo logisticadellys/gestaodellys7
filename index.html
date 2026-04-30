@@ -366,8 +366,8 @@
         function renderizarGraficoDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
             let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, true, false, false);
-            // AJUSTE: Rotação leve na diagonal (-30 graus) para não cortar nas extremidades
-            opt.plugins.datalabels.rotation = -30;
+            // Configuração específica para VOLUME EXPEDIDO - ABRIL
+            opt.plugins.datalabels.rotation = -45;
             opt.plugins.datalabels.align = 'top';
             opt.plugins.datalabels.offset = 2;
             
@@ -379,7 +379,11 @@
         }
         function renderizarOcupacaoDiaria(labels, ocup, mesNome) {
             const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
-            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderRadius: 2 } ] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true) });
+            let opt = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true);
+            // Configuração para colocar os valores na diagonal apenas neste gráfico
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderRadius: 2 } ] }, options: opt });
         }
         function renderizarOcupacaoMensal(labels, ocup, ano) {
             const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
