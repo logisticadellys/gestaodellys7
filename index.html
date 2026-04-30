@@ -64,7 +64,7 @@
             <div class="card"><h3>NF'S (QTD) - HOJE</h3><span class="valor" id="nf-valor">-</span></div>
         </div>
         <div class="grid-cards">
-            <div class="card"><h3>TERCEIROS UTILIZADOS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
+            <div class="card"><h3>TERCEIROS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (QTD) - HOJE</h3><span class="valor" id="abs-valor">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (%) - HOJE</h3><span class="valor" id="abs-perc-valor">-</span></div>
             <div class="card"><h3>CLIENTES (QTD) - HOJE</h3><span class="valor" id="cli-valor">-</span></div>
@@ -271,7 +271,6 @@
                 const sNsM = Array(12).fill(0); const cNsM = Array(12).fill(0);
                 const acReM = Array(12).fill(0);
                 
-                // Mapeamento das colunas de média anual de devolução solicitado
                 const sDevTotM = Array(12).fill(0); const cDevTotM = Array(12).fill(0);
                 const sDevOpM = Array(12).fill(0); const cDevOpM = Array(12).fill(0);
                 const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
@@ -302,7 +301,6 @@
                     let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
                     let valOtifG = converter(colunas[idxs.otif]);
                     
-                    // Colunas específicas para a média anual solicitada
                     let valDevTotMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%) MÊS")]);
                     let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
 
