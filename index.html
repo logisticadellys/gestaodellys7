@@ -269,9 +269,10 @@
                 const idx = {};
                 for (let key in mapping) { idx[key] = cabecalho.indexOf(mapping[key]); }
 
+                const parseVal = (v) => v ? v.replace(/[R$\.%]/g, '').replace(',', '.') : '0';
+
                 const dadosHoje = linhas.map(l => safeSplit(l)).find(r => r[idxData] === hojeBusca);
                 if (dadosHoje) {
-                    const parseVal = (v) => v ? v.replace(/[R$\.%]/g, '').replace(',', '.') : '0';
                     document.getElementById('vol-valor').textContent = Math.round(parseFloat(parseVal(dadosHoje[idx.vol]))).toLocaleString('pt-BR');
                     document.getElementById('drop-valor').textContent = Math.round(parseFloat(parseVal(dadosHoje[idx.drop]))).toLocaleString('pt-BR');
                     document.getElementById('ocp-valor').textContent = parseFloat(parseVal(dadosHoje[idx.ocp])).toFixed(1) + '%';
@@ -293,21 +294,21 @@
                 });
 
                 const labelsDiarias = filteredRows.map(r => r[idxData].split('/')[0]);
-                const dataVol = filteredRows.map(r => parseFloat(r[idx.vol].replace(/\./g, '').replace(',', '.')) || 0);
-                const dataOcup = filteredRows.map(r => parseFloat(r[idx.ocp].replace('%', '').replace(',', '.')) || 0);
-                const dataDrop = filteredRows.map(r => parseFloat(r[idx.drop].replace(/\./g, '').replace(',', '.')) || 0);
+                const dataVol = filteredRows.map(r => parseFloat(parseVal(r[idx.vol])) || 0);
+                const dataOcup = filteredRows.map(r => parseFloat(parseVal(r[idx.ocp])) || 0);
+                const dataDrop = filteredRows.map(r => parseFloat(parseVal(r[idx.drop])) || 0);
                 const dataNf = filteredRows.map(r => parseInt(r[idx.nf]) || 0);
-                const dataNs = filteredRows.map(r => parseFloat(r[idx.ns].replace('%', '').replace(',', '.')) || 0);
-                const dataRe = filteredRows.map(r => parseFloat(r[idx.re].replace('%', '').replace(',', '.')) || 0);
-                const dataDev = filteredRows.map(r => parseFloat(r[idx.dev].replace('%', '').replace(',', '.')) || 0);
-                const dataOtif = filteredRows.map(r => parseFloat(r[idx.otif].replace('%', '').replace(',', '.')) || 0);
+                const dataNs = filteredRows.map(r => parseFloat(parseVal(r[idx.ns])) || 0);
+                const dataRe = filteredRows.map(r => parseFloat(parseVal(r[idx.re])) || 0);
+                const dataDev = filteredRows.map(r => parseFloat(parseVal(r[idx.dev])) || 0);
+                const dataOtif = filteredRows.map(r => parseFloat(parseVal(r[idx.otif])) || 0);
 
                 const getMediaMensal = (colIdx, ano) => {
                     const totais = {}; const contagem = {};
                     linhas.slice(1).forEach(l => {
                         const r = safeSplit(l); const d = parseData(r[idxData]);
                         if (d && d.getFullYear() === ano) {
-                            const m = d.getMonth(); const v = parseFloat(r[colIdx].replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+                            const m = d.getMonth(); const v = parseFloat(parseVal(r[colIdx])) || 0;
                             if (v > 0) { totais[m] = (totais[m] || 0) + v; contagem[m] = (contagem[m] || 0) + 1; }
                         }
                     });
@@ -323,11 +324,6 @@
                 const mediaDev = getMediaMensal(idx.dev, anoDeExibicao);
                 const mediaOtif = getMediaMensal(idx.otif, anoDeExibicao);
 
-                const commonScales = (showY) => ({
-                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#a0aec0', font: { size: 10 } } },
-                    x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 10, weight: 'bold' } } }
-                });
-
                 function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
                     return { 
                         responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
@@ -335,7 +331,10 @@
                             datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, 
                             title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } }, legend: { display: false } 
                         }, 
-                        scales: commonScales(showY) 
+                        scales: {
+                            y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#a0aec0', font: { size: 10 } } },
+                            x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 10, weight: 'bold' } } }
+                        } 
                     };
                 }
 
