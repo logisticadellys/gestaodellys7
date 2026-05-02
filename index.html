@@ -59,7 +59,7 @@
     <div id="tela1" class="tela ativa">
         <div class="grid-cards">
             <div class="card"><h3>VOLUME EXPEDIDO (KG) - HOJE</h3><span class="valor" id="vol-valor">-</span></div>
-            <div class="card"><h3>DROPSIZE (KG) - HOJE</h3><span class="valor" id="drop-valor">-</span></div>
+            <div class="card"><h3>PESOxVEÍCULO (KG) - HOJE</h3><span class="valor" id="drop-valor">-</span></div>
             <div class="card"><h3>OCUPAÇÃO (%) - HOJE</h3><span class="valor" id="ocp-valor">-</span></div>
             <div class="card"><h3>NF'S (QTD) - HOJE</h3><span class="valor" id="nf-valor">-</span></div>
         </div>
@@ -245,7 +245,7 @@
                 const idxData = cabecalho.indexOf("DATA");
                 
                 const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", nf: "NF'S (QTD)", ocp: "OCUPAÇÃO (%)",
+                    vol: "VOLUME EXPEDIDO (KG)", drop: "PESOxVEÍCULO (KG)", nf: "NF'S (QTD)", ocp: "OCUPAÇÃO (%)",
                     abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
                     ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
@@ -293,7 +293,7 @@
                     let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
                     let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
                     let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
-                    let valDropG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
+                    let valDropG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG)")]);
                     let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
                     let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
                     let valNsG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%)")]);
@@ -389,11 +389,11 @@
         }
         function renderizarDropDiario(labels, valores, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
-            chartDropDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Dropsize (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`DROPSIZE (KG) - ${mesNome}`, true) });
+            chartDropDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Peso x Veículo (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`PESOxVEÍCULO (KG) - ${mesNome}`, true) });
         }
         function renderizarDropMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
-            chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Dropsize Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`DROPSIZE (KG) - ${ano} (MÉDIA)`, true) });
+            chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Peso x Veículo Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`PESOxVEÍCULO (KG) - ${ano} (MÉDIA)`, true) });
         }
         function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
             const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
