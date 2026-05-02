@@ -209,23 +209,27 @@
         });
 
         function safeSplit(row) {
-            const res = []; let inQ = false; let cur = '';
+            const res = [];
+            let inQ = false;
+            let cur = '';
             for (let char of row) {
                 if (char === '"') inQ = !inQ;
                 else if (char === ',' && !inQ) { res.push(cur.trim()); cur = ''; }
                 else cur += char;
             }
-            res.push(cur.trim()); return res;
+            res.push(cur.trim());
+            return res;
         }
 
         async function fetchPlanilha() {
             const agora = new Date();
             const diaHojeNum = agora.getDate();
-            const mesAtualIdx = agora.getMonth(); 
+            const mesAtualIdx = agora.getMonth();
             const anoAtual = agora.getFullYear();
-            
+
             let mesDeExibicaoIdx = mesAtualIdx;
             let anoDeExibicao = anoAtual;
+
             if (diaHojeNum < 6) {
                 mesDeExibicaoIdx = mesAtualIdx === 0 ? 11 : mesAtualIdx - 1;
                 if (mesAtualIdx === 0) anoDeExibicao = anoAtual - 1;
@@ -243,142 +247,151 @@
 
                 const cabecalho = safeSplit(linhas[0]).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 const idxData = cabecalho.indexOf("DATA");
+
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", drop: "DROPSIZE (KG)", nf: "NF'S (QTD)", ocp: "OCUPAÇÃO (%)",
-                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
-                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
-                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
-                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)",
+                    cli: "CLIENTES (QTD)", fTotal: "FROTA PRÓPRIA ENTREGA (TOTAL)", fParados: "FROTA PRÓPRIA ENTREGA (PARADOS)",
+                    fDispo: "FROTA PRÓPRIA ENTREGA (DISPONIBILIDADE)", fUtil: "FROTA PRÓPRIA ENTREGA (UTILIZADOS)",
+                    ftTotal: "FROTA PRÓPRIA TRANSFERÊNCIA (TOTAL)", ftParados: "FROTA PRÓPRIA TRANSFERÊNCIA (PARADOS)",
+                    ftDispo: "FROTA PRÓPRIA TRANSFERÊNCIA (DISPONIBILIDADE)", ftUtil: "FROTA PRÓPRIA TRANSFERÊNCIA (UTILIZADOS)",
+                    mdTotal: "MOTORISTA DISTRIBUIÇÃO (TOTAL)", mdVagas: "MOTORISTA DISTRIBUIÇÃO (VAGAS)", mdFerias: "MOTORISTA DISTRIBUIÇÃO (FÉRIAS)",
+                    mdFaltas: "MOTORISTA DISTRIBUIÇÃO (FALTAS)", mdAtestados: "MOTORISTA DISTRIBUIÇÃO (ATESTADOS)", mdBanco: "MOTORISTA DISTRIBUIÇÃO (BH)",
+                    mdUtil: "MOTORISTA DISTRIBUIÇÃO (UTILIZADOS)", auxTotal: "AUXILIAR DISTRIBUIÇÃO (TOTAL)", auxVagas: "AUXILIAR DISTRIBUIÇÃO (VAGAS)",
+                    auxFerias: "AUXILIAR DISTRIBUIÇÃO (FÉRIAS)", auxFaltas: "AUXILIAR DISTRIBUIÇÃO (FALTAS)", auxAtestados: "AUXILIAR DISTRIBUIÇÃO (ATESTADOS)",
+                    auxBanco: "AUXILIAR DISTRIBUIÇÃO (BH)", auxUtil: "AUXILIAR DISTRIBUIÇÃO (UTILIZADOS)", mtTotal: "MOTORISTA TRANSFERÊNCIA (TOTAL)",
+                    mtVagas: "MOTORISTA TRANSFERÊNCIA (VAGAS)", mtFerias: "MOTORISTA TRANSFERÊNCIA (FÉRIAS)", mtFaltas: "MOTORISTA TRANSFERÊNCIA (FALTAS)",
+                    mtAtestados: "MOTORISTA TRANSFERÊNCIA (ATESTADOS)", mtBanco: "MOTORISTA TRANSFERÊNCIA (BH)", mtUtil: "MOTORISTA TRANSFERÊNCIA (UTILIZADOS)",
                     ns: "NÍVEL DE SERVIÇO (%)", re: "REENTREGA (%)", dev: "DEVOLUÇÃO (%)", otif: "ENTREGAS OTIF (%)",
                     ocpMes: "OCUPAÇÃO (%) MÊS"
                 };
 
-                const idxs = {}; Object.keys(mapping).forEach(k => idxs[k] = cabecalho.indexOf(mapping[k]));
+                const idx = {};
+                for (let key in mapping) { idx[key] = cabecalho.indexOf(mapping[key]); }
 
-                const dadosHoje = linhas.find(l => safeSplit(l)[idxData] === hojeBusca);
+                const dadosHoje = linhas.map(l => safeSplit(l)).find(r => r[idxData] === hojeBusca);
                 if (dadosHoje) {
-                    const colHoje = safeSplit(dadosHoje);
-                    const setVal = (id, idx, isPerc = false) => {
-                        const el = document.getElementById(id);
-                        if (el && idx !== -1) {
-                            let v = parseFloat(colHoje[idx].replace(/[.%]/g, '').replace(',', '.'));
-                            if (isNaN(v)) el.textContent = "-";
-                            else el.textContent = isPerc ? (v/100).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%' : Math.round(v).toLocaleString('pt-BR');
-                        }
-                    };
-                    setVal('vol-valor', idxs.vol); setVal('drop-valor', idxs.drop); setVal('ocp-valor', idxs.ocp, true); setVal('nf-valor', idxs.nf);
-                    setVal('terc-util', idxs.terceiros); setVal('abs-valor', idxs.abs); setVal('abs-perc-valor', idxs.absPerc, true); setVal('cli-valor', idxs.cli);
-                    setVal('f-total', idxs.fTotal); setVal('f-parados', idxs.fParados); setVal('f-dispo', idxs.fDispo); setVal('f-util', idxs.fUtil);
-                    setVal('ft-total', idxs.ftTotal); setVal('ft-parados', idxs.ftParados); setVal('ft-dispo', idxs.ftDispo); setVal('ft-util', idxs.ftUtil);
-                    setVal('md-total', idxs.mdTotal); setVal('md-vagas', idxs.mdVagas); setVal('md-ferias', idxs.mdFerias); setVal('md-faltas', idxs.mdFaltas); setVal('md-atestados', idxs.mdAtestados); setVal('md-banco', idxs.mdBanco); setVal('md-util', idxs.mdUtil);
-                    setVal('aux-total', idxs.auxTotal); setVal('aux-vagas', idxs.auxVagas); setVal('aux-ferias', idxs.auxFerias); setVal('aux-faltas', idxs.auxFaltas); setVal('aux-atestados', idxs.auxAtestados); setVal('aux-banco', idxs.auxBanco); setVal('aux-util', idxs.auxUtil);
-                    setVal('mt-total', idxs.mtTotal); setVal('mt-vagas', idxs.mtVagas); setVal('mt-ferias', idxs.mtFerias); setVal('mt-faltas', idxs.mtFaltas); setVal('mt-atestados', idxs.mtAtestados); setVal('mt-banco', idxs.mtBanco); setVal('mt-util', idxs.mtUtil);
+                    const parseVal = (v) => v ? v.replace(/[R$\.%]/g, '').replace(',', '.') : '0';
+                    document.getElementById('vol-valor').textContent = Math.round(parseFloat(parseVal(dadosHoje[idx.vol]))).toLocaleString('pt-BR');
+                    document.getElementById('drop-valor').textContent = Math.round(parseFloat(parseVal(dadosHoje[idx.drop]))).toLocaleString('pt-BR');
+                    document.getElementById('ocp-valor').textContent = parseFloat(parseVal(dadosHoje[idx.ocp])).toFixed(1) + '%';
+                    document.getElementById('nf-valor').textContent = dadosHoje[idx.nf] || '0';
+                    document.getElementById('terc-util').textContent = dadosHoje[idx.terceiros] || '0';
+                    document.getElementById('abs-valor').textContent = dadosHoje[idx.abs] || '0';
+                    document.getElementById('abs-perc-valor').textContent = parseFloat(parseVal(dadosHoje[idx.absPerc])).toFixed(1) + '%';
+                    document.getElementById('cli-valor').textContent = dadosHoje[idx.cli] || '0';
+                    ['fTotal', 'fParados', 'fDispo', 'fUtil', 'ftTotal', 'ftParados', 'ftDispo', 'ftUtil', 'mdTotal', 'mdVagas', 'mdFerias', 'mdFaltas', 'mdAtestados', 'mdBanco', 'mdUtil', 'auxTotal', 'auxVagas', 'auxFerias', 'auxFaltas', 'auxAtestados', 'auxBanco', 'auxUtil', 'mtTotal', 'mtVagas', 'mtFerias', 'mtFaltas', 'mtAtestados', 'mtBanco', 'mtUtil'].forEach(k => {
+                        const el = document.getElementById(k.replace(/([A-Z])/g, '-$1').toLowerCase());
+                        if (el) el.textContent = dadosHoje[idx[k]] || '0';
+                    });
                 }
 
-                const parseData = (dStr) => { 
-                    const [d, m, a] = dStr.split('/');
-                    return new Date(a, m - 1, d);
-                };
-
-                const dadosGraficos = linhas.slice(1).map(l => safeSplit(l)).filter(c => c[idxData]);
-                const ultimos15Dias = dadosGraficos.filter(c => {
-                    const d = parseData(c[idxData]);
-                    return d.getMonth() === mesAtualIdx && d.getFullYear() === anoAtual;
-                }).slice(-15);
-
-                const labels15 = ultimos15Dias.map(c => c[idxData].substring(0, 5));
-                const getVals = (idx, isPerc = false) => ultimos15Dias.map(c => {
-                    let v = parseFloat(c[idx].replace(/[.%]/g, '').replace(',', '.'));
-                    if (isPerc) v /= 100;
-                    return isNaN(v) ? 0 : v;
+                const parseData = (d) => { if (!d) return null; const p = d.split('/'); return new Date(p[2], p[1] - 1, p[0]); };
+                const filteredRows = linhas.slice(1).map(l => safeSplit(l)).filter(r => {
+                    const d = parseData(r[idxData]);
+                    return d && d.getFullYear() === anoDeExibicao && d.getMonth() === mesDeExibicaoIdx;
                 });
 
-                const getMediaMensal = (idx, isPerc = false) => {
-                    const agrupado = {};
-                    dadosGraficos.forEach(c => {
-                        const d = parseData(c[idxData]);
-                        const chave = `${d.getMonth()}-${d.getFullYear()}`;
-                        if (!agrupado[chave]) agrupado[chave] = { soma: 0, conta: 0, mes: d.getMonth(), ano: d.getFullYear() };
-                        let v = parseFloat(c[idx].replace(/[.%]/g, '').replace(',', '.'));
-                        if (!isNaN(v) && v > 0) {
-                            agrupado[chave].soma += (isPerc ? v / 100 : v);
-                            agrupado[chave].conta++;
+                const labelsDiarias = filteredRows.map(r => r[idxData].split('/')[0]);
+                const dataVol = filteredRows.map(r => parseFloat(r[idx.vol].replace(/\./g, '').replace(',', '.')) || 0);
+                const dataOcup = filteredRows.map(r => parseFloat(r[idx.ocp].replace('%', '').replace(',', '.')) || 0);
+                const dataDrop = filteredRows.map(r => parseFloat(r[idx.drop].replace(/\./g, '').replace(',', '.')) || 0);
+                const dataNf = filteredRows.map(r => parseInt(r[idx.nf]) || 0);
+                const dataNs = filteredRows.map(r => parseFloat(r[idx.ns].replace('%', '').replace(',', '.')) || 0);
+                const dataRe = filteredRows.map(r => parseFloat(r[idx.re].replace('%', '').replace(',', '.')) || 0);
+                const dataDev = filteredRows.map(r => parseFloat(r[idx.dev].replace('%', '').replace(',', '.')) || 0);
+                const dataOtif = filteredRows.map(r => parseFloat(r[idx.otif].replace('%', '').replace(',', '.')) || 0);
+
+                const getMediaMensal = (colIdx, ano) => {
+                    const totais = {}; const contagem = {};
+                    linhas.slice(1).forEach(l => {
+                        const r = safeSplit(l); const d = parseData(r[idxData]);
+                        if (d && d.getFullYear() === ano) {
+                            const m = d.getMonth(); const v = parseFloat(r[colIdx].replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+                            if (v > 0) { totais[m] = (totais[m] || 0) + v; contagem[m] = (contagem[m] || 0) + 1; }
                         }
                     });
-                    return Object.values(agrupado)
-                        .filter(a => a.ano === anoDeExibicao)
-                        .sort((a, b) => a.mes - b.mes)
-                        .map(a => a.soma / a.conta);
+                    return mesesExtenso.map((_, i) => contagem[i] ? totais[i] / contagem[i] : 0);
                 };
 
-                updateChart(chartInstance, 'graficoVolume', labels15, getVals(idxs.vol), `VOLUME EXPEDIDO (KG) - ${mesExibicaoNome}`);
-                updateChart(chartMensalInstance, 'graficoMensal', mesesExtenso.slice(0, getMediaMensal(idxs.vol).length), getMediaMensal(idxs.vol), `VOLUME EXPEDIDO (KG) - ${anoDeExibicao} (MÉDIA)`);
-                updateChart(chartOcupDiario, 'graficoOcupacaoDiario', labels15, getVals(idxs.ocp, true), `OCUPAÇÃO (%) - ${mesExibicaoNome}`, true);
-                
-                // ALTERAÇÃO SOLICITADA: Calcular média mensal de ocupação usando a coluna DATA e OCUPAÇÃO (%) MÊS
-                const mediaOcupMensal = getMediaMensal(idxs.ocpMes, true);
-                updateChart(chartOcupMensal, 'graficoOcupacaoMensal', mesesExtenso.slice(0, mediaOcupMensal.length), mediaOcupMensal, `OCUPAÇÃO (%) - ${anoDeExibicao} (MÉDIA)`, true);
+                const mediaVol = getMediaMensal(idx.vol, anoDeExibicao);
+                const mediaOcup = getMediaMensal(idx.ocpMes, anoDeExibicao);
+                const mediaDrop = getMediaMensal(idx.drop, anoDeExibicao);
+                const mediaNf = getMediaMensal(idx.nf, anoDeExibicao);
+                const mediaNs = getMediaMensal(idx.ns, anoDeExibicao);
+                const mediaRe = getMediaMensal(idx.re, anoDeExibicao);
+                const mediaDev = getMediaMensal(idx.dev, anoDeExibicao);
+                const mediaOtif = getMediaMensal(idx.otif, anoDeExibicao);
 
-                updateChart(chartDropDiario, 'graficoDropsizeDiario', labels15, getVals(idxs.drop), `DROPSIZE (KG) - ${mesExibicaoNome}`);
-                updateChart(chartDropMensal, 'graficoDropMensal', mesesExtenso.slice(0, getMediaMensal(idxs.drop).length), getMediaMensal(idxs.drop), `DROPSIZE (KG) - ${anoDeExibicao} (MÉDIA)`);
-                updateChart(chartNfDiario, 'graficoNfDiario', labels15, getVals(idxs.nf), `NF'S (QTD) - ${mesExibicaoNome}`);
-                updateChart(chartNfMensal, 'graficoNfMensal', mesesExtenso.slice(0, getMediaMensal(idxs.nf).length), getMediaMensal(idxs.nf), `NF'S (QTD) - ${anoDeExibicao} (MÉDIA)`);
-                updateChart(chartNsDiario, 'graficoNsDiario', labels15, getVals(idxs.ns, true), `NÍVEL DE SERVIÇO (%) - ${mesExibicaoNome}`, true);
-                updateChart(chartNsMensal, 'graficoNsMensal', mesesExtenso.slice(0, getMediaMensal(idxs.ns, true).length), getMediaMensal(idxs.ns, true), `NÍVEL DE SERVIÇO (%) - ${anoDeExibicao} (MÉDIA)`, true);
-                updateChart(chartReDiario, 'graficoReDiario', labels15, getVals(idxs.re, true), `REENTREGA (%) - ${mesExibicaoNome}`, true);
-                updateChart(chartReMensal, 'graficoReMensal', mesesExtenso.slice(0, getMediaMensal(idxs.re, true).length), getMediaMensal(idxs.re, true), `REENTREGA (%) - ${anoDeExibicao} (MÉDIA)`, true);
-                updateChart(chartDevolDiario, 'graficoDevolucaoDiario', labels15, getVals(idxs.dev, true), `DEVOLUÇÃO (%) - ${mesExibicaoNome}`, true);
-                updateChart(chartDevolMensal, 'graficoDevolucaoMensal', mesesExtenso.slice(0, getMediaMensal(idxs.dev, true).length), getMediaMensal(idxs.dev, true), `DEVOLUÇÃO (%) - ${anoDeExibicao} (MÉDIA)`, true);
-                updateChart(chartOtifDiario, 'graficoOtifDiario', labels15, getVals(idxs.otif, true), `ENTREGAS OTIF (%) - ${mesExibicaoNome}`, true);
-                updateChart(chartOtifMensal, 'graficoOtifMensal', mesesExtenso.slice(0, getMediaMensal(idxs.otif, true).length), getMediaMensal(idxs.otif, true), `ENTREGAS OTIF (%) - ${anoDeExibicao} (MÉDIA)`, true);
+                const commonScales = (showY) => ({
+                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#a0aec0', font: { size: 10 } } },
+                    x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 10, weight: 'bold' } } }
+                });
 
-            } catch (e) { console.error(e); }
+                function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
+                    return { 
+                        responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
+                        plugins: { 
+                            datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, 
+                            title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } }, legend: { display: false } 
+                        }, 
+                        scales: commonScales(showY) 
+                    };
+                }
+
+                if (chartInstance) chartInstance.destroy();
+                chartInstance = new Chart(document.getElementById('graficoVolume'), { type: 'bar', data: { labels: labelsDiarias, datasets: [{ data: dataVol, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesExibicaoNome}`, true) });
+
+                if (chartMensalInstance) chartMensalInstance.destroy();
+                chartMensalInstance = new Chart(document.getElementById('graficoMensal'), { type: 'bar', data: { labels: mesesExtenso, datasets: [{ data: mediaVol, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${anoDeExibicao} (MÉDIA)`, true) });
+
+                if (chartOcupDiario) chartOcupDiario.destroy();
+                chartOcupDiario = new Chart(document.getElementById('graficoOcupacaoDiario'), { type: 'bar', data: { labels: labelsDiarias, datasets: [{ data: dataOcup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${mesExibicaoNome}`, true, true) });
+
+                if (chartOcupMensal) chartOcupMensal.destroy();
+                chartOcupMensal = new Chart(document.getElementById('graficoOcupacaoMensal'), { type: 'bar', data: { labels: mesesExtenso, datasets: [{ data: mediaOcup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${anoDeExibicao} (MÉDIA)`, true, true) });
+
+                if (chartDropDiario) chartDropDiario.destroy();
+                chartDropDiario = new Chart(document.getElementById('graficoDropsizeDiario'), { type: 'bar', data: { labels: labelsDiarias, datasets: [{ data: dataDrop, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] }, options: getCommonOptions(`DROPSIZE (KG) - ${mesExibicaoNome}`, true) });
+
+                if (chartDropMensal) chartDropMensal.destroy();
+                chartDropMensal = new Chart(document.getElementById('graficoDropMensal'), { type: 'bar', data: { labels: mesesExtenso, datasets: [{ data: mediaDrop, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`DROPSIZE (KG) - ${anoDeExibicao} (MÉDIA)`, true) });
+
+                if (chartNfDiario) chartNfDiario.destroy();
+                chartNfDiario = new Chart(document.getElementById('graficoNfDiario'), { type: 'bar', data: { labels: labelsDiarias, datasets: [{ data: dataNf, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] }, options: getCommonOptions(`NF'S (QTD) - ${mesExibicaoNome}`, true) });
+
+                if (chartNfMensal) chartNfMensal.destroy();
+                chartNfMensal = new Chart(document.getElementById('graficoNfMensal'), { type: 'bar', data: { labels: mesesExtenso, datasets: [{ data: mediaNf, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`NF'S (QTD) - ${anoDeExibicao} (MÉDIA)`, true) });
+
+                if (chartNsDiario) chartNsDiario.destroy();
+                chartNsDiario = new Chart(document.getElementById('graficoNsDiario'), { type: 'bar', data: { labels: labelsDiarias, datasets: [{ data: dataNs, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] }, options: getCommonOptions(`NÍVEL DE SERVIÇO (%) - ${mesExibicaoNome}`, true, true) });
+
+                if (chartNsMensal) chartNsMensal.destroy();
+                chartNsMensal = new Chart(document.getElementById('graficoNsMensal'), { type: 'bar', data: { labels: mesesExtenso, datasets: [{ data: mediaNs, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`NÍVEL DE SERVIÇO (%) - ${anoDeExibicao} (MÉDIA)`, true, true) });
+
+                if (chartReDiario) chartReDiario.destroy();
+                chartReDiario = new Chart(document.getElementById('graficoReDiario'), { type: 'bar', data: { labels: labelsDiarias, datasets: [{ data: dataRe, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] }, options: getCommonOptions(`REENTREGA (%) - ${mesExibicaoNome}`, true, true) });
+
+                if (chartReMensal) chartReMensal.destroy();
+                chartReMensal = new Chart(document.getElementById('graficoReMensal'), { type: 'bar', data: { labels: mesesExtenso, datasets: [{ data: mediaRe, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`REENTREGA (%) - ${anoDeExibicao} (MÉDIA)`, true, true) });
+
+                if (chartDevolDiario) chartDevolDiario.destroy();
+                chartDevolDiario = new Chart(document.getElementById('graficoDevolucaoDiario'), { type: 'bar', data: { labels: labelsDiarias, datasets: [{ data: dataDev, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] }, options: getCommonOptions(`DEVOLUÇÃO (%) - ${mesExibicaoNome}`, true, true) });
+
+                if (chartDevolMensal) chartDevolMensal.destroy();
+                chartDevolMensal = new Chart(document.getElementById('graficoDevolucaoMensal'), { type: 'bar', data: { labels: mesesExtenso, datasets: [{ data: mediaDev, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`DEVOLUÇÃO (%) - ${anoDeExibicao} (MÉDIA)`, true, true) });
+
+                if (chartOtifDiario) chartOtifDiario.destroy();
+                chartOtifDiario = new Chart(document.getElementById('graficoOtifDiario'), { type: 'bar', data: { labels: labelsDiarias, datasets: [{ data: dataOtif, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, barPercentage: 0.7 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${mesExibicaoNome}`, true, true) });
+
+                if (chartOtifMensal) chartOtifMensal.destroy();
+                chartOtifMensal = new Chart(document.getElementById('graficoOtifMensal'), { type: 'bar', data: { labels: mesesExtenso, datasets: [{ data: mediaOtif, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${anoDeExibicao} (MÉDIA)`, true, true) });
+
+            } catch (error) { console.error("Erro ao carregar os dados:", error); }
         }
 
-        function updateChart(chart, id, labels, valores, titulo, isPerc = false) {
-            if (chart) chart.destroy();
-            const ctx = document.getElementById(id).getContext('2d');
-            const newChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels, datasets: [{ data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] },
-                options: getCommonOptions(titulo, true, isPerc)
-            });
-            if (id === 'graficoVolume') chartInstance = newChart;
-            else if (id === 'graficoMensal') chartMensalInstance = newChart;
-            else if (id === 'graficoOcupacaoDiario') chartOcupDiario = newChart;
-            else if (id === 'graficoOcupacaoMensal') chartOcupMensal = newChart;
-            else if (id === 'graficoDropsizeDiario') chartDropDiario = newChart;
-            else if (id === 'graficoDropMensal') chartDropMensal = newChart;
-            else if (id === 'graficoNfDiario') chartNfDiario = newChart;
-            else if (id === 'graficoNfMensal') chartNfMensal = newChart;
-            else if (id === 'graficoNsDiario') chartNsDiario = newChart;
-            else if (id === 'graficoNsMensal') chartNsMensal = newChart;
-            else if (id === 'graficoReDiario') chartReDiario = newChart;
-            else if (id === 'graficoReMensal') chartReMensal = newChart;
-            else if (id === 'graficoDevolucaoDiario') chartDevolDiario = newChart;
-            else if (id === 'graficoDevolucaoMensal') chartDevolMensal = newChart;
-            else if (id === 'graficoOtifDiario') chartOtifDiario = newChart;
-            else if (id === 'graficoOtifMensal') chartOtifMensal = newChart;
-        }
-
-        function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
-            return { 
-                responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
-                plugins: { 
-                    datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, 
-                    title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } }, legend: { display: false } 
-                }, 
-                scales: { 
-                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.05)' } }, 
-                    x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 10 } } } 
-                } 
-            }; 
-        }
-
+        setInterval(fetchPlanilha, 300000);
         fetchPlanilha();
-        setInterval(fetchPlanilha, 60000);
     </script>
 </body>
 </html>
