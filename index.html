@@ -244,10 +244,9 @@
                 const cabecalho = safeSplit(linhas[0]).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 const idxData = cabecalho.indexOf("DATA");
                 
-                // Mapeamento direto para a coluna PESOxVEÍCULO (KG)
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", 
-                    drop: "PESOxVEÍCULO (KG)", // Alterado de DROPSIZE para PESOxVEÍCULO
+                    drop: "PESOXVEÍCULO (KG)", // Ajustado para maiúsculas para o card
                     nf: "NF'S (QTD)", 
                     ocp: "OCUPAÇÃO (%)",
                     abs: "ABSENTEÍSMO (QTD)", 
@@ -325,8 +324,8 @@
                     let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
                     let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
                     
-                    // GRÁFICO: Puxando da coluna PESOxVEÍCULO (KG)
-                    let valDropG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG)")]); 
+                    // AJUSTE CIRÚRGICO: Usando nome em MAIÚSCULAS para bater com o cabeçalho processado
+                    let valDropG = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG)")]); 
                     
                     let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
                     let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
@@ -366,7 +365,6 @@
                     }
                 }
 
-                // Cards IDs mantidos intactos conforme solicitado
                 const idsMap = { 'vol-valor':'vol', 'drop-valor':'drop', 'nf-valor':'nf', 'ocp-valor':'ocp', 'abs-valor':'abs', 'abs-perc-valor':'absPerc', 'terc-util':'terceiros', 'cli-valor':'cli', 'f-total':'fTotal', 'f-parados':'fParados', 'f-dispo':'fDispo', 'f-util':'fUtil', 'ft-total':'ftTotal', 'ft-parados':'ftParados', 'ft-dispo':'ftDispo', 'ft-util':'ftUtil', 'md-total':'mdTotal', 'md-vagas':'mdVagas', 'md-ferias':'mdFerias', 'md-faltas':'mdFaltas', 'md-atestados':'mdAtestados', 'md-banco':'mdBanco', 'md-util':'mdUtil', 'aux-total':'auxTotal', 'aux-vagas':'auxVagas', 'aux-ferias':'auxFerias', 'aux-faltas':'auxFaltas', 'aux-atestados':'auxAtestados', 'aux-banco':'auxBanco', 'aux-util':'auxUtil', 'mt-total':'mtTotal', 'mt-vagas':'mtVagas', 'mt-ferias':'mtFerias', 'mt-faltas':'mtFaltas', 'mt-atestados':'mtAtestados', 'mt-banco':'mtBanco', 'mt-util':'mtUtil' };
                 for(let id in idsMap) { let el = document.getElementById(id); if(el) el.textContent = valCards[idsMap[id]]; }
 
