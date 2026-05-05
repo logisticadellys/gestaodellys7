@@ -336,11 +336,9 @@
 
         function atualizarGraficosMensais(mes, dadosMensais) {
             const labels = dadosMensais.map(r => r["DATA"].substring(0, 5));
-            const ano = new Date().getFullYear();
             const gM = (ctx, title, key, color, isPerc = false) => {
-                const el = document.getElementById(ctx);
                 if (window[ctx]) window[ctx].destroy();
-                window[ctx] = new Chart(el, {
+                window[ctx] = new Chart(document.getElementById(ctx), {
                     type: 'line',
                     data: { labels, datasets: [{ label: title, data: dadosMensais.map(r => isPerc ? parseFloat(r[key]) * 100 : parseFloat(r[key])), borderColor: color, backgroundColor: color, tension: 0.3, fill: false, pointRadius: 4 }] },
                     options: getCommonOptions(`${title} - ${mes}`, true, isPerc, true)
@@ -355,14 +353,15 @@
             gM("graficoDevolucaoMensal", "DEVOLUÇÃO (%)", "DEVOLUÇÃO (%)", "#34495e", true);
             gM("graficoOtifMensal", "ENTREGAS OTIF (%)", "ENTREGAS OTIF (%)", "#1abc9c", true);
 
-            // GRÁFICO ESPECÍFICO COM LEGENDA (PESOxVEÍCULO X DROPSIZE)
+            // GRÁFICO ESPECÍFICO (PESOxVEÍCULO X DROPSIZE) - COM LEGENDA OVERRIDE
             const ctxDrop = document.getElementById('graficoDropMensal');
             if (chartDropMensal) chartDropMensal.destroy();
             
             const valores1 = dadosMensais.map(r => parseFloat(r["PESOxVEÍCULO (KG)"]));
             const valores2 = dadosMensais.map(r => parseFloat(r["DROPSIZE (KG)"]));
             
-            const dropOptions = getCommonOptions(`PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${mes}`, true, false, true);
+            // Aqui criamos as opções específicas para este gráfico para ativar a legenda
+            const dropOptions = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${mes}`, true, false, true);
             dropOptions.plugins.legend = { 
                 display: true, 
                 position: 'bottom', 
