@@ -243,7 +243,7 @@
 
                 const cabecalho = safeSplit(linhas[0]).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)", drop: "PESOXVEÍCULO (KG)", nf: "NF'S (QTD)", ocp: "OCUPAÇÃO (%)",
+                    vol: "VOLUME EXPEDIDO (KG)", drop: "PESOxVEÍCULO (KG)", nf: "NF'S (QTD)", ocp: "OCUPAÇÃO (%)",
                     abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
                     ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
@@ -306,10 +306,11 @@
                 chartOcupDiario = updateChart(chartOcupDiario, 'graficoOcupacaoDiario', labelsD, [{ label: 'OCUPAÇÃO', data: dOcpR, backgroundColor: '#f1c40f' }], `OCUPAÇÃO (%) - ${mesExibicaoNome}`, true, true);
                 chartOcupMensal = updateChart(chartOcupMensal, 'graficoOcupacaoMensal', mesesLabel, [{ label: 'OCUPAÇÃO', data: sOcpM.map((v, i) => cOcpM[i] ? v/cOcpM[i] : 0), backgroundColor: '#e67e22' }], `OCUPAÇÃO (%) - MÉDIA ${anoDeExibicao}`, true, true);
                 
+                // ALTERAÇÃO EXCLUSIVA AQUI: Cores e ativação da legenda para o gráfico Dropsize
                 chartDropDiario = updateChart(chartDropDiario, 'graficoDropsizeDiario', labelsD, [
-                    { label: 'PESOxVEÍCULO', data: dDropR, backgroundColor: 'rgba(230, 126, 34, 0.8)', borderColor: '#e67e22', borderWidth: 1 },
-                    { label: 'DROPSIZE', data: dDropSizeR, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1 }
-                ], `PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${mesExibicaoNome}`, true, false, false, true); // O último parâmetro 'true' ativa a legenda embaixo
+                    { label: 'PESOxVEÍCULO', data: dDropR, backgroundColor: '#e67e22' },
+                    { label: 'DROPSIZE', data: dDropSizeR, backgroundColor: '#2ecc71' }
+                ], `PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${mesExibicaoNome}`, true, false, false, true);
 
                 chartDropMensal = updateChart(chartDropMensal, 'graficoDropMensal', mesesLabel, [{ label: 'PESOxVEÍCULO', data: sDropM.map((v, i) => cDropM[i] ? v/cDropM[i] : 0), backgroundColor: '#f1c40f' }], `PESOxVEÍCULO (KG) - MÉDIA ${anoDeExibicao}`);
                 chartNfDiario = updateChart(chartNfDiario, 'graficoNfDiario', labelsD, [{ label: 'NF', data: dNfR, backgroundColor: '#9b59b6' }], `NF'S (QTD) - ${mesExibicaoNome}`);
@@ -326,6 +327,7 @@
             } catch (error) { console.error("Erro ao processar planilha:", error); }
         }
 
+        // Função de atualização modificada apenas para aceitar o parâmetro showLegend
         function updateChart(instance, id, labels, datasets, titulo, showDL = true, isPerc = false, showY = false, showLegend = false) {
             if (instance) instance.destroy();
             return new Chart(document.getElementById(id), {
@@ -335,6 +337,7 @@
             });
         }
 
+        // Função de opções modificada para lidar com a legenda
         function getCommonOptions(titulo, showDL, isPerc = false, showY = false, showLegend = false) { 
             return { 
                 responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
@@ -344,7 +347,10 @@
                     legend: { 
                         display: showLegend, 
                         position: 'bottom',
-                        labels: { color: '#ffffff', font: { weight: 'bold', size: 12 }, padding: 20 }
+                        labels: {
+                            color: '#a0aec0',
+                            font: { weight: 'bold', size: 11 }
+                        }
                     } 
                 }, 
                 scales: { 
