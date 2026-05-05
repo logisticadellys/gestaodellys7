@@ -209,23 +209,26 @@
         });
 
         function safeSplit(row) {
-            const res = []; let inQ = false; let cur = '';
+            const res = [];
+            let inQ = false;
+            let cur = '';
             for (let char of row) {
                 if (char === '"') inQ = !inQ;
                 else if (char === ',' && !inQ) { res.push(cur.trim()); cur = ''; }
                 else cur += char;
             }
-            res.push(cur.trim()); return res;
+            res.push(cur.trim());
+            return res;
         }
 
         async function fetchPlanilha() {
             const agora = new Date();
             const diaHojeNum = agora.getDate();
-            const mesAtualIdx = agora.getMonth(); 
+            const mesAtualIdx = agora.getMonth();
             const anoAtual = agora.getFullYear();
-            
             let mesDeExibicaoIdx = mesAtualIdx;
             let anoDeExibicao = anoAtual;
+
             if (diaHojeNum < 6) {
                 mesDeExibicaoIdx = mesAtualIdx === 0 ? 11 : mesAtualIdx - 1;
                 if (mesAtualIdx === 0) anoDeExibicao = anoAtual - 1;
@@ -244,143 +247,163 @@
                 const cabecalho = safeSplit(linhas[0]).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 const idxData = cabecalho.indexOf("DATA");
                 const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)", drop: "PESOXVEÍCULO (KG)", nf: "NF'S (QTD)", ocp: "OCUPAÇÃO (%)",
-                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
-                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
-                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
-                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    vol: "VOLUME EXPEDIDO (KG)",
+                    drop: "PESOXVEÍCULO (KG)",
+                    nf: "NF'S (QTD)",
+                    ocp: "OCUPAÇÃO (%)",
+                    abs: "ABSENTEÍSMO (QTD)",
+                    absPerc: "ABSENTEÍSMO (%)",
+                    terceiros: "TERCEIROS UTILIZADOS (QTD)",
+                    cli: "CLIENTES (QTD)",
+                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)",
+                    fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)",
+                    fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)",
+                    fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
+                    ftTotal: "FROTA PRÓPRIA TRANSFERÊNCIA TOTAL (QTD)",
+                    ftParados: "FROTA PRÓPRIA TRANSFERÊNCIA PARADOS (QTD)",
+                    ftDispo: "FROTA PRÓPRIA TRANSFERÊNCIA DISPONIBILIDADE (QTD)",
+                    ftUtil: "FROTA PRÓPRIA TRANSFERÊNCIA UTILIZADOS (QTD)",
+                    mdTotal: "MOTORISTA DISTRIBUIÇÃO TOTAL (QTD)",
+                    mdVagas: "MOTORISTA DISTRIBUIÇÃO VAGAS (QTD)",
+                    mdFerias: "MOTORISTA DISTRIBUIÇÃO FÉRIAS (QTD)",
+                    mdFaltas: "MOTORISTA DISTRIBUIÇÃO FALTAS (QTD)",
+                    mdAtest: "MOTORISTA DISTRIBUIÇÃO ATESTADOS (QTD)",
+                    mdBanco: "MOTORISTA DISTRIBUIÇÃO BH (QTD)",
+                    mdUtil: "MOTORISTA DISTRIBUIÇÃO UTILIZADOS (QTD)",
+                    auxTotal: "AUXILIAR DISTRIBUIÇÃO TOTAL (QTD)",
+                    auxVagas: "AUXILIAR DISTRIBUIÇÃO VAGAS (QTD)",
+                    auxFerias: "AUXILIAR DISTRIBUIÇÃO FÉRIAS (QTD)",
+                    auxFaltas: "AUXILIAR DISTRIBUIÇÃO FALTAS (QTD)",
+                    auxAtest: "AUXILIAR DISTRIBUIÇÃO ATESTADOS (QTD)",
+                    auxBanco: "AUXILIAR DISTRIBUIÇÃO BH (QTD)",
+                    auxUtil: "AUXILIAR DISTRIBUIÇÃO UTILIZADOS (QTD)",
+                    mtTotal: "MOTORISTA TRANSFERÊNCIA TOTAL (QTD)",
+                    mtVagas: "MOTORISTA TRANSFERÊNCIA VAGAS (QTD)",
+                    mtFerias: "MOTORISTA TRANSFERÊNCIA FÉRIAS (QTD)",
+                    mtFaltas: "MOTORISTA TRANSFERÊNCIA FALTAS (QTD)",
+                    mtAtest: "MOTORISTA TRANSFERÊNCIA ATESTADOS (QTD)",
+                    mtBanco: "MOTORISTA TRANSFERÊNCIA BH (QTD)",
+                    mtUtil: "MOTORISTA TRANSFERÊNCIA UTILIZADOS (QTD)",
+                    dropsize: "DROPSIZE (KG)",
+                    ns: "NÍVEL DE SERVIÇO (%)",
+                    re: "REENTREGA (%)",
+                    devol: "DEVOLUÇÃO (%)",
                     otif: "ENTREGAS OTIF (%)"
                 };
 
-                const idxs = {};
-                for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
+                const indices = {};
+                for (let k in mapping) { indices[k] = cabecalho.indexOf(mapping[k].toUpperCase()); }
 
                 let dadosHoje = null;
-                const dadosMensal = Array(12).fill(0).map(() => ({ vol: 0, drop: 0, nf: 0, ocp: 0, count: 0, ns: 0, re: 0, devol: 0, otif: 0, dropsize: 0 }));
-                const diasMes = [];
-                const ultimos15Dias = { labels: [], vol: [], drop: [], ocp: [], nf: [], ns: [], re: [], devol: [], otif: [], dropsize: [] };
+                const dadosMes = [];
 
                 for (let i = 1; i < linhas.length; i++) {
-                    const col = safeSplit(linhas[i]);
-                    const dataStr = col[idxData];
-                    if (!dataStr) continue;
-
-                    const [d, m, a] = dataStr.split('/').map(Number);
-                    const val = (k) => parseFloat((col[idxs[k]] || "0").replace(/\./g, '').replace(',', '.'));
-
-                    if (dataStr === hojeBusca) {
-                        dadosHoje = {};
-                        for (let key in idxs) dadosHoje[key] = col[idxs[key]] || "0";
-                    }
-
-                    if (a === anoDeExibicao) {
-                        const mIdx = m - 1;
-                        dadosMensal[mIdx].vol += val('vol');
-                        dadosMensal[mIdx].drop += val('drop');
-                        dadosMensal[mIdx].nf += val('nf');
-                        dadosMensal[mIdx].ocp += val('ocp');
-                        dadosMensal[mIdx].otif += val('otif');
-                        dadosMensal[mIdx].dropsize += (val('vol') / (val('nf') || 1));
-                        dadosMensal[mIdx].count++;
-                    }
-
-                    if (m === (mesAtualIdx + 1) && a === anoAtual) {
-                        ultimos15Dias.labels.push(d);
-                        ultimos15Dias.vol.push(val('vol'));
-                        ultimos15Dias.drop.push(val('drop'));
-                        ultimos15Dias.ocp.push(val('ocp'));
-                        ultimos15Dias.nf.push(val('nf'));
-                        ultimos15Dias.otif.push(val('otif'));
-                        ultimos15Dias.dropsize.push(val('vol') / (val('nf') || 1));
+                    const colunas = safeSplit(linhas[i]);
+                    if (colunas.length < cabecalho.length) continue;
+                    const dataStr = colunas[idxData];
+                    if (dataStr === hojeBusca) dadosHoje = colunas;
+                    const partes = dataStr.split('/');
+                    const mesLinha = parseInt(partes[1]) - 1;
+                    const anoLinha = parseInt(partes[2]);
+                    if (mesLinha === mesDeExibicaoIdx && anoLinha === anoDeExibicao) {
+                        const dObj = { dia: partes[0] };
+                        for (let k in indices) {
+                            let val = colunas[indices[k]] || "0";
+                            val = val.replace(/\./g, '').replace(',', '.').replace('%', '');
+                            dObj[k] = parseFloat(val) || 0;
+                        }
+                        dadosMes.push(dObj);
                     }
                 }
 
                 if (dadosHoje) {
-                    const fields = ['vol', 'drop', 'nf', 'ocp', 'abs', 'absPerc', 'terceiros', 'cli', 'fTotal', 'fParados', 'fDispo', 'fUtil', 'ftTotal', 'ftParados', 'ftDispo', 'ftUtil', 'mdTotal', 'mdVagas', 'mdFerias', 'mdFaltas', 'mdAtestados', 'mdBanco', 'mdUtil', 'auxTotal', 'auxVagas', 'auxFerias', 'auxFaltas', 'auxAtestados', 'auxBanco', 'auxUtil', 'mtTotal', 'mtVagas', 'mtFerias', 'mtFaltas', 'mtAtestados', 'mtBanco', 'mtUtil'];
-                    fields.forEach(f => {
-                        const el = document.getElementById(`${f.replace(/[A-Z]/g, m => "-" + m.toLowerCase())}-valor`) || document.getElementById(f);
-                        if (el) el.textContent = dadosHoje[f];
-                    });
+                    const setVal = (id, idx, isPerc = false) => {
+                        let val = dadosHoje[idx] || "-";
+                        if (val !== "-") {
+                            let n = parseFloat(val.replace(/\./g, '').replace(',', '.').replace('%', ''));
+                            document.getElementById(id).textContent = isPerc ? n.toFixed(1).replace('.', ',') + '%' : Math.round(n).toLocaleString('pt-BR');
+                        }
+                    };
+                    setVal('vol-valor', indices.vol); setVal('drop-valor', indices.drop);
+                    setVal('ocp-valor', indices.ocp, true); setVal('nf-valor', indices.nf);
+                    setVal('terc-util', indices.terceiros); setVal('abs-valor', indices.abs);
+                    setVal('abs-perc-valor', indices.absPerc, true); setVal('cli-valor', indices.cli);
+                    setVal('f-total', indices.fTotal); setVal('f-parados', indices.fParados); setVal('f-dispo', indices.fDispo); setVal('f-util', indices.fUtil);
+                    setVal('ft-total', indices.ftTotal); setVal('ft-parados', indices.ftParados); setVal('ft-dispo', indices.ftDispo); setVal('ft-util', indices.ftUtil);
+                    setVal('md-total', indices.mdTotal); setVal('md-vagas', indices.mdVagas); setVal('md-ferias', indices.mdFerias); setVal('md-faltas', indices.mdFaltas); setVal('md-atestados', indices.mdAtest); setVal('md-banco', indices.mdBanco); setVal('md-util', indices.mdUtil);
+                    setVal('aux-total', indices.auxTotal); setVal('aux-vagas', indices.auxVagas); setVal('aux-ferias', indices.auxFerias); setVal('aux-faltas', indices.auxFaltas); setVal('aux-atestados', indices.auxAtest); setVal('aux-banco', indices.auxBanco); setVal('aux-util', indices.auxUtil);
+                    setVal('mt-total', indices.mtTotal); setVal('mt-vagas', indices.mtVagas); setVal('mt-ferias', indices.mtFerias); setVal('mt-faltas', indices.mtFaltas); setVal('mt-atestados', indices.mtAtest); setVal('mt-banco', indices.mtBanco); setVal('mt-util', indices.mtUtil);
                 }
 
-                const labelsMensal = mesesExtenso;
-                const volMensal = dadosMensal.map(d => d.vol);
-                const dropMensal = dadosMensal.map(d => d.count ? d.drop / d.count : 0);
-                const dropsizeMensal = dadosMensal.map(d => d.count ? d.dropsize / d.count : 0);
-                const ocpMensal = dadosMensal.map(d => d.count ? d.ocp / d.count : 0);
-                const nfMensal = dadosMensal.map(d => d.nf);
-                const otifMensal = dadosMensal.map(d => d.count ? d.otif / d.count : 0);
+                const labels = dadosMes.map(d => d.dia);
+                const criarGrafico = (ctx, label, dados, color, titulo, isPerc = false, showY = false) => {
+                    if (window[ctx.canvas.id + 'Instance']) window[ctx.canvas.id + 'Instance'].destroy();
+                    window[ctx.canvas.id + 'Instance'] = new Chart(ctx, {
+                        type: 'bar',
+                        data: { labels, datasets: [{ label, data: dados, backgroundColor: color + 'CC', borderColor: color, borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] },
+                        options: getCommonOptions(titulo, true, isPerc, showY)
+                    });
+                };
 
-                updateCharts(ultimos15Dias, labelsMensal, volMensal, dropMensal, ocpMensal, nfMensal, otifMensal, dropsizeMensal, mesExibicaoNome, anoDeExibicao);
+                criarGrafico(document.getElementById('graficoVolume').getContext('2d'), 'Volume', dadosMes.map(d => d.vol), '#2ecc71', `VOLUME EXPEDIDO (KG) - ${mesExibicaoNome}`);
+                criarGrafico(document.getElementById('graficoOcupacaoDiario').getContext('2d'), 'Ocupação', dadosMes.map(d => d.ocp), '#3498db', `OCUPAÇÃO (%) - ${mesExibicaoNome}`, true);
+                criarGrafico(document.getElementById('graficoDropsizeDiario').getContext('2d'), 'Peso x Veículo', dadosMes.map(d => d.drop), '#e67e22', `PESOxVEÍCULO (KG) - ${mesExibicaoNome}`);
+                criarGrafico(document.getElementById('graficoNfDiario').getContext('2d'), 'NF', dadosMes.map(d => d.nf), '#9b59b6', `NF'S (QTD) - ${mesExibicaoNome}`);
+                criarGrafico(document.getElementById('graficoNsDiario').getContext('2d'), 'NS', dadosMes.map(d => d.ns), '#2ecc71', `NÍVEL DE SERVIÇO (%) - ${mesExibicaoNome}`, true);
+                criarGrafico(document.getElementById('graficoReDiario').getContext('2d'), 'RE', dadosMes.map(d => d.re), '#e74c3c', `REENTREGA (%) - ${mesExibicaoNome}`, true);
+                criarGrafico(document.getElementById('graficoDevolucaoDiario').getContext('2d'), 'DEVOL', dadosMes.map(d => d.devol), '#f1c40f', `DEVOLUÇÃO (%) - ${mesExibicaoNome}`, true);
+                criarGrafico(document.getElementById('graficoOtifDiario').getContext('2d'), 'OTIF', dadosMes.map(d => d.otif), '#2ecc71', `ENTREGAS OTIF (%) - ${mesExibicaoNome}`, true);
 
-            } catch (e) { console.error("Erro:", e); }
+                atualizarGraficosMensais(dadosMes, mesExibicaoNome, anoDeExibicao);
+
+            } catch (error) { console.error("Erro ao carregar a planilha:", error); }
         }
 
-        function updateCharts(diario, labelsM, volM, dropM, ocpM, nfM, otifM, dropsizeM, mesNome, ano) {
-            const ctxVol = document.getElementById('graficoVolume').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctxVol, { type: 'bar', data: { labels: diario.labels, datasets: [{ label: 'VOLUME (KG)', data: diario.vol, backgroundColor: '#3498db', borderRadius: 2, barPercentage: 0.7 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, true) });
+        function atualizarGraficosMensais(dados, mes, ano) {
+            const agrupar = (dados, campo, isPerc = false) => {
+                const soma = dados.reduce((a, b) => a + (b[campo] || 0), 0);
+                return isPerc ? (soma / dados.length) : soma;
+            };
 
-            const ctxMensal = document.getElementById('graficoMensal').getContext('2d');
-            if (chartMensalInstance) chartMensalInstance.destroy();
-            chartMensalInstance = new Chart(ctxMensal, { type: 'bar', data: { labels: labelsM, datasets: [{ label: 'VOLUME (KG)', data: volM, backgroundColor: '#2ecc71', borderRadius: 2, barPercentage: 0.7 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano}`, true) });
-
-            const ctxOcpD = document.getElementById('graficoOcupacaoDiario').getContext('2d');
-            if (chartOcupDiario) chartOcupDiario.destroy();
-            chartOcupDiario = new Chart(ctxOcpD, { type: 'line', data: { labels: diario.labels, datasets: [{ label: 'OCUPAÇÃO (%)', data: diario.ocp, borderColor: '#f1c40f', tension: 0.3, fill: false, pointRadius: 4 }] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true) });
-
-            const ctxOcupM = document.getElementById('graficoOcupacaoMensal').getContext('2d');
-            if (chartOcupMensal) chartOcupMensal.destroy();
-            chartOcupMensal = new Chart(ctxOcupM, { type: 'bar', data: { labels: labelsM, datasets: [{ label: 'OCUPAÇÃO (%)', data: ocpM, backgroundColor: '#e67e22', borderRadius: 2, barPercentage: 0.7 }] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${ano} (MÉDIA)`, true, true) });
-
-            const ctxDropD = document.getElementById('graficoDropsizeDiario').getContext('2d');
-            if (chartDropDiario) chartDropDiario.destroy();
-            chartDropDiario = new Chart(ctxDropD, { type: 'bar', data: { labels: diario.labels, datasets: [{ label: 'PESOxVEÍCULO', data: diario.drop, backgroundColor: '#e67e22', order: 2, borderRadius: 2 }, { label: 'DROPSIZE', data: diario.dropsize, borderColor: '#2ecc71', type: 'line', order: 1, tension: 0.3, fill: false }] }, options: getCommonOptions(`PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${mesNome}`, true) });
-
-            const ctxDropM = document.getElementById('graficoDropMensal').getContext('2d');
+            const labels = [mes];
+            const ctxDrop = document.getElementById('graficoDropMensal').getContext('2d');
             if (chartDropMensal) chartDropMensal.destroy();
-            chartDropMensal = new Chart(ctxDropM, { 
-                type: 'bar', 
-                data: { 
-                    labels: labelsM, 
+            chartDropMensal = new Chart(ctxDrop, {
+                type: 'bar',
+                data: {
+                    labels,
                     datasets: [
-                        { label: 'PESOxVEÍCULO', data: dropM, backgroundColor: '#e67e22', order: 2, borderRadius: 2 }, 
-                        { label: 'DROPSIZE', data: dropsizeM, borderColor: '#2ecc71', type: 'line', order: 1, tension: 0.3, fill: false }
-                    ] 
-                }, 
+                        { label: 'PESOxVEÍCULO', data: [agrupar(dados, 'drop')], backgroundColor: '#e67e22', borderColor: '#e67e22', borderWidth: 1, borderRadius: 2, barPercentage: 0.4 },
+                        { label: 'DROPSIZE', data: [agrupar(dados, 'dropsize')], backgroundColor: '#2ecc71', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.4 }
+                    ]
+                },
                 options: {
-                    ...getCommonOptions(`PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${ano}`, true),
+                    ...getCommonOptions(`PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${mes}`, true, false, true),
                     plugins: {
-                        ...getCommonOptions(`PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${ano}`, true).plugins,
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                color: '#ffffff',
-                                font: { weight: 'bold' }
-                            }
-                        }
+                        ...getCommonOptions().plugins,
+                        title: { display: true, text: `PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${mes}`, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } },
+                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { weight: 'bold' } } }
                     }
                 }
             });
 
-            const ctxNfD = document.getElementById('graficoNfDiario').getContext('2d');
-            if (chartNfDiario) chartNfDiario.destroy();
-            chartNfDiario = new Chart(ctxNfD, { type: 'bar', data: { labels: diario.labels, datasets: [{ label: 'NF\'S', data: diario.nf, backgroundColor: '#9b59b6', borderRadius: 2, barPercentage: 0.7 }] }, options: getCommonOptions(`NF'S (QTD) - ${mesNome}`, true) });
+            const criarM = (id, label, valor, color, titulo, isPerc = false) => {
+                const ctx = document.getElementById(id).getContext('2d');
+                if (window[id + 'Instance']) window[id + 'Instance'].destroy();
+                window[id + 'Instance'] = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels, datasets: [{ label, data: [valor], backgroundColor: color + 'CC', borderColor: color, borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] },
+                    options: getCommonOptions(titulo, true, isPerc, true)
+                });
+            };
 
-            const ctxNfM = document.getElementById('graficoNfMensal').getContext('2d');
-            if (chartNfMensal) chartNfMensal.destroy();
-            chartNfMensal = new Chart(ctxNfM, { type: 'bar', data: { labels: labelsM, datasets: [{ label: 'NF\'S', data: nfM, backgroundColor: '#34495e', borderRadius: 2, barPercentage: 0.7 }] }, options: getCommonOptions(`NF'S (QTD) - ${ano}`, true) });
-
-            const ctxOtifD = document.getElementById('graficoOtifDiario').getContext('2d');
-            if (chartOtifDiario) chartOtifDiario.destroy();
-            chartOtifDiario = new Chart(ctxOtifD, { type: 'line', data: { labels: diario.labels, datasets: [{ label: 'OTIF (%)', data: diario.otif, borderColor: '#2ecc71', tension: 0.3, fill: false, pointRadius: 4 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true) });
-
-            const ctxOtifM = document.getElementById('graficoOtifMensal').getContext('2d');
-            if (chartOtifMensal) chartOtifMensal.destroy();
-            chartOtifMensal = new Chart(ctxOtifM, { type: 'bar', data: { labels: labelsM, datasets: [{ label: 'OTIF (%)', data: otifM, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${ano} (MÉDIA)`, true, true) });
+            criarM('graficoMensal', 'Volume', agrupar(dados, 'vol'), '#2ecc71', `VOLUME EXPEDIDO (KG) - ${mes} (TOTAL)`);
+            criarM('graficoOcupacaoMensal', 'Ocupação', agrupar(dados, 'ocp', true), '#3498db', `OCUPAÇÃO (%) - ${mes} (MÉDIA)`, true);
+            criarM('graficoNfMensal', 'NF', agrupar(dados, 'nf'), '#9b59b6', `NF'S (QTD) - ${mes} (TOTAL)`);
+            criarM('graficoNsMensal', 'NS', agrupar(dados, 'ns', true), '#2ecc71', `NÍVEL DE SERVIÇO (%) - ${mes} (MÉDIA)`, true);
+            criarM('graficoReMensal', 'RE', agrupar(dados, 're', true), '#e74c3c', `REENTREGA (%) - ${mes} (MÉDIA)`, true);
+            criarM('graficoDevolucaoMensal', 'DEVOL', agrupar(dados, 'devol', true), '#f1c40f', `DEVOLUÇÃO (%) - ${mes} (MÉDIA)`, true);
+            criarM('graficoOtifMensal', 'OTIF', agrupar(dados, 'otif', true), '#2ecc71', `ENTREGAS OTIF (%) - ${mes} (MÉDIA)`, true);
         }
 
         function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
@@ -391,8 +414,8 @@
                     title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } }, legend: { display: false } 
                 }, 
                 scales: { 
-                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#a0aec0' } }, 
-                    x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 10 } } } 
+                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#a0aec0', font: { size: 10 } } }, 
+                    x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 11, weight: 'bold' } } } 
                 } 
             }; 
         }
