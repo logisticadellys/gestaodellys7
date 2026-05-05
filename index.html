@@ -244,14 +244,45 @@
                 const cabecalho = safeSplit(linhas[0]).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 const idxData = cabecalho.indexOf("DATA");
                 
+                // Mapeamento direto para a coluna PESOxVEÍCULO (KG)
                 const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)", drop: "PESOxVEÍCULO (KG)", nf: "NF'S (QTD)", ocp: "OCUPAÇÃO (%)",
-                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
-                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
-                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
-                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    vol: "VOLUME EXPEDIDO (KG)", 
+                    drop: "PESOxVEÍCULO (KG)", // Alterado de DROPSIZE para PESOxVEÍCULO
+                    nf: "NF'S (QTD)", 
+                    ocp: "OCUPAÇÃO (%)",
+                    abs: "ABSENTEÍSMO (QTD)", 
+                    absPerc: "ABSENTEÍSMO (%)", 
+                    terceiros: "TERCEIROS UTILIZADOS (QTD)", 
+                    cli: "CLIENTES (QTD)",
+                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", 
+                    fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", 
+                    fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", 
+                    fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
+                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", 
+                    ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", 
+                    ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", 
+                    ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
+                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
                     otif: "ENTREGAS OTIF (%)"
                 };
 
@@ -293,7 +324,10 @@
                     let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
                     let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
                     let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
-                    let valDropG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG)")]);
+                    
+                    // GRÁFICO: Puxando da coluna PESOxVEÍCULO (KG)
+                    let valDropG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG)")]); 
+                    
                     let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
                     let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
                     let valNsG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%)")]);
@@ -332,6 +366,7 @@
                     }
                 }
 
+                // Cards IDs mantidos intactos conforme solicitado
                 const idsMap = { 'vol-valor':'vol', 'drop-valor':'drop', 'nf-valor':'nf', 'ocp-valor':'ocp', 'abs-valor':'abs', 'abs-perc-valor':'absPerc', 'terc-util':'terceiros', 'cli-valor':'cli', 'f-total':'fTotal', 'f-parados':'fParados', 'f-dispo':'fDispo', 'f-util':'fUtil', 'ft-total':'ftTotal', 'ft-parados':'ftParados', 'ft-dispo':'ftDispo', 'ft-util':'ftUtil', 'md-total':'mdTotal', 'md-vagas':'mdVagas', 'md-ferias':'mdFerias', 'md-faltas':'mdFaltas', 'md-atestados':'mdAtestados', 'md-banco':'mdBanco', 'md-util':'mdUtil', 'aux-total':'auxTotal', 'aux-vagas':'auxVagas', 'aux-ferias':'auxFerias', 'aux-faltas':'auxFaltas', 'aux-atestados':'auxAtestados', 'aux-banco':'auxBanco', 'aux-util':'auxUtil', 'mt-total':'mtTotal', 'mt-vagas':'mtVagas', 'mt-ferias':'mtFerias', 'mt-faltas':'mtFaltas', 'mt-atestados':'mtAtestados', 'mt-banco':'mtBanco', 'mt-util':'mtUtil' };
                 for(let id in idsMap) { let el = document.getElementById(id); if(el) el.textContent = valCards[idsMap[id]]; }
 
@@ -352,8 +387,6 @@
                 renderizarDropMensal(mesesExtenso, sDropM.map((s,i)=>cDropM[i]>0?s/cDropM[i]:0), anoAtual);
                 renderizarNfDiario(labF, vNfF, vCliF, mesExibicaoNome);
                 renderizarNfMensal(mesesExtenso, acNfM, acCliM, anoAtual);
-                renderizarNsDiario(labF, vNsF, mesExibicaoNome);
-                renderizarNsMensal(mesesExtenso, sNsM.map((s,i)=>cNsM[i]>0?s/cNsM[i]:0), anoAtual);
                 renderizarNsDiario(labF, vNsF, mesExibicaoNome);
                 renderizarNsMensal(mesesExtenso, sNsM.map((s,i)=>cNsM[i]>0?s/cNsM[i]:0), anoAtual);
                 renderizarReDiario(labF, vReF, mesExibicaoNome);
