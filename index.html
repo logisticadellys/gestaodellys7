@@ -380,8 +380,7 @@
                 options: {
                     ...getCommonOptions(`PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${mes}`, true, false, true),
                     plugins: {
-                        ...getCommonOptions().plugins,
-                        title: { display: true, text: `PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${mes}`, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } },
+                        ...getCommonOptions(`PESOxVEÍCULO (KG) - X DROPSIZE (KG) - ${mes}`, true, false, true).plugins,
                         legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { weight: 'bold' } } }
                     }
                 }
