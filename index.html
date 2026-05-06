@@ -246,7 +246,7 @@
                 
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", 
-                    drop: "PESOXVEÍCULO (KG)",
+                    drop: "PESOxVEÍCULO (KG)",
                     nf: "NF'S (QTD)", 
                     ocp: "OCUPAÇÃO (%)",
                     abs: "ABSENTEÍSMO (QTD)", 
@@ -297,6 +297,7 @@
 
                 const acVolM = Array(12).fill(0); const sOcpM = Array(12).fill(0); const cOcpM = Array(12).fill(0);
                 const sDropM = Array(12).fill(0); const cDropM = Array(12).fill(0);
+                const sDropSizeM = Array(12).fill(0); const cDropSizeM = Array(12).fill(0);
                 const acNfM = Array(12).fill(0); const acCliM = Array(12).fill(0);
                 const sNsM = Array(12).fill(0); const cNsM = Array(12).fill(0);
                 const acReM = Array(12).fill(0);
@@ -323,8 +324,10 @@
                     let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
                     let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
                     let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
-                    let valDropG = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG)")]); 
+                    let valDropG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG)")]); 
                     let valDropSizeG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
+                    let valDropMesG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG) MÊS")]);
+                    let valDropSizeMesG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
                     let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
                     let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
                     let valNsG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%)")]);
@@ -354,7 +357,8 @@
                             if (valVol !== null) acVolM[mIdx] += valVol; if (valNfG !== null) acNfM[mIdx] += valNfG; if (valCliG !== null) acCliM[mIdx] += valCliG;
                             if (valReG !== null) acReM[mIdx] += valReG;
                             if (valOcupMesG !== null && valOcupMesG > 0) { sOcpM[mIdx] += valOcupMesG; cOcpM[mIdx]++; }
-                            if (valDropG !== null && valDropG > 0) { sDropM[mIdx] += valDropG; cDropM[mIdx]++; }
+                            if (valDropMesG !== null && valDropMesG > 0) { sDropM[mIdx] += valDropMesG; cDropM[mIdx]++; }
+                            if (valDropSizeMesG !== null && valDropSizeMesG > 0) { sDropSizeM[mIdx] += valDropSizeMesG; cDropSizeM[mIdx]++; }
                             if (valNsG !== null && valNsG > 0) { sNsM[mIdx] += valNsG; cNsM[mIdx]++; }
                             if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
                             if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
@@ -380,7 +384,7 @@
                 renderizarOcupacaoDiaria(labF, vOcpF, mesExibicaoNome);
                 renderizarOcupacaoMensal(mesesExtenso, sOcpM.map((s,i)=>cOcpM[i]>0?s/cOcpM[i]:0), anoAtual);
                 renderizarDropDiario(labF, vDropF, vDropSizeF, mesExibicaoNome);
-                renderizarDropMensal(mesesExtenso, sDropM.map((s,i)=>cDropM[i]>0?s/cDropM[i]:0), anoAtual);
+                renderizarDropMensal(mesesExtenso, sDropM.map((s,i)=>cDropM[i]>0?s/cDropM[i]:0), sDropSizeM.map((s,i)=>cDropSizeM[i]>0?s/cDropSizeM[i]:0), anoAtual);
                 renderizarNfDiario(labF, vNfF, vCliF, mesExibicaoNome);
                 renderizarNfMensal(mesesExtenso, acNfM, acCliM, anoAtual);
                 renderizarNsDiario(labF, vNsF, mesExibicaoNome);
@@ -420,53 +424,47 @@
         }
         function renderizarDropDiario(labels, valoresDrop, valoresDropSize, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
-            
-            // Criamos a configuração específica
             let opcoesComLegenda = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${mesNome}`, true);
+            opcoesComLegenda.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 12, weight: 'bold' }, padding: 20 } };
+            chartDropDiario = new Chart(ctx, { data: { labels: labels, datasets: [ { type: 'line', label: 'PESOxVEÍCULO', data: valoresDrop, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2, order: 1 }, { type: 'bar', label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, order: 2 } ] }, options: opcoesComLegenda });
+        }
+
+        function renderizarDropMensal(labels, valoresDrop, valoresDropSize, ano) {
+            const ctx = document.getElementById('graficoDropMensal').getContext('2d'); 
+            if (chartDropMensal) chartDropMensal.destroy();
             
-            // Ativamos a legenda na parte de baixo (igual aos padrões de dashboard)
-            opcoesComLegenda.plugins.legend = {
+            let opt = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${ano} (MÉDIA)`, true);
+            opt.plugins.legend = {
                 display: true,
                 position: 'bottom',
-                labels: { 
-                    color: '#ffffff', 
-                    font: { size: 12, weight: 'bold' },
-                    padding: 20 // Espaçamento para não grudar no gráfico
-                }
+                labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } }
             };
 
-            chartDropDiario = new Chart(ctx, { 
+            chartDropMensal = new Chart(ctx, { 
+                type: 'bar', 
                 data: { 
                     labels: labels, 
                     datasets: [
                         { 
-                            type: 'line',
                             label: 'PESOxVEÍCULO', 
                             data: valoresDrop, 
-                            borderColor: '#ff8c00', 
-                            borderWidth: 3, 
-                            fill: false, 
-                            tension: 0.4, 
-                            pointRadius: 2,
-                            order: 1
+                            backgroundColor: '#ff8c00', 
+                            borderRadius: 2, 
+                            barPercentage: 0.6 
                         },
                         {
-                            type: 'bar',
                             label: 'DROPSIZE',
                             data: valoresDropSize,
                             backgroundColor: '#2ecc71',
                             borderRadius: 2,
-                            order: 2
+                            barPercentage: 0.6
                         }
                     ] 
                 }, 
-                options: opcoesComLegenda 
+                options: opt 
             });
         }
-        function renderizarDropMensal(labels, valores, ano) {
-            const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
-            chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Peso Médio (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`PESOxVEÍCULO (KG) - ${ano} (MÉDIA)`, true) });
-        }
+
         function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
             const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true);
