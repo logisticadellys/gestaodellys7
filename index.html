@@ -420,6 +420,21 @@
         }
         function renderizarDropDiario(labels, valoresDrop, valoresDropSize, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
+            
+            // Criamos a configuração específica
+            let opcoesComLegenda = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${mesNome}`, true);
+            
+            // Ativamos a legenda na parte de baixo (igual aos padrões de dashboard)
+            opcoesComLegenda.plugins.legend = {
+                display: true,
+                position: 'bottom',
+                labels: { 
+                    color: '#ffffff', 
+                    font: { size: 12, weight: 'bold' },
+                    padding: 20 // Espaçamento para não grudar no gráfico
+                }
+            };
+
             chartDropDiario = new Chart(ctx, { 
                 data: { 
                     labels: labels, 
@@ -445,7 +460,7 @@
                         }
                     ] 
                 }, 
-                options: getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${mesNome}`, true) 
+                options: opcoesComLegenda 
             });
         }
         function renderizarDropMensal(labels, valores, ano) {
