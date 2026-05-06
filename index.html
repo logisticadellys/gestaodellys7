@@ -328,6 +328,7 @@
                     let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
                     let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
                     let valNsG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%)")]);
+                    let valNsMesG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%) MÊS")]);
                     let valReG = converter(colunas[cabecalho.indexOf("REENTREGAS D+2 (QTD)")]);
                     let valDevTotG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%)")]);
                     let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
@@ -359,7 +360,7 @@
                             if (valOcupMesG !== null && valOcupMesG > 0) { sOcpM[mIdx] = valOcupMesG; cOcpM[mIdx]++; }
                             if (valDropMesAcumulado !== null && valDropMesAcumulado > 0) { sDropM[mIdx] = valDropMesAcumulado; }
                             if (valDropSizeMesAcumulado !== null && valDropSizeMesAcumulado > 0) { sDropSizeM[mIdx] = valDropSizeMesAcumulado; }
-                            if (valNsG !== null && valNsG > 0) { sNsM[mIdx] += valNsG; cNsM[mIdx]++; }
+                            if (valNsMesG !== null && valNsMesG > 0) { sNsM[mIdx] = valNsMesG; cNsM[mIdx]++; }
                             if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
                             if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
                             if (valOtifG !== null && valOtifG > 0) { sOtifM[mIdx] += valOtifG; cOtifM[mIdx]++; }
@@ -388,7 +389,7 @@
                 renderizarNfDiario(labF, vNfF, vCliF, mesExibicaoNome);
                 renderizarNfMensal(mesesExtenso, acNfM, acCliM, anoAtual);
                 renderizarNsDiario(labF, vNsF, mesExibicaoNome);
-                renderizarNsMensal(mesesExtenso, sNsM.map((s,i)=>cNsM[i]>0?s/cNsM[i]:0), anoAtual);
+                renderizarNsMensal(mesesExtenso, sNsM.map((s,i)=>cNsM[i]>0?s:0), anoAtual);
                 renderizarReDiario(labF, vReF, mesExibicaoNome);
                 renderizarReMensal(mesesExtenso, acReM, anoAtual);
                 renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
