@@ -3,252 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Logístico - Filial 7</title>
+    <title>Painel Logístico</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
-        body { 
-            background-color: #0b192c; 
-            color: #ffffff; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            padding: 1.2vh 1.2vw; 
-            font-weight: bold; 
-            overflow: hidden; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            box-sizing: border-box; 
-            gap: 2.5vh; 
-        }
-
-        header { 
-            flex-shrink: 0; 
-            position: relative; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 1vh 0; 
-            border-bottom: 1px solid rgba(46, 204, 113, 0.2); 
-            min-height: 8vh; 
-        }
-
-        .logo-img { 
-            position: absolute; 
-            left: 0; 
-            height: clamp(40px, 6vh, 60px); 
-            width: auto; 
-        }
-
-        .controles-painel { 
-            position: absolute; 
-            right: 0; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            top: 50%; 
-            transform: translateY(-50%); 
-        }
-
-        .coluna-botoes { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 6px; 
-        }
-
-        #timer-display { 
-            color: #a0aec0; 
-            font-size: 0.85em; 
-            width: 24px; 
-            height: 24px; 
-            border: 1.5px solid #a0aec0; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            visibility: hidden; 
-        }
-
-        .btn-auto { 
-            padding: 3px 12px; 
-            border-radius: 12px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            transition: 0.3s; 
-            font-size: 0.65em; 
-            width: 85px; 
-        }
-
-        .nav-manual { 
-            display: flex; 
-            gap: 8px; 
-            justify-content: center; 
-        }
-
-        .btn-nav { 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(46, 204, 113, 0.4); 
-            color: white; 
-            cursor: pointer; 
-            padding: 2px 10px; 
-            border-radius: 4px; 
-            font-size: 0.75em; 
-            transition: 0.2s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-
-        .btn-nav:hover { 
-            background: #2ecc71; 
-            color: #0b192c; 
-        }
-
+        body { background-color: #0b192c; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 1.2vh 1.2vw; font-weight: bold; overflow: hidden; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; gap: 2.5vh; }
+        header { flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 1vh 0; border-bottom: 1px solid rgba(46, 204, 113, 0.2); min-height: 8vh; }
+        .logo-img { position: absolute; left: 0; height: clamp(40px, 6vh, 60px); width: auto; }
+        .controles-painel { position: absolute; right: 0; display: flex; align-items: center; gap: 12px; top: 50%; transform: translateY(-50%); }
+        .coluna-botoes { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        #timer-display { color: #a0aec0; font-size: 0.85em; width: 24px; height: 24px; border: 1.5px solid #a0aec0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; visibility: hidden; }
+        .btn-auto { padding: 3px 12px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; font-size: 0.65em; width: 85px; }
+        .nav-manual { display: flex; gap: 8px; justify-content: center; }
+        .btn-nav { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(46, 204, 113, 0.4); color: white; cursor: pointer; padding: 2px 10px; border-radius: 4px; font-size: 0.75em; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-nav:hover { background: #2ecc71; color: #0b192c; }
         .auto-on { background-color: #2ecc71; color: #fff; }
         .auto-off { background-color: #e74c3c; color: #fff; }
-
-        .titulo-painel { 
-            color: #2ecc71; 
-            font-size: clamp(1.5em, 3.2vw, 2.2em); 
-            text-transform: uppercase; 
-            letter-spacing: 3px; 
-            margin: 0; 
-            font-weight: 800; 
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
-            text-align: center; 
-        }
-
-        .tela { 
-            display: none; 
-            flex-direction: column; 
-            gap: 2.5vh; 
-            flex: 1; 
-            min-height: 0; 
-            animation: suaveEntrada 2.5s ease-in-out; 
-        }
-
-        .tela.ativa { 
-            display: flex; 
-        }
-
-        @keyframes suaveEntrada { 
-            0% { opacity: 0; filter: blur(15px); transform: scale(0.97); } 
-            100% { opacity: 1; filter: blur(0); transform: scale(1); } 
-        }
-
-        .grid-cards { 
-            display: flex; 
-            gap: 2vw; 
-            width: 100%; 
-            flex-shrink: 0; 
-        }
-
-        .card { 
-            background-color: #1a365d; 
-            border: 2px solid #00ced1; 
-            border-radius: 12px; 
-            flex: 1; 
-            padding: 0.8vh 0.6vw; 
-            text-align: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4); 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-        }
-
-        .card h3 { 
-            margin: 0 0 0.4vh 0; 
-            color: #a0aec0; 
-            font-size: clamp(0.85em, 1.1vw, 1.1em); 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            min-height: 1.6em; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-
-        .secao-inferior { 
-            display: flex; 
-            gap: 2vw; 
-            flex: 1; 
-            min-height: 0; 
-        }
-
-        .container-coluna { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 2.2vh; 
-            flex: 1; 
-            min-height: 0; 
-        }
-
-        .card-split { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-        }
-
-        .split-container { 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: center; 
-            flex: 1; 
-        }
-
-        .split-item { 
-            flex: 1; 
-            border-right: 1px solid rgba(160, 174, 192, 0.2); 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 0 2px; 
-        }
-
-        .split-item:last-child { 
-            border-right: none; 
-        }
-
-        .subtitulo { 
-            font-size: clamp(0.55em, 0.75vw, 0.8em); 
-            color: #a0aec0; 
-            margin-bottom: 2px; 
-            text-transform: uppercase; 
-        }
-
-        .valor { 
-            font-size: clamp(1.2em, 2.8vw, 2em); 
-            color: #ffffff; 
-            display: block; 
-        }
-
-        .valor-frota { 
-            font-size: clamp(1em, 2vw, 1.6em); 
-        }
-
-        .grid-graficos { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            grid-template-rows: repeat(2, 1fr); 
-            gap: 20px; 
-            flex: 1; 
-            min-height: 0; 
-            height: 100%; 
-        }
-
-        .chart-container { 
-            background-color: #1a365d; 
-            border: 2px solid #00ced1; 
-            border-radius: 12px; 
-            padding: 1.5vh; 
-            position: relative; 
-            min-height: 0; 
-        }
+        .titulo-painel { color: #2ecc71; font-size: clamp(1.5em, 3.2vw, 2.2em); text-transform: uppercase; letter-spacing: 3px; margin: 0; font-weight: 800; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); text-align: center; }
+        .tela { display: none; flex-direction: column; gap: 2.5vh; flex: 1; min-height: 0; animation: suaveEntrada 2.5s ease-in-out; }
+        .tela.ativa { display: flex; }
+        @keyframes suaveEntrada { 0% { opacity: 0; filter: blur(15px); transform: scale(0.97); } 100% { opacity: 1; filter: blur(0); transform: scale(1); } }
+        .grid-cards { display: flex; gap: 2vw; width: 100%; flex-shrink: 0; }
+        .card { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; flex: 1; padding: 0.8vh 0.6vw; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: center; }
+        .card h3 { margin: 0 0 0.4vh 0; color: #a0aec0; font-size: clamp(0.85em, 1.1vw, 1.1em); text-transform: uppercase; letter-spacing: 1px; min-height: 1.6em; display: flex; align-items: center; justify-content: center; }
+        .secao-inferior { display: flex; gap: 2vw; flex: 1; min-height: 0; }
+        .container-coluna { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; min-height: 0; }
+        .card-split { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .split-container { display: flex; justify-content: space-around; align-items: center; flex: 1; }
+        .split-item { flex: 1; border-right: 1px solid rgba(160, 174, 192, 0.2); display: flex; flex-direction: column; align-items: center; padding: 0 2px; }
+        .split-item:last-child { border-right: none; }
+        .subtitulo { font-size: clamp(0.55em, 0.75vw, 0.8em); color: #a0aec0; margin-bottom: 2px; text-transform: uppercase; }
+        .valor { font-size: clamp(1.2em, 2.8vw, 2em); color: #ffffff; display: block; }
+        .valor-frota { font-size: clamp(1em, 2vw, 1.6em); }
+        .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; min-height: 0; height: 100%; }
+        .chart-container { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; padding: 1.5vh; position: relative; min-height: 0; }
     </style>
 </head>
 <body>
@@ -272,21 +60,16 @@
         <div class="grid-cards">
             <div class="card"><h3>VOLUME EXPEDIDO (KG) - HOJE</h3><span class="valor" id="vol-valor">-</span></div>
             <div class="card"><h3>PESOxVEÍCULO (KG) - HOJE</h3><span class="valor" id="drop-valor">-</span></div>
+            <div class="card"><h3>OCUPAÇÃO (%) - HOJE</h3><span class="valor" id="ocp-valor">-</span></div>
             <div class="card"><h3>NF'S (QTD) - HOJE</h3><span class="valor" id="nf-valor">-</span></div>
         </div>
-        
         <div class="grid-cards">
-            <div class="card"><h3>OCUPAÇÃO (%) - HOJE</h3><span class="valor" id="ocp-valor">-</span></div>
             <div class="card"><h3>TERCEIROS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
-            <div class="card"><h3>CLIENTES (QTD) - HOJE</h3><span class="valor" id="cli-valor">-</span></div>
-        </div>
-
-        <div class="grid-cards">
             <div class="card"><h3>DROPSIZE (KG) - HOJE</h3><span class="valor" id="dropsize-hoje-valor">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (QTD) - HOJE</h3><span class="valor" id="abs-valor">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (%) - HOJE</h3><span class="valor" id="abs-perc-valor">-</span></div>
+            <div class="card"><h3>CLIENTES (QTD) - HOJE</h3><span class="valor" id="cli-valor">-</span></div>
         </div>
-
         <div class="secao-inferior">
             <div class="container-coluna">
                 <div class="card card-split">
@@ -308,7 +91,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="container-coluna">
                 <div class="card card-split">
                     <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
@@ -387,61 +169,28 @@
     </div>
 
     <script>
-        // Configurações de URL e Plugins
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
         Chart.register(ChartDataLabels);
 
-        // Estado Global
-        let autoMode = false; 
-        let tempoRestante = 90; 
-        let telaAtual = 1;
-        
-        // Instâncias dos Gráficos
-        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal;
-        let chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal;
-        let chartNsDiario, chartNsMensal, chartReDiario, chartReMensal;
-        let chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal;
+        let autoMode = false; let tempoRestante = 90; let telaAtual = 1;
+        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal;
 
-        // Funções de Controle de Interface
         function toggleAuto() {
             autoMode = !autoMode;
             const btn = document.getElementById('btn-auto-toggle');
             const timerDisp = document.getElementById('timer-display');
-            
-            if (autoMode) { 
-                btn.textContent = "Auto: ON"; 
-                btn.className = "btn-auto auto-on"; 
-                tempoRestante = 90; 
-                timerDisp.textContent = tempoRestante; 
-                timerDisp.style.visibility = "visible"; 
-            } else { 
-                btn.textContent = "Auto: OFF"; 
-                btn.className = "btn-auto auto-off"; 
-                timerDisp.style.visibility = "hidden"; 
-            }
+            if (autoMode) { btn.textContent = "Auto: ON"; btn.className = "btn-auto auto-on"; tempoRestante = 90; timerDisp.textContent = tempoRestante; timerDisp.style.visibility = "visible"; }
+            else { btn.textContent = "Auto: OFF"; btn.className = "btn-auto auto-off"; timerDisp.style.visibility = "hidden"; }
         }
 
         function mudarTelaManual(direcao) { 
             if (autoMode) tempoRestante = 90;
-            if (direcao === 1) {
-                telaAtual = telaAtual === 5 ? 1 : telaAtual + 1;
-            } else {
-                telaAtual = telaAtual === 1 ? 5 : telaAtual - 1;
-            }
+            if (direcao === 1) telaAtual = telaAtual === 5 ? 1 : telaAtual + 1;
+            else telaAtual = telaAtual === 1 ? 5 : telaAtual - 1;
             aplicarExibicaoTela();
         }
 
-        // Timer de Alternância
-        setInterval(() => { 
-            if (autoMode) { 
-                tempoRestante--; 
-                document.getElementById('timer-display').textContent = tempoRestante; 
-                if (tempoRestante <= 0) { 
-                    alternarTelas(); 
-                    tempoRestante = 90; 
-                } 
-            } 
-        }, 1000);
+        setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 90; } } }, 1000);
 
         function alternarTelas() {
             telaAtual = telaAtual === 5 ? 1 : telaAtual + 1;
@@ -450,40 +199,26 @@
 
         function aplicarExibicaoTela() {
             const telas = document.querySelectorAll('.tela');
-            telas.forEach((t, i) => { 
-                t.classList.toggle('ativa', i + 1 === telaAtual); 
+            telas.forEach((t, i) => {
+                t.classList.toggle('ativa', i + 1 === telaAtual);
             });
             window.dispatchEvent(new Event('resize'));
         }
 
-        // Resize Helper
         window.addEventListener('resize', () => { 
-            const charts = [
-                chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, 
-                chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, 
-                chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, 
-                chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal
-            ];
-            charts.forEach(c => c && c.resize());
+            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal].forEach(c => c && c.resize());
         });
 
-        // Parser de CSV Seguro
         function safeSplit(row) {
-            const res = []; 
-            let inQ = false; 
-            let cur = '';
+            const res = []; let inQ = false; let cur = '';
             for (let char of row) {
                 if (char === '"') inQ = !inQ;
-                else if (char === ',' && !inQ) { 
-                    res.push(cur.trim()); 
-                    cur = ''; 
-                } else cur += char;
+                else if (char === ',' && !inQ) { res.push(cur.trim()); cur = ''; }
+                else cur += char;
             }
-            res.push(cur.trim()); 
-            return res;
+            res.push(cur.trim()); return res;
         }
 
-        // Lógica de Dados
         async function fetchPlanilha() {
             const agora = new Date();
             const diaHojeNum = agora.getDate();
@@ -492,8 +227,6 @@
             
             let mesDeExibicaoIdx = mesAtualIdx;
             let anoDeExibicao = anoAtual;
-
-            // Lógica para virada de mês (exibir mês anterior se for início do mês)
             if (diaHojeNum < 6) {
                 mesDeExibicaoIdx = mesAtualIdx === 0 ? 11 : mesAtualIdx - 1;
                 if (mesAtualIdx === 0) anoDeExibicao = anoAtual - 1;
@@ -512,55 +245,67 @@
                 const cabecalho = safeSplit(linhas[0]).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 const idxData = cabecalho.indexOf("DATA");
                 
-                // Mapeamento de Colunas
                 const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)", drop: "PESOxVEÍCULO (KG)", nf: "NF'S (QTD)", ocp: "OCUPAÇÃO (%)",
-                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", 
-                    cli: "CLIENTES (QTD)", dropsizeHoje: "DROPSIZE (KG)",
-                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
-                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
-                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    vol: "VOLUME EXPEDIDO (KG)", 
+                    drop: "PESOXVEÍCULO (KG)",
+                    nf: "NF'S (QTD)", 
+                    ocp: "OCUPAÇÃO (%)",
+                    abs: "ABSENTEÍSMO (QTD)", 
+                    absPerc: "ABSENTEÍSMO (%)", 
+                    terceiros: "TERCEIROS UTILIZADOS (QTD)", 
+                    cli: "CLIENTES (QTD)",
+                    dropsizeHoje: "DROPSIZE (KG)", // MAPEAMENTO DO NOVO CARD
+                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", 
+                    fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", 
+                    fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", 
+                    fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
+                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", 
+                    ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", 
+                    ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", 
+                    ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
+                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
                     otif: "ENTREGAS OTIF (%)"
                 };
 
-                const idxs = {}; 
-                for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
-                
-                let valCards = {}; 
-                for(let k in mapping) valCards[k] = "-";
+                const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
+                let valCards = {}; for(let k in mapping) valCards[k] = "-";
 
-                // Arrays para Gráficos
                 const ultimoDiaMesExibicao = new Date(anoDeExibicao, mesDeExibicaoIdx + 1, 0).getDate();
-                const dVolR = Array(ultimoDiaMesExibicao).fill(null);
-                const dOcpR = Array(ultimoDiaMesExibicao).fill(null);
-                const dDropR = Array(ultimoDiaMesExibicao).fill(null);
-                const dDropSizeR = Array(ultimoDiaMesExibicao).fill(null);
-                const dNfR = Array(ultimoDiaMesExibicao).fill(null);
-                const dCliR = Array(ultimoDiaMesExibicao).fill(null);
-                const dNsR = Array(ultimoDiaMesExibicao).fill(null);
-                const dReR = Array(ultimoDiaMesExibicao).fill(null);
-                const dDevTot = Array(ultimoDiaMesExibicao).fill(null);
-                const dDevOp = Array(ultimoDiaMesExibicao).fill(null);
+                const dVolR = Array(ultimoDiaMesExibicao).fill(null); const dOcpR = Array(ultimoDiaMesExibicao).fill(null);
+                const dDropR = Array(ultimoDiaMesExibicao).fill(null); const dDropSizeR = Array(ultimoDiaMesExibicao).fill(null); const dNfR = Array(ultimoDiaMesExibicao).fill(null); const dCliR = Array(ultimoDiaMesExibicao).fill(null);
+                const dNsR = Array(ultimoDiaMesExibicao).fill(null); const dReR = Array(ultimoDiaMesExibicao).fill(null);
+                const dDevTot = Array(ultimoDiaMesExibicao).fill(null); const dDevOp = Array(ultimoDiaMesExibicao).fill(null);
                 const dOtifR = Array(ultimoDiaMesExibicao).fill(null);
 
-                const acVolM = Array(12).fill(0);
-                const sOcpM = Array(12).fill(0);
-                const cOcpM = Array(12).fill(0);
-                const sDropM = Array(12).fill(0);
-                const sDropSizeM = Array(12).fill(0);
-                const acNfM = Array(12).fill(0);
-                const acCliM = Array(12).fill(0);
-                const sNsM = Array(12).fill(0);
-                const cNsM = Array(12).fill(0);
+                const acVolM = Array(12).fill(0); const sOcpM = Array(12).fill(0); const cOcpM = Array(12).fill(0);
+                const sDropM = Array(12).fill(0); const sDropSizeM = Array(12).fill(0);
+                const acNfM = Array(12).fill(0); const acCliM = Array(12).fill(0);
+                const sNsM = Array(12).fill(0); const cNsM = Array(12).fill(0);
                 const acReM = Array(12).fill(0);
-                const sDevTotM = Array(12).fill(0);
-                const cDevTotM = Array(12).fill(0);
-                const sDevOpM = Array(12).fill(0);
-                const cDevOpM = Array(12).fill(0);
-                const sOtifM = Array(12).fill(0);
-                const cOtifM = Array(12).fill(0);
+                
+                const sDevTotM = Array(12).fill(0); const cDevTotM = Array(12).fill(0);
+                const sDevOpM = Array(12).fill(0); const cDevOpM = Array(12).fill(0);
+                const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
 
                 const converter = (val) => {
                     if (!val || val === "-" || val === "null" || val === "#N/A") return null;
@@ -568,24 +313,19 @@
                     return isNaN(n) ? null : n;
                 };
 
-                // Iteração pelas linhas da planilha
                 for (let i = 1; i < linhas.length; i++) {
                     const colunas = safeSplit(linhas[i]);
                     let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
                     if (!dataPlanilha) continue;
 
-                    // Dados de Hoje (Cards)
                     if (dataPlanilha.includes(hojeBusca)) {
-                        for(let key in idxs) {
-                            valCards[key] = (colunas[idxs[key]] || "-").replace(/"/g, '').trim() || "-";
-                        }
+                        for(let key in idxs) valCards[key] = (colunas[idxs[key]] || "-").replace(/"/g, '').trim() || "-";
                     }
 
-                    // Extração de Valores para Gráficos
                     let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
                     let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
                     let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
-                    let valDropG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG)")]); 
+                    let valDropG = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG)")]); 
                     let valDropSizeG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
                     let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
                     let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
@@ -595,43 +335,30 @@
                     let valDevTotG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%)")]);
                     let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
                     let valOtifG = converter(colunas[idxs.otif]);
+                    
                     let valOtifMesG = converter(colunas[cabecalho.indexOf("ENTREGAS OTIF (%) MÊS")]);
                     let valDevTotMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%) MÊS")]);
                     let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
-                    let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG) MÊS")]);
+                    let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
                     let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
 
                     let pD = dataPlanilha.split('/');
                     if (pD.length === 3) {
-                        let dP = parseInt(pD[0]); 
-                        let mP = parseInt(pD[1]); 
-                        let aP = parseInt(pD[2]);
-
-                        // Acumular Diário (Mês de Exibição)
+                        let dP = parseInt(pD[0]); let mP = parseInt(pD[1]); let aP = parseInt(pD[2]);
+                        
                         if (aP === anoDeExibicao && mP === (mesDeExibicaoIdx + 1)) {
                             if (dP <= ultimoDiaMesExibicao) {
-                                if(valVol !== null) dVolR[dP-1] = valVol;
-                                if(valOcupG !== null) dOcpR[dP-1] = valOcupG;
-                                if(valDropG !== null) dDropR[dP-1] = valDropG;
-                                if(valDropSizeG !== null) dDropSizeR[dP-1] = valDropSizeG;
-                                if(valNfG !== null) dNfR[dP-1] = valNfG;
-                                if(valCliG !== null) dCliR[dP-1] = valCliG;
-                                if(valNsG !== null) dNsR[dP-1] = valNsG;
-                                if(valReG !== null) dReR[dP-1] = valReG;
-                                if(valDevTotG !== null) dDevTot[dP-1] = valDevTotG;
-                                if(valDevOpG !== null) dDevOp[dP-1] = valDevOpG;
+                                if(valVol !== null) dVolR[dP-1] = valVol; if(valOcupG !== null) dOcpR[dP-1] = valOcupG;
+                                if(valDropG !== null) dDropR[dP-1] = valDropG; if(valDropSizeG !== null) dDropSizeR[dP-1] = valDropSizeG; if(valNfG !== null) dNfR[dP-1] = valNfG; if(valCliG !== null) dCliR[dP-1] = valCliG;
+                                if(valNsG !== null) dNsR[dP-1] = valNsG; if(valReG !== null) dReR[dP-1] = valReG;
+                                if(valDevTotG !== null) dDevTot[dP-1] = valDevTotG; if(valDevOpG !== null) dDevOp[dP-1] = valDevOpG;
                                 if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
                             }
                         }
-
-                        // Acumular Mensal (Ano Atual)
                         if (aP === anoAtual) {
                             let mIdx = mP - 1;
-                            if (valVol !== null) acVolM[mIdx] += valVol;
-                            if (valNfG !== null) acNfM[mIdx] += valNfG;
-                            if (valCliG !== null) acCliM[mIdx] += valCliG;
+                            if (valVol !== null) acVolM[mIdx] += valVol; if (valNfG !== null) acNfM[mIdx] += valNfG; if (valCliG !== null) acCliM[mIdx] += valCliG;
                             if (valReG !== null) acReM[mIdx] += valReG;
-                            
                             if (valOcupMesG !== null && valOcupMesG > 0) { sOcpM[mIdx] = valOcupMesG; cOcpM[mIdx]++; }
                             if (valDropMesAcumulado !== null && valDropMesAcumulado > 0) { sDropM[mIdx] = valDropMesAcumulado; }
                             if (valDropSizeMesAcumulado !== null && valDropSizeMesAcumulado > 0) { sDropSizeM[mIdx] = valDropSizeMesAcumulado; }
@@ -643,11 +370,10 @@
                     }
                 }
 
-                // Atualizar DOM
                 const idsMap = { 
                     'vol-valor':'vol', 'drop-valor':'drop', 'nf-valor':'nf', 'ocp-valor':'ocp', 
                     'abs-valor':'abs', 'abs-perc-valor':'absPerc', 'terc-util':'terceiros', 'cli-valor':'cli', 
-                    'dropsize-hoje-valor':'dropsizeHoje',
+                    'dropsize-hoje-valor':'dropsizeHoje', // ID DO NOVO CARD
                     'f-total':'fTotal', 'f-parados':'fParados', 'f-dispo':'fDispo', 'f-util':'fUtil', 
                     'ft-total':'ftTotal', 'ft-parados':'ftParados', 'ft-dispo':'ftDispo', 'ft-util':'ftUtil', 
                     'md-total':'mdTotal', 'md-vagas':'mdVagas', 'md-ferias':'mdFerias', 'md-faltas':'mdFaltas', 
@@ -657,31 +383,17 @@
                     'mt-total':'mtTotal', 'mt-vagas':'mtVagas', 'mt-ferias':'mtFerias', 'mt-faltas':'mtFaltas', 
                     'mt-atestados':'mtAtestados', 'mt-banco':'mtBanco', 'mt-util':'mtUtil' 
                 };
+                for(let id in idsMap) { let el = document.getElementById(id); if(el) el.textContent = valCards[idsMap[id]]; }
 
-                for(let id in idsMap) { 
-                    let el = document.getElementById(id); 
-                    if(el) el.textContent = valCards[idsMap[id]]; 
-                }
-
-                // Filtrar Labels e Renderizar
-                const labF = [];
-                const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = [];
-                const vNfF = []; const vCliF = []; const vNsF = []; const vReF = [];
-                const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
-
+                const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
-                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null) {
+                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null) {
                         labF.push(String(i + 1).padStart(2, '0'));
-                        vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0);
-                        vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0);
-                        vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0);
-                        vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
-                        vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0);
-                        vOtifF.push(dOtifR[i]||0);
+                        vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
+                        vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
                     }
                 }
 
-                // Chamadas de Renderização
                 renderizarGraficoDiario(labF, vVolF, mesExibicaoNome);
                 renderizarGraficoMensal(mesesExtenso, acVolM, anoAtual);
                 renderizarOcupacaoDiaria(labF, vOcpF, mesExibicaoNome);
@@ -699,206 +411,125 @@
                 renderizarOtifDiario(labF, vOtifF, mesExibicaoNome);
                 renderizarOtifMensal(mesesExtenso, sOtifM.map((s,i)=>cOtifM[i]>0?s:0), anoAtual);
 
-            } catch (err) { 
-                console.error("Erro ao buscar dados:", err); 
-            }
+            } catch (err) { console.error("Erro:", err); }
         }
 
-        // Funções de Renderização Específicas
         function renderizarGraficoDiario(labels, valores, mesNome) {
-            const ctx = document.getElementById('graficoVolume').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
+            const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
             let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, true, false, false);
-            chartInstance = new Chart(ctx, { 
-                type: 'line', 
-                data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, 
-                options: opt 
-            });
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 2;
+            chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
-
         function renderizarGraficoMensal(labels, valores, ano) {
-            const ctx = document.getElementById('graficoMensal').getContext('2d');
-            if (chartMensalInstance) chartMensalInstance.destroy();
-            chartMensalInstance = new Chart(ctx, { 
-                type: 'bar', 
-                data: { labels: labels, datasets: [{ label: 'Volume Mensal (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, 
-                options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano} (TOTAL)`, true) 
-            });
+            const ctx = document.getElementById('graficoMensal').getContext('2d'); if (chartMensalInstance) chartMensalInstance.destroy();
+            chartMensalInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume Mensal (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano} (TOTAL)`, true) });
         }
-
         function renderizarOcupacaoDiaria(labels, ocup, mesNome) {
-            const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d');
-            if (chartOcupDiario) chartOcupDiario.destroy();
-            chartOcupDiario = new Chart(ctx, { 
-                type: 'bar', 
-                data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderRadius: 2 } ] }, 
-                options: getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true) 
-            });
+            const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
+            let opt = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderRadius: 2 } ] }, options: opt });
         }
-
         function renderizarOcupacaoMensal(labels, ocup, ano) {
-            const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d');
-            if (chartOcupMensal) chartOcupMensal.destroy();
-            chartOcupMensal = new Chart(ctx, { 
-                type: 'bar', 
-                data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderRadius: 2, barPercentage: 0.6 } ] }, 
-                options: getCommonOptions(`OCUPAÇÃO (%) - ${ano} (MÉDIA)`, true, true) 
-            });
+            const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
+            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${ano} (MÉDIA)`, true, true) });
         }
-
         function renderizarDropDiario(labels, valoresDrop, valoresDropSize, mesNome) {
-            const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d');
-            if (chartDropDiario) chartDropDiario.destroy();
-            let opt = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${mesNome}`, true);
-            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } };
-            chartDropDiario = new Chart(ctx, { 
-                data: { labels: labels, datasets: [ 
-                    { type: 'line', label: 'PESOxVEÍCULO', data: valoresDrop, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 }, 
-                    { type: 'bar', label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2 } 
-                ] }, 
-                options: opt 
-            });
+            const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
+            let opcoesComLegenda = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${mesNome}`, true);
+            opcoesComLegenda.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 12, weight: 'bold' }, padding: 20 } };
+            chartDropDiario = new Chart(ctx, { data: { labels: labels, datasets: [ { type: 'line', label: 'PESOxVEÍCULO', data: valoresDrop, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2, order: 1 }, { type: 'bar', label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, order: 2 } ] }, options: opcoesComLegenda });
         }
-
         function renderizarDropMensal(labels, valoresDrop, valoresDropSize, ano) {
-            const ctx = document.getElementById('graficoDropMensal').getContext('2d');
+            const ctx = document.getElementById('graficoDropMensal').getContext('2d'); 
             if (chartDropMensal) chartDropMensal.destroy();
-            let opt = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${ano}`, true);
-            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } };
+            let opt = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${ano} (MÉDIA)`, true);
+            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } } };
             chartDropMensal = new Chart(ctx, { 
                 type: 'bar', 
-                data: { labels: labels, datasets: [ 
-                    { label: 'PESOxVEÍCULO', data: valoresDrop, backgroundColor: '#ff8c00', borderRadius: 2 }, 
-                    { label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2 } 
-                ] }, 
+                data: { 
+                    labels: labels, 
+                    datasets: [
+                        { label: 'PESOxVEÍCULO', data: valoresDrop, backgroundColor: '#ff8c00', borderRadius: 2, barPercentage: 0.8 },
+                        { label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, barPercentage: 0.8 }
+                    ] 
+                }, 
                 options: opt 
             });
         }
-
         function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
-            const ctx = document.getElementById('graficoNfDiario').getContext('2d');
-            if (chartNfDiario) chartNfDiario.destroy();
+            const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
             let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true);
-            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff' } };
-            chartNfDiario = new Chart(ctx, { 
-                type: 'line', 
-                data: { labels: labels, datasets: [ 
-                    { label: "NF'S", data: valoresNf, borderColor: '#00ced1', borderWidth: 2, fill: false }, 
-                    { label: "CLIENTES", data: valoresCli, borderColor: '#ffff00', borderWidth: 2, fill: false } 
-                ] }, 
-                options: opt 
-            });
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartNfDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.5)', borderColor: '#00ced1', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }, { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 255, 0, 0.5)', borderColor: '#ffff00', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
-
         function renderizarNfMensal(labels, valoresNf, valoresCli, ano) {
-            const ctx = document.getElementById('graficoNfMensal').getContext('2d');
-            if (chartNfMensal) chartNfMensal.destroy();
-            let opt = getCommonOptions(`NF'S X CLIENTES - ${ano}`, true);
-            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff' } };
-            chartNfMensal = new Chart(ctx, { 
-                type: 'bar', 
-                data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: '#00ced1' }, { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00' } ] }, 
-                options: opt 
-            });
+            const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
+            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartNfMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }, { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderColor: '#ffff00', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
-
         function renderizarNsDiario(labels, valores, mesNome) {
-            const ctx = document.getElementById('graficoNsDiario').getContext('2d');
-            if (chartNsDiario) chartNsDiario.destroy();
-            chartNsDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'NS (%)', data: valores, backgroundColor: '#00ced1' }] }, options: getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${mesNome}`, true, true) });
+            const ctx = document.getElementById('graficoNsDiario').getContext('2d'); if (chartNsDiario) chartNsDiario.destroy();
+            let opt = getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${mesNome}`, true, true, false);
+            chartNsDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Nível de Serviço (%)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderRadius: 2 } ] }, options: opt });
         }
-
         function renderizarNsMensal(labels, valores, ano) {
-            const ctx = document.getElementById('graficoNsMensal').getContext('2d');
-            if (chartNsMensal) chartNsMensal.destroy();
-            chartNsMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'NS (%)', data: valores, backgroundColor: '#00ced1' }] }, options: getCommonOptions(`NS D+1 (%) - ${ano}`, true, true) });
+            const ctx = document.getElementById('graficoNsMensal').getContext('2d'); if (chartNsMensal) chartNsMensal.destroy();
+            chartNsMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Nível de Serviço (%)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${ano} (MÉDIA)`, true, true) });
         }
-
         function renderizarReDiario(labels, valores, mesNome) {
-            const ctx = document.getElementById('graficoReDiario').getContext('2d');
-            if (chartReDiario) chartReDiario.destroy();
-            chartReDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Reentregas', data: valores, borderColor: '#2ecc71', fill: true, backgroundColor: 'rgba(46,204,113,0.2)' }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${mesNome}`, true) });
+            const ctx = document.getElementById('graficoReDiario').getContext('2d'); if (chartReDiario) chartReDiario.destroy();
+            chartReDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Reentregas (QTD)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${mesNome}`, true) });
         }
-
         function renderizarReMensal(labels, valores, ano) {
-            const ctx = document.getElementById('graficoReMensal').getContext('2d');
-            if (chartReMensal) chartReMensal.destroy();
-            chartReMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Reentregas', data: valores, backgroundColor: '#2ecc71' }] }, options: getCommonOptions(`REENTREGAS D+2 - ${ano}`, true) });
+            const ctx = document.getElementById('graficoReMensal').getContext('2d'); if (chartReMensal) chartReMensal.destroy();
+            chartReMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Total Reentregas', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${ano} (TOTAL)`, true) });
         }
-
-        function renderizarDevolucaoDiario(labels, vTot, vOp, mesNome) {
-            const ctx = document.getElementById('graficoDevolucaoDiario').getContext('2d');
-            if (chartDevolDiario) chartDevolDiario.destroy();
-            let opt = getCommonOptions(`DEVOLUÇÃO (%) - ${mesNome}`, true, true);
-            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff' } };
-            chartDevolDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Total', data: vTot, borderColor: '#e74c3c' }, { label: 'Operação', data: vOp, borderColor: '#f39c12' }] }, options: opt });
+        function renderizarDevolucaoDiario(labels, valoresTot, valoresOp, mesNome) {
+            const ctx = document.getElementById('graficoDevolucaoDiario').getContext('2d'); if (chartDevolDiario) chartDevolDiario.destroy();
+            let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X DEVOLUÇÃO OPERAÇÃO (%) - ${mesNome}`, true, true);
+            chartDevolDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: "DEVOLUÇÃO TOTAL", data: valoresTot, borderColor: '#e74c3c', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 }, { label: "DEVOLUÇÃO OPERAÇÃO", data: valoresOp, borderColor: '#f39c12', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
-
-        function renderizarDevolucaoMensal(labels, vTot, vOp, ano) {
-            const ctx = document.getElementById('graficoDevolucaoMensal').getContext('2d');
-            if (chartDevolMensal) chartDevolMensal.destroy();
-            let opt = getCommonOptions(`DEVOLUÇÃO (%) - ${ano}`, true, true);
-            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff' } };
-            chartDevolMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Total', data: vTot, backgroundColor: '#e74c3c' }, { label: 'Operação', data: vOp, backgroundColor: '#f39c12' }] }, options: opt });
+        function renderizarDevolucaoMensal(labels, valoresTot, valoresOp, ano) {
+            const ctx = document.getElementById('graficoDevolucaoMensal').getContext('2d'); if (chartDevolMensal) chartDevolMensal.destroy();
+            let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X DEVOLUÇÃO OPERAÇÃO (%) - ${ano} (MÉDIA)`, true, true);
+            chartDevolMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "DEVOLUÇÃO TOTAL", data: valoresTot, backgroundColor: '#e74c3c', borderRadius: 2, barPercentage: 0.6 }, { label: "DEVOLUÇÃO OPERAÇÃO", data: valoresOp, backgroundColor: '#f39c12', borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
-
         function renderizarOtifDiario(labels, valores, mesNome) {
-            const ctx = document.getElementById('graficoOtifDiario').getContext('2d');
-            if (chartOtifDiario) chartOtifDiario.destroy();
-            chartOtifDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'OTIF', data: valores, borderColor: '#2ecc71', fill: false }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true) });
+            const ctx = document.getElementById('graficoOtifDiario').getContext('2d'); if (chartOtifDiario) chartOtifDiario.destroy();
+            let opt = getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true, false);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            chartOtifDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'OTIF (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
         }
-
         function renderizarOtifMensal(labels, valores, ano) {
-            const ctx = document.getElementById('graficoOtifMensal').getContext('2d');
-            if (chartOtifMensal) chartOtifMensal.destroy();
-            chartOtifMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'OTIF', data: valores, backgroundColor: '#2ecc71' }] }, options: getCommonOptions(`OTIF (%) - ${ano}`, true, true) });
+            const ctx = document.getElementById('graficoOtifMensal').getContext('2d'); if (chartOtifMensal) chartOtifMensal.destroy();
+            chartOtifMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'OTIF Médio (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${ano} (MÉDIA)`, true, true) });
         }
 
-        // Helper de Opções Comuns
         function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
             return { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
+                responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
                 plugins: { 
-                    datalabels: { 
-                        display: showDL, 
-                        anchor: 'end', 
-                        align: 'top', 
-                        offset: 4, 
-                        color: '#ffffff', 
-                        font: { weight: 'bold', size: 10 }, 
-                        textStrokeColor: 'rgba(0, 0, 0, 0.7)', 
-                        textStrokeWidth: 2, 
-                        formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' 
-                    }, 
-                    title: { 
-                        display: !!titulo, 
-                        text: titulo, 
-                        color: '#a0aec0', 
-                        font: { size: 15, weight: 'bold' }, 
-                        padding: { bottom: 50 } 
-                    }, 
-                    legend: { display: false } 
+                    datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, 
+                    title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } }, legend: { display: false } 
                 }, 
                 scales: { 
-                    y: { 
-                        beginAtZero: true, 
-                        display: showY, 
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
-                        ticks: { color: '#ffffff', font: { size: 10 }, callback: (v) => isPerc ? v + '%' : v } 
-                    }, 
-                    x: { 
-                        grid: { display: false }, 
-                        ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } 
-                    } 
+                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#ffffff', font: { size: 10 }, callback: function(value) { return isPerc ? value + '%' : value; } } }, 
+                    x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } 
                 } 
             }; 
         }
 
-        // Inicialização
-        fetchPlanilha(); 
-        setInterval(fetchPlanilha, 60000);
+        fetchPlanilha(); setInterval(fetchPlanilha, 60000);
     </script>
 </body>
 </html>
