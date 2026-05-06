@@ -326,8 +326,11 @@
                     let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
                     let valDropG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG)")]); 
                     let valDropSizeG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
-                    let valDropMesG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG) MÊS")]);
-                    let valDropSizeMesG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
+                    
+                    // PEGAR COLUNAS DE MÊS ESPECÍFICAS
+                    let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG) MÊS")]);
+                    let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
+
                     let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
                     let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
                     let valNsG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%)")]);
@@ -357,10 +360,11 @@
                             if (valVol !== null) acVolM[mIdx] += valVol; if (valNfG !== null) acNfM[mIdx] += valNfG; if (valCliG !== null) acCliM[mIdx] += valCliG;
                             if (valReG !== null) acReM[mIdx] += valReG;
                             if (valOcupMesG !== null && valOcupMesG > 0) { sOcpM[mIdx] += valOcupMesG; cOcpM[mIdx]++; }
-                            // Correção: Puxando colunas MÊS para o gráfico de médias
-                            if (valDropMesG !== null && valDropMesG > 0) { sDropM[mIdx] += valDropMesG; cDropM[mIdx]++; }
-                            if (valDropSizeMesG !== null && valDropSizeMesG > 0) { sDropSizeM[mIdx] += valDropSizeMesG; cDropSizeM[mIdx]++; }
                             
+                            // ACUMULAR DADOS DE MÊS PARA MÉDIA
+                            if (valDropMesAcumulado !== null && valDropMesAcumulado > 0) { sDropM[mIdx] += valDropMesAcumulado; cDropM[mIdx]++; }
+                            if (valDropSizeMesAcumulado !== null && valDropSizeMesAcumulado > 0) { sDropSizeM[mIdx] += valDropSizeMesAcumulado; cDropSizeM[mIdx]++; }
+
                             if (valNsG !== null && valNsG > 0) { sNsM[mIdx] += valNsG; cNsM[mIdx]++; }
                             if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
                             if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
@@ -387,7 +391,7 @@
                 renderizarOcupacaoMensal(mesesExtenso, sOcpM.map((s,i)=>cOcpM[i]>0?s/cOcpM[i]:0), anoAtual);
                 renderizarDropDiario(labF, vDropF, vDropSizeF, mesExibicaoNome);
                 
-                // Chamada atualizada com Drop e Dropsize
+                // CHAMADA ATUALIZADA DO GRÁFICO DE MÉDIA
                 renderizarDropMensal(mesesExtenso, 
                     sDropM.map((s,i)=>cDropM[i]>0?s/cDropM[i]:0), 
                     sDropSizeM.map((s,i)=>cDropSizeM[i]>0?s/cDropSizeM[i]:0), 
@@ -437,18 +441,17 @@
             chartDropDiario = new Chart(ctx, { data: { labels: labels, datasets: [ { type: 'line', label: 'PESOxVEÍCULO', data: valoresDrop, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2, order: 1 }, { type: 'bar', label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, order: 2 } ] }, options: opcoesComLegenda });
         }
 
-        // FUNÇÃO AJUSTADA CONFORME SOLICITAÇÃO
+        // FUNÇÃO ATUALIZADA CONFORME SOLICITAÇÃO
         function renderizarDropMensal(labels, valoresDrop, valoresDropSize, ano) {
-            const ctx = document.getElementById('graficoDropMensal').getContext('2d'); 
-            if (chartDropMensal) chartDropMensal.destroy();
-
+            const ctx = document.getElementById('graficoDropMensal').getContext('2d'); if (chartDropMensal) chartDropMensal.destroy();
+            
             let opt = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${ano} (MÉDIA)`, true);
             
-            // Habilitando as legendas
-            opt.plugins.legend = { 
-                display: true, 
-                position: 'bottom', 
-                labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } } 
+            // Adicionar Legenda
+            opt.plugins.legend = {
+                display: true,
+                position: 'bottom',
+                labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } }
             };
 
             chartDropMensal = new Chart(ctx, { 
