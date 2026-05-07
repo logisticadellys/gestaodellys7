@@ -26,9 +26,9 @@
         .grid-cards { display: flex; gap: 2vw; width: 100%; flex-shrink: 0; }
         .card { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; flex: 1; padding: 0.8vh 0.6vw; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: center; }
         .card h3 { margin: 0 0 0.4vh 0; color: #a0aec0; font-size: clamp(0.85em, 1.1vw, 1.1em); text-transform: uppercase; letter-spacing: 1px; min-height: 1.6em; display: flex; align-items: center; justify-content: center; }
-        .secao-inferior { display: flex; flex-direction: column; gap: 2.5vh; flex: 1; min-height: 0; }
-        .linha-dashboard { display: flex; gap: 2vw; flex: 1; }
-        .card-split { flex: 1; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .secao-inferior { display: flex; gap: 2vw; flex: 1; min-height: 0; }
+        .container-coluna { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; min-height: 0; }
+        .card-split { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .split-container { display: flex; justify-content: space-around; align-items: center; flex: 1; }
         .split-item { flex: 1; border-right: 1px solid rgba(160, 174, 192, 0.2); display: flex; flex-direction: column; align-items: center; padding: 0 2px; }
         .split-item:last-child { border-right: none; }
@@ -60,77 +60,73 @@
         <div class="grid-cards">
             <div class="card"><h3>VOLUME EXPEDIDO (KG) - HOJE</h3><span class="valor" id="vol-valor">-</span></div>
             <div class="card"><h3>PESOxVEÍCULO (KG) - HOJE</h3><span class="valor" id="drop-valor">-</span></div>
+            <div class="card"><h3>OCUPAÇÃO (%) - HOJE</h3><span class="valor" id="ocp-valor">-</span></div>
             <div class="card"><h3>NF'S (QTD) - HOJE</h3><span class="valor" id="nf-valor">-</span></div>
         </div>
-
         <div class="grid-cards">
+            <div class="card"><h3>TERCEIROS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
             <div class="card"><h3>DROPSIZE (KG) - HOJE</h3><span class="valor" id="dropsize-hoje-valor">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (QTD) - HOJE</h3><span class="valor" id="abs-valor">-</span></div>
             <div class="card"><h3>ABSENTEÍSMO (%) - HOJE</h3><span class="valor" id="abs-perc-valor">-</span></div>
             <div class="card"><h3>CLIENTES (QTD) - HOJE</h3><span class="valor" id="cli-valor">-</span></div>
         </div>
-
-        <div class="grid-cards" style="flex: 1;">
-            <div class="card"><h3>OCUPAÇÃO (%) - HOJE</h3><span class="valor" id="ocp-valor">-</span></div>
-            <div class="card"><h3>TERCEIROS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
-            <div class="card card-split">
-                <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="md-vagas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="md-ferias">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="md-atestados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="md-banco">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="md-util">-</span></div>
+        <div class="secao-inferior">
+            <div class="container-coluna">
+                <div class="card card-split">
+                    <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="f-dispo">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="f-util">-</span></div>
+                    </div>
+                </div>
+                <div class="card card-split">
+                    <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util">-</span></div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="grid-cards" style="flex: 1;">
-            <div class="card card-split">
-                <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="f-dispo">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="f-util">-</span></div>
+            <div class="container-coluna">
+                <div class="card card-split">
+                    <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="md-vagas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="md-ferias">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="md-atestados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="md-banco">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="md-util">-</span></div>
+                    </div>
                 </div>
-            </div>
-            <div class="card card-split">
-                <h3>AUXILIAR DISTRIBUIÇÃO (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="aux-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="aux-vagas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="aux-ferias">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="aux-faltas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="aux-atestados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="aux-banco">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="aux-util">-</span></div>
+                <div class="card card-split">
+                    <h3>AUXILIAR DISTRIBUIÇÃO (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="aux-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="aux-vagas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="aux-ferias">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="aux-faltas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="aux-atestados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="aux-banco">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="aux-util">-</span></div>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="grid-cards" style="flex: 1;">
-            <div class="card card-split">
-                <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util">-</span></div>
-                </div>
-            </div>
-            <div class="card card-split">
-                <h3>MOTORISTA TRANSFERÊNCIA (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="mt-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="mt-vagas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="mt-ferias">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="mt-faltas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="mt-atestados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="mt-banco">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="mt-util">-</span></div>
+                <div class="card card-split">
+                    <h3>MOTORISTA TRANSFERÊNCIA (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="mt-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="mt-vagas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="mt-ferias">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="mt-faltas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="mt-atestados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="mt-banco">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="mt-util">-</span></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -258,7 +254,7 @@
                     absPerc: "ABSENTEÍSMO (%)", 
                     terceiros: "TERCEIROS UTILIZADOS (QTD)", 
                     cli: "CLIENTES (QTD)",
-                    dropsizeHoje: "DROPSIZE (KG)",
+                    dropsizeHoje: "DROPSIZE (KG)", // MAPEAMENTO DO NOVO CARD
                     fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", 
                     fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", 
                     fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", 
@@ -377,7 +373,7 @@
                 const idsMap = { 
                     'vol-valor':'vol', 'drop-valor':'drop', 'nf-valor':'nf', 'ocp-valor':'ocp', 
                     'abs-valor':'abs', 'abs-perc-valor':'absPerc', 'terc-util':'terceiros', 'cli-valor':'cli', 
-                    'dropsize-hoje-valor':'dropsizeHoje',
+                    'dropsize-hoje-valor':'dropsizeHoje', // ID DO NOVO CARD
                     'f-total':'fTotal', 'f-parados':'fParados', 'f-dispo':'fDispo', 'f-util':'fUtil', 
                     'ft-total':'ftTotal', 'ft-parados':'ftParados', 'ft-dispo':'ftDispo', 'ft-util':'ftUtil', 
                     'md-total':'mdTotal', 'md-vagas':'mdVagas', 'md-ferias':'mdFerias', 'md-faltas':'mdFaltas', 
