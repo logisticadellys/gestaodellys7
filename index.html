@@ -229,6 +229,7 @@
             [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal].forEach(c => c && c.resize());
             if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
             if (window['chart_graficoVelocimetro2']) window['chart_graficoVelocimetro2'].resize();
+            if (window['chart_graficoVelocimetro3']) window['chart_graficoVelocimetro3'].resize();
         });
 
         function safeSplit(row) {
@@ -329,6 +330,7 @@
                 const sDevOpM = Array(12).fill(0); const cDevOpM = Array(12).fill(0);
                 const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
                 const sOnTimeM = Array(12).fill(0); const cOnTimeM = Array(12).fill(0);
+                const sInFullM = Array(12).fill(0); const cInFullM = Array(12).fill(0);
 
                 const converter = (val) => {
                     if (!val || val === "-" || val === "null" || val === "#N/A") return null;
@@ -361,6 +363,7 @@
                     
                     let valOtifMesG = converter(colunas[cabecalho.indexOf("ENTREGAS OTIF (%) MÊS")]);
                     let valOnTimeMesG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%) MÊS")]);
+                    let valInFullMesG = converter(colunas[cabecalho.indexOf("ENTREGAS IN FULL (%) MÊS")]);
                     let valDevTotMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%) MÊS")]);
                     let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
                     let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
@@ -391,6 +394,7 @@
                             if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
                             if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
                             if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[mIdx] += valOnTimeMesG; cOnTimeM[mIdx]++; }
+                            if (valInFullMesG !== null && valInFullMesG > 0) { sInFullM[mIdx] += valInFullMesG; cInFullM[mIdx]++; }
                         }
                     }
                 }
@@ -436,22 +440,24 @@
                 renderizarOtifDiario(labF, vOtifF, mesExibicaoNome);
                 renderizarOtifMensal(mesesExtenso, sOtifM.map((s,i)=>cOtifM[i]>0?s:0), anoAtual);
 
-                // NOVO: Cálculo e Renderização dos Velocímetros (Tela 6)
+                // Renderização dos Velocímetros (Tela 6)
                 let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
                 renderizarVelocimetro('graficoVelocimetro1', mediaOtifMesTela6, `ENTREGAS OTIF (%) ${mesExibicaoNome} - MÉDIA`);
 
                 let mediaOnTimeMesTela6 = cOnTimeM[mesDeExibicaoIdx] > 0 ? sOnTimeM[mesDeExibicaoIdx] / cOnTimeM[mesDeExibicaoIdx] : 0;
                 renderizarVelocimetro('graficoVelocimetro2', mediaOnTimeMesTela6, `ENTREGAS ON TIME (%) ${mesExibicaoNome} - MÉDIA`, '#f39c12');
 
+                let mediaInFullMesTela6 = cInFullM[mesDeExibicaoIdx] > 0 ? sInFullM[mesDeExibicaoIdx] / cInFullM[mesDeExibicaoIdx] : 0;
+                renderizarVelocimetro('graficoVelocimetro3', mediaInFullMesTela6, `ENTREGAS IN FULL (%) ${mesExibicaoNome} - MÉDIA`, '#3498db');
+
             } catch (err) { console.error("Erro:", err); }
         }
 
-        // FUNÇÃO ATUALIZADA: Renderização do Gráfico Velocímetro com opção de cor
+        // Função de Renderização do Gráfico Velocímetro com opção de cor
         function renderizarVelocimetro(id, valor, titulo, corPrincipal = '#2ecc71') {
             const ctx = document.getElementById(id).getContext('2d');
             if (window['chart_' + id]) window['chart_' + id].destroy();
             
-            // Garantir que o valor não passe de 100% visualmente e calcular a parte restante
             let valGrafico = valor > 100 ? 100 : valor;
             let valRestante = 100 - valGrafico;
 
@@ -482,7 +488,7 @@
                         },
                         datalabels: {
                             display: function(context) { 
-                                return context.dataIndex === 0; // Exibe número apenas na barra colorida principal
+                                return context.dataIndex === 0;
                             },
                             anchor: 'center',
                             align: 'center',
