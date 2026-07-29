@@ -227,6 +227,7 @@
 
         window.addEventListener('resize', () => { 
             [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal].forEach(c => c && c.resize());
+            if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
         });
 
         function safeSplit(row) {
@@ -385,7 +386,7 @@
                             if (valNsMesG !== null && valNsMesG > 0) { sNsM[mIdx] = valNsMesG; cNsM[mIdx]++; }
                             if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
                             if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
-                            if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] = valOtifMesG; cOtifM[mIdx]++; }
+                            if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
                         }
                     }
                 }
@@ -393,7 +394,7 @@
                 const idsMap = { 
                     'vol-valor':'vol', 'drop-valor':'drop', 'nf-valor':'nf', 'ocp-valor':'ocp', 
                     'abs-valor':'abs', 'abs-perc-valor':'absPerc', 'terc-util':'terceiros', 'cli-valor':'cli', 
-                    'dropsize-hoje-valor':'dropsizeHoje', 
+                    'dropsize-hoje-valor':'dropsizeHoje',
                     'f-total':'fTotal', 'f-parados':'fParados', 'f-dispo':'fDispo', 'f-util':'fUtil', 
                     'ft-total':'ftTotal', 'ft-parados':'ftParados', 'ft-dispo':'ftDispo', 'ft-util':'ftUtil', 
                     'md-total':'mdTotal', 'md-vagas':'mdVagas', 'md-ferias':'mdFerias', 'md-faltas':'mdFaltas', 
@@ -431,7 +432,62 @@
                 renderizarOtifDiario(labF, vOtifF, mesExibicaoNome);
                 renderizarOtifMensal(mesesExtenso, sOtifM.map((s,i)=>cOtifM[i]>0?s:0), anoAtual);
 
+                // NOVO: Cálculo e Renderização do Velocímetro OTIF (Tela 6)
+                let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
+                renderizarVelocimetro('graficoVelocimetro1', mediaOtifMesTela6, `ENTREGAS OTIF (%) ${mesExibicaoNome} - MÉDIA`);
+
             } catch (err) { console.error("Erro:", err); }
+        }
+
+        // NOVA FUNÇÃO: Renderização do Gráfico Velocímetro
+        function renderizarVelocimetro(id, valor, titulo) {
+            const ctx = document.getElementById(id).getContext('2d');
+            if (window['chart_' + id]) window['chart_' + id].destroy();
+            
+            // Garantir que o valor não passe de 100% visualmente e calcular a parte restante
+            let valGrafico = valor > 100 ? 100 : valor;
+            let valRestante = 100 - valGrafico;
+
+            window['chart_' + id] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Realizado', 'Faltante'],
+                    datasets: [{
+                        data: [valGrafico, valRestante],
+                        backgroundColor: ['#2ecc71', 'rgba(255, 255, 255, 0.08)'],
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    circumference: 180,
+                    rotation: -90,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false },
+                        title: { 
+                            display: true, 
+                            text: titulo, 
+                            color: '#a0aec0', 
+                            font: { size: 14, weight: 'bold' },
+                            padding: { bottom: 10 }
+                        },
+                        datalabels: {
+                            display: function(context) { 
+                                return context.dataIndex === 0; // Exibe número apenas na barra colorida principal
+                            },
+                            anchor: 'center',
+                            align: 'center',
+                            color: '#ffffff',
+                            font: { size: 18, weight: 'bold' },
+                            formatter: function() { 
+                                return valor > 0 ? valor.toFixed(1) + '%' : '0%'; 
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function renderizarGraficoDiario(labels, valores, mesNome) {
