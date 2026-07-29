@@ -228,6 +228,7 @@
         window.addEventListener('resize', () => { 
             [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal].forEach(c => c && c.resize());
             if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
+            if (window['chart_graficoVelocimetro2']) window['chart_graficoVelocimetro2'].resize();
         });
 
         function safeSplit(row) {
@@ -327,6 +328,7 @@
                 const sDevTotM = Array(12).fill(0); const cDevTotM = Array(12).fill(0);
                 const sDevOpM = Array(12).fill(0); const cDevOpM = Array(12).fill(0);
                 const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
+                const sOnTimeM = Array(12).fill(0); const cOnTimeM = Array(12).fill(0);
 
                 const converter = (val) => {
                     if (!val || val === "-" || val === "null" || val === "#N/A") return null;
@@ -358,6 +360,7 @@
                     let valOtifG = converter(colunas[idxs.otif]);
                     
                     let valOtifMesG = converter(colunas[cabecalho.indexOf("ENTREGAS OTIF (%) MÊS")]);
+                    let valOnTimeMesG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%) MÊS")]);
                     let valDevTotMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%) MÊS")]);
                     let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
                     let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
@@ -387,6 +390,7 @@
                             if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
                             if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
                             if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
+                            if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[mIdx] += valOnTimeMesG; cOnTimeM[mIdx]++; }
                         }
                     }
                 }
@@ -432,15 +436,18 @@
                 renderizarOtifDiario(labF, vOtifF, mesExibicaoNome);
                 renderizarOtifMensal(mesesExtenso, sOtifM.map((s,i)=>cOtifM[i]>0?s:0), anoAtual);
 
-                // NOVO: Cálculo e Renderização do Velocímetro OTIF (Tela 6)
+                // NOVO: Cálculo e Renderização dos Velocímetros (Tela 6)
                 let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
                 renderizarVelocimetro('graficoVelocimetro1', mediaOtifMesTela6, `ENTREGAS OTIF (%) ${mesExibicaoNome} - MÉDIA`);
+
+                let mediaOnTimeMesTela6 = cOnTimeM[mesDeExibicaoIdx] > 0 ? sOnTimeM[mesDeExibicaoIdx] / cOnTimeM[mesDeExibicaoIdx] : 0;
+                renderizarVelocimetro('graficoVelocimetro2', mediaOnTimeMesTela6, `ENTREGAS ON TIME (%) ${mesExibicaoNome} - MÉDIA`, '#f39c12');
 
             } catch (err) { console.error("Erro:", err); }
         }
 
-        // NOVA FUNÇÃO: Renderização do Gráfico Velocímetro
-        function renderizarVelocimetro(id, valor, titulo) {
+        // FUNÇÃO ATUALIZADA: Renderização do Gráfico Velocímetro com opção de cor
+        function renderizarVelocimetro(id, valor, titulo, corPrincipal = '#2ecc71') {
             const ctx = document.getElementById(id).getContext('2d');
             if (window['chart_' + id]) window['chart_' + id].destroy();
             
@@ -454,7 +461,7 @@
                     labels: ['Realizado', 'Faltante'],
                     datasets: [{
                         data: [valGrafico, valRestante],
-                        backgroundColor: ['#2ecc71', 'rgba(255, 255, 255, 0.08)'],
+                        backgroundColor: [corPrincipal, 'rgba(255, 255, 255, 0.08)'],
                         borderWidth: 0,
                     }]
                 },
