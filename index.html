@@ -3,128 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Logístico - Filial 7</title>
+    <title>Painel Logístico</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
-        /* Ajuste Global para evitar scroll */
-        body { 
-            background-color: #0b192c; 
-            color: #ffffff; 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            padding: 1vh 1vw; 
-            font-weight: bold; 
-            overflow: hidden; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            box-sizing: border-box; 
-            gap: 1.5vh; 
-        }
-
-        header { 
-            flex-shrink: 0; 
-            position: relative; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 0.5vh 0; 
-            border-bottom: 1px solid rgba(46, 204, 113, 0.2); 
-            min-height: 7vh; 
-        }
-
-        .logo-img { position: absolute; left: 0; height: clamp(35px, 5vh, 55px); width: auto; }
-        
-        .controles-painel { position: absolute; right: 0; display: flex; align-items: center; gap: 12px; }
-        .coluna-botoes { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        
-        #timer-display { 
-            color: #a0aec0; font-size: 0.8em; width: 22px; height: 22px; 
-            border: 1.5px solid #a0aec0; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; visibility: hidden; 
-        }
-
-        .btn-auto { padding: 2px 10px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; font-size: 0.6em; width: 80px; }
-        .nav-manual { display: flex; gap: 5px; }
-        .btn-nav { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(46, 204, 113, 0.4); color: white; cursor: pointer; padding: 1px 8px; border-radius: 4px; font-size: 0.7em; }
+        body { background-color: #0b192c; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 1.2vh 1.2vw; font-weight: bold; overflow: hidden; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; gap: 2.5vh; }
+        header { flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 1vh 0; border-bottom: 1px solid rgba(46, 204, 113, 0.2); min-height: 8vh; }
+        .logo-img { position: absolute; left: 0; height: clamp(40px, 6vh, 60px); width: auto; }
+        .controles-painel { position: absolute; right: 0; display: flex; align-items: center; gap: 12px; top: 50%; transform: translateY(-50%); }
+        .coluna-botoes { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        #timer-display { color: #a0aec0; font-size: 0.85em; width: 24px; height: 24px; border: 1.5px solid #a0aec0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; visibility: hidden; }
+        .btn-auto { padding: 3px 12px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; font-size: 0.65em; width: 85px; }
+        .nav-manual { display: flex; gap: 8px; justify-content: center; }
+        .btn-nav { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(46, 204, 113, 0.4); color: white; cursor: pointer; padding: 2px 10px; border-radius: 4px; font-size: 0.75em; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-nav:hover { background: #2ecc71; color: #0b192c; }
         .auto-on { background-color: #2ecc71; color: #fff; }
         .auto-off { background-color: #e74c3c; color: #fff; }
-
-        .titulo-painel { 
-            color: #2ecc71; 
-            font-size: clamp(1.2em, 2.8vw, 1.8em); 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            margin: 0; 
-            font-weight: 800; 
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
-        }
-
-        /* Sistema de Grid para Tela 1 */
-        .tela { display: none; flex: 1; min-height: 0; animation: suaveEntrada 1.5s ease-in-out; }
-        .tela.ativa { display: flex; flex-direction: column; }
-
-        .grid-principal {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            grid-template-rows: auto auto auto auto auto;
-            gap: 1.2vh 1vw;
-            height: 100%;
-        }
-
-        @keyframes suaveEntrada { 0% { opacity: 0; filter: blur(10px); } 100% { opacity: 1; filter: blur(0); } }
-
-        /* Classes de Colunas */
-        .c3 { grid-column: span 3; }
-        .c4 { grid-column: span 4; }
-        .c6 { grid-column: span 6; }
-
-        .card { 
-            background-color: #1a365d; 
-            border: 2px solid #00ced1; 
-            border-radius: 10px; 
-            padding: 0.6vh 0.5vw; 
-            text-align: center; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center;
-            min-height: 0;
-        }
-
-        .card h3 { 
-            margin: 0 0 0.3vh 0; 
-            color: #a0aec0; 
-            font-size: clamp(0.75em, 0.95vw, 1em); 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
-        }
-
-        .valor { font-size: clamp(1.1em, 2.4vw, 1.8em); color: #ffffff; font-weight: 800; }
-        
-        /* Layout Split para Cards de Frota/Motorista */
-        .card-split { justify-content: space-between; padding-bottom: 0.8vh; }
+        .titulo-painel { color: #2ecc71; font-size: clamp(1.5em, 3.2vw, 2.2em); text-transform: uppercase; letter-spacing: 3px; margin: 0; font-weight: 800; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); text-align: center; }
+        .tela { display: none; flex-direction: column; gap: 2.5vh; flex: 1; min-height: 0; animation: suaveEntrada 2.5s ease-in-out; }
+        .tela.ativa { display: flex; }
+        @keyframes suaveEntrada { 0% { opacity: 0; filter: blur(15px); transform: scale(0.97); } 100% { opacity: 1; filter: blur(0); transform: scale(1); } }
+        .grid-cards { display: flex; gap: 2vw; width: 100%; flex-shrink: 0; }
+        .card { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; flex: 1; padding: 0.8vh 0.6vw; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: center; }
+        .card h3 { margin: 0 0 0.4vh 0; color: #a0aec0; font-size: clamp(0.85em, 1.1vw, 1.1em); text-transform: uppercase; letter-spacing: 1px; min-height: 1.6em; display: flex; align-items: center; justify-content: center; }
+        .secao-inferior { display: flex; gap: 2vw; flex: 1; min-height: 0; }
+        .container-coluna { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; min-height: 0; }
+        .card-split { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .split-container { display: flex; justify-content: space-around; align-items: center; flex: 1; }
-        .split-item { flex: 1; border-right: 1px solid rgba(160, 174, 192, 0.2); display: flex; flex-direction: column; align-items: center; }
+        .split-item { flex: 1; border-right: 1px solid rgba(160, 174, 192, 0.2); display: flex; flex-direction: column; align-items: center; padding: 0 2px; }
         .split-item:last-child { border-right: none; }
-        .subtitulo { font-size: 0.65vw; color: #a0aec0; margin-bottom: 1px; text-transform: uppercase; }
-        .valor-frota { font-size: clamp(0.9em, 1.8vw, 1.4em); }
-
-        /* Gráficos */
-        .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 1.5vh 1vw; flex: 1; }
-        .chart-container { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; padding: 1vh; position: relative; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .subtitulo { font-size: clamp(0.55em, 0.75vw, 0.8em); color: #a0aec0; margin-bottom: 2px; text-transform: uppercase; }
+        .valor { font-size: clamp(1.2em, 2.8vw, 2em); color: #ffffff; display: block; }
+        .valor-frota { font-size: clamp(1em, 2vw, 1.6em); }
+        .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; min-height: 0; height: 100%; }
+        .chart-container { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; padding: 1.5vh; position: relative; min-height: 0; }
         
-        /* Estilo para a mensagem EM BREVE... */
-        .aviso-em-breve {
-            color: #a0aec0;
-            font-size: clamp(1.2em, 2.5vw, 1.8em);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 800;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
+        /* Estilos específicos para a nova Tela 6 */
+        .grid-graficos-tela6 { display: flex; flex-direction: column; gap: 20px; flex: 1; min-height: 0; height: 100%; }
+        .linha-graficos-6 { display: grid; gap: 20px; flex: 1; min-height: 0; }
+        .linha-1-3 { grid-template-columns: repeat(3, 1fr); }
+        .linha-2-2 { grid-template-columns: repeat(2, 1fr); }
     </style>
 </head>
 <body>
@@ -145,73 +63,76 @@
     </header>
 
     <div id="tela1" class="tela ativa">
-        <div class="grid-principal">
-            <div class="card c4"><h3>VOLUME EXPEDIDO (KG) - HOJE</h3><span class="valor" id="vol-valor">-</span></div>
-            <div class="card c4"><h3>PESOxVEÍCULO (KG) - HOJE</h3><span class="valor" id="drop-valor">-</span></div>
-            <div class="card c4"><h3>NF'S (QTD) - HOJE</h3><span class="valor" id="nf-valor">-</span></div>
-
-            <div class="card c3"><h3>CLIENTES (QTD) - HOJE</h3><span class="valor" id="cli-valor">-</span></div>
-            <div class="card c3"><h3>DROPSIZE (KG) - HOJE</h3><span class="valor" id="dropsize-hoje-valor">-</span></div>
-            <div class="card c3"><h3>ABSENTEÍSMO (QTD) - HOJE</h3><span class="valor" id="abs-valor">-</span></div>
-            <div class="card c3"><h3>ABSENTEÍSMO (%) - HOJE</h3><span class="valor" id="abs-perc-valor">-</span></div>
-
-            <div class="card c3"><h3>OCUPAÇÃO (%) - HOJE</h3><span class="valor" id="ocp-valor">-</span></div>
-            <div class="card c3"><h3>TERCEIROS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
-            
-            <div class="card card-split c6">
-                <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOT</span><span class="valor-frota" id="md-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">VAG</span><span class="valor-frota" id="md-vagas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FER</span><span class="valor-frota" id="md-ferias">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FAL</span><span class="valor-frota" id="md-faltas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">ATE</span><span class="valor-frota" id="md-atestados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">BH</span><span class="valor-frota" id="md-banco">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTIL</span><span class="valor-frota" id="md-util">-</span></div>
+        <div class="grid-cards">
+            <div class="card"><h3>VOLUME EXPEDIDO (KG) - HOJE</h3><span class="valor" id="vol-valor">-</span></div>
+            <div class="card"><h3>PESOxVEÍCULO (KG) - HOJE</h3><span class="valor" id="drop-valor">-</span></div>
+            <div class="card"><h3>OCUPAÇÃO (%) - HOJE</h3><span class="valor" id="ocp-valor">-</span></div>
+            <div class="card"><h3>NF'S (QTD) - HOJE</h3><span class="valor" id="nf-valor">-</span></div>
+        </div>
+        <div class="grid-cards">
+            <div class="card"><h3>TERCEIROS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
+            <div class="card"><h3>DROPSIZE (KG) - HOJE</h3><span class="valor" id="dropsize-hoje-valor">-</span></div>
+            <div class="card"><h3>ABSENTEÍSMO (QTD) - HOJE</h3><span class="valor" id="abs-valor">-</span></div>
+            <div class="card"><h3>ABSENTEÍSMO (%) - HOJE</h3><span class="valor" id="abs-perc-valor">-</span></div>
+            <div class="card"><h3>CLIENTES (QTD) - HOJE</h3><span class="valor" id="cli-valor">-</span></div>
+        </div>
+        <div class="secao-inferior">
+            <div class="container-coluna">
+                <div class="card card-split">
+                    <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="f-dispo">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="f-util">-</span></div>
+                    </div>
+                </div>
+                <div class="card card-split">
+                    <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util">-</span></div>
+                    </div>
                 </div>
             </div>
-
-            <div class="card card-split c6">
-                <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor-frota" id="f-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor-frota" id="f-parados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">DISPO</span><span class="valor-frota" id="f-dispo">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTIL</span><span class="valor-frota" id="f-util">-</span></div>
+            <div class="container-coluna">
+                <div class="card card-split">
+                    <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="md-vagas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="md-ferias">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="md-atestados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="md-banco">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="md-util">-</span></div>
+                    </div>
                 </div>
-            </div>
-            <div class="card card-split c6">
-                <h3>AUXILIAR DISTRIBUIÇÃO (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOT</span><span class="valor-frota" id="aux-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">VAG</span><span class="valor-frota" id="aux-vagas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FER</span><span class="valor-frota" id="aux-ferias">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FAL</span><span class="valor-frota" id="aux-faltas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">ATE</span><span class="valor-frota" id="aux-atestados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">BH</span><span class="valor-frota" id="aux-banco">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTIL</span><span class="valor-frota" id="aux-util">-</span></div>
+                <div class="card card-split">
+                    <h3>AUXILIAR DISTRIBUIÇÃO (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="aux-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="aux-vagas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="aux-ferias">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="aux-faltas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="aux-atestados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="aux-banco">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="aux-util">-</span></div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="card card-split c6">
-                <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor-frota" id="ft-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor-frota" id="ft-parados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">DISPO</span><span class="valor-frota" id="ft-dispo">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTIL</span><span class="valor-frota" id="ft-util">-</span></div>
-                </div>
-            </div>
-            <div class="card card-split c6">
-                <h3>MOTORISTA TRANSFERÊNCIA (QTD) - HOJE</h3>
-                <div class="split-container">
-                    <div class="split-item"><span class="subtitulo">TOT</span><span class="valor-frota" id="mt-total">-</span></div>
-                    <div class="split-item"><span class="subtitulo">VAG</span><span class="valor-frota" id="mt-vagas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FER</span><span class="valor-frota" id="mt-ferias">-</span></div>
-                    <div class="split-item"><span class="subtitulo">FAL</span><span class="valor-frota" id="mt-faltas">-</span></div>
-                    <div class="split-item"><span class="subtitulo">ATE</span><span class="valor-frota" id="mt-atestados">-</span></div>
-                    <div class="split-item"><span class="subtitulo">BH</span><span class="valor-frota" id="mt-banco">-</span></div>
-                    <div class="split-item"><span class="subtitulo">UTIL</span><span class="valor-frota" id="mt-util">-</span></div>
+                <div class="card card-split">
+                    <h3>MOTORISTA TRANSFERÊNCIA (QTD) - HOJE</h3>
+                    <div class="split-container">
+                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="mt-total">-</span></div>
+                        <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="mt-vagas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="mt-ferias">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="mt-faltas">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="mt-atestados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="mt-banco">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="mt-util">-</span></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -246,10 +167,24 @@
 
     <div id="tela5" class="tela">
         <div class="grid-graficos">
-            <div class="chart-container"><span class="aviso-em-breve">EM BREVE...</span></div>
-            <div class="chart-container"><span class="aviso-em-breve">EM BREVE...</span></div>
-            <div class="chart-container"><span class="aviso-em-breve">EM BREVE...</span></div>
-            <div class="chart-container"><span class="aviso-em-breve">EM BREVE...</span></div>
+            <div class="chart-container"><canvas id="graficoDevolucaoDiario"></canvas></div>
+            <div class="chart-container"><canvas id="graficoDevolucaoMensal"></canvas></div>
+            <div class="chart-container"><canvas id="graficoOtifDiario"></canvas></div>
+            <div class="chart-container"><canvas id="graficoOtifMensal"></canvas></div>
+        </div>
+    </div>
+
+    <div id="tela6" class="tela">
+        <div class="grid-graficos-tela6">
+            <div class="linha-graficos-6 linha-1-3">
+                <div class="chart-container"><canvas id="graficoVelocimetro1"></canvas></div>
+                <div class="chart-container"><canvas id="graficoVelocimetro2"></canvas></div>
+                <div class="chart-container"><canvas id="graficoVelocimetro3"></canvas></div>
+            </div>
+            <div class="linha-graficos-6 linha-2-2">
+                <div class="chart-container"><canvas id="graficoMontanha"></canvas></div>
+                <div class="chart-container"><canvas id="graficoColunas"></canvas></div>
+            </div>
         </div>
     </div>
 
@@ -270,21 +205,23 @@
 
         function mudarTelaManual(direcao) { 
             if (autoMode) tempoRestante = 90;
-            if (direcao === 1) telaAtual = telaAtual === 5 ? 1 : telaAtual + 1;
-            else telaAtual = telaAtual === 1 ? 5 : telaAtual - 1;
+            if (direcao === 1) telaAtual = telaAtual === 6 ? 1 : telaAtual + 1;
+            else telaAtual = telaAtual === 1 ? 6 : telaAtual - 1;
             aplicarExibicaoTela();
         }
 
         setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 90; } } }, 1000);
 
         function alternarTelas() {
-            telaAtual = telaAtual === 5 ? 1 : telaAtual + 1;
+            telaAtual = telaAtual === 6 ? 1 : telaAtual + 1;
             aplicarExibicaoTela();
         }
 
         function aplicarExibicaoTela() {
             const telas = document.querySelectorAll('.tela');
-            telas.forEach((t, i) => { t.classList.toggle('ativa', i + 1 === telaAtual); });
+            telas.forEach((t, i) => {
+                t.classList.toggle('ativa', i + 1 === telaAtual);
+            });
             window.dispatchEvent(new Event('resize'));
         }
 
@@ -294,7 +231,11 @@
 
         function safeSplit(row) {
             const res = []; let inQ = false; let cur = '';
-            for (let char of row) { if (char === '"') inQ = !inQ; else if (char === ',' && !inQ) { res.push(cur.trim()); cur = ''; } else cur += char; }
+            for (let char of row) {
+                if (char === '"') inQ = !inQ;
+                else if (char === ',' && !inQ) { res.push(cur.trim()); cur = ''; }
+                else cur += char;
+            }
             res.push(cur.trim()); return res;
         }
 
@@ -325,15 +266,45 @@
                 const idxData = cabecalho.indexOf("DATA");
                 
                 const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)", drop: "PESOxVEÍCULO (KG)", nf: "NF'S (QTD)", ocp: "OCUPAÇÃO (%)",
-                    abs: "ABSENTEÍSMO (QTD)", absPerc: "ABSENTEÍSMO (%)", terceiros: "TERCEIROS UTILIZADOS (QTD)", cli: "CLIENTES (QTD)",
+                    vol: "VOLUME EXPEDIDO (KG)", 
+                    drop: "PESOXVEÍCULO (KG)",
+                    nf: "NF'S (QTD)", 
+                    ocp: "OCUPAÇÃO (%)",
+                    abs: "ABSENTEÍSMO (QTD)", 
+                    absPerc: "ABSENTEÍSMO (%)", 
+                    terceiros: "TERCEIROS UTILIZADOS (QTD)", 
+                    cli: "CLIENTES (QTD)",
                     dropsizeHoje: "DROPSIZE (KG)",
-                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
-                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
-                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
-                    ns: "NIVEL DE SERVIÇO (%)", re: "REENTREGA (QTD)", devT: "DEVOLUÇÃO TOTAL (QTD)", devO: "DEVOLUÇÃO PARCIAL (QTD)", otif: "ENTREGAS OTIF (%)"
+                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", 
+                    fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", 
+                    fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", 
+                    fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
+                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", 
+                    ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", 
+                    ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", 
+                    ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
+                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                    mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                    auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                    mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    otif: "ENTREGAS OTIF (%)"
                 };
 
                 const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
@@ -341,17 +312,20 @@
 
                 const ultimoDiaMesExibicao = new Date(anoDeExibicao, mesDeExibicaoIdx + 1, 0).getDate();
                 const dVolR = Array(ultimoDiaMesExibicao).fill(null); const dOcpR = Array(ultimoDiaMesExibicao).fill(null);
-                const dDropR = Array(ultimoDiaMesExibicao).fill(null); const dDropSizeR = Array(ultimoDiaMesExibicao).fill(null);
-                const dNfR = Array(ultimoDiaMesExibicao).fill(null); const dCliR = Array(ultimoDiaMesExibicao).fill(null);
+                const dDropR = Array(ultimoDiaMesExibicao).fill(null); const dDropSizeR = Array(ultimoDiaMesExibicao).fill(null); const dNfR = Array(ultimoDiaMesExibicao).fill(null); const dCliR = Array(ultimoDiaMesExibicao).fill(null);
                 const dNsR = Array(ultimoDiaMesExibicao).fill(null); const dReR = Array(ultimoDiaMesExibicao).fill(null);
                 const dDevTot = Array(ultimoDiaMesExibicao).fill(null); const dDevOp = Array(ultimoDiaMesExibicao).fill(null);
                 const dOtifR = Array(ultimoDiaMesExibicao).fill(null);
 
                 const acVolM = Array(12).fill(0); const sOcpM = Array(12).fill(0); const cOcpM = Array(12).fill(0);
-                const sDropM = Array(12).fill(0); const sDropSizeM = Array(12).fill(0); const acNfM = Array(12).fill(0);
-                const acCliM = Array(12).fill(0); const sNsM = Array(12).fill(0); const cNsM = Array(12).fill(0);
-                const acReM = Array(12).fill(0); const sDevTotM = Array(12).fill(0); const cDevTotM = Array(12).fill(0);
-                const sDevOpM = Array(12).fill(0); const cDevOpM = Array(12).fill(0); const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
+                const sDropM = Array(12).fill(0); const sDropSizeM = Array(12).fill(0);
+                const acNfM = Array(12).fill(0); const acCliM = Array(12).fill(0);
+                const sNsM = Array(12).fill(0); const cNsM = Array(12).fill(0);
+                const acReM = Array(12).fill(0);
+                
+                const sDevTotM = Array(12).fill(0); const cDevTotM = Array(12).fill(0);
+                const sDevOpM = Array(12).fill(0); const cDevOpM = Array(12).fill(0);
+                const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
 
                 const converter = (val) => {
                     if (!val || val === "-" || val === "null" || val === "#N/A") return null;
@@ -365,88 +339,200 @@
                     if (!dataPlanilha) continue;
 
                     if (dataPlanilha.includes(hojeBusca)) {
-                        for(let key in idxs) { if(idxs[key] !== -1) valCards[key] = colunas[idxs[key]]; }
+                        for(let key in idxs) valCards[key] = (colunas[idxs[key]] || "-").replace(/"/g, '').trim() || "-";
                     }
 
-                    const partes = dataPlanilha.split('/');
-                    if (partes.length === 3) {
-                        const dNum = parseInt(partes[0]); const mIdx = parseInt(partes[1]) - 1; const aNum = parseInt(partes[2]);
-                        const valVol = converter(colunas[idxs.vol]); const valOcp = converter(colunas[idxs.ocp]);
-                        const valDrop = converter(colunas[idxs.drop]); const valDropSize = converter(colunas[idxs.dropsizeHoje]);
-                        const valNf = converter(colunas[idxs.nf]); const valCli = converter(colunas[idxs.cli]);
-                        const valNs = converter(colunas[idxs.ns]); const valRe = converter(colunas[idxs.re]);
-                        const valDevT = converter(colunas[idxs.devT]); const valDevO = converter(colunas[idxs.devO]);
-                        const valOtif = converter(colunas[idxs.otif]);
+                    let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
+                    let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
+                    let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
+                    let valDropG = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG)")]); 
+                    let valDropSizeG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
+                    let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
+                    let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
+                    let valNsG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%)")]);
+                    let valNsMesG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%) MÊS")]);
+                    let valReG = converter(colunas[cabecalho.indexOf("REENTREGAS D+2 (QTD)")]);
+                    let valDevTotG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%)")]);
+                    let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
+                    let valOtifG = converter(colunas[idxs.otif]);
+                    
+                    let valOtifMesG = converter(colunas[cabecalho.indexOf("ENTREGAS OTIF (%) MÊS")]);
+                    let valDevTotMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%) MÊS")]);
+                    let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
+                    let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
+                    let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
 
-                        if (mIdx === mesDeExibicaoIdx && aNum === anoDeExibicao) {
-                            if (valVol !== null) dVolR[dNum-1] = valVol; if (valOcp !== null) dOcpR[dNum-1] = valOcp;
-                            if (valDrop !== null) dDropR[dNum-1] = valDrop; if (valDropSize !== null) dDropSizeR[dNum-1] = valDropSize;
-                            if (valNf !== null) dNfR[dNum-1] = valNf; if (valCli !== null) dCliR[dNum-1] = valCli;
-                            if (valNs !== null) dNsR[dNum-1] = valNs; if (valRe !== null) dReR[dNum-1] = valRe;
-                            if (valDevT !== null) dDevTot[dNum-1] = valDevT; if (valDevO !== null) dDevOp[dNum-1] = valDevO;
-                            if (valOtif !== null) dOtifR[dNum-1] = valOtif;
+                    let pD = dataPlanilha.split('/');
+                    if (pD.length === 3) {
+                        let dP = parseInt(pD[0]); let mP = parseInt(pD[1]); let aP = parseInt(pD[2]);
+                        
+                        if (aP === anoDeExibicao && mP === (mesDeExibicaoIdx + 1)) {
+                            if (dP <= ultimoDiaMesExibicao) {
+                                if(valVol !== null) dVolR[dP-1] = valVol; if(valOcupG !== null) dOcpR[dP-1] = valOcupG;
+                                if(valDropG !== null) dDropR[dP-1] = valDropG; if(valDropSizeG !== null) dDropSizeR[dP-1] = valDropSizeG; if(valNfG !== null) dNfR[dP-1] = valNfG; if(valCliG !== null) dCliR[dP-1] = valCliG;
+                                if(valNsG !== null) dNsR[dP-1] = valNsG; if(valReG !== null) dReR[dP-1] = valReG;
+                                if(valDevTotG !== null) dDevTot[dP-1] = valDevTotG; if(valDevOpG !== null) dDevOp[dP-1] = valDevOpG;
+                                if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
+                            }
                         }
-                        if (aNum === anoAtual) {
-                            if (valVol) acVolM[mIdx] += valVol; if (valNf) acNfM[mIdx] += valNf; if (valCli) acCliM[mIdx] += valCli; if (valRe) acReM[mIdx] += valRe;
-                            if (valOcp) { sOcpM[mIdx] += valOcp; cOcpM[mIdx]++; } if (valDrop) { sDropM[mIdx] += valDrop; }
-                            if (valDropSize) { sDropSizeM[mIdx] += valDropSize; } if (valNs) { sNsM[mIdx] += valNs; cNsM[mIdx]++; }
-                            if (valDevT) { sDevTotM[mIdx] += valDevT; cDevTotM[mIdx]++; } if (valDevO) { sDevOpM[mIdx] += valDevO; cDevOpM[mIdx]++; }
-                            if (valOtif) { sOtifM[mIdx] += valOtif; cOtifM[mIdx]++; }
+                        if (aP === anoAtual) {
+                            let mIdx = mP - 1;
+                            if (valVol !== null) acVolM[mIdx] += valVol; if (valNfG !== null) acNfM[mIdx] += valNfG; if (valCliG !== null) acCliM[mIdx] += valCliG;
+                            if (valReG !== null) acReM[mIdx] += valReG;
+                            if (valOcupMesG !== null && valOcupMesG > 0) { sOcpM[mIdx] = valOcupMesG; cOcpM[mIdx]++; }
+                            if (valDropMesAcumulado !== null && valDropMesAcumulado > 0) { sDropM[mIdx] = valDropMesAcumulado; }
+                            if (valDropSizeMesAcumulado !== null && valDropSizeMesAcumulado > 0) { sDropSizeM[mIdx] = valDropSizeMesAcumulado; }
+                            if (valNsMesG !== null && valNsMesG > 0) { sNsM[mIdx] = valNsMesG; cNsM[mIdx]++; }
+                            if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
+                            if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
+                            if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] = valOtifMesG; cOtifM[mIdx]++; }
                         }
                     }
                 }
 
-                // Atualizar DOM
-                const format = (v, isPerc = false) => {
-                    let n = converter(v); if (n === null) return "-";
-                    return isPerc ? n.toFixed(1) + "%" : Math.round(n).toLocaleString('pt-BR');
+                const idsMap = { 
+                    'vol-valor':'vol', 'drop-valor':'drop', 'nf-valor':'nf', 'ocp-valor':'ocp', 
+                    'abs-valor':'abs', 'abs-perc-valor':'absPerc', 'terc-util':'terceiros', 'cli-valor':'cli', 
+                    'dropsize-hoje-valor':'dropsizeHoje', 
+                    'f-total':'fTotal', 'f-parados':'fParados', 'f-dispo':'fDispo', 'f-util':'fUtil', 
+                    'ft-total':'ftTotal', 'ft-parados':'ftParados', 'ft-dispo':'ftDispo', 'ft-util':'ftUtil', 
+                    'md-total':'mdTotal', 'md-vagas':'mdVagas', 'md-ferias':'mdFerias', 'md-faltas':'mdFaltas', 
+                    'md-atestados':'mdAtestados', 'md-banco':'mdBanco', 'md-util':'mdUtil', 
+                    'aux-total':'auxTotal', 'aux-vagas':'auxVagas', 'aux-ferias':'auxFerias', 'aux-faltas':'auxFaltas', 
+                    'aux-atestados':'auxAtestados', 'aux-banco':'auxBanco', 'aux-util':'auxUtil', 
+                    'mt-total':'mtTotal', 'mt-vagas':'mtVagas', 'mt-ferias':'mtFerias', 'mt-faltas':'mtFaltas', 
+                    'mt-atestados':'mtAtestados', 'mt-banco':'mtBanco', 'mt-util':'mtUtil' 
                 };
+                for(let id in idsMap) { let el = document.getElementById(id); if(el) el.textContent = valCards[idsMap[id]]; }
 
-                document.getElementById('vol-valor').textContent = format(valCards.vol);
-                document.getElementById('drop-valor').textContent = format(valCards.drop);
-                document.getElementById('nf-valor').textContent = format(valCards.nf);
-                document.getElementById('ocp-valor').textContent = format(valCards.ocp, true);
-                document.getElementById('abs-valor').textContent = format(valCards.abs);
-                document.getElementById('abs-perc-valor').textContent = format(valCards.absPerc, true);
-                document.getElementById('terc-util').textContent = format(valCards.terceiros);
-                document.getElementById('cli-valor').textContent = format(valCards.cli);
-                document.getElementById('dropsize-hoje-valor').textContent = format(valCards.dropsizeHoje);
+                const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
+                for (let i = 0; i < ultimoDiaMesExibicao; i++) {
+                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null) {
+                        labF.push(String(i + 1).padStart(2, '0'));
+                        vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
+                        vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
+                    }
+                }
 
-                ['fTotal','fParados','fDispo','fUtil','ftTotal','ftParados','ftDispo','ftUtil','mdTotal','mdVagas','mdFerias','mdFaltas','mdAtestados','mdBanco','mdUtil','auxTotal','auxVagas','auxFerias','auxFaltas','auxAtestados','auxBanco','auxUtil','mtTotal','mtVagas','mtFerias','mtFaltas','mtAtestados','mtBanco','mtUtil'].forEach(id => {
-                    document.getElementById(id.replace(/([A-Z])/g, '-$1').toLowerCase()).textContent = format(valCards[id]);
-                });
+                renderizarGraficoDiario(labF, vVolF, mesExibicaoNome);
+                renderizarGraficoMensal(mesesExtenso, acVolM, anoAtual);
+                renderizarOcupacaoDiaria(labF, vOcpF, mesExibicaoNome);
+                renderizarOcupacaoMensal(mesesExtenso, sOcpM.map((s,i)=>cOcpM[i]>0?s:0), anoAtual);
+                renderizarDropDiario(labF, vDropF, vDropSizeF, mesExibicaoNome);
+                renderizarDropMensal(mesesExtenso, sDropM, sDropSizeM, anoAtual);
+                renderizarNfDiario(labF, vNfF, vCliF, mesExibicaoNome);
+                renderizarNfMensal(mesesExtenso, acNfM, acCliM, anoAtual);
+                renderizarNsDiario(labF, vNsF, mesExibicaoNome);
+                renderizarNsMensal(mesesExtenso, sNsM.map((s,i)=>cNsM[i]>0?s:0), anoAtual);
+                renderizarReDiario(labF, vReF, mesExibicaoNome);
+                renderizarReMensal(mesesExtenso, acReM, anoAtual);
+                renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
+                renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
+                renderizarOtifDiario(labF, vOtifF, mesExibicaoNome);
+                renderizarOtifMensal(mesesExtenso, sOtifM.map((s,i)=>cOtifM[i]>0?s:0), anoAtual);
 
-                // Labels
-                const labelsD = Array.from({length: ultimoDiaMesExibicao}, (_, i) => i + 1);
-                const labelsM = mesesExtenso;
-
-                // Gráficos
-                renderGrafico('graficoVolume', labelsD, dVolR, `VOLUME (KG) - ${mesExibicaoNome}`, 'rgba(0, 206, 209, 0.8)', '#00ced1');
-                renderGrafico('graficoMensal', labelsM, acVolM, `VOLUME ACUMULADO (KG) - ${anoAtual}`, 'rgba(46, 204, 113, 0.8)', '#2ecc71');
-                renderGrafico('graficoOcupacaoDiario', labelsD, dOcpR, `OCUPAÇÃO (%) - ${mesExibicaoNome}`, 'rgba(241, 196, 15, 0.8)', '#f1c40f', true);
-                renderGrafico('graficoOcupacaoMensal', labelsM, sOcpM.map((v, i) => cOcpM[i] ? v / cOcpM[i] : null), `OCUPAÇÃO MÉDIA (%) - ${anoAtual}`, 'rgba(230, 126, 34, 0.8)', '#e67e22', true);
-                renderGrafico('graficoDropsizeDiario', labelsD, dDropSizeR, `DROPSIZE (KG) - ${mesExibicaoNome}`, 'rgba(155, 89, 182, 0.8)', '#9b59b6');
-                renderGrafico('graficoDropMensal', labelsM, sDropSizeM.map((v, i) => v || null), `DROPSIZE TOTAL (KG) - ${anoAtual}`, 'rgba(52, 152, 219, 0.8)', '#3498db');
-                renderGrafico('graficoNfDiario', labelsD, dNfR, `NF'S (QTD) - ${mesExibicaoNome}`, 'rgba(26, 188, 156, 0.8)', '#1abc9c');
-                renderGrafico('graficoNfMensal', labelsM, acNfM, `NF'S TOTAL (QTD) - ${anoAtual}`, 'rgba(46, 204, 113, 0.8)', '#2ecc71');
-                renderGrafico('graficoNsDiario', labelsD, dNsR, `NÍVEL SERVIÇO (%) - ${mesExibicaoNome}`, 'rgba(241, 196, 15, 0.8)', '#f1c40f', true);
-                renderGrafico('graficoNsMensal', labelsM, sNsM.map((v, i) => cNsM[i] ? v / cNsM[i] : null), `NÍVEL SERVIÇO (%) - ${anoAtual} (MÉDIA)`, 'rgba(230, 126, 34, 0.8)', '#e67e22', true);
-                renderGrafico('graficoReDiario', labelsD, dReR, `REENTREGA (QTD) - ${mesExibicaoNome}`, 'rgba(231, 76, 60, 0.8)', '#e74c3c');
-                renderGrafico('graficoReMensal', labelsM, acReM, `REENTREGA TOTAL (QTD) - ${anoAtual}`, 'rgba(192, 57, 43, 0.8)', '#c0392b');
-
-            } catch (error) { console.error("Erro planilha:", error); }
+            } catch (err) { console.error("Erro:", err); }
         }
 
-        function renderGrafico(id, labels, valores, titulo, bg, border, isPerc = false) {
-            const ctx = document.getElementById(id);
-            if (!ctx) return;
-            const chartVarName = 'chart_' + id;
-            if (window[chartVarName]) window[chartVarName].destroy();
-            window[chartVarName] = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: labels, datasets: [{ data: valores, backgroundColor: bg, borderColor: border, borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] },
-                options: getCommonOptions(titulo, true, isPerc)
+        function renderizarGraficoDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
+            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, true, false, false);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 2;
+            chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
+        }
+        function renderizarGraficoMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoMensal').getContext('2d'); if (chartMensalInstance) chartMensalInstance.destroy();
+            chartMensalInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume Mensal (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano} (TOTAL)`, true) });
+        }
+        function renderizarOcupacaoDiaria(labels, ocup, mesNome) {
+            const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
+            let opt = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderRadius: 2 } ] }, options: opt });
+        }
+        function renderizarOcupacaoMensal(labels, ocup, ano) {
+            const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
+            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${ano} (MÉDIA)`, true, true) });
+        }
+        function renderizarDropDiario(labels, valoresDrop, valoresDropSize, mesNome) {
+            const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
+            let opcoesComLegenda = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${mesNome}`, true);
+            opcoesComLegenda.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 12, weight: 'bold' }, padding: 20 } };
+            chartDropDiario = new Chart(ctx, { data: { labels: labels, datasets: [ { type: 'line', label: 'PESOxVEÍCULO', data: valoresDrop, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2, order: 1 }, { type: 'bar', label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, order: 2 } ] }, options: opcoesComLegenda });
+        }
+        function renderizarDropMensal(labels, valoresDrop, valoresDropSize, ano) {
+            const ctx = document.getElementById('graficoDropMensal').getContext('2d'); 
+            if (chartDropMensal) chartDropMensal.destroy();
+            let opt = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${ano} (MÉDIA)`, true);
+            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } } };
+            chartDropMensal = new Chart(ctx, { 
+                type: 'bar', 
+                data: { 
+                    labels: labels, 
+                    datasets: [
+                        { label: 'PESOxVEÍCULO', data: valoresDrop, backgroundColor: '#ff8c00', borderRadius: 2, barPercentage: 0.8 },
+                        { label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, barPercentage: 0.8 }
+                    ] 
+                }, 
+                options: opt 
             });
+        }
+        function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
+            const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
+            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartNfDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.5)', borderColor: '#00ced1', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }, { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 255, 0, 0.5)', borderColor: '#ffff00', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
+        }
+        function renderizarNfMensal(labels, valoresNf, valoresCli, ano) {
+            const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
+            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartNfMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }, { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderColor: '#ffff00', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
+        }
+        function renderizarNsDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoNsDiario').getContext('2d'); if (chartNsDiario) chartNsDiario.destroy();
+            let opt = getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${mesNome}`, true, true, false);
+            chartNsDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Nível de Serviço (%)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderRadius: 2 } ] }, options: opt });
+        }
+        function renderizarNsMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoNsMensal').getContext('2d'); if (chartNsMensal) chartNsMensal.destroy();
+            chartNsMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Nível de Serviço (%)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${ano} (MÉDIA)`, true, true) });
+        }
+        function renderizarReDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoReDiario').getContext('2d'); if (chartReDiario) chartReDiario.destroy();
+            chartReDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Reentregas (QTD)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${mesNome}`, true) });
+        }
+        function renderizarReMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoReMensal').getContext('2d'); if (chartReMensal) chartReMensal.destroy();
+            chartReMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Total Reentregas', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${ano} (TOTAL)`, true) });
+        }
+        function renderizarDevolucaoDiario(labels, valoresTot, valoresOp, mesNome) {
+            const ctx = document.getElementById('graficoDevolucaoDiario').getContext('2d'); if (chartDevolDiario) chartDevolDiario.destroy();
+            let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X DEVOLUÇÃO OPERAÇÃO (%) - ${mesNome}`, true, true);
+            chartDevolDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: "DEVOLUÇÃO TOTAL", data: valoresTot, borderColor: '#e74c3c', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 }, { label: "DEVOLUÇÃO OPERAÇÃO", data: valoresOp, borderColor: '#f39c12', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
+        }
+        function renderizarDevolucaoMensal(labels, valoresTot, valoresOp, ano) {
+            const ctx = document.getElementById('graficoDevolucaoMensal').getContext('2d'); if (chartDevolMensal) chartDevolMensal.destroy();
+            let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X DEVOLUÇÃO OPERAÇÃO (%) - ${ano} (MÉDIA)`, true, true);
+            chartDevolMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "DEVOLUÇÃO TOTAL", data: valoresTot, backgroundColor: '#e74c3c', borderRadius: 2, barPercentage: 0.6 }, { label: "DEVOLUÇÃO OPERAÇÃO", data: valoresOp, backgroundColor: '#f39c12', borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
+        }
+        function renderizarOtifDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoOtifDiario').getContext('2d'); if (chartOtifDiario) chartOtifDiario.destroy();
+            let opt = getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true, false);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            chartOtifDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'OTIF (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
+        }
+        function renderizarOtifMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoOtifMensal').getContext('2d'); if (chartOtifMensal) chartOtifMensal.destroy();
+            chartOtifMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'OTIF Médio (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${ano} (MÉDIA)`, true, true) });
         }
 
         function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
@@ -457,14 +543,13 @@
                     title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } }, legend: { display: false } 
                 }, 
                 scales: { 
-                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.05)' } }, 
-                    x: { ticks: { color: '#a0aec0', font: { size: 9 } }, grid: { display: false } } 
+                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#ffffff', font: { size: 10 }, callback: function(value) { return isPerc ? value + '%' : value; } } }, 
+                    x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } 
                 } 
             }; 
         }
 
-        fetchPlanilha();
-        setInterval(fetchPlanilha, 300000);
+        fetchPlanilha(); setInterval(fetchPlanilha, 60000);
     </script>
 </body>
 </html>
