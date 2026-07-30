@@ -174,7 +174,7 @@
         </div>
     </div>
 
-<div id="tela6" class="tela">
+    <div id="tela6" class="tela">
         <div class="grid-graficos-tela6">
             <div class="linha-graficos-6 linha-1-3">
                 <div class="chart-container"><canvas id="graficoVelocimetro1"></canvas></div>
@@ -182,14 +182,7 @@
                 <div class="chart-container"><canvas id="graficoVelocimetro3"></canvas></div>
             </div>
             <div class="linha-graficos-6 linha-2-2">
-                <div class="chart-container" style="display: flex; flex-direction: column;">
-                    <div style="flex: 1; position: relative; min-height: 0;"><canvas id="graficoMontanha"></canvas></div>
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 25px; padding-top: 8px; font-size: 0.8em;">
-                        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background-color: #2ecc71; display: inline-block; border-radius: 2px;"></span> OTIF</span>
-                        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background-color: #e67e22; display: inline-block; border-radius: 2px;"></span> ON TIME</span>
-                        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background-color: #3498db; display: inline-block; border-radius: 2px;"></span> IN FULL</span>
-                    </div>
-                </div>
+                <div class="chart-container"><canvas id="graficoMontanha"></canvas></div>
                 <div class="chart-container"><canvas id="graficoColunas"></canvas></div>
             </div>
         </div>
@@ -447,114 +440,15 @@
                 renderizarOtifDiario(labF, vOtifF, mesExibicaoNome);
                 renderizarOtifMensal(mesesExtenso, sOtifM.map((s,i)=>cOtifM[i]>0?s:0), anoAtual);
 
-                // Gráfico Combinado (Otif colunas + On Time/In Full montanhas) na Tela 6
-                const tituloOtifMix = `ENTREGAS OTIF x ON TIME X IN FULL (%) - ${mesExibicaoNome}`;
-                const diasMesTarget = ultimoDiaMesExibicao;
-                const labelsDias = Array.from({length: diasMesTarget}, (_, i) => String(i + 1).padStart(2, '0'));
-                
-                const arrOtifDiario = Array(diasMesTarget).fill(null);
-                const arrOnTimeDiario = Array(diasMesTarget).fill(null);
-                const arrInFullDiario = Array(diasMesTarget).fill(null);
+                // Renderização dos Velocímetros (Tela 6)
+                let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
+                renderizarVelocimetro('graficoVelocimetro1', mediaOtifMesTela6, `ENTREGAS OTIF (%) ${mesExibicaoNome} - MÉDIA`);
 
-                for (let i = 1; i < linhas.length; i++) {
-                    const colunas = safeSplit(linhas[i]);
-                    let dataStr = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
-                    if (!dataStr) continue;
-                    const partes = dataStr.split('/');
-                    if (partes.length === 3) {
-                        let dP = parseInt(partes[0], 10);
-                        let mP = parseInt(partes[1], 10) - 1;
-                        let aP = parseInt(partes[2], 10);
-                        if (mP === mesDeExibicaoIdx && aP === anoDeExibicao && dP >= 1 && dP <= diasMesTarget) {
-                            arrOtifDiario[dP - 1] = converter(colunas[cabecalho.indexOf("ENTREGAS OTIF (%)")]);
-                            arrOnTimeDiario[dP - 1] = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%)")]);
-                            arrInFullDiario[dP - 1] = converter(colunas[cabecalho.indexOf("ENTREGAS IN FULL (%)")]);
-                        }
-                    }
-                }
+                let mediaOnTimeMesTela6 = cOnTimeM[mesDeExibicaoIdx] > 0 ? sOnTimeM[mesDeExibicaoIdx] / cOnTimeM[mesDeExibicaoIdx] : 0;
+                renderizarVelocimetro('graficoVelocimetro2', mediaOnTimeMesTela6, `ENTREGAS ON TIME (%) ${mesExibicaoNome} - MÉDIA`, '#f39c12');
 
-                if (window.chartMontanhaInst) window.chartMontanhaInst.destroy();
-                const ctxMontanha = document.getElementById('graficoMontanha').getContext('2d');
-                window.chartMontanhaInst = new Chart(ctxMontanha, {
-                    type: 'bar',
-                    data: {
-                        labels: labelsDias,
-                        datasets: [
-                            {
-                                type: 'bar',
-                                label: 'OTIF',
-                                data: arrOtifDiario,
-                                backgroundColor: 'rgba(46, 204, 113, 0.8)',
-                                borderColor: '#2ecc71',
-                                borderWidth: 1,
-                                borderRadius: 2,
-                                barPercentage: 0.6,
-                                order: 3
-                            },
-                            {
-                                type: 'line',
-                                label: 'ON TIME',
-                                data: arrOnTimeDiario,
-                                borderColor: '#e67e22',
-                                backgroundColor: 'rgba(230, 126, 34, 0.15)',
-                                borderWidth: 2,
-                                fill: true,
-                                tension: 0.3,
-                                pointRadius: 2,
-                                order: 2
-                            },
-                            {
-                                type: 'line',
-                                label: 'IN FULL',
-                                data: arrInFullDiario,
-                                borderColor: '#3498db',
-                                backgroundColor: 'rgba(52, 152, 219, 0.15)',
-                                borderWidth: 2,
-                                fill: true,
-                                tension: 0.3,
-                                pointRadius: 2,
-                                order: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        layout: { padding: { top: 15, bottom: 5, right: 10 } },
-                        plugins: {
-                            datalabels: {
-                                display: true,
-                                anchor: 'end',
-                                align: 'top',
-                                offset: 2,
-                                color: '#ffffff',
-                                font: { weight: 'bold', size: 9 },
-                                textStrokeColor: 'rgba(0, 0, 0, 0.7)',
-                                textStrokeWidth: 2,
-                                formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
-                            },
-                            title: {
-                                display: true,
-                                text: tituloOtifMix,
-                                color: '#a0aec0',
-                                font: { size: 13, weight: 'bold' },
-                                padding: { bottom: 15 }
-                            },
-                            legend: { display: false }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                display: false,
-                                grid: { display: false }
-                            },
-                            x: {
-                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                                ticks: { color: '#a0aec0', font: { size: 10 } }
-                            }
-                        }
-                    }
-                });
+                let mediaInFullMesTela6 = cInFullM[mesDeExibicaoIdx] > 0 ? sInFullM[mesDeExibicaoIdx] / cInFullM[mesDeExibicaoIdx] : 0;
+                renderizarVelocimetro('graficoVelocimetro3', mediaInFullMesTela6, `ENTREGAS IN FULL (%) ${mesExibicaoNome} - MÉDIA`, '#3498db');
 
             } catch (err) { console.error("Erro:", err); }
         }
