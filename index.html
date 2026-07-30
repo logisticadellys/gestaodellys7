@@ -182,7 +182,14 @@
                 <div class="chart-container"><canvas id="graficoVelocimetro3"></canvas></div>
             </div>
             <div class="linha-graficos-6 linha-2-2">
-                <div class="chart-container"><canvas id="graficoMontanha"></canvas></div>
+                <div class="chart-container" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="flex: 1; position: relative; min-height: 0;"><canvas id="graficoMontanha"></canvas></div>
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 20px; font-size: 0.85em; margin-top: 5px; font-weight: bold;">
+                        <span style="display: flex; align-items: center; gap: 5px;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #2ecc71; border-radius: 2px;"></span> OTIF</span>
+                        <span style="display: flex; align-items: center; gap: 5px;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #f39c12; border-radius: 2px;"></span> ON TIME</span>
+                        <span style="display: flex; align-items: center; gap: 5px;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #00ced1; border-radius: 2px;"></span> IN FULL</span>
+                    </div>
+                </div>
                 <div class="chart-container"><canvas id="graficoColunas"></canvas></div>
             </div>
         </div>
@@ -230,6 +237,7 @@
             if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
             if (window['chart_graficoVelocimetro2']) window['chart_graficoVelocimetro2'].resize();
             if (window['chart_graficoVelocimetro3']) window['chart_graficoVelocimetro3'].resize();
+            if (window.chartMontanhaInst) window.chartMontanhaInst.resize();
         });
 
         function safeSplit(row) {
@@ -318,7 +326,11 @@
                 const dDropR = Array(ultimoDiaMesExibicao).fill(null); const dDropSizeR = Array(ultimoDiaMesExibicao).fill(null); const dNfR = Array(ultimoDiaMesExibicao).fill(null); const dCliR = Array(ultimoDiaMesExibicao).fill(null);
                 const dNsR = Array(ultimoDiaMesExibicao).fill(null); const dReR = Array(ultimoDiaMesExibicao).fill(null);
                 const dDevTot = Array(ultimoDiaMesExibicao).fill(null); const dDevOp = Array(ultimoDiaMesExibicao).fill(null);
+                
+                // Variáveis para o novo gráfico da tela 6
                 const dOtifR = Array(ultimoDiaMesExibicao).fill(null);
+                const dOnTimeR = Array(ultimoDiaMesExibicao).fill(null);
+                const dInFullR = Array(ultimoDiaMesExibicao).fill(null);
 
                 const acVolM = Array(12).fill(0); const sOcpM = Array(12).fill(0); const cOcpM = Array(12).fill(0);
                 const sDropM = Array(12).fill(0); const sDropSizeM = Array(12).fill(0);
@@ -359,7 +371,10 @@
                     let valReG = converter(colunas[cabecalho.indexOf("REENTREGAS D+2 (QTD)")]);
                     let valDevTotG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%)")]);
                     let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
+                    
                     let valOtifG = converter(colunas[idxs.otif]);
+                    let valOnTimeG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%)")]);
+                    let valInFullG = converter(colunas[cabecalho.indexOf("ENTREGAS IN FULL (%)")]);
                     
                     let valOtifMesG = converter(colunas[cabecalho.indexOf("ENTREGAS OTIF (%) MÊS")]);
                     let valOnTimeMesG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%) MÊS")]);
@@ -379,7 +394,10 @@
                                 if(valDropG !== null) dDropR[dP-1] = valDropG; if(valDropSizeG !== null) dDropSizeR[dP-1] = valDropSizeG; if(valNfG !== null) dNfR[dP-1] = valNfG; if(valCliG !== null) dCliR[dP-1] = valCliG;
                                 if(valNsG !== null) dNsR[dP-1] = valNsG; if(valReG !== null) dReR[dP-1] = valReG;
                                 if(valDevTotG !== null) dDevTot[dP-1] = valDevTotG; if(valDevOpG !== null) dDevOp[dP-1] = valDevOpG;
+                                
                                 if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
+                                if(valOnTimeG !== null) dOnTimeR[dP-1] = valOnTimeG;
+                                if(valInFullG !== null) dInFullR[dP-1] = valInFullG;
                             }
                         }
                         if (aP === anoAtual) {
@@ -449,6 +467,88 @@
 
                 let mediaInFullMesTela6 = cInFullM[mesDeExibicaoIdx] > 0 ? sInFullM[mesDeExibicaoIdx] / cInFullM[mesDeExibicaoIdx] : 0;
                 renderizarVelocimetro('graficoVelocimetro3', mediaInFullMesTela6, `ENTREGAS IN FULL (%) ${mesExibicaoNome} - MÉDIA`, '#3498db');
+
+                // Novo Gráfico Combinado Tela 6 (Esquerda Inferior)
+                const ctxMontanha = document.getElementById('graficoMontanha').getContext('2d');
+                if (window.chartMontanhaInst) window.chartMontanhaInst.destroy();
+                
+                const labelsDiasTarget = Array.from({length: ultimoDiaMesExibicao}, (_, i) => String(i + 1).padStart(2, '0'));
+
+                window.chartMontanhaInst = new Chart(ctxMontanha, {
+                    type: 'bar',
+                    data: {
+                        labels: labelsDiasTarget,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'OTIF',
+                                data: dOtifR,
+                                backgroundColor: '#2ecc71',
+                                borderRadius: 2,
+                                barPercentage: 0.6,
+                                order: 3,
+                                datalabels: {
+                                    display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
+                                    align: 'top', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 9 }, textStrokeColor: 'rgba(0,0,0,0.7)', textStrokeWidth: 2,
+                                    formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                                }
+                            },
+                            {
+                                type: 'line',
+                                label: 'ON TIME',
+                                data: dOnTimeR,
+                                borderColor: '#f39c12',
+                                backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 2,
+                                order: 2,
+                                datalabels: {
+                                    display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
+                                    align: 'top', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 9 }, textStrokeColor: 'rgba(0,0,0,0.7)', textStrokeWidth: 2,
+                                    formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                                }
+                            },
+                            {
+                                type: 'line',
+                                label: 'IN FULL',
+                                data: dInFullR,
+                                borderColor: '#00ced1',
+                                backgroundColor: 'rgba(0, 206, 209, 0.2)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 2,
+                                order: 1,
+                                datalabels: {
+                                    display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
+                                    align: 'top', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 9 }, textStrokeColor: 'rgba(0,0,0,0.7)', textStrokeWidth: 2,
+                                    formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                                }
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: { padding: { top: 15, bottom: 5, right: 10 } },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `ENTREGAS OTIF x ON TIME X IN FULL (%) - ${mesExibicaoNome}`,
+                                color: '#a0aec0',
+                                font: { size: 14, weight: 'bold' },
+                                padding: { bottom: 20 }
+                            },
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, display: false, grid: { display: false } },
+                            x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 10 } } }
+                        }
+                    }
+                });
 
             } catch (err) { console.error("Erro:", err); }
         }
