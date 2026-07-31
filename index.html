@@ -38,9 +38,11 @@
         .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; min-height: 0; height: 100%; }
         .chart-container { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; padding: 1.5vh; position: relative; min-height: 0; }
         
+        /* Estilos específicos para a nova Tela 6 */
         .grid-graficos-tela6 { display: flex; flex-direction: column; gap: 20px; flex: 1; min-height: 0; height: 100%; }
         .linha-graficos-6 { display: grid; gap: 20px; min-height: 0; }
         .linha-1-3 { grid-template-columns: repeat(3, 1fr); flex: 1; }
+        .linha-2-2 { grid-template-columns: repeat(2, 1fr); flex: 2; }
     </style>
 </head>
 <body>
@@ -179,10 +181,11 @@
                 <div class="chart-container"><canvas id="graficoVelocimetro2"></canvas></div>
                 <div class="chart-container"><canvas id="graficoVelocimetro3"></canvas></div>
             </div>
-            <div class="linha-graficos-6 linha-1-3">
-                <div class="chart-container"><canvas id="graficoOtifT6"></canvas></div>
-                <div class="chart-container"><canvas id="graficoOnTimeT6"></canvas></div>
-                <div class="chart-container"><canvas id="graficoInFullT6"></canvas></div>
+            <div class="linha-graficos-6 linha-2-2">
+                <div class="chart-container" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="flex: 1; position: relative; min-height: 0;"><canvas id="graficoMontanha"></canvas></div>
+                </div>
+                <div class="chart-container"><canvas id="graficoColunas"></canvas></div>
             </div>
         </div>
     </div>
@@ -229,10 +232,7 @@
             if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
             if (window['chart_graficoVelocimetro2']) window['chart_graficoVelocimetro2'].resize();
             if (window['chart_graficoVelocimetro3']) window['chart_graficoVelocimetro3'].resize();
-            // Redimensionamento dos 3 novos gráficos
-            if (window.chartOtifT6Inst) window.chartOtifT6Inst.resize();
-            if (window.chartOnTimeT6Inst) window.chartOnTimeT6Inst.resize();
-            if (window.chartInFullT6Inst) window.chartInFullT6Inst.resize();
+            if (window.chartMontanhaInst) window.chartMontanhaInst.resize();
         });
 
         function safeSplit(row) {
@@ -322,7 +322,7 @@
                 const dNsR = Array(ultimoDiaMesExibicao).fill(null); const dReR = Array(ultimoDiaMesExibicao).fill(null);
                 const dDevTot = Array(ultimoDiaMesExibicao).fill(null); const dDevOp = Array(ultimoDiaMesExibicao).fill(null);
                 
-                // Variáveis para os novos gráficos da tela 6
+                // Variáveis para o novo gráfico da tela 6
                 const dOtifR = Array(ultimoDiaMesExibicao).fill(null);
                 const dOnTimeR = Array(ultimoDiaMesExibicao).fill(null);
                 const dInFullR = Array(ultimoDiaMesExibicao).fill(null);
@@ -453,6 +453,7 @@
                 renderizarOtifDiario(labF, vOtifF, mesExibicaoNome);
                 renderizarOtifMensal(mesesExtenso, sOtifM.map((s,i)=>cOtifM[i]>0?s:0), anoAtual);
 
+                // Renderização dos Velocímetros (Tela 6)
                 let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
                 renderizarVelocimetro('graficoVelocimetro1', mediaOtifMesTela6, `ENTREGAS OTIF (%) ${mesExibicaoNome} - MÉDIA`);
 
@@ -462,52 +463,101 @@
                 let mediaInFullMesTela6 = cInFullM[mesDeExibicaoIdx] > 0 ? sInFullM[mesDeExibicaoIdx] / cInFullM[mesDeExibicaoIdx] : 0;
                 renderizarVelocimetro('graficoVelocimetro3', mediaInFullMesTela6, `ENTREGAS IN FULL (%) ${mesExibicaoNome} - MÉDIA`, '#3498db');
 
-                // Lógica dos três gráficos diários separados na Tela 6
-                if (window.chartOtifT6Inst) window.chartOtifT6Inst.destroy();
-                if (window.chartOnTimeT6Inst) window.chartOnTimeT6Inst.destroy();
-                if (window.chartInFullT6Inst) window.chartInFullT6Inst.destroy();
-
-                const ctxOtifT6 = document.getElementById('graficoOtifT6').getContext('2d');
-                const ctxOnTimeT6 = document.getElementById('graficoOnTimeT6').getContext('2d');
-                const ctxInFullT6 = document.getElementById('graficoInFullT6').getContext('2d');
+                // Novo Gráfico Combinado Tela 6 (Esquerda Inferior)
+                const ctxMontanha = document.getElementById('graficoMontanha').getContext('2d');
+                if (window.chartMontanhaInst) window.chartMontanhaInst.destroy();
                 
                 const labelsDiasTarget = Array.from({length: ultimoDiaMesExibicao}, (_, i) => String(i + 1).padStart(2, '0'));
 
-                const commonOptionsT6 = (titulo) => ({
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 15, bottom: 5, right: 10 } },
-                    plugins: {
-                        title: { display: true, text: titulo, color: '#a0aec0', font: { size: 12, weight: 'bold' }, padding: { bottom: 20 } },
-                        legend: { display: false }
+                window.chartMontanhaInst = new Chart(ctxMontanha, {
+                    type: 'line',
+                    data: {
+                        labels: labelsDiasTarget,
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: 'OTIF',
+                                data: dOtifR,
+                                borderColor: '#2ecc71',
+                                backgroundColor: '#2ecc71',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.3,
+                                pointRadius: 2,
+                                order: 3,
+                                datalabels: {
+                                    display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
+                                    align: 'top', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 9 }, textStrokeColor: 'rgba(0,0,0,0.7)', textStrokeWidth: 2,
+                                    formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                                }
+                            },
+                            {
+                                type: 'line',
+                                label: 'ON TIME',
+                                data: dOnTimeR,
+                                borderColor: '#f39c12',
+                                backgroundColor: '#f39c12',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.3,
+                                pointRadius: 2,
+                                order: 2,
+                                datalabels: {
+                                    display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
+                                    align: 'top', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 9 }, textStrokeColor: 'rgba(0,0,0,0.7)', textStrokeWidth: 2,
+                                    formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                                }
+                            },
+                            {
+                                type: 'line',
+                                label: 'IN FULL',
+                                data: dInFullR,
+                                borderColor: '#00ced1',
+                                backgroundColor: '#00ced1',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.3,
+                                pointRadius: 2,
+                                order: 1,
+                                datalabels: {
+                                    display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
+                                    align: 'top', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 9 }, textStrokeColor: 'rgba(0,0,0,0.7)', textStrokeWidth: 2,
+                                    formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                                }
+                            }
+                        ]
                     },
-                    scales: {
-                        y: { min: 85, max: 100, display: false, grid: { display: false } },
-                        x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 9 } } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: { padding: { top: 15, bottom: 5, right: 10 } },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `ENTREGAS OTIF x ON TIME X IN FULL (%) - ${mesExibicaoNome}`,
+                                color: '#a0aec0',
+                                font: { size: 14, weight: 'bold' },
+                                padding: { bottom: 20 }
+                            },
+                            legend: { 
+                                display: true,
+                                position: 'bottom',
+                                labels: { color: '#ffffff', font: { size: 11, weight: 'bold' } }
+                            }
+                        },
+                        scales: {
+                            y: { 
+                                min: 85,
+                                max: 100,
+                                display: false, 
+                                grid: { display: false } 
+                            },
+                            x: { 
+                                grid: { display: false }, 
+                                ticks: { color: '#a0aec0', font: { size: 10 } } 
+                            }
+                        }
                     }
-                });
-
-                const createDatasetT6 = (label, data, color) => ({
-                    type: 'line', label: label, data: data, borderColor: color, backgroundColor: color, borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2,
-                    datalabels: {
-                        display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
-                        align: 'top', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 9 }, textStrokeColor: 'rgba(0,0,0,0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
-                    }
-                });
-
-                window.chartOtifT6Inst = new Chart(ctxOtifT6, {
-                    type: 'line', data: { labels: labelsDiasTarget, datasets: [createDatasetT6('OTIF', dOtifR, '#2ecc71')] },
-                    options: commonOptionsT6(`ENTREGAS OTIF (%) - ${mesExibicaoNome}`)
-                });
-
-                window.chartOnTimeT6Inst = new Chart(ctxOnTimeT6, {
-                    type: 'line', data: { labels: labelsDiasTarget, datasets: [createDatasetT6('ON TIME', dOnTimeR, '#f39c12')] },
-                    options: commonOptionsT6(`ENTREGAS ON TIME (%) - ${mesExibicaoNome}`)
-                });
-
-                window.chartInFullT6Inst = new Chart(ctxInFullT6, {
-                    type: 'line', data: { labels: labelsDiasTarget, datasets: [createDatasetT6('IN FULL', dInFullR, '#00ced1')] },
-                    options: commonOptionsT6(`ENTREGAS IN FULL (%) - ${mesExibicaoNome}`)
                 });
 
             } catch (err) { console.error("Erro:", err); }
