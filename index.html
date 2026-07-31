@@ -184,11 +184,6 @@
             <div class="linha-graficos-6 linha-2-2">
                 <div class="chart-container" style="display: flex; flex-direction: column; justify-content: space-between;">
                     <div style="flex: 1; position: relative; min-height: 0;"><canvas id="graficoMontanha"></canvas></div>
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 20px; font-size: 0.85em; margin-top: 5px; font-weight: bold;">
-                        <span style="display: flex; align-items: center; gap: 5px;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #2ecc71; border-radius: 2px;"></span> OTIF</span>
-                        <span style="display: flex; align-items: center; gap: 5px;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #f39c12; border-radius: 2px;"></span> ON TIME</span>
-                        <span style="display: flex; align-items: center; gap: 5px;"><span style="display: inline-block; width: 12px; height: 12px; background-color: #00ced1; border-radius: 2px;"></span> IN FULL</span>
-                    </div>
                 </div>
                 <div class="chart-container"><canvas id="graficoColunas"></canvas></div>
             </div>
@@ -475,17 +470,20 @@
                 const labelsDiasTarget = Array.from({length: ultimoDiaMesExibicao}, (_, i) => String(i + 1).padStart(2, '0'));
 
                 window.chartMontanhaInst = new Chart(ctxMontanha, {
-                    type: 'bar',
+                    type: 'line',
                     data: {
                         labels: labelsDiasTarget,
                         datasets: [
                             {
-                                type: 'bar',
+                                type: 'line',
                                 label: 'OTIF',
                                 data: dOtifR,
+                                borderColor: '#2ecc71',
                                 backgroundColor: '#2ecc71',
-                                borderRadius: 2,
-                                barPercentage: 0.6,
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.3,
+                                pointRadius: 2,
                                 order: 3,
                                 datalabels: {
                                     display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
@@ -498,9 +496,9 @@
                                 label: 'ON TIME',
                                 data: dOnTimeR,
                                 borderColor: '#f39c12',
-                                backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                                backgroundColor: '#f39c12',
                                 borderWidth: 2,
-                                fill: true,
+                                fill: false,
                                 tension: 0.3,
                                 pointRadius: 2,
                                 order: 2,
@@ -515,9 +513,9 @@
                                 label: 'IN FULL',
                                 data: dInFullR,
                                 borderColor: '#00ced1',
-                                backgroundColor: 'rgba(0, 206, 209, 0.2)',
+                                backgroundColor: '#00ced1',
                                 borderWidth: 2,
-                                fill: true,
+                                fill: false,
                                 tension: 0.3,
                                 pointRadius: 2,
                                 order: 1,
@@ -541,11 +539,23 @@
                                 font: { size: 14, weight: 'bold' },
                                 padding: { bottom: 20 }
                             },
-                            legend: { display: false }
+                            legend: { 
+                                display: true,
+                                position: 'bottom',
+                                labels: { color: '#ffffff', font: { size: 11, weight: 'bold' } }
+                            }
                         },
                         scales: {
-                            y: { beginAtZero: true, display: false, grid: { display: false } },
-                            x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 10 } } }
+                            y: { 
+                                min: 85,
+                                max: 100,
+                                display: false, 
+                                grid: { display: false } 
+                            },
+                            x: { 
+                                grid: { display: false }, 
+                                ticks: { color: '#a0aec0', font: { size: 10 } } 
+                            }
                         }
                     }
                 });
