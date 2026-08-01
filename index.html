@@ -200,7 +200,7 @@
         Chart.register(ChartDataLabels);
 
         let autoMode = false; let tempoRestante = 90; let telaAtual = 1;
-        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal, chartOtifCombinadoT6Inst;
+        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal;
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -240,7 +240,7 @@
             if (window.chartOtifT6Inst) window.chartOtifT6Inst.resize();
             if (window.chartOnTimeT6Inst) window.chartOnTimeT6Inst.resize();
             if (window.chartInFullT6Inst) window.chartInFullT6Inst.resize();
-            if (chartOtifCombinadoT6Inst) chartOtifCombinadoT6Inst.resize();
+            if (window.chartOtifCombinadoT6Inst) window.chartOtifCombinadoT6Inst.resize();
         });
 
         function safeSplit(row) {
@@ -353,345 +353,156 @@
                 };
 
                 for (let i = 1; i < linhas.length; i++) {
-                    const colunas = safeSplit(linhas[i]);
-                    let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
-                    if (!dataPlanilha) continue;
+                    const cols = safeSplit(linhas[i]);
+                    if (cols.length <= idxData) continue;
+                    const dataStr = cols[idxData].replace(/"/g, '').trim();
+                    if (!dataStr) continue;
 
-                    if (dataPlanilha.includes(hojeBusca)) {
-                        for(let key in idxs) valCards[key] = (colunas[idxs[key]] || "-").replace(/"/g, '').trim() || "-";
+                    const partes = dataStr.split('/');
+                    if (partes.length !== 3) continue;
+                    const d = parseInt(partes[0], 10);
+                    const m = parseInt(partes[1], 10) - 1;
+                    const a = parseInt(partes[2], 10);
+
+                    const valVol = converter(cols[idxs.vol]);
+                    const valDrop = converter(cols[idxs.drop]);
+                    const valNfG = converter(cols[idxs.nf]);
+                    const valOcp = converter(cols[idxs.ocp]);
+                    const valCliG = converter(cols[idxs.cli]);
+                    const valDropSize = converter(cols[idxs.dropsizeHoje]);
+                    
+                    const valNsMesG = converter(cols[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%)")]);
+                    const valReG = converter(cols[cabecalho.indexOf("REENTREGAS D+2 (QTD)")]);
+                    const valDevTotMes = converter(cols[cabecalho.indexOf("DEVOLUÇÃO TOTAL (%)")]);
+                    const valDevOpMes = converter(cols[cabecalho.indexOf("DEVOLUÇÃO OPERAÇÃO (%)")]);
+                    const valOtifMesG = converter(cols[idxs.otif]);
+                    const valOnTimeMesG = converter(cols[cabecalho.indexOf("ENTREGAS ON TIME (%)")]);
+                    const valInFullMesG = converter(cols[cabecalho.indexOf("ENTREGAS IN FULL (%)")]);
+
+                    const valOcupMesG = converter(cols[cabecalho.indexOf("OCUPAÇÃO (%)")]);
+                    const valDropMesAcumulado = converter(cols[cabecalho.indexOf("PESOXVEÍCULO (KG)")]);
+                    const valDropSizeMesAcumulado = converter(cols[cabecalho.indexOf("DROPSIZE (KG)")]);
+
+                    if (m >= 0 && m < 12) {
+                        if (valVol !== null) acVolM[m] += valVol;
+                        if (valNfG !== null) acNfM[m] += valNfG;
+                        if (valCliG !== null) acCliM[m] += valCliG;
+                        if (valReG !== null) acReM[m] += valReG;
+                        if (valOcupMesG !== null && valOcupMesG > 0) { sOcpM[m] = valOcupMesG; cOcpM[m]++; }
+                        if (valDropMesAcumulado !== null && valDropMesAcumulado > 0) { sDropM[m] = valDropMesAcumulado; }
+                        if (valDropSizeMesAcumulado !== null && valDropSizeMesAcumulado > 0) { sDropSizeM[m] = valDropSizeMesAcumulado; }
+                        if (valNsMesG !== null && valNsMesG > 0) { sNsM[m] = valNsMesG; cNsM[m]++; }
+                        if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[m] += valDevTotMes; cDevTotM[m]++; }
+                        if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[m] += valDevOpMes; cDevOpM[m]++; }
+                        if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[m] += valOtifMesG; cOtifM[m]++; }
+                        if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[m] += valOnTimeMesG; cOnTimeM[m]++; }
+                        if (valInFullMesG !== null && valInFullMesG > 0) { sInFullM[m] += valInFullMesG; cInFullM[m]++; }
                     }
 
-                    let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
-                    let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
-                    let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
-                    let valDropG = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG)")]);
-                    let valDropSizeG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
-                    let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
-                    let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
-                    let valNsG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%)")]);
-                    let valNsMesG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%) MÊS")]);
-                    let valReG = converter(colunas[cabecalho.indexOf("REENTREGAS D+2 (QTD)")]);
-                    let valDevTotG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%)")]);
-                    let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
-                    let valOtifG = converter(colunas[idxs.otif]);
-                    let valOnTimeG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%)")]);
-                    let valInFullG = converter(colunas[cabecalho.indexOf("ENTREGAS IN FULL (%)")]);
-                    let valOtifMesG = converter(colunas[cabecalho.indexOf("ENTREGAS OTIF (%) MÊS")]);
-                    let valOnTimeMesG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%) MÊS")]);
-                    let valInFullMesG = converter(colunas[cabecalho.indexOf("ENTREGAS IN FULL (%) MÊS")]);
-                    let valDevTotMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%) MÊS")]);
-                    let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
-                    let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
-                    let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
+                    if (m === mesDeExibicaoIdx && a === anoDeExibicao) {
+                        const idxDia = d - 1;
+                        if (idxDia >= 0 && idxDia < ultimoDiaMesExibicao) {
+                            if (valVol !== null) dVolR[idxDia] = valVol;
+                            if (valOcp !== null) dOcpR[idxDia] = valOcp;
+                            if (valDrop !== null) dDropR[idxDia] = valDrop;
+                            if (valDropSize !== null) dDropSizeR[idxDia] = valDropSize;
+                            if (valNfG !== null) dNfR[idxDia] = valNfG;
+                            if (valCliG !== null) dCliR[idxDia] = valCliG;
+                            if (valNsMesG !== null) dNsR[idxDia] = valNsMesG;
+                            if (valReG !== null) dReR[idxDia] = valReG;
+                            if (valDevTotMes !== null) dDevTot[idxDia] = valDevTotMes;
+                            if (valDevOpMes !== null) dDevOp[idxDia] = valDevOpMes;
+                            if (valOtifMesG !== null) dOtifR[idxDia] = valOtifMesG;
+                            if (valOnTimeMesG !== null) dOnTimeR[idxDia] = valOnTimeMesG;
+                            if (valInFullMesG !== null) dInFullR[idxDia] = valInFullMesG;
+                        }
+                    }
 
-                    let pD = dataPlanilha.split('/');
-                    if (pD.length === 3) {
-                        let dP = parseInt(pD[0]);
-                        let mP = parseInt(pD[1]);
-                        let aP = parseInt(pD[2]);
-
-                        if (aP === anoDeExibicao && mP === (mesDeExibicaoIdx + 1)) {
-                            if (dP <= ultimoDiaMesExibicao) {
-                                if(valVol !== null) dVolR[dP-1] = valVol;
-                                if(valOcupG !== null) dOcpR[dP-1] = valOcupG;
-                                if(valDropG !== null) dDropR[dP-1] = valDropG;
-                                if(valDropSizeG !== null) dDropSizeR[dP-1] = valDropSizeG;
-                                if(valNfG !== null) dNfR[dP-1] = valNfG;
-                                if(valCliG !== null) dCliR[dP-1] = valCliG;
-                                if(valNsG !== null) dNsR[dP-1] = valNsG;
-                                if(valReG !== null) dReR[dP-1] = valReG;
-                                if(valDevTotG !== null) dDevTot[dP-1] = valDevTotG;
-                                if(valDevOpG !== null) dDevOp[dP-1] = valDevOpG;
-                                if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
-                                if(valOnTimeG !== null) dOnTimeR[dP-1] = valOnTimeG;
-                                if(valInFullG !== null) dInFullR[dP-1] = valInFullG;
+                    if (dataStr === hojeBusca) {
+                        for (let k in idxs) {
+                            if (idxs[k] !== -1 && cols[idxs[k]] !== undefined) {
+                                valCards[k] = cols[idxs[k]].replace(/"/g, '').trim();
                             }
                         }
-
-                        if (aP === anoAtual) {
-                            let mIdx = mP - 1;
-                            if (valVol !== null) acVolM[mIdx] += valVol;
-                            if (valNfG !== null) acNfM[mIdx] += valNfG;
-                            if (valCliG !== null) acCliM[mIdx] += valCliG;
-                            if (valReG !== null) acReM[mIdx] += valReG;
-                            if (valOcupG !== null) { sOcpM[mIdx] += valOcupG; cOcpM[mIdx]++; }
-                            if (valDropG !== null) { sDropM[mIdx] += valDropG; }
-                            if (valDropSizeG !== null) { sDropSizeM[mIdx] += valDropSizeG; }
-                            if (valDevTotG !== null) { sDevTotM[mIdx] += valDevTotG; cDevTotM[mIdx]++; }
-                            if (valDevOpG !== null) { sDevOpM[mIdx] += valDevOpG; cDevOpM[mIdx]++; }
-                            if (valOtifG !== null) { sOtifM[mIdx] += valOtifG; cOtifM[mIdx]++; }
-                            if (valOnTimeG !== null) { sOnTimeM[mIdx] += valOnTimeG; cOnTimeM[mIdx]++; }
-                            if (valInFullG !== null) { sInFullM[mIdx] += valInFullG; cInFullM[mIdx]++; }
-                        }
                     }
                 }
 
-                document.getElementById('vol-valor').textContent = valCards.vol;
-                document.getElementById('drop-valor').textContent = valCards.drop;
-                document.getElementById('ocp-valor').textContent = valCards.ocp;
-                document.getElementById('nf-valor').textContent = valCards.nf;
-                document.getElementById('terc-util').textContent = valCards.terceiros;
-                document.getElementById('dropsize-hoje-valor').textContent = valCards.dropsizeHoje;
-                document.getElementById('abs-valor').textContent = valCards.abs;
-                document.getElementById('abs-perc-valor').textContent = valCards.absPerc;
-                document.getElementById('cli-valor').textContent = valCards.cli;
+                // Atualização dos Cards da Tela 1
+                const formatNum = (v) => v !== "-" ? Number(v).toLocaleString('pt-BR') : "-";
+                document.getElementById('vol-valor').textContent = formatNum(valCards.vol);
+                document.getElementById('drop-valor').textContent = formatNum(valCards.drop);
+                document.getElementById('ocp-valor').textContent = valCards.ocp !== "-" ? valCards.ocp + "%" : "-";
+                document.getElementById('nf-valor').textContent = formatNum(valCards.nf);
+                document.getElementById('terc-util').textContent = formatNum(valCards.terceiros);
+                document.getElementById('dropsize-hoje-valor').textContent = formatNum(valCards.dropsizeHoje);
+                document.getElementById('abs-valor').textContent = formatNum(valCards.abs);
+                document.getElementById('abs-perc-valor').textContent = valCards.absPerc !== "-" ? valCards.absPerc + "%" : "-";
+                document.getElementById('cli-valor').textContent = formatNum(valCards.cli);
 
-                document.getElementById('f-total').textContent = valCards.fTotal;
-                document.getElementById('f-parados').textContent = valCards.fParados;
-                document.getElementById('f-dispo').textContent = valCards.fDispo;
-                document.getElementById('f-util').textContent = valCards.fUtil;
+                document.getElementById('f-total').textContent = formatNum(valCards.fTotal);
+                document.getElementById('f-parados').textContent = formatNum(valCards.fParados);
+                document.getElementById('f-dispo').textContent = formatNum(valCards.fDispo);
+                document.getElementById('f-util').textContent = formatNum(valCards.fUtil);
 
-                document.getElementById('ft-total').textContent = valCards.ftTotal;
-                document.getElementById('ft-parados').textContent = valCards.ftParados;
-                document.getElementById('ft-dispo').textContent = valCards.ftDispo;
-                document.getElementById('ft-util').textContent = valCards.ftUtil;
+                document.getElementById('ft-total').textContent = formatNum(valCards.ftTotal);
+                document.getElementById('ft-parados').textContent = formatNum(valCards.ftParados);
+                document.getElementById('ft-dispo').textContent = formatNum(valCards.ftDispo);
+                document.getElementById('ft-util').textContent = formatNum(valCards.ftUtil);
 
-                document.getElementById('md-total').textContent = valCards.mdTotal;
-                document.getElementById('md-vagas').textContent = valCards.mdVagas;
-                document.getElementById('md-ferias').textContent = valCards.mdFerias;
-                document.getElementById('md-faltas').textContent = valCards.mdFaltas;
-                document.getElementById('md-atestados').textContent = valCards.mdAtestados;
-                document.getElementById('md-banco').textContent = valCards.mdBanco;
-                document.getElementById('md-util').textContent = valCards.mdUtil;
+                const preencherFrotaHumana = (prefixo, dados) => {
+                    document.getElementById(prefixo + '-total').textContent = formatNum(dados.tot);
+                    document.getElementById(prefixo + '-vagas').textContent = formatNum(dados.vag);
+                    document.getElementById(prefixo + '-ferias').textContent = formatNum(dados.fer);
+                    document.getElementById(prefixo + '-faltas').textContent = formatNum(dados.fal);
+                    document.getElementById(prefixo + '-atestados').textContent = formatNum(dados.ate);
+                    document.getElementById(prefixo + '-banco').textContent = formatNum(dados.ban);
+                    document.getElementById(prefixo + '-util').textContent = formatNum(dados.uti);
+                };
 
-                document.getElementById('aux-total').textContent = valCards.auxTotal;
-                document.getElementById('aux-vagas').textContent = valCards.auxVagas;
-                document.getElementById('aux-ferias').textContent = valCards.auxFerias;
-                document.getElementById('aux-faltas').textContent = valCards.auxFaltas;
-                document.getElementById('aux-atestados').textContent = valCards.auxAtestados;
-                document.getElementById('aux-banco').textContent = valCards.auxBanco;
-                document.getElementById('aux-util').textContent = valCards.auxUtil;
+                preencherFrotaHumana('md', { tot: valCards.mdTotal, vag: valCards.mdVagas, fer: valCards.mdFerias, fal: valCards.mdFaltas, ate: valCards.mdAtestados, ban: valCards.mdBanco, uti: valCards.mdUtil });
+                preencherFrotaHumana('aux', { tot: valCards.auxTotal, vag: valCards.auxVagas, fer: valCards.auxFerias, fal: valCards.auxFaltas, ate: valCards.auxAtestados, ban: valCards.auxBanco, uti: valCards.auxUtil });
+                preencherFrotaHumana('mt', { tot: valCards.mtTotal, vag: valCards.mtVagas, fer: valCards.mtFerias, fal: valCards.mtFaltas, ate: valCards.mtAtestados, ban: valCards.mtBanco, uti: valCards.mtUtil });
 
-                document.getElementById('mt-total').textContent = valCards.mtTotal;
-                document.getElementById('mt-vagas').textContent = valCards.mtVagas;
-                document.getElementById('mt-ferias').textContent = valCards.mtFerias;
-                document.getElementById('mt-faltas').textContent = valCards.mtFaltas;
-                document.getElementById('mt-atestados').textContent = valCards.mtAtestados;
-                document.getElementById('mt-banco').textContent = valCards.mtBanco;
-                document.getElementById('mt-util').textContent = valCards.mtUtil;
+                const labelsDias = Array.from({length: ultimoDiaMesExibicao}, (_, i) => String(i + 1).padStart(2, '0'));
 
-                montarGraficos(dVolR, acVolM, dOcpR, sOcpM, cOcpM, dDropR, sDropM, dDropSizeR, sDropSizeM, dNfR, acNfM, dCliR, acCliM, dNsR, sNsM, cNsM, dReR, acReM, dDevTot, sDevTotM, cDevTotM, dDevOp, sDevOpM, cDevOpM, dOtifR, sOtifM, cOtifM, dOnTimeR, sOnTimeM, cOnTimeM, dInFullR, sInFullM, cInFullM, mesExibicaoNome, anoDeExibicao, anoAtual);
+                renderizarVolumeDiario(labelsDias, dVolR, mesExibicaoNome);
+                renderizarVolumeMensal(mesesExtenso, acVolM, anoAtual);
+                renderizarOcupacaoDiario(labelsDias, dOcpR, mesExibicaoNome);
+                renderizarOcupacaoMensal(mesesExtenso, sOcpM.map((s,i)=>cOcpM[i]>0?s:0), anoAtual);
 
-            } catch (err) { console.error("Erro ao carregar planilha:", err); }
-        }
+                renderizarDropsizeDiario(labelsDias, dDropR, dDropSizeR, mesExibicaoNome);
+                renderizarDropMensal(mesesExtenso, sDropM, sDropSizeM, anoAtual);
+                renderizarNfDiario(labelsDias, dNfR, dCliR, mesExibicaoNome);
+                renderizarNfMensal(mesesExtenso, acNfM, acCliM, anoAtual);
 
-        function montarGraficos(dVol, mVol, dOcp, mOcp, cOcp, dDrop, mDrop, dDropSize, mDropSize, dNf, mNf, dCli, mCli, dNs, mNs, cNs, dRe, mRe, dDevTot, mDevTot, cDevTot, dDevOp, mDevOp, cDevOp, dOtif, mOtif, cOtif, dOnTime, mOnTime, cOnTime, dInFull, mInFull, cInFull, mes, ano, anoCorrente) {
-            const diasLabel = Array.from({length: dVol.length}, (_, i) => i + 1);
-            const mesesLabel = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
+                renderizarNsDiario(labelsDias, dNsR, mesExibicaoNome);
+                renderizarNsMensal(mesesExtenso, sNsM.map((s,i)=>cNsM[i]>0?s:0), anoAtual);
+                renderizarReDiario(labelsDias, dReR, mesExibicaoNome);
+                renderizarReMensal(mesesExtenso, acReM, anoAtual);
 
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(document.getElementById('graficoVolume').getContext('2d'), { type: 'bar', data: { labels: diasLabel, datasets: [{ data: dVol, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mes} / ${ano}`, true) });
+                renderizarDevolucaoDiario(labelsDias, dDevTot, dDevOp, mesExibicaoNome);
+                renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
+                renderizarOtifDiario(labelsDias, dOtifR, mesExibicaoNome);
+                renderizarOtifMensal(mesesExtenso, sOtifM.map((s,i)=>cOtifM[i]>0?s/cOtifM[i]:0), anoAtual);
 
-            if (chartMensalInstance) chartMensalInstance.destroy();
-            chartMensalInstance = new Chart(document.getElementById('graficoMensal').getContext('2d'), { type: 'bar', data: { labels: mesesLabel, datasets: [{ data: mVol, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${anoCorrente} (ACUMULADO)`, true) });
+                let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
+                renderizarVelocimetro('graficoVelocimetro1', mediaOtifMesTela6, `ENTREGAS OTIF (%) ${mesExibicaoNome} - MÉDIA`);
 
-            if (chartOcupDiario) chartOcupDiario.destroy();
-            chartOcupDiario = new Chart(document.getElementById('graficoOcupacaoDiario').getContext('2d'), { type: 'bar', data: { labels: diasLabel, datasets: [{ data: dOcp, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${mes} / ${ano}`, true, true) });
+                let mediaOnTimeMesTela6 = cOnTimeM[mesDeExibicaoIdx] > 0 ? sOnTimeM[mesDeExibicaoIdx] / cOnTimeM[mesDeExibicaoIdx] : 0;
+                renderizarVelocimetro('graficoVelocimetro2', mediaOnTimeMesTela6, `ENTREGAS ON TIME (%) ${mesExibicaoNome} - MÉDIA`, '#f39c12');
 
-            if (chartOcupMensal) chartOcupMensal.destroy();
-            let mOcpCalc = mOcp.map((val, idx) => cOcp[idx] > 0 ? val / cOcp[idx] : 0);
-            chartOcupMensal = new Chart(document.getElementById('graficoOcupacaoMensal').getContext('2d'), { type: 'bar', data: { labels: mesesLabel, datasets: [{ data: mOcpCalc, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${anoCorrente} (MÉDIA)`, true, true) });
+                let mediaInFullMesTela6 = cInFullM[mesDeExibicaoIdx] > 0 ? sInFullM[mesDeExibicaoIdx] / cInFullM[mesDeExibicaoIdx] : 0;
+                renderizarVelocimetro('graficoVelocimetro3', mediaInFullMesTela6, `ENTREGAS IN FULL (%) ${mesExibicaoNome} - MÉDIA`, '#00ced1');
 
-            if (chartDropDiario) chartDropDiario.destroy();
-            chartDropDiario = new Chart(document.getElementById('graficoDropsizeDiario').getContext('2d'), { type: 'bar', data: { labels: diasLabel, datasets: [{ data: dDrop, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`PESOXVEÍCULO (KG) - ${mes} / ${ano}`, true) });
+                // GRÁFICO TELA 6 AJUSTADO: LINHA RETA, SEM PREENCHIMENTO, TODOS OS DIAS E VALORES EM CIMA NA DIAGONAL
+                renderizarGraficoLinhaSimplesT6('graficoOtifT6', labelsDias, dOtifR, `ENTREGAS OTIF (%) - ${mesExibicaoNome}`, '#2ecc71', true);
+                renderizarGraficoLinhaSimplesT6('graficoOnTimeT6', labelsDias, dOnTimeR, `ENTREGAS ON TIME (%) - ${mesExibicaoNome}`, '#f39c12', false);
+                renderizarGraficoLinhaSimplesT6('graficoInFullT6', labelsDias, dInFullR, `ENTREGAS IN FULL (%) - ${mesExibicaoNome}`, '#00ced1', false);
+                renderizarOtifXOnTimeXInFullT6(labelsDias, dOtifR, dOnTimeR, dInFullR, mesExibicaoNome);
 
-            if (chartDropMensal) chartDropMensal.destroy();
-            chartDropMensal = new Chart(document.getElementById('graficoDropMensal').getContext('2d'), { type: 'bar', data: { labels: mesesLabel, datasets: [{ data: mDrop, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`PESOXVEÍCULO (KG) - ${anoCorrente} (ACUMULADO)`, true) });
-
-            if (chartNfDiario) chartNfDiario.destroy();
-            chartNfDiario = new Chart(document.getElementById('graficoNfDiario').getContext('2d'), { type: 'bar', data: { labels: diasLabel, datasets: [{ data: dNf, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`NF'S (QTD) - ${mes} / ${ano}`, true) });
-
-            if (chartNfMensal) chartNfMensal.destroy();
-            chartNfMensal = new Chart(document.getElementById('graficoNfMensal').getContext('2d'), { type: 'bar', data: { labels: mesesLabel, datasets: [{ data: mNf, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`NF'S (QTD) - ${anoCorrente} (ACUMULADO)`, true) });
-
-            if (chartNsDiario) chartNsDiario.destroy();
-            chartNsDiario = new Chart(document.getElementById('graficoNsDiario').getContext('2d'), { type: 'bar', data: { labels: diasLabel, datasets: [{ data: dNs, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${mes} / ${ano}`, true, true) });
-
-            if (chartNsMensal) chartNsMensal.destroy();
-            let mNsCalc = mNs.map((val, idx) => cNs[idx] > 0 ? val / cNs[idx] : 0);
-            chartNsMensal = new Chart(document.getElementById('graficoNsMensal').getContext('2d'), { type: 'bar', data: { labels: mesesLabel, datasets: [{ data: mNsCalc, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${anoCorrente} (MÉDIA)`, true, true) });
-
-            if (chartReDiario) chartReDiario.destroy();
-            chartReDiario = new Chart(document.getElementById('graficoReDiario').getContext('2d'), { type: 'bar', data: { labels: diasLabel, datasets: [{ data: dRe, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${mes} / ${ano}`, true) });
-
-            if (chartReMensal) chartReMensal.destroy();
-            chartReMensal = new Chart(document.getElementById('graficoReMensal').getContext('2d'), { type: 'bar', data: { labels: mesesLabel, datasets: [{ data: mRe, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${anoCorrente} (ACUMULADO)`, true) });
-
-            if (chartDevolDiario) chartDevolDiario.destroy();
-            chartDevolDiario = new Chart(document.getElementById('graficoDevolucaoDiario').getContext('2d'), { type: 'bar', data: { labels: diasLabel, datasets: [{ label: 'Devolução (%)', data: dDevTot, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }, { label: 'Devolução OP (%)', data: dDevOp, backgroundColor: 'rgba(52, 152, 219, 0.8)', borderColor: '#3498db', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptionsDuplo(`DEVOLUÇÃO (%) - ${mes} / ${ano}`) });
-
-            if (chartDevolMensal) chartDevolMensal.destroy();
-            let mDevTotCalc = mDevTot.map((val, idx) => cDevTot[idx] > 0 ? val / cDevTot[idx] : 0);
-            let mDevOpCalc = mDevOp.map((val, idx) => cDevOp[idx] > 0 ? val / cDevOp[idx] : 0);
-            chartDevolMensal = new Chart(document.getElementById('graficoDevolucaoMensal').getContext('2d'), { type: 'bar', data: { labels: mesesLabel, datasets: [{ label: 'Devolução (%)', data: mDevTotCalc, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }, { label: 'Devolução OP (%)', data: mDevOpCalc, backgroundColor: 'rgba(52, 152, 219, 0.8)', borderColor: '#3498db', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptionsDuplo(`DEVOLUÇÃO (%) - ${anoCorrente} (MÉDIA)`) });
-
-            if (chartOtifDiario) chartOtifDiario.destroy();
-            chartOtifDiario = new Chart(document.getElementById('graficoOtifDiario').getContext('2d'), { type: 'bar', data: { labels: diasLabel, datasets: [{ data: dOtif, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${mes} / ${ano}`, true, true) });
-
-            if (chartOtifMensal) chartOtifMensal.destroy();
-            let mOtifCalc = mOtif.map((val, idx) => cOtif[idx] > 0 ? val / cOtif[idx] : 0);
-            chartOtifMensal = new Chart(document.getElementById('graficoOtifMensal').getContext('2d'), { type: 'bar', data: { labels: mesesLabel, datasets: [{ data: mOtifCalc, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${anoCorrente} (MÉDIA)`, true, true) });
-
-            criarVelocimetro('graficoVelocimetro1', calcularMediaValida(dOtif), "ENTREGAS OTIF (%) JULHO - MÉDIA");
-            criarVelocimetro('graficoVelocimetro2', calcularMediaValida(dOnTime), "ENTREGAS ON TIME (%) JULHO - MÉDIA");
-            criarVelocimetro('graficoVelocimetro3', calcularMediaValida(dInFull), "ENTREGA IN FULL (%) JULHO - MÉDIA");
-
-            let mOnTimeCalc = mOnTime.map((val, idx) => cOnTime[idx] > 0 ? val / cOnTime[idx] : 0);
-            let mInFullCalc = mInFull.map((val, idx) => cInFull[idx] > 0 ? val / cInFull[idx] : 0);
-
-            criarGraficoOtifTela6('graficoOtifT6', diasLabel, dOtif, `ENTREGAS OTIF (%) - ${mes} / ${ano}`);
-            criarGraficoLinhaTela6('graficoOnTimeT6', diasLabel, dOnTime, `ENTREGAS ON TIME (%) - ${mes} / ${ano}`, true);
-            criarGraficoLinhaTela6('graficoInFullT6', diasLabel, dInFull, `ENTREGAS IN FULL (%) - ${mes} / ${ano}`, true);
-
-            criarGraficoCombinadoTela6('graficoOtifXOnTimeXInFullT6', mesesLabel, mOtifCalc, mOnTimeCalc, mInFullCalc, `OTIF x ON TIME x IN FULL (%) - ${anoCorrente} (MÉDIA)`);
-        }
-
-        function calcularMediaValida(arr) {
-            let filtrados = arr.filter(v => v !== null && !isNaN(v));
-            if (filtrados.length === 0) return 0;
-            let soma = filtrados.reduce((a, b) => a + b, 0);
-            return soma / filtrados.length;
-        }
-
-        function criarVelocimetro(canvasId, valor, titulo) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (window['chart_' + canvasId]) window['chart_' + canvasId].destroy();
-            let valCorrigido = isNaN(valor) ? 0 : valor;
-            let restante = Math.max(0, 100 - valCorrigido);
-            let corBarra = valCorrigido >= 95 ? '#2ecc71' : valCorrigido >= 85 ? '#f1c40f' : '#e74c3c';
-
-            window['chart_' + canvasId] = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [valCorrigido, restante],
-                        backgroundColor: [corBarra, 'rgba(255,255,255,0.05)'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    circumference: 180,
-                    rotation: -90,
-                    plugins: {
-                        datalabels: { display: false },
-                        title: { display: true, text: titulo, color: '#a0aec0', font: { size: 11, weight: 'bold' }, padding: { bottom: 2 } },
-                        legend: { display: false },
-                        tooltip: { enabled: false }
-                    }
-                },
-                plugins: [{
-                    id: 'gaugeText',
-                    afterDraw(chart) {
-                        const { ctx, chartArea: { width, height } } = chart;
-                        ctx.save();
-                        ctx.font = 'bold 1.4em "Segoe UI", sans-serif';
-                        ctx.fillStyle = '#ffffff';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText(valCorrigido.toFixed(1) + '%', width / 2, chart.getDatasetMeta(0).data[0].y - 5);
-                        ctx.restore();
-                    }
-                }]
-            });
-        }
-
-        function criarGraficoOtifTela6(canvasId, labels, data, titulo) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (window[canvasId + 'Inst']) window[canvasId + 'Inst'].destroy();
-            window[canvasId + 'Inst'] = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        borderColor: '#2ecc71',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0,
-                        pointRadius: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 15, bottom: 5, right: 10 } },
-                    plugins: {
-                        datalabels: { display: true, align: 'top', anchor: 'end', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 9 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? v.toFixed(1) + '%' : '' },
-                        title: { display: true, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 20 } },
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: { min: 85, max: 100, display: false },
-                        x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 11 }, maxTicksLimit: 15 } }
-                    }
-                }
-            });
-        }
-
-        function criarGraficoLinhaTela6(canvasId, labels, data, titulo, isPerc = false) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (window[canvasId + 'Inst']) window[canvasId + 'Inst'].destroy();
-            window[canvasId + 'Inst'] = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        borderColor: '#2ecc71',
-                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.2,
-                        pointRadius: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 8, bottom: 2, right: 8, left: 4 } },
-                    plugins: {
-                        datalabels: { display: false },
-                        title: { display: true, text: titulo, color: '#a0aec0', font: { size: 10, weight: 'bold' }, padding: { bottom: 2 } },
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, max: 100, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#a0aec0', font: { size: 9 }, callback: (v) => v + '%' } },
-                        x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 8 }, maxTicksLimit: 15 } }
-                    }
-                }
-            });
-        }
-
-        function criarGraficoCombinadoTela6(canvasId, labels, otifData, onTimeData, inFullData, titulo) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (window[canvasId + 'Inst']) window[canvasId + 'Inst'].destroy();
-            window[canvasId + 'Inst'] = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'OTIF', data: otifData, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2 },
-                        { label: 'ON TIME', data: onTimeData, backgroundColor: 'rgba(52, 152, 219, 0.8)', borderColor: '#3498db', borderWidth: 1, borderRadius: 2 },
-                        { label: 'IN FULL', data: inFullData, backgroundColor: 'rgba(241, 196, 15, 0.8)', borderColor: '#f1c40f', borderWidth: 1, borderRadius: 2 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 15, bottom: 5, right: 10 } },
-                    plugins: {
-                        datalabels: { display: true, anchor: 'end', align: 'top', offset: 2, color: '#ffffff', font: { weight: 'bold', size: 9 }, formatter: (v) => v > 0 ? v.toFixed(1) + '%' : '' },
-                        title: { display: true, text: titulo, color: '#a0aec0', font: { size: 12, weight: 'bold' }, padding: { bottom: 10 } },
-                        legend: { display: true, position: 'top', labels: { color: '#ffffff', font: { size: 10 }, boxWidth: 10 } }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, max: 100, display: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#a0aec0', font: { size: 10 }, callback: (v) => v + '%' } },
-                        x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 10 } } }
-                    }
-                }
-            });
+            } catch (err) {
+                console.error("Erro ao buscar dados da planilha:", err);
+            }
         }
 
         function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
@@ -702,30 +513,220 @@
                     title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } }, legend: { display: false } 
                 }, 
                 scales: { 
-                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#a0aec0', font: { size: 11 }, callback: (v) => isPerc ? v + '%' : Math.round(v).toLocaleString('pt-BR') } }, 
-                    x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 11 } } } 
+                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#ffffff', font: { size: 10 } } }, 
+                    x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 10 }, maxRotation: 0, autoSkip: false } } 
                 } 
             }; 
         }
 
-        function getCommonOptionsDuplo(titulo) { 
-            return { 
-                responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
-                plugins: { 
-                    datalabels: { display: true, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 9 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? v.toFixed(1) + '%' : '' }, 
-                    title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } }, 
-                    legend: { display: true, position: 'top', labels: { color: '#ffffff', font: { size: 11 }, boxWidth: 12 } } 
-                }, 
-                scales: { 
-                    y: { beginAtZero: true, display: false, grid: { color: 'rgba(255, 255, 255, 0.05)' } }, 
-                    x: { grid: { display: false }, ticks: { color: '#a0aec0', font: { size: 11 } } } 
-                } 
-            }; 
+        function renderizarVolumeDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoVolume').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, true) });
+        }
+
+        function renderizarVolumeMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoMensal').getContext('2d');
+            if (chartMensalInstance) chartMensalInstance.destroy();
+            chartMensalInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume Acumulado (KG)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano} (ACUMULADO)`, true) });
+        }
+
+        function renderizarOcupacaoDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d');
+            if (chartOcupDiario) chartOcupDiario.destroy();
+            chartOcupDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Ocupação (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true) });
+        }
+
+        function renderizarOcupacaoMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d');
+            if (chartOcupMensal) chartOcupMensal.destroy();
+            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Ocupação Média (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${ano} (MÉDIA)`, true, true) });
+        }
+
+        function renderizarDropsizeDiario(labels, valoresDrop, valoresDropSize, mesNome) {
+            const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d');
+            if (chartDropDiario) chartDropDiario.destroy();
+            let opt = getCommonOptions(`PESOXVEÍCULO X DROPSIZE (KG) - ${mesNome}`, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartDropDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'PESOxVEÍCULO', data: valoresDrop, backgroundColor: '#ff8c00', borderRadius: 2, barPercentage: 0.8 }, { label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, barPercentage: 0.8 }] }, options: opt });
+        }
+
+        function renderizarDropMensal(labels, valoresDrop, valoresDropSize, ano) {
+            const ctx = document.getElementById('graficoDropMensal').getContext('2d');
+            if (chartDropMensal) chartDropMensal.destroy();
+            let opt = getCommonOptions(`PESOXVEÍCULO X DROPSIZE (KG) - ${ano} (ACUMULADO)`, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartDropMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'PESOxVEÍCULO', data: valoresDrop, backgroundColor: '#ff8c00', borderRadius: 2, barPercentage: 0.8 }, { label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, barPercentage: 0.8 }] }, options: opt });
+        }
+
+        function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
+            const ctx = document.getElementById('graficoNfDiario').getContext('2d');
+            if (chartNfDiario) chartNfDiario.destroy();
+            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartNfDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.5)', borderColor: '#00ced1', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }, { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 255, 0, 0.5)', borderColor: '#ffd700', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
+        }
+
+        function renderizarNfMensal(labels, valoresNf, valoresCli, ano) {
+            const ctx = document.getElementById('graficoNfMensal').getContext('2d');
+            if (chartNfMensal) chartNfMensal.destroy();
+            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (ACUMULADO)`, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartNfMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: "NF'S", data: valoresNf, backgroundColor: '#00ced1', borderRadius: 2, barPercentage: 0.8 }, { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffd700', borderRadius: 2, barPercentage: 0.8 }] }, options: opt });
+        }
+
+        function renderizarNsDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoNsDiario').getContext('2d');
+            if (chartNsDiario) chartNsDiario.destroy();
+            chartNsDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Nível de Serviço D+1 (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${mesNome}`, true, true) });
+        }
+
+        function renderizarNsMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoNsMensal').getContext('2d');
+            if (chartNsMensal) chartNsMensal.destroy();
+            chartNsMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Nível de Serviço D+1 Média (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${ano} (MÉDIA)`, true, true) });
+        }
+
+        function renderizarReDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoReDiario').getContext('2d');
+            if (chartReDiario) chartReDiario.destroy();
+            chartReDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Reentregas (QTD)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${mesNome}`, true) });
+        }
+
+        function renderizarReMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoReMensal').getContext('2d');
+            if (chartReMensal) chartReMensal.destroy();
+            chartReMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Reentregas Acumulado (QTD)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${ano} (ACUMULADO)`, true) });
+        }
+
+        function renderizarDevolucaoDiario(labels, valoresTot, valoresOp, mesNome) {
+            const ctx = document.getElementById('graficoDevolucaoDiario').getContext('2d');
+            if (chartDevolDiario) chartDevolDiario.destroy();
+            let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X OPERAÇÃO (%) - ${mesNome}`, true, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartDevolDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'DEV. TOTAL (%)', data: valoresTot, borderColor: '#e74c3c', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 }, { label: 'DEV. OPERAÇÃO (%)', data: valoresOp, borderColor: '#f39c12', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 }] }, options: opt });
+        }
+
+        function renderizarDevolucaoMensal(labels, valoresTot, valoresOp, ano) {
+            const ctx = document.getElementById('graficoDevolucaoMensal').getContext('2d');
+            if (chartDevolMensal) chartDevolMensal.destroy();
+            let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X OPERAÇÃO (%) - ${ano} (MÉDIA)`, true, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            chartDevolMensal = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'DEV. TOTAL (%)', data: valoresTot, borderColor: '#e74c3c', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 }, { label: 'DEV. OPERAÇÃO (%)', data: valoresOp, borderColor: '#f39c12', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 }] }, options: opt });
+        }
+
+        function renderizarOtifDiario(labels, valores, mesNome) {
+            const ctx = document.getElementById('graficoOtifDiario').getContext('2d');
+            if (chartOtifDiario) chartOtifDiario.destroy();
+            chartOtifDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'OTIF (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true) });
+        }
+
+        function renderizarOtifMensal(labels, valores, ano) {
+            const ctx = document.getElementById('graficoOtifMensal').getContext('2d');
+            if (chartOtifMensal) chartOtifMensal.destroy();
+            chartOtifMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'OTIF Média (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`ENTREGAS OTIF (%) - ${ano} (MÉDIA)`, true, true) });
+        }
+
+        function renderizarVelocimetro(canvasId, valor, titulo, corDestaque = '#2ecc71') {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (window[`chart_${canvasId}`]) window[`chart_${canvasId}`].destroy();
+            let valSeguro = isNaN(valor) || valor === null ? 0 : Math.min(Math.max(valor, 0), 100);
+            window[`chart_${canvasId}`] = new Chart(ctx, {
+                type: 'doughnut',
+                data: { datasets: [{ data: [valSeguro, 100 - valSeguro], backgroundColor: [corDestaque, 'rgba(255,255,255,0.1)'], borderWidth: 0 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false, circumference: 180, rotation: -90, cutthout: '75%',
+                    plugins: {
+                        tooltip: { enabled: false }, datalabels: { display: false },
+                        title: { display: true, text: titulo, color: '#a0aec0', font: { size: 13, weight: 'bold' }, padding: { bottom: 10 } }
+                    }
+                },
+                plugins: [{
+                    id: 'gaugeText',
+                    afterDraw(chart) {
+                        const { ctx, chartArea: { width, height, top, left } } = chart;
+                        ctx.save();
+                        ctx.font = 'bold 22px "Segoe UI", sans-serif';
+                        ctx.fillStyle = '#ffffff';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(valSeguro.toFixed(1) + '%', left + width / 2, top + height / 1.3);
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        // FUNÇÃO ATUALIZADA PARA O GRÁFICO OTIF DA TELA 6
+        function renderizarGraficoLinhaSimplesT6(canvasId, labels, valores, titulo, cor, isInstanciaUnica) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (window[canvasId + 'Inst']) window[canvasId + 'Inst'].destroy();
+            
+            let opt = getCommonOptions(titulo, true, true, false);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+
+            let inst = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: titulo,
+                        data: valores,
+                        borderColor: cor,
+                        borderWidth: 2,
+                        fill: false, // Linha limpa sem preenchimento em montanha
+                        tension: 0.4,
+                        pointRadius: 2
+                    }]
+                },
+                options: opt
+            });
+
+            if (isInstanciaUnica) window.chartOtifT6Inst = inst;
+            else if (canvasId === 'graficoOnTimeT6') window.chartOnTimeT6Inst = inst;
+            else if (canvasId === 'graficoInFullT6') window.chartInFullT6Inst = inst;
+        }
+
+        function renderizarOtifXOnTimeXInFullT6(labels, otif, onTime, inFull, mesNome) {
+            const ctx = document.getElementById('graficoOtifXOnTimeXInFullT6').getContext('2d');
+            if (window.chartOtifCombinadoT6Inst) window.chartOtifCombinadoT6Inst.destroy();
+
+            let opt = getCommonOptions(`ENTREGAS OTIF X ON TIME X IN FULL (%) - ${mesNome}`, true, true, true);
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
+            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } } };
+
+            window.chartOtifCombinadoT6Inst = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'OTIF', data: otif, borderColor: '#2ecc71', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 },
+                        { label: 'ON TIME', data: onTime, borderColor: '#f39c12', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 },
+                        { label: 'IN FULL', data: inFull, borderColor: '#00ced1', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 }
+                    ]
+                },
+                options: opt
+            });
         }
 
         fetchPlanilha();
-        setInterval(fetchPlanilha, 5 * 60 * 1000);
-        aplicarExibicaoTela();
+        setInterval(fetchPlanilha, 15 * 60 * 1000);
     </script>
 </body>
 </html>
