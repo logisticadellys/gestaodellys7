@@ -621,8 +621,58 @@
                 });
 
                 window.chartInFullT6Inst = new Chart(ctxInFullT6, {
-                    type: 'line', data: { labels: labelsDiasTarget, datasets: [createDatasetT6('IN FULL', dInFullR, '#00ced1')] },
-                    options: commonOptionsT6(`ENTREGAS IN FULL (%) - ${mesExibicaoNome}`)
+                    type: 'line',
+                    data: {
+                        labels: labelsDiasTarget,
+                        datasets: [{
+                            label: 'IN FULL',
+                            data: dInFullR,
+                            borderColor: '#f1c40f',
+                            backgroundColor: '#f1c40f',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: { padding: { top: 15, bottom: 5, right: 10 } },
+                        plugins: {
+                            datalabels: {
+                                display: function(context) { return context.dataset.data[context.dataIndex] > 0; },
+                                anchor: 'end',
+                                align: 'top',
+                                offset: 4,
+                                rotation: -45,
+                                color: '#ffffff',
+                                font: { weight: 'bold', size: 10 },
+                                textStrokeColor: 'rgba(0, 0, 0, 0.7)',
+                                textStrokeWidth: 2,
+                                formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                            },
+                            title: {
+                                display: true,
+                                text: `ENTREGAS IN FULL (%) - ${mesExibicaoNome}`,
+                                color: '#a0aec0',
+                                font: { size: 15, weight: 'bold' },
+                                padding: { bottom: 50 }
+                            },
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                display: false,
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 }
+                            }
+                        }
+                    }
                 });
 
                 window.chartOtifCombinadoT6Inst = new Chart(ctxCombinadoT6, {
