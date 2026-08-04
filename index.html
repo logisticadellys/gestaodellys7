@@ -503,9 +503,16 @@
                     }
                 });
 
+               let opcoesOtifT6 = commonOptionsT6(`ENTREGAS OTIF (%) - ${mesExibicaoNome}`);
+                // Afasta do título e ajusta margens laterais para não cortar
+                opcoesOtifT6.plugins.title.padding = { bottom: 35 };
+                opcoesOtifT6.layout.padding = { top: 15, bottom: 5, right: 15, left: 15 };
+                // Achata a linha (constante) e joga para o meio do card
+                opcoesOtifT6.scales.y = { min: 50, max: 140, display: false, grid: { display: false } };
+
                 window.chartOtifT6Inst = new Chart(ctxOtifT6, {
                     type: 'line', data: { labels: labelsDiasTarget, datasets: [createDatasetT6('OTIF', dOtifR, '#2ecc71')] },
-                    options: commonOptionsT6(`ENTREGAS OTIF (%) - ${mesExibicaoNome}`)
+                    options: opcoesOtifT6
                 });
 
                 window.chartOnTimeT6Inst = new Chart(ctxOnTimeT6, {
