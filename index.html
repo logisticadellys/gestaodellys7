@@ -348,6 +348,31 @@
                 const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
                 const sOnTimeM = Array(12).fill(0); const cOnTimeM = Array(12).fill(0);
                 const sInFullM = Array(12).fill(0); const cInFullM = Array(12).fill(0);
+                for (let i = 1; i < linhas.length; i++) {
+                    let colunas = linhas[i].split(',');
+                    if (colunas.length > 1) {
+                        let dataStr = colunas[idxs.data]?.trim();
+                        if (dataStr) {
+                            let partes = dataStr.split(/[\/\-]/);
+                            if (partes.length === 3) {
+                                let aP = parseInt(partes[2].length === 2 ? '20' + partes[2] : partes[2]);
+                                let mP = parseInt(partes[1]);
+                                let vOtifM = converter(colunas[idxs.otif]);
+                                let vOnTimeM = converter(colunas[idxs.ontime]);
+                                let vInFullM = converter(colunas[idxs.infull]);
+
+                                if (aP === anoDeExibicao) {
+                                    let mIdx = mP - 1;
+                                    if (mIdx >= 0 && mIdx < 12) {
+                                        if (vOtifM !== null) { sOtifM[mIdx] += vOtifM; cOtifM[mIdx]++; }
+                                        if (vOnTimeM !== null) { sOnTimeM[mIdx] += vOnTimeM; cOnTimeM[mIdx]++; }
+                                        if (vInFullM !== null) { sInFullM[mIdx] += vInFullM; cInFullM[mIdx]++; }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 const converter = (val) => {
                     if (!val || val === "-" || val === "null" || val === "#N/A") return null;
