@@ -186,10 +186,13 @@
                 <div class="chart-container">
                     <canvas id="graficoOtifXOnTimeXInFullT6"></canvas>
                 </div>
+                <div class="chart-container">
+                    <canvas id="graficoOtifXOnTimeXInFullMensalT6"></canvas>
+                </div>
             </div>
         </div>
     </div>
-
+    
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
         Chart.register(ChartDataLabels);
@@ -469,8 +472,10 @@
                 renderizarVelocimetro('graficoVelocimetro3', mediaInFullMesTela6, `ENTREGAS IN FULL (%) ${mesExibicaoNome} - MÉDIA`, '#3498db');
 
                 if (window.chartOtifCombinadoT6Inst) window.chartOtifCombinadoT6Inst.destroy();
+                if (window.chartOtifCombinadoMensalT6Inst) window.chartOtifCombinadoMensalT6Inst.destroy();
 
                 const ctxCombinadoT6 = document.getElementById('graficoOtifXOnTimeXInFullT6').getContext('2d');
+                const ctxCombinadoMensalT6 = document.getElementById('graficoOtifXOnTimeXInFullMensalT6').getContext('2d');
                 const labelsDiasTarget = Array.from({length: ultimoDiaMesExibicao}, (_, i) => String(i + 1).padStart(2, '0'));
 
                 window.chartOtifCombinadoT6Inst = new Chart(ctxCombinadoT6, {
@@ -522,6 +527,74 @@
                                 border: { display: false },
                                 grid: { display: false },
                                 ticks: { color: '#ffffff', font: { size: 10 }, padding: 8 }
+                            }
+                        }
+                    }
+                });
+
+                const dataOtifMensalArr = mesesExtenso.map((_, i) => cOtifM[i] > 0 ? sOtifM[i] / cOtifM[i] : 0);
+                const dataOnTimeMensalArr = mesesExtenso.map((_, i) => cOnTimeM[i] > 0 ? sOnTimeM[i] / cOnTimeM[i] : 0);
+                const dataInFullMensalArr = mesesExtenso.map((_, i) => cInFullM[i] > 0 ? sInFullM[i] / cInFullM[i] : 0);
+
+                window.chartOtifCombinadoMensalT6Inst = new Chart(ctxCombinadoMensalT6, {
+                    type: 'bar',
+                    data: {
+                        labels: mesesExtenso,
+                        datasets: [
+                            { label: 'OTIF', data: dataOtifMensalArr, backgroundColor: '#2ecc71', borderRadius: 2, barPercentage: 0.8 },
+                            { label: 'ON TIME', data: dataOnTimeMensalArr, backgroundColor: '#f39c12', borderRadius: 2, barPercentage: 0.8 },
+                            { label: 'IN FULL', data: dataInFullMensalArr, backgroundColor: '#00ced1', borderRadius: 2, barPercentage: 0.8 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: { padding: { top: 25, bottom: 5, right: 10 } },
+                        plugins: {
+                            datalabels: {
+                                display: (context) => context.dataset.data[context.dataIndex] > 0,
+                                rotation: -45,
+                                align: 'top',
+                                anchor: 'end',
+                                offset: 2,
+                                color: '#ffffff',
+                                font: { weight: 'bold', size: 9 },
+                                textStrokeColor: 'rgba(0, 0, 0, 0.7)',
+                                textStrokeWidth: 2,
+                                formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                            },
+                            title: {
+                                display: true,
+                                text: `ENTREGAS OTIF X ON TIME X IN FULL (%) - ${anoDeExibicao} (MÉDIA)`,
+                                color: '#a0aec0',
+                                font: { size: 15, weight: 'bold' },
+                                padding: { bottom: 25 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                min: 85,
+                                max: 100,
+                                display: true,
+                                border: { display: false },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { 
+                                    color: '#ffffff', 
+                                    font: { size: 9 }, 
+                                    stepSize: 1,
+                                    autoSkip: false,
+                                    callback: (v) => v + '%' 
+                                }
+                            },
+                            x: {
+                                border: { display: false },
+                                grid: { display: false },
+                                ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 }
                             }
                         }
                     }
