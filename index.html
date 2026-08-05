@@ -417,9 +417,11 @@
                             if (valNsMesG !== null && valNsMesG > 0) { sNsM[mIdx] = valNsMesG; cNsM[mIdx]++; }
                             if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
                             if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
-                            if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
-                            if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[mIdx] += valOnTimeMesG; cOnTimeM[mIdx]++; }
-                            if (valInFullMesG !== null && valInFullMesG > 0) { sInFullM[mIdx] += valInFullMesG; cInFullM[mIdx]++; }
+                            
+                            // Acumula os valores diários para calcular a média mensal automaticamente caso não haja coluna de mês
+                            if (valOtifG !== null) { sOtifM[mIdx] += valOtifG; cOtifM[mIdx]++; }
+                            if (valOnTimeG !== null) { sOnTimeM[mIdx] += valOnTimeG; cOnTimeM[mIdx]++; }
+                            if (valInFullG !== null) { sInFullM[mIdx] += valInFullG; cInFullM[mIdx]++; }
                         }
                     }
                 }
