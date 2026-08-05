@@ -478,9 +478,9 @@
                     data: {
                         labels: labelsDiasTarget,
                         datasets: [
-                            { label: 'OTIF', data: dOtifR, borderColor: '#2ecc71', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 },
-                            { label: 'ON TIME', data: dOnTimeR, borderColor: '#f39c12', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 },
-                            { label: 'IN FULL', data: dInFullR, borderColor: '#00ced1', borderWidth: 2, fill: false, tension: 0.4, pointRadius: 2 }
+                            { label: 'OTIF', data: dOtifR, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 },
+                            { label: 'ON TIME', data: dOnTimeR, borderColor: '#f39c12', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 },
+                            { label: 'IN FULL', data: dInFullR, borderColor: '#00ced1', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 }
                         ]
                     },
                     options: {
@@ -488,13 +488,35 @@
                         maintainAspectRatio: false,
                         layout: { padding: { top: 15, bottom: 5, right: 10 } },
                         plugins: {
-                            title: { display: true, text: `ENTREGAS OTIF X ON TIME X IN FULL (%) - ${mesExibicaoNome}`, color: '#a0aec0', font: { size: 11, weight: 'bold' }, padding: { bottom: 10 } },
-                            legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 9 }, boxWidth: 12 } },
-                            datalabels: { display: false }
+                            datalabels: { display: false },
+                            title: {
+                                display: true,
+                                text: `ENTREGAS OTIF X ON TIME X IN FULL (%) - ${mesExibicaoNome}`,
+                                color: '#a0aec0',
+                                font: { size: 15, weight: 'bold' },
+                                padding: { bottom: 25 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12 }
+                            }
                         },
                         scales: {
-                            y: { min: 85, max: 100, display: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#ffffff', font: { size: 9 }, callback: (v) => v + '%' } },
-                            x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 } } }
+                            y: {
+                                min: 85,
+                                max: 100,
+                                display: true,
+                                border: { display: false },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#ffffff', font: { size: 10 }, callback: (v) => v + '%' }
+                            },
+                            x: {
+                                offset: true,
+                                border: { display: false },
+                                grid: { display: false },
+                                ticks: { color: '#ffffff', font: { size: 10 }, padding: 8 }
+                            }
                         }
                     }
                 });
