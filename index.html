@@ -170,7 +170,7 @@
         <div class="grid-graficos">
             <div class="chart-container"><canvas id="graficoDevolucaoDiario"></canvas></div>
             <div class="chart-container"><canvas id="graficoDevolucaoMensal"></canvas></div>
-            <div class="chart-container"></div>
+            <div class="chart-container"><canvas id="graficoAderenciaDiario"></canvas></div>
             <div class="chart-container"></div>
         </div>
     </div>
@@ -231,11 +231,12 @@
         }
 
         window.addEventListener('resize', () => { 
-            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal].forEach(c => c && c.resize());
+            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, window.chartAderenciaDiarioInst].forEach(c => c && c.resize());
             if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
             if (window['chart_graficoVelocimetro2']) window['chart_graficoVelocimetro2'].resize();
             if (window['chart_graficoVelocimetro3']) window['chart_graficoVelocimetro3'].resize();
             if (window.chartOtifCombinadoT6Inst) window.chartOtifCombinadoT6Inst.resize();
+            if (window.chartOtifCombinadoMensalT6Inst) window.chartOtifCombinadoMensalT6Inst.resize();
         });
 
         function safeSplit(row) {
@@ -324,6 +325,8 @@
                 const dDropR = Array(ultimoDiaMesExibicao).fill(null); const dDropSizeR = Array(ultimoDiaMesExibicao).fill(null); const dNfR = Array(ultimoDiaMesExibicao).fill(null); const dCliR = Array(ultimoDiaMesExibicao).fill(null);
                 const dNsR = Array(ultimoDiaMesExibicao).fill(null); const dReR = Array(ultimoDiaMesExibicao).fill(null);
                 const dDevTot = Array(ultimoDiaMesExibicao).fill(null); const dDevOp = Array(ultimoDiaMesExibicao).fill(null);
+                const dAderenciaR = Array(ultimoDiaMesExibicao).fill(null);
+                const dApontamentosR = Array(ultimoDiaMesExibicao).fill(null);
                 
                 const dOtifR = Array(ultimoDiaMesExibicao).fill(null);
                 const dOnTimeR = Array(ultimoDiaMesExibicao).fill(null);
@@ -368,6 +371,8 @@
                     let valReG = converter(colunas[cabecalho.indexOf("REENTREGAS D+2 (QTD)")]);
                     let valDevTotG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%)")]);
                     let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
+                    let valAderenciaG = converter(colunas[cabecalho.indexOf("ADERÊNCIA (%)")]);
+                    let valApontamentosG = converter(colunas[cabecalho.indexOf("APONTAMENTOS CERCA (%)")]);
                     
                     let valOtifG = converter(colunas[idxs.otif]);
                     let valOnTimeG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%)")]);
@@ -391,6 +396,8 @@
                                 if(valDropG !== null) dDropR[dP-1] = valDropG; if(valDropSizeG !== null) dDropSizeR[dP-1] = valDropSizeG; if(valNfG !== null) dNfR[dP-1] = valNfG; if(valCliG !== null) dCliR[dP-1] = valCliG;
                                 if(valNsG !== null) dNsR[dP-1] = valNsG; if(valReG !== null) dReR[dP-1] = valReG;
                                 if(valDevTotG !== null) dDevTot[dP-1] = valDevTotG; if(valDevOpG !== null) dDevOp[dP-1] = valDevOpG;
+                                if(valAderenciaG !== null) dAderenciaR[dP-1] = valAderenciaG;
+                                if(valApontamentosG !== null) dApontamentosR[dP-1] = valApontamentosG;
                                 
                                 if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
                                 if(valOnTimeG !== null) dOnTimeR[dP-1] = valOnTimeG;
@@ -452,6 +459,15 @@
                 renderizarReMensal(mesesExtenso, acReM, anoAtual);
                 renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
                 renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
+                const labAderenciaF = []; const vAderenciaF = []; const vApontamentosF = [];
+                for (let i = 0; i < ultimoDiaMesExibicao; i++) {
+                    if (dAderenciaR[i] !== null || dApontamentosR[i] !== null) {
+                        labAderenciaF.push(String(i + 1).padStart(2, '0'));
+                        vAderenciaF.push(dAderenciaR[i]||0);
+                        vApontamentosF.push(dApontamentosR[i]||0);
+                    }
+                }
+                renderizarAderenciaDiario(labAderenciaF, vAderenciaF, vApontamentosF, mesExibicaoNome);
 
                 let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
                 renderizarVelocimetro('graficoVelocimetro1', mediaOtifMesTela6, `ENTREGAS OTIF (%) ${mesExibicaoNome} - MÉDIA`);
@@ -740,6 +756,25 @@
         }
 
         fetchPlanilha(); setInterval(fetchPlanilha, 60000);
+        function renderizarAderenciaDiario(labels, valoresAderencia, valoresApontamentos, mesNome) {
+            const ctx = document.getElementById('graficoAderenciaDiario').getContext('2d'); 
+            if (window.chartAderenciaDiarioInst) window.chartAderenciaDiarioInst.destroy();
+            
+            let opt = getCommonOptions(`ADERÊNCIA X APONTAMENTOS CERCA (%) - ${mesNome}`, true, true, true);
+            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } } };
+            
+            window.chartAderenciaDiarioInst = new Chart(ctx, { 
+                type: 'bar', 
+                data: { 
+                    labels: labels, 
+                    datasets: [ 
+                        { type: 'line', label: 'APONTAMENTOS CERCA', data: valoresApontamentos, borderColor: '#ffff00', backgroundColor: 'rgba(255, 255, 0, 0.2)', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, order: 1 },
+                        { type: 'bar', label: 'ADERÊNCIA', data: valoresAderencia, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6, order: 2 } 
+                    ] 
+                }, 
+                options: opt 
+            });
+        }
     </script>
 </body>
 </html>
