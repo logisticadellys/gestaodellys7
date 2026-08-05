@@ -509,7 +509,13 @@
                                 display: true,
                                 border: { display: false },
                                 grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                                ticks: { color: '#ffffff', font: { size: 10 }, callback: (v) => v + '%' }
+                                ticks: { 
+                                    color: '#ffffff', 
+                                    font: { size: 9 }, 
+                                    stepSize: 1,
+                                    autoSkip: false,
+                                    callback: (v) => v + '%' 
+                                }
                             },
                             x: {
                                 offset: true,
