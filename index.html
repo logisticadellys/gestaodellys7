@@ -760,8 +760,11 @@
             const ctx = document.getElementById('graficoAderenciaDiario').getContext('2d'); 
             if (window.chartAderenciaDiarioInst) window.chartAderenciaDiarioInst.destroy();
             
-            let opt = getCommonOptions(`ADERÊNCIA X APONTAMENTOS CERCA (%) - ${mesNome}`, true, true, true);
+            let opt = getCommonOptions(`ADERÊNCIA X APONTAMENTOS CERCA (%) - ${mesNome}`, true, true, false);
             opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } } };
+            opt.plugins.datalabels.rotation = -45;
+            opt.plugins.datalabels.align = 'top';
+            opt.plugins.datalabels.offset = 4;
             
             window.chartAderenciaDiarioInst = new Chart(ctx, { 
                 type: 'bar', 
