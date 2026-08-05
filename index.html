@@ -553,7 +553,6 @@
                         plugins: {
                             datalabels: {
                                 display: (context) => context.dataset.data[context.dataIndex] > 0,
-                                rotation: -45,
                                 align: 'top',
                                 anchor: 'end',
                                 offset: 2,
@@ -580,16 +579,9 @@
                             y: {
                                 min: 85,
                                 max: 100,
-                                display: true,
+                                display: false,
                                 border: { display: false },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                                ticks: { 
-                                    color: '#ffffff', 
-                                    font: { size: 9 }, 
-                                    stepSize: 1,
-                                    autoSkip: false,
-                                    callback: (v) => v + '%' 
-                                }
+                                grid: { display: false }
                             },
                             x: {
                                 border: { display: false },
