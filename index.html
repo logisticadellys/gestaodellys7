@@ -235,14 +235,8 @@
             if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
             if (window['chart_graficoVelocimetro2']) window['chart_graficoVelocimetro2'].resize();
             if (window['chart_graficoVelocimetro3']) window['chart_graficoVelocimetro3'].resize();
-        window.addEventListener('resize', () => { 
-            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, chartOtifDiario, chartOtifMensal].forEach(c => c && c.resize());
-            if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
-            if (window['chart_graficoVelocimetro2']) window['chart_graficoVelocimetro2'].resize();
-            if (window['chart_graficoVelocimetro3']) window['chart_graficoVelocimetro3'].resize();
             if (window.chartOtifCombinadoT6Inst) window.chartOtifCombinadoT6Inst.resize();
-        });
-            if (window.chartOtifCombinadoT6Inst) window.chartOtifCombinadoT6Inst.resize();
+            if (window.chartOtifCombinadoMensalT6Inst) window.chartOtifCombinadoMensalT6Inst.resize();
         });
 
         function safeSplit(row) {
