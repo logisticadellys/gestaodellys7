@@ -332,7 +332,8 @@
                 const dNsR = Array(ultimoDiaMesExibicao).fill(null); const dReR = Array(ultimoDiaMesExibicao).fill(null);
                 const dDevTot = Array(ultimoDiaMesExibicao).fill(null); const dDevOp = Array(ultimoDiaMesExibicao).fill(null);
                 
-                const dOtifR = Array(ultimoDiaMesExibicao).fill(null);
+                const dAdR = Array(ultimoDiaMesExibicao).fill(null);
+                const dAptR = Array(ultimoDiaMesExibicao).fill(null);
                 const dOnTimeR = Array(ultimoDiaMesExibicao).fill(null);
                 const dInFullR = Array(ultimoDiaMesExibicao).fill(null);
 
@@ -376,7 +377,8 @@
                     let valDevTotG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%)")]);
                     let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
                     
-                    let valOtifG = converter(colunas[idxs.otif]);
+                    let valAdG = converter(colunas[cabecalho.indexOf("ADERÊNCIA (%)")]);
+                    let valAptG = converter(colunas[cabecalho.indexOf("APONTAMENTOS CERCA (%)")]);
                     let valOnTimeG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%)")]);
                     let valInFullG = converter(colunas[cabecalho.indexOf("ENTREGAS IN FULL (%)")]);
                     
@@ -399,7 +401,8 @@
                                 if(valNsG !== null) dNsR[dP-1] = valNsG; if(valReG !== null) dReR[dP-1] = valReG;
                                 if(valDevTotG !== null) dDevTot[dP-1] = valDevTotG; if(valDevOpG !== null) dDevOp[dP-1] = valDevOpG;
                                 
-                                if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
+                                if(valAdG !== null) dAdR[dP-1] = valAdG;
+                                if(valAptG !== null) dAptR[dP-1] = valAptG;
                                 if(valOnTimeG !== null) dOnTimeR[dP-1] = valOnTimeG;
                                 if(valInFullG !== null) dInFullR[dP-1] = valInFullG;
                             }
@@ -436,12 +439,12 @@
                 };
                 for(let id in idsMap) { let el = document.getElementById(id); if(el) el.textContent = valCards[idsMap[id]]; }
 
-                const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
+                const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vAdF = []; const vAptF = [];
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
-                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null) {
+                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dAdR[i] !== null) {
                         labF.push(String(i + 1).padStart(2, '0'));
                         vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
-                        vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
+                        vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vAdF.push(dAdR[i]||0); vAptF.push(dAptR[i]||0);
                     }
                 }
 
@@ -459,7 +462,7 @@
                 renderizarReMensal(mesesExtenso, acReM, anoAtual);
                 renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
                 renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
-                renderizarOtifDiario(labF, vOtifF, mesExibicaoNome);
+                renderizarAderenciaApontamentosDiario(labF, vAdF, vAptF, mesExibicaoNome);
                 renderizarOtifMensal(mesesExtenso, sOtifM.map((s,i)=>cOtifM[i]>0?s:0), anoAtual);
 
                 let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
@@ -733,12 +736,87 @@
             let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X DEVOLUÇÃO OPERAÇÃO (%) - ${ano} (MÉDIA)`, true, true);
             chartDevolMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "DEVOLUÇÃO TOTAL", data: valoresTot, backgroundColor: '#e74c3c', borderRadius: 2, barPercentage: 0.6 }, { label: "DEVOLUÇÃO OPERAÇÃO", data: valoresOp, backgroundColor: '#f39c12', borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
         }
-        function renderizarOtifDiario(labels, valores, mesNome) {
-            const ctx = document.getElementById('graficoOtifDiario').getContext('2d'); if (chartOtifDiario) chartOtifDiario.destroy();
-            let opt = getCommonOptions(`ENTREGAS OTIF (%) - ${mesNome}`, true, true, false);
-            opt.plugins.datalabels.rotation = -45;
-            opt.plugins.datalabels.align = 'top';
-            chartOtifDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'OTIF (%)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
+        function renderizarAderenciaApontamentosDiario(labels, valoresAd, valoresApt, mesNome) {
+            const ctx = document.getElementById('graficoOtifDiario').getContext('2d'); 
+            if (chartOtifDiario) chartOtifDiario.destroy();
+            
+            chartOtifDiario = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'ADERÊNCIA (%)',
+                            data: valoresAd,
+                            backgroundColor: '#2ecc71',
+                            borderRadius: 2,
+                            barPercentage: 0.7,
+                            order: 2,
+                            datalabels: {
+                                display: (context) => context.dataset.data[context.dataIndex] > 0,
+                                align: 'top',
+                                anchor: 'end',
+                                offset: 2,
+                                color: '#ffffff',
+                                font: { weight: 'bold', size: 9 },
+                                formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                            }
+                        },
+                        {
+                            type: 'line',
+                            label: 'APONTAMENTOS CERCA (%)',
+                            data: valoresApt,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.3)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 2,
+                            order: 1,
+                            datalabels: {
+                                display: (context) => context.dataset.data[context.dataIndex] > 0,
+                                align: 'top',
+                                anchor: 'end',
+                                offset: 2,
+                                color: '#ffffff',
+                                font: { weight: 'bold', size: 9 },
+                                formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
+                            }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 20, bottom: 5, right: 10 } },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `ADERÊNCIA X APONTAMENTOS CERCA (%) - ${mesNome}`,
+                            color: '#a0aec0',
+                            font: { size: 15, weight: 'bold' },
+                            padding: { bottom: 25 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false,
+                            grid: { display: false }
+                        },
+                        x: {
+                            border: { display: false },
+                            grid: { display: false },
+                            ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 }
+                        }
+                    }
+                }
+            });
         }
         function renderizarOtifMensal(labels, valores, ano) {
             const ctx = document.getElementById('graficoOtifMensal').getContext('2d'); if (chartOtifMensal) chartOtifMensal.destroy();
