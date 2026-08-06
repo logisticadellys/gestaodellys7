@@ -63,7 +63,7 @@
         </div>
     </header>
 
-    <div id="tela1" class="tela">
+    <div id="tela1" class="tela ativa">
         <div class="grid-cards">
             <div class="card"><h3>VOLUME EXPEDIDO (KG) - HOJE</h3><span class="valor" id="vol-valor">-</span></div>
             <div class="card"><h3>PESOxVEÍCULO (KG) - HOJE</h3><span class="valor" id="drop-valor">-</span></div>
@@ -756,6 +756,7 @@
         }
 
         fetchPlanilha(); setInterval(fetchPlanilha, 60000);
+        aplicarExibicaoTela();
         function renderizarAderenciaDiario(labels, valoresAderencia, valoresApontamentos, mesNome) {
             const ctx = document.getElementById('graficoAderenciaDiario').getContext('2d'); 
             if (window.chartAderenciaDiarioInst) window.chartAderenciaDiarioInst.destroy();
