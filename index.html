@@ -755,7 +755,8 @@
             }; 
         }
 
-        fetchPlanilha(); setInterval(fetchPlanilha, 60000);
+        fetchPlanilha(); 
+        setInterval(fetchPlanilha, 60000);
         aplicarExibicaoTela();
         function renderizarAderenciaDiario(labels, valoresAderencia, valoresApontamentos, mesNome) {
             const ctx = document.getElementById('graficoAderenciaDiario').getContext('2d'); 
