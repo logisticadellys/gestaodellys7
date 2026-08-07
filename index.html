@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Logístico</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
@@ -23,9 +24,86 @@
         .tela { display: none; flex-direction: column; gap: 2.5vh; flex: 1; min-height: 0; animation: suaveEntrada 2.5s ease-in-out; }
         .tela.ativa { display: flex; }
         @keyframes suaveEntrada { 0% { opacity: 0; filter: blur(15px); transform: scale(0.97); } 100% { opacity: 1; filter: blur(0); transform: scale(1); } }
+        
         .grid-cards { display: flex; gap: 2vw; width: 100%; flex-shrink: 0; }
-        .card { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; flex: 1; padding: 0.8vh 0.6vw; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: center; }
-        .card h3 { margin: 0 0 0.4vh 0; color: #a0aec0; font-size: clamp(0.85em, 1.1vw, 1.1em); text-transform: uppercase; letter-spacing: 1px; min-height: 1.6em; display: flex; align-items: center; justify-content: center; }
+        
+        /* Novas regras de estilo estruturais e condicionais para os Cards da Tela 1 */
+        .card { 
+            background-color: #102542; 
+            border: 1.5px solid rgba(0, 206, 209, 0.4); 
+            border-radius: 10px; 
+            flex: 1; 
+            padding: 0.8vh 0.6vw; 
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            transition: all 0.3s ease; 
+        }
+
+        /* Condicionais de Borda / Glow (Verde para Positivo, Vermelho para Alerta/Negativo) */
+        .card.card-positivo { 
+            border-color: #2ecc71; 
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.25); 
+        }
+        .card.card-negativo { 
+            border-color: #e74c3c; 
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.3); 
+        }
+
+        .card-header-line { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 0.3vh; 
+        }
+
+        .card h3 { 
+            margin: 0 0 0.4vh 0; 
+            color: #a0aec0; 
+            font-size: clamp(0.75em, 1vw, 1em); 
+            text-transform: uppercase; 
+            letter-spacing: 0.8px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            font-weight: 700; 
+        }
+
+        .card h3 i { color: #00ced1; font-size: 0.9em; }
+        .card.card-positivo h3 i { color: #2ecc71; }
+        .card.card-negativo h3 i { color: #e74c3c; }
+
+        /* Badges de variação (KPIs % / vs dia ant.) */
+        .badge-kpi { 
+            font-size: clamp(0.60em, 0.72vw, 0.78em); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: 800; 
+            display: flex; 
+            align-items: center; 
+            gap: 3px; 
+        }
+        .badge-kpi.positivo { 
+            background-color: rgba(46, 204, 113, 0.2); 
+            color: #2ecc71; 
+            border: 1px solid rgba(46, 204, 113, 0.4); 
+        }
+        .badge-kpi.negativo { 
+            background-color: rgba(231, 76, 60, 0.2); 
+            color: #e74c3c; 
+            border: 1px solid rgba(231, 76, 60, 0.4); 
+        }
+
+        .card-footer-text { 
+            font-size: clamp(0.55em, 0.7vw, 0.75em); 
+            color: #718096; 
+            margin-top: 2px; 
+            text-transform: uppercase; 
+            font-weight: 600; 
+        }
+
         .secao-inferior { display: flex; gap: 2vw; flex: 1; min-height: 0; }
         .container-coluna { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; min-height: 0; }
         .card-split { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
@@ -65,74 +143,141 @@
 
     <div id="tela1" class="tela ativa">
         <div class="grid-cards">
-            <div class="card"><h3>VOLUME EXPEDIDO (KG) - HOJE</h3><span class="valor" id="vol-valor">-</span></div>
-            <div class="card"><h3>PESOxVEÍCULO (KG) - HOJE</h3><span class="valor" id="drop-valor">-</span></div>
-            <div class="card"><h3>OCUPAÇÃO (%) - HOJE</h3><span class="valor" id="ocp-valor">-</span></div>
-            <div class="card"><h3>NF'S (QTD) - HOJE</h3><span class="valor" id="nf-valor">-</span></div>
+            <div class="card card-positivo">
+                <div class="card-header-line">
+                    <h3><i class="fas fa-box"></i> VOLUME EXPEDIDO</h3>
+                    <span class="badge-kpi positivo"><i class="fas fa-caret-up"></i> +2.4%</span>
+                </div>
+                <span class="valor" id="vol-valor">-</span>
+                <span class="card-footer-text">vs dia ant.</span>
+            </div>
+
+            <div class="card card-positivo">
+                <div class="card-header-line">
+                    <h3><i class="fas fa-weight-hanging"></i> PESO X VEÍCULO</h3>
+                    <span class="badge-kpi positivo"><i class="fas fa-caret-up"></i> +1.2%</span>
+                </div>
+                <span class="valor" id="drop-valor">-</span>
+                <span class="card-footer-text">vs dia ant.</span>
+            </div>
+
+            <div class="card card-negativo">
+                <div class="card-header-line">
+                    <h3><i class="fas fa-truck-ramps"></i> OCUPAÇÃO (%)</h3>
+                    <span class="badge-kpi negativo"><i class="fas fa-caret-down"></i> -1.1%</span>
+                </div>
+                <span class="valor" id="ocp-valor">-</span>
+                <span class="card-footer-text">vs dia ant.</span>
+            </div>
+
+            <div class="card card-positivo">
+                <div class="card-header-line">
+                    <h3><i class="fas fa-file-invoice"></i> NF'S (QTD)</h3>
+                    <span class="badge-kpi positivo"><i class="fas fa-caret-up"></i> +4.5%</span>
+                </div>
+                <span class="valor" id="nf-valor">-</span>
+                <span class="card-footer-text">vs dia ant.</span>
+            </div>
         </div>
+
         <div class="grid-cards">
-            <div class="card"><h3>TERCEIROS (QTD) - HOJE</h3><span class="valor" id="terc-util">-</span></div>
-            <div class="card"><h3>DROPSIZE (KG) - HOJE</h3><span class="valor" id="dropsize-hoje-valor">-</span></div>
-            <div class="card"><h3>ABSENTEÍSMO (QTD) - HOJE</h3><span class="valor" id="abs-valor">-</span></div>
-            <div class="card"><h3>ABSENTEÍSMO (%) - HOJE</h3><span class="valor" id="abs-perc-valor">-</span></div>
-            <div class="card"><h3>CLIENTES (QTD) - HOJE</h3><span class="valor" id="cli-valor">-</span></div>
+            <div class="card">
+                <div class="card-header-line">
+                    <h3><i class="fas fa-truck-moving"></i> TERCEIROS</h3>
+                </div>
+                <span class="valor" id="terc-util">-</span>
+                <span class="card-footer-text">Frota</span>
+            </div>
+
+            <div class="card">
+                <div class="card-header-line">
+                    <h3><i class="fas fa-boxes-stacked"></i> DROPSIZE</h3>
+                </div>
+                <span class="valor" id="dropsize-hoje-valor">-</span>
+                <span class="card-footer-text">Média</span>
+            </div>
+
+            <div class="card">
+                <div class="card-header-line">
+                    <h3><i class="fas fa-user-slash"></i> ABSENTEÍSMO</h3>
+                </div>
+                <span class="valor" id="abs-valor">-</span>
+                <span class="card-footer-text">Zero</span>
+            </div>
+
+            <div class="card">
+                <div class="card-header-line">
+                    <h3><i class="fas fa-percent"></i> ABSENTEÍSMO (%)</h3>
+                </div>
+                <span class="valor" id="abs-perc-valor">-</span>
+                <span class="card-footer-text">Taxa</span>
+            </div>
+
+            <div class="card">
+                <div class="card-header-line">
+                    <h3><i class="fas fa-store"></i> CLIENTES</h3>
+                </div>
+                <span class="valor" id="cli-valor">-</span>
+                <span class="card-footer-text">Atendidos</span>
+            </div>
         </div>
+
         <div class="secao-inferior">
             <div class="container-coluna">
                 <div class="card card-split">
-                    <h3>FROTA PRÓPRIA ENTREGA (QTD) - HOJE</h3>
+                    <h3><i class="fas fa-truck-front"></i> FROTA PRÓPRIA ENTREGA (QTD)</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados">-</span></div>
-                        <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="f-dispo">-</span></div>
+                        <div class="split-item"><span class="subtitulo">DISPONÍVEL</span><span class="valor valor-frota" id="f-dispo">-</span></div>
                         <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="f-util">-</span></div>
                     </div>
                 </div>
                 <div class="card card-split">
-                    <h3>FROTA PRÓPRIA TRANSFERÊNCIA (QTD) - HOJE</h3>
+                    <h3><i class="fas fa-truck"></i> FROTA PRÓPRIA TRANSFERÊNCIA (QTD)</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
-                        <div class="split-item"><span class="subtitulo">DISPONIBILIDADE</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
+                        <div class="split-item"><span class="subtitulo">DISPONÍVEL</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
                         <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util">-</span></div>
                     </div>
                 </div>
             </div>
             <div class="container-coluna">
                 <div class="card card-split">
-                    <h3>MOTORISTA DISTRIBUIÇÃO (QTD) - HOJE</h3>
+                    <h3><i class="fas fa-id-card"></i> MOTORISTA DISTRIBUIÇÃO (QTD)</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="md-vagas">-</span></div>
                         <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="md-ferias">-</span></div>
                         <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas">-</span></div>
-                        <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="md-atestados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="md-atestados">-</span></div>
                         <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="md-banco">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="md-util">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="md-util">-</span></div>
                     </div>
                 </div>
                 <div class="card card-split">
-                    <h3>AUXILIAR DISTRIBUIÇÃO (QTD) - HOJE</h3>
+                    <h3><i class="fas fa-users"></i> AUXILIAR DISTRIBUIÇÃO (QTD)</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="aux-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="aux-vagas">-</span></div>
                         <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="aux-ferias">-</span></div>
                         <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="aux-faltas">-</span></div>
-                        <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="aux-atestados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="aux-atestados">-</span></div>
                         <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="aux-banco">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="aux-util">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="aux-util">-</span></div>
                     </div>
                 </div>
                 <div class="card card-split">
-                    <h3>MOTORISTA TRANSFERÊNCIA (QTD) - HOJE</h3>
+                    <h3><i class="fas fa-user-gear"></i> MOTORISTA TRANSFERÊNCIA (QTD)</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="mt-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="mt-vagas">-</span></div>
                         <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="mt-ferias">-</span></div>
                         <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="mt-faltas">-</span></div>
-                        <div class="split-item"><span class="subtitulo">ATESTADOS</span><span class="valor valor-frota" id="mt-atestados">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="mt-atestados">-</span></div>
                         <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="mt-banco">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="mt-util">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="mt-util">-</span></div>
                     </div>
                 </div>
             </div>
