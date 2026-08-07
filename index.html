@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Logístico</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
@@ -24,85 +23,51 @@
         .tela { display: none; flex-direction: column; gap: 2.5vh; flex: 1; min-height: 0; animation: suaveEntrada 2.5s ease-in-out; }
         .tela.ativa { display: flex; }
         @keyframes suaveEntrada { 0% { opacity: 0; filter: blur(15px); transform: scale(0.97); } 100% { opacity: 1; filter: blur(0); transform: scale(1); } }
-        
         .grid-cards { display: flex; gap: 2vw; width: 100%; flex-shrink: 0; }
-        
-        /* Novas regras de estilo estruturais e condicionais para os Cards da Tela 1 */
+        /* Estrutura base dos Cards da Tela 1 */
         .card { 
             background-color: #102542; 
-            border: 1.5px solid rgba(0, 206, 209, 0.4); 
+            border: 1.5px solid rgba(255, 255, 255, 0.1); 
             border-radius: 10px; 
             flex: 1; 
             padding: 0.8vh 0.6vw; 
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
             transition: all 0.3s ease; 
         }
 
-        /* Condicionais de Borda / Glow (Verde para Positivo, Vermelho para Alerta/Negativo) */
-        .card.card-positivo { 
-            border-color: #2ecc71; 
-            box-shadow: 0 0 10px rgba(46, 204, 113, 0.25); 
-        }
-        .card.card-negativo { 
-            border-color: #e74c3c; 
-            box-shadow: 0 0 10px rgba(231, 76, 60, 0.3); 
-        }
+        /* Condicionais de Borda / Glow (Verde, Vermelho, Amarelo) */
+        .card-positivo { border-color: rgba(46, 204, 113, 0.6); box-shadow: 0 0 12px rgba(46, 204, 113, 0.15); }
+        .card-negativo { border-color: rgba(231, 76, 60, 0.6); box-shadow: 0 0 12px rgba(231, 76, 60, 0.15); }
+        .card-neutro { border-color: rgba(241, 196, 15, 0.6); box-shadow: 0 0 12px rgba(241, 196, 15, 0.15); }
 
-        .card-header-line { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 0.3vh; 
-        }
+        /* Cores Condicionais dos Valores Principais */
+        .valor { font-size: clamp(1.2em, 2.8vw, 2em); color: #ffffff; display: block; font-weight: 800; }
+        .text-positivo { color: #2ecc71; text-shadow: 0 0 8px rgba(46, 204, 113, 0.4); }
+        .text-negativo { color: #e74c3c; text-shadow: 0 0 8px rgba(231, 76, 60, 0.4); }
+        .text-neutro { color: #f1c40f; text-shadow: 0 0 8px rgba(241, 196, 15, 0.4); }
 
+        .card-header-line { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3vh; }
+        
         .card h3 { 
-            margin: 0 0 0.4vh 0; 
-            color: #a0aec0; 
-            font-size: clamp(0.75em, 1vw, 1em); 
-            text-transform: uppercase; 
-            letter-spacing: 0.8px; 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-            font-weight: 700; 
+            margin: 0 0 0.4vh 0; color: #a0aec0; font-size: clamp(0.72em, 0.9vw, 0.95em); 
+            text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; font-weight: 700; 
         }
+        .card h3 i { color: #00ced1; font-size: 0.9em; opacity: 0.8; }
 
-        .card h3 i { color: #00ced1; font-size: 0.9em; }
-        .card.card-positivo h3 i { color: #2ecc71; }
-        .card.card-negativo h3 i { color: #e74c3c; }
-
-        /* Badges de variação (KPIs % / vs dia ant.) */
+        /* Badges da Porcentagem com cores MAIS FORTES */
         .badge-kpi { 
-            font-size: clamp(0.60em, 0.72vw, 0.78em); 
-            padding: 2px 6px; 
-            border-radius: 4px; 
-            font-weight: 800; 
-            display: flex; 
-            align-items: center; 
-            gap: 3px; 
+            font-size: clamp(0.60em, 0.72vw, 0.78em); padding: 2px 6px; border-radius: 4px; font-weight: 900; 
+            display: flex; align-items: center; gap: 3px; visibility: hidden; /* esconde até calcular */
         }
-        .badge-kpi.positivo { 
-            background-color: rgba(46, 204, 113, 0.2); 
-            color: #2ecc71; 
-            border: 1px solid rgba(46, 204, 113, 0.4); 
-        }
-        .badge-kpi.negativo { 
-            background-color: rgba(231, 76, 60, 0.2); 
-            color: #e74c3c; 
-            border: 1px solid rgba(231, 76, 60, 0.4); 
-        }
+        .badge-kpi.positivo { background-color: rgba(46, 204, 113, 0.15); color: #00ff66; border: 1px solid #00ff66; visibility: visible; }
+        .badge-kpi.negativo { background-color: rgba(231, 76, 60, 0.15); color: #ff4d4d; border: 1px solid #ff4d4d; visibility: visible; }
+        .badge-kpi.neutro { background-color: rgba(241, 196, 15, 0.15); color: #ffd700; border: 1px solid #ffd700; visibility: visible; }
 
-        .card-footer-text { 
-            font-size: clamp(0.55em, 0.7vw, 0.75em); 
-            color: #718096; 
-            margin-top: 2px; 
-            text-transform: uppercase; 
-            font-weight: 600; 
-        }
+        .card-footer-text { font-size: clamp(0.55em, 0.7vw, 0.75em); color: #718096; margin-top: 2px; text-transform: uppercase; font-weight: 600; }
 
         .secao-inferior { display: flex; gap: 2vw; flex: 1; min-height: 0; }
         .container-coluna { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; min-height: 0; }
@@ -111,8 +76,7 @@
         .split-item { flex: 1; border-right: 1px solid rgba(160, 174, 192, 0.2); display: flex; flex-direction: column; align-items: center; padding: 0 2px; }
         .split-item:last-child { border-right: none; }
         .subtitulo { font-size: clamp(0.55em, 0.75vw, 0.8em); color: #a0aec0; margin-bottom: 2px; text-transform: uppercase; }
-        .valor { font-size: clamp(1.2em, 2.8vw, 2em); color: #ffffff; display: block; }
-        .valor-frota { font-size: clamp(1em, 2vw, 1.6em); }
+        .valor-frota { font-size: clamp(1em, 2vw, 1.6em); color: #ffffff; }
         .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; min-height: 0; height: 100%; }
         .chart-container { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; padding: 1.5vh; position: relative; min-height: 0; }
         
@@ -143,103 +107,100 @@
 
     <div id="tela1" class="tela ativa">
         <div class="grid-cards">
-            <div class="card card-positivo">
+            <div class="card" id="vol-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-box"></i> VOLUME EXPEDIDO</h3>
-                    <span class="badge-kpi positivo"><i class="fas fa-caret-up"></i> +2.4%</span>
+                    <h3><i class="fas fa-boxes-stacked" style="color: #3498db;"></i> VOLUME EXPEDIDO</h3>
+                    <span class="badge-kpi" id="vol-badge"></span>
                 </div>
                 <span class="valor" id="vol-valor">-</span>
-                <span class="card-footer-text">vs dia ant.</span>
+                <span class="card-footer-text">vs último dia</span>
             </div>
-
-            <div class="card card-positivo">
+            <div class="card" id="drop-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-weight-hanging"></i> PESO X VEÍCULO</h3>
-                    <span class="badge-kpi positivo"><i class="fas fa-caret-up"></i> +1.2%</span>
+                    <h3><i class="fas fa-weight-scale" style="color: #9b59b6;"></i> PESO X VEÍCULO</h3>
+                    <span class="badge-kpi" id="drop-badge"></span>
                 </div>
                 <span class="valor" id="drop-valor">-</span>
-                <span class="card-footer-text">vs dia ant.</span>
+                <span class="card-footer-text">vs último dia</span>
             </div>
-
-            <div class="card card-negativo">
+            <div class="card" id="ocp-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-truck-ramps"></i> OCUPAÇÃO (%)</h3>
-                    <span class="badge-kpi negativo"><i class="fas fa-caret-down"></i> -1.1%</span>
+                    <h3><i class="fas fa-chart-pie" style="color: #f1c40f;"></i> OCUPAÇÃO (%)</h3>
+                    <span class="badge-kpi" id="ocp-badge"></span>
                 </div>
                 <span class="valor" id="ocp-valor">-</span>
-                <span class="card-footer-text">vs dia ant.</span>
+                <span class="card-footer-text">vs último dia</span>
             </div>
-
-            <div class="card card-positivo">
+            <div class="card" id="nf-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-file-invoice"></i> NF'S (QTD)</h3>
-                    <span class="badge-kpi positivo"><i class="fas fa-caret-up"></i> +4.5%</span>
+                    <h3><i class="fas fa-file-invoice-dollar" style="color: #1abc9c;"></i> NF'S (QTD)</h3>
+                    <span class="badge-kpi" id="nf-badge"></span>
                 </div>
                 <span class="valor" id="nf-valor">-</span>
-                <span class="card-footer-text">vs dia ant.</span>
+                <span class="card-footer-text">vs último dia</span>
             </div>
         </div>
 
         <div class="grid-cards">
-            <div class="card">
+            <div class="card" id="terc-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-truck-moving"></i> TERCEIROS</h3>
+                    <h3><i class="fas fa-handshake" style="color: #a0aec0;"></i> TERCEIROS</h3>
                 </div>
-                <span class="valor" id="terc-util">-</span>
-                <span class="card-footer-text">Frota</span>
+                <span class="valor" id="terc-valor">-</span>
+                <span class="card-footer-text">Utilizados (QTD)</span>
             </div>
-
-            <div class="card">
+            <div class="card" id="dropsize-hoje-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-boxes-stacked"></i> DROPSIZE</h3>
+                    <h3><i class="fas fa-ruler-combined" style="color: #e67e22;"></i> DROPSIZE</h3>
+                    <span class="badge-kpi" id="dropsize-hoje-badge"></span>
                 </div>
                 <span class="valor" id="dropsize-hoje-valor">-</span>
-                <span class="card-footer-text">Média</span>
+                <span class="card-footer-text">vs último dia</span>
             </div>
-
-            <div class="card">
+            <div class="card" id="abs-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-user-slash"></i> ABSENTEÍSMO</h3>
+                    <h3><i class="fas fa-user-xmark" style="color: #e74c3c;"></i> ABSENTEÍSMO</h3>
+                    <span class="badge-kpi" id="abs-badge"></span>
                 </div>
                 <span class="valor" id="abs-valor">-</span>
-                <span class="card-footer-text">Zero</span>
+                <span class="card-footer-text">vs último dia</span>
             </div>
-
-            <div class="card">
+            <div class="card" id="abs-perc-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-percent"></i> ABSENTEÍSMO (%)</h3>
+                    <h3><i class="fas fa-user-clock" style="color: #e74c3c;"></i> ABSENTEÍSMO (%)</h3>
+                    <span class="badge-kpi" id="abs-perc-badge"></span>
                 </div>
                 <span class="valor" id="abs-perc-valor">-</span>
-                <span class="card-footer-text">Taxa</span>
+                <span class="card-footer-text">vs último dia</span>
             </div>
-
-            <div class="card">
+            <div class="card" id="cli-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-store"></i> CLIENTES</h3>
+                    <h3><i class="fas fa-store" style="color: #3498db;"></i> CLIENTES</h3>
+                    <span class="badge-kpi" id="cli-badge"></span>
                 </div>
                 <span class="valor" id="cli-valor">-</span>
-                <span class="card-footer-text">Atendidos</span>
+                <span class="card-footer-text">vs último dia</span>
             </div>
         </div>
 
         <div class="secao-inferior">
             <div class="container-coluna">
                 <div class="card card-split">
-                    <h3><i class="fas fa-truck-front"></i> FROTA PRÓPRIA ENTREGA (QTD)</h3>
+                    <h3><i class="fas fa-truck-fast"></i> FROTA PRÓPRIA ENTREGA (QTD)</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
-                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados">-</span></div>
-                        <div class="split-item"><span class="subtitulo">DISPONÍVEL</span><span class="valor valor-frota" id="f-dispo">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="f-util">-</span></div>
+                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados" style="color: #e74c3c;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">DISPONÍVEL</span><span class="valor valor-frota" id="f-dispo" style="color: #2ecc71;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="f-util" style="color: #3498db;">-</span></div>
                     </div>
                 </div>
                 <div class="card card-split">
                     <h3><i class="fas fa-truck"></i> FROTA PRÓPRIA TRANSFERÊNCIA (QTD)</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
-                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados">-</span></div>
-                        <div class="split-item"><span class="subtitulo">DISPONÍVEL</span><span class="valor valor-frota" id="ft-dispo">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util">-</span></div>
+                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados" style="color: #e74c3c;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">DISPONÍVEL</span><span class="valor valor-frota" id="ft-dispo" style="color: #2ecc71;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util" style="color: #3498db;">-</span></div>
                     </div>
                 </div>
             </div>
@@ -250,10 +211,10 @@
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="md-vagas">-</span></div>
                         <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="md-ferias">-</span></div>
-                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas">-</span></div>
-                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="md-atestados">-</span></div>
-                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="md-banco">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="md-util">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas" style="color: #e74c3c;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="md-atestados" style="color: #f39c12;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="md-banco" style="color: #2ecc71;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="md-util" style="color: #3498db;">-</span></div>
                     </div>
                 </div>
                 <div class="card card-split">
@@ -262,10 +223,10 @@
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="aux-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="aux-vagas">-</span></div>
                         <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="aux-ferias">-</span></div>
-                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="aux-faltas">-</span></div>
-                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="aux-atestados">-</span></div>
-                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="aux-banco">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="aux-util">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="aux-faltas" style="color: #e74c3c;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="aux-atestados" style="color: #f39c12;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="aux-banco" style="color: #2ecc71;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="aux-util" style="color: #3498db;">-</span></div>
                     </div>
                 </div>
                 <div class="card card-split">
@@ -274,10 +235,10 @@
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="mt-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="mt-vagas">-</span></div>
                         <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="mt-ferias">-</span></div>
-                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="mt-faltas">-</span></div>
-                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="mt-atestados">-</span></div>
-                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="mt-banco">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="mt-util">-</span></div>
+                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="mt-faltas" style="color: #e74c3c;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="mt-atestados" style="color: #f39c12;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="mt-banco" style="color: #2ecc71;">-</span></div>
+                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="mt-util" style="color: #3498db;">-</span></div>
                     </div>
                 </div>
             </div>
@@ -566,20 +527,96 @@
                     }
                 }
 
-                const idsMap = { 
-                    'vol-valor':'vol', 'drop-valor':'drop', 'nf-valor':'nf', 'ocp-valor':'ocp', 
-                    'abs-valor':'abs', 'abs-perc-valor':'absPerc', 'terc-util':'terceiros', 'cli-valor':'cli', 
-                    'dropsize-hoje-valor':'dropsizeHoje',
-                    'f-total':'fTotal', 'f-parados':'fParados', 'f-dispo':'fDispo', 'f-util':'fUtil', 
-                    'ft-total':'ftTotal', 'ft-parados':'ftParados', 'ft-dispo':'ftDispo', 'ft-util':'ftUtil', 
-                    'md-total':'mdTotal', 'md-vagas':'mdVagas', 'md-ferias':'mdFerias', 'md-faltas':'mdFaltas', 
-                    'md-atestados':'mdAtestados', 'md-banco':'mdBanco', 'md-util':'mdUtil', 
-                    'aux-total':'auxTotal', 'aux-vagas':'auxVagas', 'aux-ferias':'auxFerias', 'aux-faltas':'auxFaltas', 
-                    'aux-atestados':'auxAtestados', 'aux-banco':'auxBanco', 'aux-util':'auxUtil', 
-                    'mt-total':'mtTotal', 'mt-vagas':'mtVagas', 'mt-ferias':'mtFerias', 'mt-faltas':'mtFaltas', 
-                    'mt-atestados':'mtAtestados', 'mt-banco':'mtBanco', 'mt-util':'mtUtil' 
+                // --- INÍCIO NOVA LÓGICA DE CÁLCULO EXATO PARA TELA 1 ---
+                let linhasPreenchidas = [];
+                for (let i = 1; i < linhas.length; i++) {
+                    const cols = safeSplit(linhas[i]);
+                    let dPlanilha = cols[idxData] ? cols[idxData].replace(/"/g, '').trim() : "";
+                    if (!dPlanilha) continue;
+                    let parts = dPlanilha.split('/');
+                    // Considera preenchido o dia se houver Volume Expedido digitado
+                    if (parts.length === 3 && parseInt(parts[2]) === anoDeExibicao && parseInt(parts[1]) === (mesDeExibicaoIdx + 1)) {
+                        if (converter(cols[idxs.vol]) !== null) {
+                            linhasPreenchidas.push(cols);
+                        }
+                    }
+                }
+
+                // Pega os dois últimos dias com dados do mês (Atual e Anterior)
+                let lHoje = linhasPreenchidas.length > 0 ? linhasPreenchidas[linhasPreenchidas.length - 1] : null;
+                let lOntem = linhasPreenchidas.length > 1 ? linhasPreenchidas[linhasPreenchidas.length - 2] : null;
+
+                const getVStr = (l, idCol) => (l && l[idxs[idCol]]) ? l[idxs[idCol]].replace(/"/g, '').trim() || "-" : "-";
+                const getVNum = (l, idCol) => converter(getVStr(l, idCol));
+
+                function attKpiCard(idEl, idCol, maiorMelhor = true, ignoraCondicional = false) {
+                    let vHojeStr = getVStr(lHoje, idCol);
+                    let vH = getVNum(lHoje, idCol);
+                    let vO = getVNum(lOntem, idCol);
+
+                    let elVal = document.getElementById(idEl + '-valor');
+                    if (elVal) elVal.textContent = vHojeStr;
+                    
+                    if (ignoraCondicional) {
+                        if(elVal) elVal.className = 'valor';
+                        return; // Pula o resto (Ex: Terceiros)
+                    }
+
+                    let cardEl = document.getElementById(idEl + '-card');
+                    let badgeEl = document.getElementById(idEl + '-badge');
+
+                    if (cardEl && badgeEl && vH !== null && vO !== null && vO !== 0) {
+                        let varPerc = ((vH - vO) / vO) * 100;
+                        let cor = 'neutro'; let icon = 'fa-minus'; let txtVar = varPerc.toFixed(1).replace('.', ',') + '%';
+                        
+                        if (varPerc > 0) { 
+                            cor = maiorMelhor ? 'positivo' : 'negativo'; 
+                            icon = 'fa-caret-up'; 
+                            txtVar = '+' + txtVar; 
+                        } else if (varPerc < 0) { 
+                            cor = maiorMelhor ? 'negativo' : 'positivo'; 
+                            icon = 'fa-caret-down'; 
+                        }
+
+                        cardEl.className = 'card card-' + cor;
+                        badgeEl.className = 'badge-kpi ' + cor;
+                        badgeEl.innerHTML = `<i class="fas ${icon}"></i> ${txtVar}`;
+                        elVal.className = 'valor text-' + cor;
+                    } else if (cardEl && badgeEl) {
+                        cardEl.className = 'card card-neutro';
+                        badgeEl.className = 'badge-kpi neutro';
+                        badgeEl.innerHTML = `<i class="fas fa-minus"></i> 0,0%`;
+                        elVal.className = 'valor text-neutro';
+                    }
+                }
+
+                // Dispara os cálculos pros 9 cards (id HTML, id Planilha, Maior_é_Bom?, Ignora_Cor?)
+                attKpiCard('vol', 'vol', true);
+                attKpiCard('drop', 'drop', true);
+                attKpiCard('ocp', 'ocp', true);
+                attKpiCard('nf', 'nf', true);
+                attKpiCard('terc', 'terceiros', true, true); // Ignora condicional
+                attKpiCard('dropsize-hoje', 'dropsizeHoje', true);
+                attKpiCard('abs', 'abs', false); // Menor absenteísmo é Bom = False
+                attKpiCard('abs-perc', 'absPerc', false); // Menor é Bom = False
+                attKpiCard('cli', 'cli', true);
+
+                // Carrega os valores estáticos das sub-tabelas
+                const mapTabelas = {
+                    'f-total':'fTotal', 'f-parados':'fParados', 'f-dispo':'fDispo', 'f-util':'fUtil',
+                    'ft-total':'ftTotal', 'ft-parados':'ftParados', 'ft-dispo':'ftDispo', 'ft-util':'ftUtil',
+                    'md-total':'mdTotal', 'md-vagas':'mdVagas', 'md-ferias':'mdFerias', 'md-faltas':'mdFaltas',
+                    'md-atestados':'mdAtestados', 'md-banco':'mdBanco', 'md-util':'mdUtil',
+                    'aux-total':'auxTotal', 'aux-vagas':'auxVagas', 'aux-ferias':'auxFerias', 'aux-faltas':'auxFaltas',
+                    'aux-atestados':'auxAtestados', 'aux-banco':'auxBanco', 'aux-util':'auxUtil',
+                    'mt-total':'mtTotal', 'mt-vagas':'mtVagas', 'mt-ferias':'mtFerias', 'mt-faltas':'mtFaltas',
+                    'mt-atestados':'mtAtestados', 'mt-banco':'mtBanco', 'mt-util':'mtUtil'
                 };
-                for(let id in idsMap) { let el = document.getElementById(id); if(el) el.textContent = valCards[idsMap[id]]; }
+                for(let idT in mapTabelas) { 
+                    let el = document.getElementById(idT); 
+                    if(el) el.textContent = getVStr(lHoje, mapTabelas[idT]); 
+                }
+                // --- FIM NOVA LÓGICA ---
 
                 const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
