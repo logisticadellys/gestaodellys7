@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
-        body { background-color: #0b192c; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 1.2vh 1.2vw; font-weight: bold; overflow: hidden; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; gap: 2.5vh; }
+        body { background-color: #0b192c; color: #ffffff; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 1.2vh 1.2vw; font-weight: bold; overflow: hidden; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; gap: 2.5vh; }
         header { flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 1vh 0; border-bottom: 1px solid rgba(46, 204, 113, 0.2); min-height: 8vh; }
         .logo-img { position: absolute; left: 0; height: clamp(40px, 6vh, 60px); width: auto; }
         .controles-painel { position: absolute; right: 0; display: flex; align-items: center; gap: 12px; top: 50%; transform: translateY(-50%); }
@@ -23,18 +23,48 @@
         .tela { display: none; flex-direction: column; gap: 2.5vh; flex: 1; min-height: 0; animation: suaveEntrada 2.5s ease-in-out; }
         .tela.ativa { display: flex; }
         @keyframes suaveEntrada { 0% { opacity: 0; filter: blur(15px); transform: scale(0.97); } 100% { opacity: 1; filter: blur(0); transform: scale(1); } }
+        
+        /* ESTILIZAÇÃO MODERNA DOS CARDS - TELA 1 */
         .grid-cards { display: flex; gap: 2vw; width: 100%; flex-shrink: 0; }
-        .card { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; flex: 1; padding: 0.8vh 0.6vw; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: center; }
-        .card h3 { margin: 0 0 0.4vh 0; color: #a0aec0; font-size: clamp(0.85em, 1.1vw, 1.1em); text-transform: uppercase; letter-spacing: 1px; min-height: 1.6em; display: flex; align-items: center; justify-content: center; }
+        .card { 
+            background: linear-gradient(145deg, #162a45, #102035); 
+            border: 1.5px solid rgba(0, 206, 209, 0.45); 
+            border-radius: 12px; 
+            flex: 1; 
+            padding: 0.8vh 0.6vw; 
+            text-align: center; 
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .card:hover {
+            border-color: #00ced1;
+            transform: translateY(-2px);
+        }
+        .card h3 { 
+            margin: 0 0 0.4vh 0; 
+            color: #2ecc71; 
+            font-size: clamp(0.85em, 1.1vw, 1.1em); 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            min-height: 1.6em; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 700;
+        }
         .secao-inferior { display: flex; gap: 2vw; flex: 1; min-height: 0; }
         .container-coluna { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; min-height: 0; }
         .card-split { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .split-container { display: flex; justify-content: space-around; align-items: center; flex: 1; }
-        .split-item { flex: 1; border-right: 1px solid rgba(160, 174, 192, 0.2); display: flex; flex-direction: column; align-items: center; padding: 0 2px; }
+        .split-item { flex: 1; border-right: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; align-items: center; padding: 0 2px; }
         .split-item:last-child { border-right: none; }
-        .subtitulo { font-size: clamp(0.55em, 0.75vw, 0.8em); color: #a0aec0; margin-bottom: 2px; text-transform: uppercase; }
-        .valor { font-size: clamp(1.2em, 2.8vw, 2em); color: #ffffff; display: block; }
+        .subtitulo { font-size: clamp(0.55em, 0.75vw, 0.8em); color: #a0aec0; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .valor { font-size: clamp(1.2em, 2.8vw, 2em); color: #ffffff; display: block; font-weight: 800; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); }
         .valor-frota { font-size: clamp(1em, 2vw, 1.6em); }
+        
         .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; min-height: 0; height: 100%; }
         .chart-container { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; padding: 1.5vh; position: relative; min-height: 0; }
         
@@ -277,7 +307,7 @@
                 
                 const mapping = {
                     vol: "VOLUME EXPEDIDO (KG)", 
-                    drop: "PESOXVEÍCULO (KG)",
+                    drop: "PESOxVEÍCULO (KG)",
                     nf: "NF'S (QTD)", 
                     ocp: "OCUPAÇÃO (%)",
                     abs: "ABSENTEÍSMO (QTD)", 
@@ -362,7 +392,7 @@
                     let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
                     let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
                     let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
-                    let valDropG = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG)")]); 
+                    let valDropG = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG)")]); 
                     let valDropSizeG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
                     let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
                     let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
@@ -383,7 +413,7 @@
                     let valInFullMesG = converter(colunas[cabecalho.indexOf("ENTREGAS IN FULL (%) MÊS")]);
                     let valDevTotMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%) MÊS")]);
                     let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
-                    let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
+                    let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOxVEÍCULO (KG) MÊS")]);
                     let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
 
                     let pD = dataPlanilha.split('/');
