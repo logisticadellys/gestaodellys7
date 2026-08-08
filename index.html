@@ -285,7 +285,7 @@
                 <span class="t2-kpi-sub text-positivo">▲ Acumulado do Mês</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-chart-pie" style="color: #3498db; margin-right: 6px;"></i> OCUPAÇÃO MÉDIA (MÊS)</span>
+                <span class="t2-kpi-title"><i class="fas fa-chart-pie" style="color: #3498db; margin-right: 6px;"></i> OCUPAÇÃO MÉDIA (<span id="t2-ocp-mes-lbl">MÊS</span>)</span>
                 <span class="t2-kpi-value" id="t2-ocp-mes">-</span>
                 <span class="t2-kpi-sub" style="color: #3498db;">◆ Consolidado do Mês</span>
             </div>
@@ -295,7 +295,7 @@
                 <span class="t2-kpi-sub" style="color: #9b59b6;">■ Base Dias Trabalhados</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE OCUPAÇÃO</span>
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE OCUPAÇÃO (<span id="t2-pico-mes-lbl">MÊS</span>)</span>
                 <span class="t2-kpi-value" id="t2-pico-val">-</span>
                 <span class="t2-kpi-sub text-neutro" id="t2-pico-dia">-</span>
             </div>
@@ -311,6 +311,7 @@
             <div class="t2-table-container" style="flex: 1;">
                 <table class="t2-table">
                     <thead>
+                        <tr><th colspan="4" id="t2-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME POR MÊS</th></tr>
                         <tr><th>Mês</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
                     </thead>
                     <tbody id="t2-table-body">
@@ -318,7 +319,6 @@
                 </table>
             </div>
         </div>
-    </div>
     </div>
 
     <div id="tela3" class="tela">
@@ -400,6 +400,18 @@
             telas.forEach((t, i) => {
                 t.classList.toggle('ativa', i + 1 === telaAtual);
             });
+            
+            // --- INÍCIO: ALTERA O TÍTULO PRINCIPAL APENAS NA TELA 2 ---
+            const h1 = document.querySelector('.titulo-painel');
+            const spanData = document.getElementById('data-painel');
+            if (telaAtual === 2) {
+                h1.innerHTML = '<i class="fas fa-boxes-stacked" style="margin-right: 10px; color: #2ecc71;"></i>VOLUME EXPEDIDO E OCUPAÇÃO';
+            } else {
+                h1.innerHTML = 'GESTÃO À VISTA - FILIAL 7';
+            }
+            if (spanData) h1.appendChild(spanData);
+            // --- FIM ---
+            
             window.dispatchEvent(new Event('resize'));
         }
 
@@ -939,6 +951,11 @@
 
         function renderizarDashboardTela2(labF, vVolF, vOcpF, mesNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoAtual, mesDeExibicaoIdx) {
             document.getElementById('t2-mes-lbl').textContent = mesNome;
+            document.getElementById('t2-ocp-mes-lbl').textContent = mesNome;
+            document.getElementById('t2-pico-mes-lbl').textContent = mesNome;
+            
+            const tabelaTitulo = document.getElementById('t2-tabela-titulo');
+            if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO DE VOLUME POR MÊS (${anoAtual})`;
 
             // 1. Popula os KPIs Superiores
             let volTotalMes = acVolM[mesDeExibicaoIdx] || 0;
@@ -953,7 +970,7 @@
             document.getElementById('t2-ocp-mes').textContent = ocpMediaMes.toFixed(1) + '%';
             document.getElementById('t2-media-dia').textContent = Math.round(mediaDiaria).toLocaleString('pt-BR') + ' kg';
             document.getElementById('t2-pico-val').textContent = picoOcp > 0 ? picoOcp.toFixed(1) + '%' : '-';
-            document.getElementById('t2-pico-dia').textContent = diaPico !== "-" ? `DIA ${diaPico} DE ${mesNome}` : '-';
+            document.getElementById('t2-pico-dia').textContent = diaPico !== "-" ? `DIA ${diaPico}` : '-';
 
             // 2. Popula os Mini Cards Horizontais
             let containerMC = document.getElementById('t2-minicards-container');
@@ -973,10 +990,15 @@
                 containerMC.innerHTML += cardHTML;
             }
 
-            // 3. Popula a Tabela de Histórico
+            // 3. Popula a Tabela de Histórico e Acha o Maior Volume
             let tbody = document.getElementById('t2-table-body');
             tbody.innerHTML = '';
             let mediaGeral = acVolM.reduce((a,b)=>a+b,0) / (mesDeExibicaoIdx + 1);
+            
+            let maxVol = 0;
+            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                if (acVolM[i] > maxVol) maxVol = acVolM[i];
+            }
             
             for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                 if (acVolM[i] > 0) {
@@ -985,7 +1007,6 @@
                     if (acVolM[i] > mediaGeral * 1.1) { statusTxt = "Acima Média"; }
                     else if (acVolM[i] < mediaGeral * 0.9) { statusTxt = "Baixo Vol."; statusClass = "t2-status-alerta"; }
 
-                    // Calcula a diferença percentual vs Mês Anterior
                     let diffHtml = "-";
                     if (i > 0 && acVolM[i-1] > 0) {
                         let diffPerc = ((acVolM[i] - acVolM[i-1]) / acVolM[i-1]) * 100;
@@ -994,9 +1015,13 @@
                         diffHtml = `<span style="color: ${corDiff}; font-weight: bold;">${iconDiff} ${Math.abs(diffPerc).toFixed(1)}%</span>`;
                     }
                     
-                    let tr = `<tr>
+                    let isMax = (acVolM[i] === maxVol && maxVol > 0);
+                    let rowStyle = isMax ? 'style="background: rgba(46, 204, 113, 0.15); border-left: 4px solid #2ecc71;"' : '';
+                    let iconMax = isMax ? ' <i class="fas fa-trophy" style="color: #f1c40f; margin-left: 5px;" title="Maior Volume"></i>' : '';
+
+                    let tr = `<tr ${rowStyle}>
                         <td>${mesesExtenso[i]}</td>
-                        <td>${volFormatado}</td>
+                        <td style="${isMax ? 'font-weight: 900; color: #2ecc71;' : ''}">${volFormatado}${iconMax}</td>
                         <td><span class="t2-status-badge ${statusClass}">${statusTxt}</span></td>
                         <td>${diffHtml}</td>
                     </tr>`;
