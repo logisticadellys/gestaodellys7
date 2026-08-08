@@ -6,6 +6,7 @@
     <title>Painel Logístico</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0b192c; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 1.2vh 1.2vw; font-weight: bold; overflow: hidden; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; gap: 2.5vh; }
         header { flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 1vh 0; border-bottom: 1px solid rgba(46, 204, 113, 0.2); min-height: 8vh; }
@@ -67,8 +68,12 @@
         .badge-kpi.negativo { background-color: rgba(231, 76, 60, 0.15); color: #ff4d4d; border: 1px solid #ff4d4d; visibility: visible; }
         .badge-kpi.neutro { background-color: rgba(241, 196, 15, 0.15); color: #ffd700; border: 1px solid #ffd700; visibility: visible; }
 
-        .card-footer-text { font-size: clamp(0.55em, 0.7vw, 0.75em); color: #718096; margin-top: 2px; text-transform: uppercase; font-weight: 600; }
-
+        .card-footer-text { 
+            font-size: clamp(0.55em, 0.7vw, 0.75em); color: #718096; margin-top: 2px; 
+            text-transform: uppercase; font-weight: 600; 
+            text-align: right; width: 100%; display: block; padding-right: 4px; box-sizing: border-box; 
+        }
+        
         .secao-inferior { display: flex; gap: 2vw; flex: 1; min-height: 0; }
         .container-coluna { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; min-height: 0; }
         .card-split { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
@@ -92,7 +97,10 @@
 
     <header>
         <img src="dellyslogo.png" alt="Logo" class="logo-img">
-        <h1 class="titulo-painel">GESTÃO À VISTA - FILIAL 7</h1>
+        <h1 class="titulo-painel">
+            GESTÃO À VISTA - FILIAL 7
+            <span id="data-painel" style="font-family: 'Courier New', Courier, monospace; font-size: 0.6em; color: #f1c40f; text-shadow: none; vertical-align: middle; margin-left: 15px; border: 1px dashed #f1c40f; padding: 2px 10px; border-radius: 6px; letter-spacing: 1px; font-weight: bold;"></span>
+        </h1>
         <div class="controles-painel">
             <span id="timer-display">90</span>
             <div class="coluna-botoes">
@@ -545,6 +553,13 @@
                 // Pega os dois últimos dias com dados do mês (Atual e Anterior)
                 let lHoje = linhasPreenchidas.length > 0 ? linhasPreenchidas[linhasPreenchidas.length - 1] : null;
                 let lOntem = linhasPreenchidas.length > 1 ? linhasPreenchidas[linhasPreenchidas.length - 2] : null;
+
+                // --- INÍCIO: INSERE A DATA DA PLANILHA DIRETO NO TÍTULO ---
+                let elDataPainel = document.getElementById('data-painel');
+                if (elDataPainel && lHoje && lHoje[idxData]) {
+                    elDataPainel.textContent = lHoje[idxData].replace(/"/g, '').trim();
+                }
+                // --- FIM: DATA NO TÍTULO ---
 
                 const getVStr = (l, idCol) => (l && l[idxs[idCol]]) ? l[idxs[idCol]].replace(/"/g, '').trim() || "-" : "-";
                 const getVNum = (l, idCol) => converter(getVStr(l, idCol));
