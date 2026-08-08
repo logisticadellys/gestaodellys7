@@ -637,10 +637,8 @@
                     let el = document.getElementById(idT); 
                     if (el) {
                         let vStr = getVStr(lHoje, mapTabelas[idT]);
-                        let vNum = getVNum(lHoje, mapTabelas[idT]);
-                    
-                        // Se o valor numérico for 0, deixa em branco (""). Caso contrário, mostra o texto normal.
-                        el.textContent = (vNum === 0 || vStr === "0") ? "" : vStr;
+                        // Mostra o valor normalmente (o 0 vai aparecer bonitinho na tela)
+                        el.textContent = vStr;
                     }
                 }
                 // --- FIM NOVA LÓGICA ---
