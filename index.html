@@ -133,7 +133,7 @@
             </div>
             <div class="card" id="ocp-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-chart-pie" style="color: #f1c40f;"></i> OCUPAÇÃO (%)</h3>
+                    <h3><i class="fas fa-chart-pie" style="color: #f1c40f;"></i> OCUPAÇÃO</h3>
                     <span class="badge-kpi" id="ocp-badge"></span>
                 </div>
                 <span class="valor" id="ocp-valor">-</span>
@@ -141,7 +141,7 @@
             </div>
             <div class="card" id="nf-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-file-invoice-dollar" style="color: #1abc9c;"></i> NF'S (QTD)</h3>
+                    <h3><i class="fas fa-file-invoice-dollar" style="color: #1abc9c;"></i> NF'S</h3>
                     <span class="badge-kpi" id="nf-badge"></span>
                 </div>
                 <span class="valor" id="nf-valor">-</span>
@@ -155,7 +155,7 @@
                     <h3><i class="fas fa-handshake" style="color: #a0aec0;"></i> TERCEIROS</h3>
                 </div>
                 <span class="valor" id="terc-valor">-</span>
-                <span class="card-footer-text">Utilizados (QTD)</span>
+                <span class="card-footer-text">UTILIZADOS</span>
             </div>
             <div class="card" id="dropsize-hoje-card">
                 <div class="card-header-line">
@@ -194,7 +194,7 @@
         <div class="secao-inferior">
             <div class="container-coluna">
                 <div class="card card-split">
-                    <h3><i class="fas fa-truck-fast"></i> FROTA PRÓPRIA ENTREGA (QTD)</h3>
+                    <h3><i class="fas fa-truck-fast"></i> FROTA PRÓPRIA ENTREGA</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados" style="color: #e74c3c;">-</span></div>
@@ -203,7 +203,7 @@
                     </div>
                 </div>
                 <div class="card card-split">
-                    <h3><i class="fas fa-truck"></i> FROTA PRÓPRIA TRANSFERÊNCIA (QTD)</h3>
+                    <h3><i class="fas fa-truck"></i> FROTA PRÓPRIA TRANSFERÊNCIA</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados" style="color: #e74c3c;">-</span></div>
@@ -214,7 +214,7 @@
             </div>
             <div class="container-coluna">
                 <div class="card card-split">
-                    <h3><i class="fas fa-id-card"></i> MOTORISTA DISTRIBUIÇÃO (QTD)</h3>
+                    <h3><i class="fas fa-id-card"></i> MOTORISTA DISTRIBUIÇÃO</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="md-vagas">-</span></div>
@@ -226,7 +226,7 @@
                     </div>
                 </div>
                 <div class="card card-split">
-                    <h3><i class="fas fa-users"></i> AUXILIAR DISTRIBUIÇÃO (QTD)</h3>
+                    <h3><i class="fas fa-users"></i> AUXILIAR DISTRIBUIÇÃO</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="aux-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="aux-vagas">-</span></div>
@@ -238,7 +238,7 @@
                     </div>
                 </div>
                 <div class="card card-split">
-                    <h3><i class="fas fa-user-gear"></i> MOTORISTA TRANSFERÊNCIA (QTD)</h3>
+                    <h3><i class="fas fa-user-gear"></i> MOTORISTA TRANSFERÊNCIA</h3>
                     <div class="split-container">
                         <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="mt-total">-</span></div>
                         <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="mt-vagas">-</span></div>
@@ -570,7 +570,13 @@
                     let vO = getVNum(lOntem, idCol);
 
                     let elVal = document.getElementById(idEl + '-valor');
-                    if (elVal) elVal.textContent = vHojeStr;
+                    if (elVal) {
+                        if (idCol === 'vol' || idCol === 'drop' || idCol === 'dropsizeHoje') {
+                            elVal.textContent = vHojeStr !== "-" ? vHojeStr + " KG" : "-";
+                        } else {
+                            elVal.textContent = vHojeStr;
+                        }
+                    }
                     
                     if (ignoraCondicional) {
                         if(elVal) elVal.className = 'valor';
@@ -629,7 +635,10 @@
                 };
                 for(let idT in mapTabelas) { 
                     let el = document.getElementById(idT); 
-                    if(el) el.textContent = getVStr(lHoje, mapTabelas[idT]); 
+                    if(el) {
+                        let v = getVStr(lHoje, mapTabelas[idT]);
+                        el.textContent = (v === "0") ? "" : v;
+                    }
                 }
                 // --- FIM NOVA LÓGICA ---
 
