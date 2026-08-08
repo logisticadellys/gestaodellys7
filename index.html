@@ -290,7 +290,7 @@
                 <span class="t2-kpi-sub" style="color: #3498db;">◆ Consolidado do Mês</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #9b59b6;">
-                <span class="t2-kpi-title"><i class="fas fa-truck-fast" style="color: #9b59b6; margin-right: 6px;"></i> MÉDIA DIÁRIA (KG)</span>
+                <span class="t2-kpi-title"><i class="fas fa-truck-fast" style="color: #9b59b6; margin-right: 6px;"></i> MÉDIA DIÁRIA (<span id="t2-media-mes-lbl">MÊS</span>)</span>
                 <span class="t2-kpi-value" id="t2-media-dia">-</span>
                 <span class="t2-kpi-sub" style="color: #9b59b6;">■ Base Dias Trabalhados</span>
             </div>
@@ -953,6 +953,7 @@
             document.getElementById('t2-mes-lbl').textContent = mesNome;
             document.getElementById('t2-ocp-mes-lbl').textContent = mesNome;
             document.getElementById('t2-pico-mes-lbl').textContent = mesNome;
+            document.getElementById('t2-media-mes-lbl').textContent = mesNome;
             
             const tabelaTitulo = document.getElementById('t2-tabela-titulo');
             if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO DE VOLUME POR MÊS (${anoAtual})`;
