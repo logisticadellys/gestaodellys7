@@ -633,13 +633,16 @@
                     'mt-total':'mtTotal', 'mt-vagas':'mtVagas', 'mt-ferias':'mtFerias', 'mt-faltas':'mtFaltas',
                     'mt-atestados':'mtAtestados', 'mt-banco':'mtBanco', 'mt-util':'mtUtil'
                 };
-                for(let idT in mapTabelas) { 
-                    let el = document.getElementById(idT); 
-                    if(el) {
-                        let v = getVStr(lHoje, mapTabelas[idT]);
-                        el.textContent = (v === "0") ? "" : v;
-                    }
+                for (let idT in mapTabelas) { 
+                let el = document.getElementById(idT); 
+                if (el) {
+                    let vStr = getVStr(lHoje, mapTabelas[idT]);
+                    let vNum = getVNum(lHoje, mapTabelas[idT]);
+                    
+                    // Se o valor numérico for 0, deixa em branco (""). Caso contrário, mostra o texto normal.
+                    el.textContent = (vNum === 0 || vStr === "0") ? "" : vStr;
                 }
+            }
                 // --- FIM NOVA LÓGICA ---
 
                 const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
