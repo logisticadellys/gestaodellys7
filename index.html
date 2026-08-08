@@ -647,15 +647,15 @@
                                 el.style.color = "#e74c3c"; // Vermelho
                             } else if (el.id.includes('atestados')) {
                                 el.style.color = "#f39c12"; // Laranja
-                            } else if (el.id.includes('banco') || el.id.includes('dispo')) {
-                                el.style.color = "#2ecc71"; // Verde
+                            } else if (el.id.includes('banco') || el.id.includes('dispo') || el.id.includes('bh')) {
+                                el.style.color = "#2ecc71"; // Verde (Inclui o BH quando > 0)
                             } else if (el.id.includes('util')) {
                                 el.style.color = "#3498db"; // Azul
                             } else {
                                 el.style.color = ""; 
                             }
                         } else {
-                            el.style.color = "#ffffff"; // 0 fica branco
+                            el.style.color = "#ffffff"; // 0 (ou menor) fica branco
                         }
                     }
                 }
