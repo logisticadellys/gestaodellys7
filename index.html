@@ -587,9 +587,11 @@
                     let badgeEl = document.getElementById(idEl + '-badge');
 
                     if (cardEl && badgeEl && vH !== null && vO !== null && vO !== 0) {
+                        // Vamos ver no console o que está vindo de Hoje e Ontem
+                        console.log(`[KPI] idEl: ${idEl} | Hoje (vH): ${vH} | Ontem (vO): ${vO}`);
+                        
                         let varPerc = ((vH - vO) / vO) * 100;
                         let cor = 'neutro'; let icon = 'fa-minus'; 
-                        // Exibe a porcentagem real calculada, mesmo que ultrapasse 100%
                         let txtVar = varPerc.toFixed(1).replace('.', ',') + '%';
                         
                         if (varPerc > 0) { 
