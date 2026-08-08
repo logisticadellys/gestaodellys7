@@ -637,8 +637,26 @@
                     let el = document.getElementById(idT); 
                     if (el) {
                         let vStr = getVStr(lHoje, mapTabelas[idT]);
-                        // Mostra o valor normalmente (o 0 vai aparecer bonitinho na tela)
+                        let vNum = getVNum(lHoje, mapTabelas[idT]);
+                    
                         el.textContent = vStr;
+                    
+                        // Se o valor for maior que 0, aplica a cor condicional correspondente. Se for 0, fica branco padrão.
+                        if (vNum > 0) {
+                            if (el.id.includes('parados') || el.id.includes('faltas')) {
+                                el.style.color = "#e74c3c"; // Vermelho
+                            } else if (el.id.includes('atestados')) {
+                                el.style.color = "#f39c12"; // Laranja
+                            } else if (el.id.includes('banco') || el.id.includes('dispo')) {
+                                el.style.color = "#2ecc71"; // Verde
+                            } else if (el.id.includes('util')) {
+                                el.style.color = "#3498db"; // Azul
+                            } else {
+                                el.style.color = ""; 
+                            }
+                        } else {
+                            el.style.color = "#ffffff"; // 0 fica branco
+                        }
                     }
                 }
                 // --- FIM NOVA LÓGICA ---
