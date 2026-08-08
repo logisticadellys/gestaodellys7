@@ -12,128 +12,73 @@
         header { flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 1vh 0; border-bottom: 1px solid rgba(46, 204, 113, 0.2); min-height: 8vh; }
         .logo-img { position: absolute; left: 0; height: clamp(40px, 6vh, 60px); width: auto; }
         .controles-painel { position: absolute; right: 0; display: flex; align-items: center; gap: 12px; top: 50%; transform: translateY(-50%); }
-        .coluna-botoes { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        #timer-display { color: #a0aec0; font-size: 0.85em; width: 24px; height: 24px; border: 1.5px solid #a0aec0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; visibility: hidden; }
-        .btn-auto { padding: 3px 12px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; font-size: 0.65em; width: 85px; }
-        .nav-manual { display: flex; gap: 8px; justify-content: center; }
-        .btn-nav { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(46, 204, 113, 0.4); color: white; cursor: pointer; padding: 2px 10px; border-radius: 4px; font-size: 0.75em; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .btn-nav:hover { background: #2ecc71; color: #0b192c; }
-        .auto-on { background-color: #2ecc71; color: #fff; }
-        .auto-off { background-color: #e74c3c; color: #fff; }
-        .titulo-painel { color: #2ecc71; font-size: clamp(1.5em, 3.2vw, 2.2em); text-transform: uppercase; letter-spacing: 3px; margin: 0; font-weight: 800; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); text-align: center; }
-        .tela { display: none; flex-direction: column; gap: 2.5vh; flex: 1; min-height: 0; animation: suaveEntrada 2.5s ease-in-out; }
+        .titulo-painel { font-size: clamp(1.2rem, 2.2vw, 2.2rem); color: #ffffff; text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+        select { background: #1e293b; color: #ffffff; border: 1px solid #334155; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-acao { background: #2ecc71; color: #0b192c; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-acao:hover { background: #27ae60; }
+        
+        .tela { display: none; flex-direction: column; flex-grow: 1; gap: 2vh; height: 100%; box-sizing: border-box; }
         .tela.ativa { display: flex; }
-        @keyframes suaveEntrada { 0% { opacity: 0; filter: blur(15px); transform: scale(0.97); } 100% { opacity: 1; filter: blur(0); transform: scale(1); } }
-        .grid-cards { display: flex; gap: 2vw; width: 100%; flex-shrink: 0; }
-        /* Estrutura base dos Cards da Tela 1 */
-        .card { 
-            background-color: #102542; 
-            border: 1.5px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 10px; 
-            flex: 1; 
-            padding: 0.8vh 0.6vw; 
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            transition: all 0.3s ease; 
-        }
 
-        /* Condicionais de Borda / Glow (Verde, Vermelho, Amarelo) */
-        .card-positivo { border-color: rgba(46, 204, 113, 0.6); box-shadow: 0 0 12px rgba(46, 204, 113, 0.15); }
-        .card-negativo { border-color: rgba(231, 76, 60, 0.6); box-shadow: 0 0 12px rgba(231, 76, 60, 0.15); }
-        .card-neutro { border-color: rgba(241, 196, 15, 0.6); box-shadow: 0 0 12px rgba(241, 196, 15, 0.15); }
+        /* GRID DA TELA 1 */
+        .grid-kpis { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); gap: 1.5vw; flex-grow: 1; min-height: 0; }
+        .card { background: #1e293b; border-radius: 12px; padding: 1.2vh 1.2vw; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.3); min-height: 0; }
+        .card-header-line { display: flex; justify-content: space-between; align-items: center; }
+        .card h3 { font-size: clamp(0.7rem, 0.9vw, 1rem); color: #94a3b8; margin: 0; text-transform: uppercase; }
+        .valor { font-size: clamp(1.4rem, 2.2vw, 2.6rem); font-weight: bold; color: #ffffff; text-align: center; margin: auto 0; }
+        .card-footer-text { font-size: clamp(0.55em, 0.7vw, 0.75em); color: #718096; margin-top: 2px; text-transform: uppercase; font-weight: 600; text-align: right; width: 100%; display: block; padding-right: 4px; box-sizing: border-box; }
 
-        /* Cores Condicionais dos Valores Principais */
-        .valor { font-size: clamp(1.2em, 2.8vw, 2em); color: #ffffff; display: block; font-weight: 800; }
+        .badge-kpi { font-size: clamp(0.6rem, 0.8vw, 0.9rem); padding: 2px 8px; border-radius: 6px; font-weight: bold; }
+        .grid-inferior { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2vw; height: 32vh; flex-shrink: 0; }
+        .card-split { display: flex; flex-direction: column; justify-content: space-between; padding: 1vh 1vw; }
+        .card-split h3 { font-size: clamp(0.6rem, 0.8vw, 0.9rem); color: #94a3b8; margin: 0 0 4px 0; text-align: center; }
+        .card-split-body { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; flex-grow: 1; align-items: center; }
+        .split-item { background: rgba(15, 23, 42, 0.6); border-radius: 6px; padding: 4px; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; }
+        .split-label { font-size: clamp(0.5rem, 0.65vw, 0.75rem); color: #64748b; text-transform: uppercase; margin-bottom: 2px; }
+        .split-val { font-size: clamp(0.9rem, 1.2vw, 1.4rem); font-weight: bold; color: #ffffff; }
+
+        /* GRID DAS OUTRAS TELAS */
+        .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 1.5vw; flex-grow: 1; min-height: 0; }
+        .card-grafico { background: #1e293b; border-radius: 12px; padding: 1.5vh; display: flex; flex-direction: column; border: 2px solid #334155; position: relative; min-height: 0; }
+        .card-grafico canvas { flex-grow: 1; width: 100% !important; height: 100% !important; }
+
+        /* Cores Neon e Indicadores */
         .text-positivo { color: #2ecc71; text-shadow: 0 0 8px rgba(46, 204, 113, 0.4); }
         .text-negativo { color: #e74c3c; text-shadow: 0 0 8px rgba(231, 76, 60, 0.4); }
         .text-neutro { color: #f1c40f; text-shadow: 0 0 8px rgba(241, 196, 15, 0.4); }
 
-        .card-header-line { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3vh; }
-        
-        .card h3 { 
-            margin: 0 0 0.4vh 0; color: #a0aec0; font-size: clamp(0.72em, 0.9vw, 0.95em); 
-            text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; font-weight: 700; 
-        }
-        .card h3 i { color: #00ced1; font-size: 0.9em; opacity: 0.8; }
-
-        /* Badges da Porcentagem com cores MAIS FORTES */
-        .badge-kpi { 
-            font-size: clamp(0.60em, 0.72vw, 0.78em); padding: 2px 6px; border-radius: 4px; font-weight: 900; 
-            display: flex; align-items: center; gap: 3px; visibility: hidden; /* esconde até calcular */
-        }
-        .badge-kpi.positivo { background-color: rgba(46, 204, 113, 0.15); color: #00ff66; border: 1px solid #00ff66; visibility: visible; }
-        .badge-kpi.negativo { background-color: rgba(231, 76, 60, 0.15); color: #ff4d4d; border: 1px solid #ff4d4d; visibility: visible; }
-        .badge-kpi.neutro { background-color: rgba(241, 196, 15, 0.15); color: #ffd700; border: 1px solid #ffd700; visibility: visible; }
-
-        .card-footer-text { 
-            font-size: clamp(0.55em, 0.7vw, 0.75em); color: #718096; margin-top: 2px; 
-            text-transform: uppercase; font-weight: 600; 
-            text-align: right; width: 100%; display: block; padding-right: 4px; box-sizing: border-box; 
-        }
-        
-        .secao-inferior { display: flex; gap: 2vw; flex: 1; min-height: 0; }
-        .container-coluna { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; min-height: 0; }
-        .card-split { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .split-container { display: flex; justify-content: space-around; align-items: center; flex: 1; }
-        .split-item { flex: 1; border-right: 1px solid rgba(160, 174, 192, 0.2); display: flex; flex-direction: column; align-items: center; padding: 0 2px; }
-        .split-item:last-child { border-right: none; }
-        .subtitulo { font-size: clamp(0.55em, 0.75vw, 0.8em); color: #a0aec0; margin-bottom: 2px; text-transform: uppercase; }
-        .valor-frota { font-size: clamp(1em, 2vw, 1.6em); color: #ffffff; }
-        .grid-graficos { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex: 1; min-height: 0; height: 100%; }
-        .chart-container { background-color: #1a365d; border: 2px solid #00ced1; border-radius: 12px; padding: 1.5vh; position: relative; min-height: 0; }
-        
-        .grid-graficos-tela6 { display: flex; flex-direction: column; gap: 15px; flex: 1; min-height: 0; height: 100%; }
-        .linha-graficos-6 { display: grid; gap: 15px; min-height: 0; }
-        .linha-1-3 { grid-template-columns: repeat(3, 1fr); flex: 0.66; }
-        .linha-split-6 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex: 1.3; min-height: 0; }
-        .coluna-tres-graficos { display: flex; flex-direction: column; gap: 8px; min-height: 0; height: 100%; }
-        .coluna-tres-graficos .chart-container { flex: 1; min-height: 0; padding: 0.8vh; }
+        .badge-positivo { background: rgba(46, 204, 113, 0.15); color: #00ff66; border: 1px solid rgba(46, 204, 113, 0.4); }
+        .badge-negativo { background: rgba(231, 76, 60, 0.15); color: #ff4d4d; border: 1px solid rgba(231, 76, 60, 0.4); }
+        .badge-neutro { background: rgba(241, 196, 15, 0.15); color: #ffd700; border: 1px solid rgba(241, 196, 15, 0.4); }
     </style>
 </head>
 <body>
 
     <header>
-        <img src="dellyslogo.png" alt="Logo" class="logo-img">
+        <img src="" id="logo-filial" class="logo-img" alt="Logo" style="display:none;">
         <h1 class="titulo-painel">
             GESTÃO À VISTA - FILIAL 7
             <span id="data-painel" style="font-family: 'Courier New', Courier, monospace; font-size: 0.6em; color: #f1c40f; text-shadow: none; vertical-align: middle; margin-left: 15px; border: 1px dashed #f1c40f; padding: 2px 10px; border-radius: 6px; letter-spacing: 1px; font-weight: bold;"></span>
         </h1>
         <div class="controles-painel">
-            <span id="timer-display">90</span>
-            <div class="coluna-botoes">
-                <button id="btn-auto-toggle" class="btn-auto auto-off" onclick="toggleAuto()">Auto: OFF</button>
-                <div class="nav-manual">
-                    <button class="btn-nav" onclick="mudarTelaManual(-1)">&#10094;</button>
-                    <button class="btn-nav" onclick="mudarTelaManual(1)">&#10095;</button>
-                </div>
-            </div>
+            <select id="mes-select" onchange="mudarMes()"></select>
+            <button class="btn-acao" onclick="proximaTela()">Próxima Tela</button>
         </div>
     </header>
 
-    <div id="tela1" class="tela ativa">
-        <div class="grid-cards">
+    <div id="tela-1" class="tela ativa">
+        <div class="grid-kpis">
             <div class="card" id="vol-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-boxes-stacked" style="color: #3498db;"></i> VOLUME EXPEDIDO</h3>
+                    <h3><i class="fa-solid fa-boxes-stacked" style="color: #2ecc71; margin-right: 8px;"></i> VOLUME EXPEDIDO</h3>
                     <span class="badge-kpi" id="vol-badge"></span>
                 </div>
                 <span class="valor" id="vol-valor">-</span>
                 <span class="card-footer-text">vs último dia</span>
             </div>
-            <div class="card" id="drop-card">
-                <div class="card-header-line">
-                    <h3><i class="fas fa-weight-scale" style="color: #9b59b6;"></i> PESO X VEÍCULO</h3>
-                    <span class="badge-kpi" id="drop-badge"></span>
-                </div>
-                <span class="valor" id="drop-valor">-</span>
-                <span class="card-footer-text">vs último dia</span>
-            </div>
             <div class="card" id="ocp-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-chart-pie" style="color: #f1c40f;"></i> OCUPAÇÃO</h3>
+                    <h3><i class="fa-solid fa-chart-pie" style="color: #f1c40f; margin-right: 8px;"></i> OCUPAÇÃO</h3>
                     <span class="badge-kpi" id="ocp-badge"></span>
                 </div>
                 <span class="valor" id="ocp-valor">-</span>
@@ -141,850 +86,418 @@
             </div>
             <div class="card" id="nf-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-file-invoice-dollar" style="color: #1abc9c;"></i> NF'S</h3>
+                    <h3><i class="fa-solid fa-file-invoice-dollar" style="color: #1abc9c; margin-right: 8px;"></i> NF'S</h3>
                     <span class="badge-kpi" id="nf-badge"></span>
                 </div>
                 <span class="valor" id="nf-valor">-</span>
                 <span class="card-footer-text">vs último dia</span>
             </div>
-
-        <div class="grid-cards">
-            <div class="card" id="terc-card">
-                <div class="card-header-line">
-                    <h3><i class="fas fa-handshake" style="color: #a0aec0;"></i> TERCEIROS</h3>
-                </div>
-                <span class="valor" id="terc-valor">-</span>
-                <span class="card-footer-text">UTILIZADOS</span>
-            </div>
-            <div class="card" id="dropsize-hoje-card">
-                <div class="card-header-line">
-                    <h3><i class="fas fa-ruler-combined" style="color: #e67e22;"></i> DROPSIZE</h3>
-                    <span class="badge-kpi" id="dropsize-hoje-badge"></span>
-                </div>
-                <span class="valor" id="dropsize-hoje-valor">-</span>
-                <span class="card-footer-text">vs último dia</span>
-            </div>
             <div class="card" id="abs-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-user-xmark" style="color: #e74c3c;"></i> ABSENTEÍSMO</h3>
+                    <h3><i class="fa-solid fa-user-slash" style="color: #e74c3c; margin-right: 8px;"></i> ABSENTEÍSMO</h3>
                     <span class="badge-kpi" id="abs-badge"></span>
                 </div>
                 <span class="valor" id="abs-valor">-</span>
                 <span class="card-footer-text">vs último dia</span>
             </div>
-            <div class="card" id="abs-perc-card">
+            <div class="card" id="drop-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-user-clock" style="color: #e74c3c;"></i> ABSENTEÍSMO (%)</h3>
-                    <span class="badge-kpi" id="abs-perc-badge"></span>
+                    <h3><i class="fa-solid fa-weight-scale" style="color: #e84393; margin-right: 8px;"></i> PESO X VEÍCULO</h3>
+                    <span class="badge-kpi" id="drop-badge"></span>
                 </div>
-                <span class="valor" id="abs-perc-valor">-</span>
+                <span class="valor" id="drop-valor">-</span>
+                <span class="card-footer-text">vs último dia</span>
+            </div>
+            <div class="card" id="dropsizeHoje-card">
+                <div class="card-header-line">
+                    <h3><i class="fa-solid fa-box" style="color: #00cec9; margin-right: 8px;"></i> DROPSIZE</h3>
+                    <span class="badge-kpi" id="dropsizeHoje-badge"></span>
+                </div>
+                <span class="valor" id="dropsizeHoje-valor">-</span>
                 <span class="card-footer-text">vs último dia</span>
             </div>
             <div class="card" id="cli-card">
                 <div class="card-header-line">
-                    <h3><i class="fas fa-store" style="color: #3498db;"></i> CLIENTES</h3>
+                    <h3><i class="fa-solid fa-users" style="color: #3498db; margin-right: 8px;"></i> CLIENTES</h3>
                     <span class="badge-kpi" id="cli-badge"></span>
                 </div>
                 <span class="valor" id="cli-valor">-</span>
                 <span class="card-footer-text">vs último dia</span>
             </div>
-        </div>
-
-        <div class="secao-inferior">
-            <div class="container-coluna">
-                <div class="card card-split">
-                    <h3><i class="fas fa-truck-fast"></i> FROTA PRÓPRIA ENTREGA</h3>
-                    <div class="split-container">
-                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="f-total">-</span></div>
-                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="f-parados" style="color: #e74c3c;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">DISPONÍVEL</span><span class="valor valor-frota" id="f-dispo" style="color: #2ecc71;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="f-util" style="color: #3498db;">-</span></div>
-                    </div>
+            <div class="card" id="terc-card">
+                <div class="card-header-line">
+                    <h3><i class="fa-solid fa-handshake" style="color: #e67e22; margin-right: 8px;"></i> TERCEIROS</h3>
+                    <span class="badge-kpi" id="terc-badge"></span>
                 </div>
-                <div class="card card-split">
-                    <h3><i class="fas fa-truck"></i> FROTA PRÓPRIA TRANSFERÊNCIA</h3>
-                    <div class="split-container">
-                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="ft-total">-</span></div>
-                        <div class="split-item"><span class="subtitulo">PARADOS</span><span class="valor valor-frota" id="ft-parados" style="color: #e74c3c;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">DISPONÍVEL</span><span class="valor valor-frota" id="ft-dispo" style="color: #2ecc71;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTILIZADOS</span><span class="valor valor-frota" id="ft-util" style="color: #3498db;">-</span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="container-coluna">
-                <div class="card card-split">
-                    <h3><i class="fas fa-id-card"></i> MOTORISTA DISTRIBUIÇÃO</h3>
-                    <div class="split-container">
-                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="md-total">-</span></div>
-                        <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="md-vagas">-</span></div>
-                        <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="md-ferias">-</span></div>
-                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="md-faltas" style="color: #e74c3c;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="md-atestados" style="color: #f39c12;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="md-banco" style="color: #2ecc71;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="md-util" style="color: #3498db;">-</span></div>
-                    </div>
-                </div>
-                <div class="card card-split">
-                    <h3><i class="fas fa-users"></i> AUXILIAR DISTRIBUIÇÃO</h3>
-                    <div class="split-container">
-                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="aux-total">-</span></div>
-                        <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="aux-vagas">-</span></div>
-                        <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="aux-ferias">-</span></div>
-                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="aux-faltas" style="color: #e74c3c;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="aux-atestados" style="color: #f39c12;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="aux-banco" style="color: #2ecc71;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="aux-util" style="color: #3498db;">-</span></div>
-                    </div>
-                </div>
-                <div class="card card-split">
-                    <h3><i class="fas fa-user-gear"></i> MOTORISTA TRANSFERÊNCIA</h3>
-                    <div class="split-container">
-                        <div class="split-item"><span class="subtitulo">TOTAL</span><span class="valor valor-frota" id="mt-total">-</span></div>
-                        <div class="split-item"><span class="subtitulo">VAGAS</span><span class="valor valor-frota" id="mt-vagas">-</span></div>
-                        <div class="split-item"><span class="subtitulo">FÉRIAS</span><span class="valor valor-frota" id="mt-ferias">-</span></div>
-                        <div class="split-item"><span class="subtitulo">FALTAS</span><span class="valor valor-frota" id="mt-faltas" style="color: #e74c3c;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">ATEST.</span><span class="valor valor-frota" id="mt-atestados" style="color: #f39c12;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">BH</span><span class="valor valor-frota" id="mt-banco" style="color: #2ecc71;">-</span></div>
-                        <div class="split-item"><span class="subtitulo">UTIL.</span><span class="valor valor-frota" id="mt-util" style="color: #3498db;">-</span></div>
-                    </div>
-                </div>
+                <span class="valor" id="terc-valor">-</span>
+                <span class="card-footer-text">UTILIZADOS</span>
             </div>
         </div>
-    </div>
 
-    <div id="tela2" class="tela">
-        <div class="grid-graficos">
-            <div class="chart-container"><canvas id="graficoVolume"></canvas></div>
-            <div class="chart-container"><canvas id="graficoMensal"></canvas></div>
-            <div class="chart-container"><canvas id="graficoOcupacaoDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoOcupacaoMensal"></canvas></div>
-        </div>
-    </div>
-
-    <div id="tela3" class="tela">
-        <div class="grid-graficos">
-            <div class="chart-container"><canvas id="graficoDropsizeDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoDropMensal"></canvas></div>
-            <div class="chart-container"><canvas id="graficoNfDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoNfMensal"></canvas></div>
-        </div>
-    </div>
-
-    <div id="tela4" class="tela">
-        <div class="grid-graficos">
-            <div class="chart-container"><canvas id="graficoNsDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoNsMensal"></canvas></div>
-            <div class="chart-container"><canvas id="graficoReDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoReMensal"></canvas></div>
-        </div>
-    </div>
-
-    <div id="tela5" class="tela">
-        <div class="grid-graficos">
-            <div class="chart-container"><canvas id="graficoDevolucaoDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoDevolucaoMensal"></canvas></div>
-            <div class="chart-container"><canvas id="graficoAderenciaDiario"></canvas></div>
-            <div class="chart-container"></div>
-        </div>
-    </div>
-
-    <div id="tela6" class="tela">
-        <div class="grid-graficos-tela6">
-            <div class="linha-graficos-6 linha-1-3">
-                <div class="chart-container"><canvas id="graficoVelocimetro1"></canvas></div>
-                <div class="chart-container"><canvas id="graficoVelocimetro2"></canvas></div>
-                <div class="chart-container"><canvas id="graficoVelocimetro3"></canvas></div>
-            </div>
-            <div class="linha-split-6">
-                <div class="chart-container">
-                    <canvas id="graficoOtifXOnTimeXInFullT6"></canvas>
+        <div class="grid-inferior">
+            <div class="card card-split">
+                <h3><i class="fa-solid fa-truck" style="color: #2ecc71; margin-right: 6px;"></i> FROTA PRÓPRIA ENTREGA</h3>
+                <div class="card-split-body">
+                    <div class="split-item"><span class="split-label">Total</span><span class="split-val" id="fTotal">-</span></div>
+                    <div class="split-item"><span class="split-label">Parados</span><span class="split-val" id="fParados">-</span></div>
+                    <div class="split-item"><span class="split-label">Disponíveis</span><span class="split-val" id="fDispo">-</span></div>
+                    <div class="split-item"><span class="split-label">Utilizados</span><span class="split-val" id="fUtil">-</span></div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="graficoOtifXOnTimeXInFullMensalT6"></canvas>
+            </div>
+            <div class="card card-split">
+                <h3><i class="fa-solid fa-truck-fast" style="color: #3498db; margin-right: 6px;"></i> FROTA PRÓPRIA TRANSFERÊNCIA</h3>
+                <div class="card-split-body">
+                    <div class="split-item"><span class="split-label">Total</span><span class="split-val" id="ftTotal">-</span></div>
+                    <div class="split-item"><span class="split-label">Parados</span><span class="split-val" id="ftParados">-</span></div>
+                    <div class="split-item"><span class="split-label">Disponíveis</span><span class="split-val" id="ftDispo">-</span></div>
+                    <div class="split-item"><span class="split-label">Utilizados</span><span class="split-val" id="ftUtil">-</span></div>
+                </div>
+            </div>
+            <div class="card card-split">
+                <h3><i class="fa-solid fa-id-card" style="color: #f39c12; margin-right: 6px;"></i> MOTORISTA DISTRIBUIÇÃO</h3>
+                <div class="card-split-body">
+                    <div class="split-item"><span class="split-label">Total</span><span class="split-val" id="mdTotal">-</span></div>
+                    <div class="split-item"><span class="split-label">Vagas</span><span class="split-val" id="mdVagas">-</span></div>
+                    <div class="split-item"><span class="split-label">Férias</span><span class="split-val" id="mdFerias">-</span></div>
+                    <div class="split-item"><span class="split-label">Afastados</span><span class="split-val" id="mdAfastados">-</span></div>
+                    <div class="split-item"><span class="split-label">Faltas</span><span class="split-val" id="mdFaltas">-</span></div>
+                    <div class="split-item"><span class="split-label">Atestados</span><span class="split-val" id="mdAtestados">-</span></div>
+                </div>
+            </div>
+            <div class="card card-split">
+                <h3><i class="fa-solid fa-users" style="color: #9b59b6; margin-right: 6px;"></i> AUXILIAR DISTRIBUIÇÃO</h3>
+                <div class="card-split-body">
+                    <div class="split-item"><span class="split-label">Total</span><span class="split-val" id="adTotal">-</span></div>
+                    <div class="split-item"><span class="split-label">Vagas</span><span class="split-val" id="adVagas">-</span></div>
+                    <div class="split-item"><span class="split-label">Férias</span><span class="split-val" id="adFerias">-</span></div>
+                    <div class="split-item"><span class="split-label">Afastados</span><span class="split-val" id="adAfastados">-</span></div>
+                    <div class="split-item"><span class="split-label">Faltas</span><span class="split-val" id="adFaltas">-</span></div>
+                    <div class="split-item"><span class="split-label">Atestados</span><span class="split-val" id="adAtestados">-</span></div>
+                </div>
+            </div>
+            <div class="card card-split">
+                <h3><i class="fa-solid fa-user-tie" style="color: #1abc9c; margin-right: 6px;"></i> MOTORISTA TRANSFERÊNCIA</h3>
+                <div class="card-split-body">
+                    <div class="split-item"><span class="split-label">Total</span><span class="split-val" id="mtTotal">-</span></div>
+                    <div class="split-item"><span class="split-label">Vagas</span><span class="split-val" id="mtVagas">-</span></div>
+                    <div class="split-item"><span class="split-label">Férias</span><span class="split-val" id="mtFerias">-</span></div>
+                    <div class="split-item"><span class="split-label">Afastados</span><span class="split-val" id="mtAfastados">-</span></div>
+                    <div class="split-item"><span class="split-label">Faltas</span><span class="split-val" id="mtFaltas">-</span></div>
+                    <div class="split-item"><span class="split-label">Atestados</span><span class="split-val" id="mtAtestados">-</span></div>
                 </div>
             </div>
         </div>
     </div>
-    
+
+    <div id="tela-2" class="tela">
+        <div class="grid-graficos">
+            <div class="card-grafico"><canvas id="graficoVolumeDiario"></canvas></div>
+            <div class="card-grafico"><canvas id="graficoOcupacaoDiario"></canvas></div>
+            <div class="card-grafico"><canvas id="graficoNfsDiario"></canvas></div>
+            <div class="card-grafico"><canvas id="graficoAbsenteismoDiario"></canvas></div>
+        </div>
+    </div>
+
+    <div id="tela-3" class="tela">
+        <div class="grid-graficos">
+            <div class="card-grafico"><canvas id="graficoDropsizeDiario"></canvas></div>
+            <div class="card-grafico"><canvas id="graficoPesoVeiculoDiario"></canvas></div>
+            <div class="card-grafico"><canvas id="graficoClientesDiario"></canvas></div>
+            <div class="card-grafico"><canvas id="graficoAderenciaDiario"></canvas></div>
+        </div>
+    </div>
+
     <script>
-        const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
-        Chart.register(ChartDataLabels);
+        const urlsMeses = {
+            "JANEIRO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=0&single=true&output=csv",
+            "FEVEREIRO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=123456789&single=true&output=csv",
+            "MARÇO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=987654321&single=true&output=csv",
+            "ABRIL": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=111222333&single=true&output=csv",
+            "MAIO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=444555666&single=true&output=csv",
+            "JUNHO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=777888999&single=true&output=csv",
+            "JULHO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=101010101&single=true&output=csv",
+            "AGOSTO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=202020202&single=true&output=csv",
+            "SETEMBRO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=303030303&single=true&output=csv",
+            "OUTUBRO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=404040404&single=true&output=csv",
+            "NOVEMBRO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=505050505&single=true&output=csv",
+            "DEZEMBRO": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5T7_vE45FzBwX8qL7v6k2Q5x3w4v1s2t3u4v5w6x7y8z9/pub?gid=606060606&single=true&output=csv"
+        };
 
-        let autoMode = false; let tempoRestante = 90; let telaAtual = 1;
-        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal;
+        let dadosGlobais = {};
+        let telaAtual = 1;
+        let totalTelas = 3;
+        let timerTrocaTela = null;
 
-        function toggleAuto() {
-            autoMode = !autoMode;
-            const btn = document.getElementById('btn-auto-toggle');
-            const timerDisp = document.getElementById('timer-display');
-            if (autoMode) { btn.textContent = "Auto: ON"; btn.className = "btn-auto auto-on"; tempoRestante = 90; timerDisp.textContent = tempoRestante; timerDisp.style.visibility = "visible"; }
-            else { btn.textContent = "Auto: OFF"; btn.className = "btn-auto auto-off"; timerDisp.style.visibility = "hidden"; }
-        }
-
-        function mudarTelaManual(direcao) { 
-            if (autoMode) tempoRestante = 90;
-            if (direcao === 1) telaAtual = telaAtual === 6 ? 1 : telaAtual + 1;
-            else telaAtual = telaAtual === 1 ? 6 : telaAtual - 1;
-            aplicarExibicaoTela();
-        }
-
-        setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 90; } } }, 1000);
-
-        function alternarTelas() {
-            telaAtual = telaAtual === 6 ? 1 : telaAtual + 1;
-            aplicarExibicaoTela();
-        }
-
-        function aplicarExibicaoTela() {
-            const telas = document.querySelectorAll('.tela');
-            telas.forEach((t, i) => {
-                t.classList.toggle('ativa', i + 1 === telaAtual);
-            });
-            window.dispatchEvent(new Event('resize'));
-        }
-
-        window.addEventListener('resize', () => { 
-            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, window.chartAderenciaDiarioInst].forEach(c => c && c.resize());
-            if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
-            if (window['chart_graficoVelocimetro2']) window['chart_graficoVelocimetro2'].resize();
-            if (window['chart_graficoVelocimetro3']) window['chart_graficoVelocimetro3'].resize();
-            if (window.chartOtifCombinadoT6Inst) window.chartOtifCombinadoT6Inst.resize();
-            if (window.chartOtifCombinadoMensalT6Inst) window.chartOtifCombinadoMensalT6Inst.resize();
-        });
-
-        function safeSplit(row) {
-            const res = []; let inQ = false; let cur = '';
-            for (let char of row) {
-                if (char === '"') inQ = !inQ;
-                else if (char === ',' && !inQ) { res.push(cur.trim()); cur = ''; }
-                else cur += char;
+        window.onload = function() {
+            let select = document.getElementById('mes-select');
+            for (let mes in urlsMeses) {
+                let opt = document.createElement('option');
+                opt.value = mes;
+                opt.textContent = mes;
+                select.appendChild(opt);
             }
-            res.push(cur.trim()); return res;
+            let mesAtualStr = "AGOSTO";
+            select.value = mesAtualStr;
+            carregarDadosMes(mesAtualStr);
+            iniciarAutomacao();
+        };
+
+        function mudarMes() {
+            let mes = document.getElementById('mes-select').value;
+            carregarDadosMes(mes);
         }
 
-        async function fetchPlanilha() {
-            const agora = new Date();
-            const diaHojeNum = agora.getDate();
-            const mesAtualIdx = agora.getMonth(); 
-            const anoAtual = agora.getFullYear();
-            
-            let mesDeExibicaoIdx = mesAtualIdx;
-            let anoDeExibicao = anoAtual;
-            if (diaHojeNum < 6) {
-                mesDeExibicaoIdx = mesAtualIdx === 0 ? 11 : mesAtualIdx - 1;
-                if (mesAtualIdx === 0) anoDeExibicao = anoAtual - 1;
+        function proximaTela() {
+            document.getElementById(`tela-${telaAtual}`).classList.remove('ativa');
+            telaAtual++;
+            if (telaAtual > totalTelas) telaAtual = 1;
+            document.getElementById(`tela-${telaAtual}`).classList.add('ativa');
+        }
+
+        function iniciarAutomacao() {
+            if (timerTrocaTela) clearInterval(timerTrocaTela);
+            timerTrocaTela = setInterval(() => {
+                proximaTela();
+            }, 15000);
+        }
+
+        function carregarDadosMes(mes) {
+            let url = urlsMeses[mes];
+            fetch(url)
+                .then(res => res.text())
+                .then(csv => {
+                    processarCsv(csv, mes);
+                })
+                .catch(err => console.error("Erro ao carregar dados:", err));
+        }
+
+        function processarCsv(csv, mesNome) {
+            let linhas = csv.split('\n').map(l => l.split(','));
+            if (linhas.length < 2) return;
+
+            let cabecalho = linhas[0].map(h => h.trim().replace(/"/g, ''));
+            let idxData = cabecalho.findIndex(h => h.toLowerCase().includes('data') || h.toLowerCase().includes('dia'));
+
+            const mapping = {
+                vol: "VOLUME EXPEDIDO (KG)", 
+                drop: "PESOXVEÍCULO (KG)",
+                nf: "NF'S (QTD)", 
+                ocp: "OCUPAÇÃO (%)",
+                abs: "ABSENTEÍSMO (QTD)", 
+                absPerc: "ABSENTEÍSMO (%)", 
+                terceiros: "TERCEIROS UTILIZADOS (QTD)", 
+                cli: "CLIENTES (QTD)",
+                dropsizeHoje: "DROPSIZE (KG)",
+                fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", 
+                fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", 
+                fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", 
+                fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
+                ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", 
+                ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", 
+                ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", 
+                ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
+                mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                mdAfastados: "AFASTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
+                mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                adTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                adVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                adFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                adAfastados: "AFASTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                adFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
+                adAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", 
+                mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", 
+                mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                mtAfastados: "AFASTADOS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", 
+                mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)"
+            };
+
+            let idxs = {};
+            for (let k in mapping) {
+                idxs[k] = cabecalho.findIndex(h => h.toUpperCase() === mapping[k]);
             }
 
-            const mesesExtenso = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
-            const mesExibicaoNome = mesesExtenso[mesDeExibicaoIdx];
-            const hojeBusca = `${String(diaHojeNum).padStart(2, '0')}/${String(mesAtualIdx + 1).padStart(2, '0')}/${anoAtual}`;
+            let linhasPreenchidas = [];
+            for (let i = 1; i < linhas.length; i++) {
+                let l = linhas[i];
+                if (l.length > idxData && l[idxData] && l[idxData].replace(/"/g, '').trim() !== "") {
+                    linhasPreenchidas.push(l);
+                }
+            }
 
-            try {
-                const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
-                const csv = await response.text();
-                const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
-                if (linhas.length === 0) return;
+            let lHoje = linhasPreenchidas.length > 0 ? linhasPreenchidas[linhasPreenchidas.length - 1] : null;
+            let lOntem = linhasPreenchidas.length > 1 ? linhasPreenchidas[linhasPreenchidas.length - 2] : null;
 
-                const cabecalho = safeSplit(linhas[0]).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
-                const idxData = cabecalho.indexOf("DATA");
-                
-                const mapping = {
-                    vol: "VOLUME EXPEDIDO (KG)", 
-                    drop: "PESOXVEÍCULO (KG)",
-                    nf: "NF'S (QTD)", 
-                    ocp: "OCUPAÇÃO (%)",
-                    abs: "ABSENTEÍSMO (QTD)", 
-                    absPerc: "ABSENTEÍSMO (%)", 
-                    terceiros: "TERCEIROS UTILIZADOS (QTD)", 
-                    cli: "CLIENTES (QTD)",
-                    dropsizeHoje: "DROPSIZE (KG)",
-                    fTotal: "FROTA PRÓPRIA ENTREGA TOTAL (QTD)", 
-                    fParados: "FROTA PRÓPRIA ENTREGA PARADOS (QTD)", 
-                    fDispo: "FROTA PRÓPRIA ENTREGA DISPONIBILIDADE (QTD)", 
-                    fUtil: "FROTA PRÓPRIA ENTREGA UTILIZADOS (QTD)",
-                    ftTotal: "FROTA PRÓPRIA TRANSF. TOTAL (QTD)", 
-                    ftParados: "FROTA PRÓPRIA TRANSF. PARADOS (QTD)", 
-                    ftDispo: "FROTA PRÓPRIA TRANSF. TOTAL DISPONIBILIDADE (QTD)", 
-                    ftUtil: "FROTA PRÓPRIA TRANSF. UTILIZADOS (QTD)",
-                    mdTotal: "TOTAL MOTORISTA DISTRIBUIÇÃO (QTD)", 
-                    mdVagas: "VAGAS EM ABERTO MOTORISTA DISTRIBUIÇÃO (QTD)", 
-                    mdFerias: "FÉRIAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
-                    mdFaltas: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
-                    mdAtestados: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)", 
-                    mdBanco: "BANCO DE HORAS MOTORISTA DISTRIBUIÇÃO (QTD)", 
-                    mdUtil: "UTILIZADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
-                    auxTotal: "TOTAL AUXILIAR DISTRIBUIÇÃO (QTD)", 
-                    auxVagas: "VAGAS EM ABERTO AUXILIAR DISTRIBUIÇÃO (QTD)", 
-                    auxFerias: "FÉRIAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
-                    auxFaltas: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
-                    auxAtestados: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)", 
-                    auxBanco: "BANCO DE HORAS AUXILIAR DISTRIBUIÇÃO (QTD)", 
-                    auxUtil: "UTILIZADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
-                    mtTotal: "TOTAL MOTORISTA TRANSFERÊNCIA (QTD)", 
-                    mtVagas: "VAGAS EM ABERTO MOTORISTA TRANSFERÊNCIA (QTD)", 
-                    mtFerias: "FÉRIAS MOTORISTA TRANSFERÊNCIA (QTD)", 
-                    mtFaltas: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)", 
-                    mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", 
-                    mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", 
-                    mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
-                    otif: "ENTREGAS OTIF (%)"
-                };
+            let elDataPainel = document.getElementById('data-painel');
+            if (elDataPainel && lHoje && lHoje[idxData]) {
+                elDataPainel.textContent = lHoje[idxData].replace(/"/g, '').trim();
+            }
 
-                const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
-                let valCards = {}; for(let k in mapping) valCards[k] = "-";
+            const getVStr = (l, idCol) => (l && l[idxs[idCol]]) ? l[idxs[idCol]].replace(/"/g, '').trim() || "-" : "-";
+            const getVNum = (l, idCol) => {
+                if (!l || idxs[idCol] === -1 || !l[idxs[idCol]]) return 0;
+                let val = l[idxs[idCol]].replace(/"/g, '').replace(/\./g, '').replace(',', '.').trim();
+                return parseFloat(val) || 0;
+            };
 
-                const ultimoDiaMesExibicao = new Date(anoDeExibicao, mesDeExibicaoIdx + 1, 0).getDate();
-                const dVolR = Array(ultimoDiaMesExibicao).fill(null); const dOcpR = Array(ultimoDiaMesExibicao).fill(null);
-                const dDropR = Array(ultimoDiaMesExibicao).fill(null); const dDropSizeR = Array(ultimoDiaMesExibicao).fill(null); const dNfR = Array(ultimoDiaMesExibicao).fill(null); const dCliR = Array(ultimoDiaMesExibicao).fill(null);
-                const dNsR = Array(ultimoDiaMesExibicao).fill(null); const dReR = Array(ultimoDiaMesExibicao).fill(null);
-                const dDevTot = Array(ultimoDiaMesExibicao).fill(null); const dDevOp = Array(ultimoDiaMesExibicao).fill(null);
-                const dAderenciaR = Array(ultimoDiaMesExibicao).fill(null);
-                const dApontamentosR = Array(ultimoDiaMesExibicao).fill(null);
-                
-                const dOtifR = Array(ultimoDiaMesExibicao).fill(null);
-                const dOnTimeR = Array(ultimoDiaMesExibicao).fill(null);
-                const dInFullR = Array(ultimoDiaMesExibicao).fill(null);
+            function attKpiCard(idEl, idCol, maiorMelhor = true, ignoraCondicional = false) {
+                let vHojeStr = getVStr(lHoje, idCol);
+                let vH = getVNum(lHoje, idCol);
+                let vO = getVNum(lOntem, idCol);
 
-                const acVolM = Array(12).fill(0); const sOcpM = Array(12).fill(0); const cOcpM = Array(12).fill(0);
-                const sDropM = Array(12).fill(0); const sDropSizeM = Array(12).fill(0);
-                const acNfM = Array(12).fill(0); const acCliM = Array(12).fill(0);
-                const sNsM = Array(12).fill(0); const cNsM = Array(12).fill(0);
-                const acReM = Array(12).fill(0);
-                
-                const sDevTotM = Array(12).fill(0); const cDevTotM = Array(12).fill(0);
-                const sDevOpM = Array(12).fill(0); const cDevOpM = Array(12).fill(0);
-                const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
-                const sOnTimeM = Array(12).fill(0); const cOnTimeM = Array(12).fill(0);
-                const sInFullM = Array(12).fill(0); const cInFullM = Array(12).fill(0);
-
-                const converter = (val) => {
-                    if (!val || val === "-" || val === "null" || val === "#N/A") return null;
-                    let n = parseFloat(val.replace(/"/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.').replace('%', ''));
-                    return isNaN(n) ? null : n;
-                };
-
-                for (let i = 1; i < linhas.length; i++) {
-                    const colunas = safeSplit(linhas[i]);
-                    let dataPlanilha = colunas[idxData] ? colunas[idxData].replace(/"/g, '').trim() : "";
-                    if (!dataPlanilha) continue;
-
-                    if (dataPlanilha.includes(hojeBusca)) {
-                        for(let key in idxs) valCards[key] = (colunas[idxs[key]] || "-").replace(/"/g, '').trim() || "-";
+                let elVal = document.getElementById(idEl + '-valor');
+                if (elVal) {
+                    if (idCol === 'vol' || idCol === 'drop' || idCol === 'dropsizeHoje') {
+                        elVal.textContent = vHojeStr !== "-" ? vHojeStr + " KG" : "-";
+                    } else {
+                        elVal.textContent = vHojeStr;
                     }
+                }
 
-                    let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
-                    let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
-                    let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
-                    let valDropG = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG)")]); 
-                    let valDropSizeG = converter(colunas[cabecalho.indexOf("DROPSIZE (KG)")]);
-                    let valNfG = converter(colunas[cabecalho.indexOf("NF'S (QTD)")]);
-                    let valCliG = converter(colunas[cabecalho.indexOf("CLIENTES (QTD)")]);
-                    let valNsG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%)")]);
-                    let valNsMesG = converter(colunas[cabecalho.indexOf("NÍVEL DE SERVIÇO D+1 (%) MÊS")]);
-                    let valReG = converter(colunas[cabecalho.indexOf("REENTREGAS D+2 (QTD)")]);
-                    let valDevTotG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%)")]);
-                    let valDevOpG = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%)")]);
-                    let valAderenciaG = converter(colunas[cabecalho.indexOf("ADERÊNCIA (%)")]);
-                    let valApontamentosG = converter(colunas[cabecalho.indexOf("APONTAMENTOS CERCA (%)")]);
-                    
-                    let valOtifG = converter(colunas[idxs.otif]);
-                    let valOnTimeG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%)")]);
-                    let valInFullG = converter(colunas[cabecalho.indexOf("ENTREGAS IN FULL (%)")]);
-                    
-                    let valOtifMesG = converter(colunas[cabecalho.indexOf("ENTREGAS OTIF (%) MÊS")]);
-                    let valOnTimeMesG = converter(colunas[cabecalho.indexOf("ENTREGAS ON TIME (%) MÊS")]);
-                    let valInFullMesG = converter(colunas[cabecalho.indexOf("ENTREGAS IN FULL (%) MÊS")]);
-                    let valDevTotMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO (%) MÊS")]);
-                    let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
-                    let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
-                    let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
-
-                    let pD = dataPlanilha.split('/');
-                    if (pD.length === 3) {
-                        let dP = parseInt(pD[0]); let mP = parseInt(pD[1]); let aP = parseInt(pD[2]);
+                let elBadge = document.getElementById(idEl + '-badge');
+                if (elBadge) {
+                    if (vO !== 0) {
+                        let diff = ((vH - vO) / vO) * 100;
+                        let sinal = diff > 0 ? "+" : "";
+                        elBadge.textContent = `${sinal}${diff.toFixed(1)}%`;
                         
-                        if (aP === anoDeExibicao && mP === (mesDeExibicaoIdx + 1)) {
-                            if (dP <= ultimoDiaMesExibicao) {
-                                if(valVol !== null) dVolR[dP-1] = valVol; if(valOcupG !== null) dOcpR[dP-1] = valOcupG;
-                                if(valDropG !== null) dDropR[dP-1] = valDropG; if(valDropSizeG !== null) dDropSizeR[dP-1] = valDropSizeG; if(valNfG !== null) dNfR[dP-1] = valNfG; if(valCliG !== null) dCliR[dP-1] = valCliG;
-                                if(valNsG !== null) dNsR[dP-1] = valNsG; if(valReG !== null) dReR[dP-1] = valReG;
-                                if(valDevTotG !== null) dDevTot[dP-1] = valDevTotG; if(valDevOpG !== null) dDevOp[dP-1] = valDevOpG;
-                                if(valAderenciaG !== null) dAderenciaR[dP-1] = valAderenciaG;
-                                if(valApontamentosG !== null) dApontamentosR[dP-1] = valApontamentosG;
-                                
-                                if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
-                                if(valOnTimeG !== null) dOnTimeR[dP-1] = valOnTimeG;
-                                if(valInFullG !== null) dInFullR[dP-1] = valInFullG;
-                            }
-                        }
-                        if (aP === anoAtual) {
-                            let mIdx = mP - 1;
-                            if (valVol !== null) acVolM[mIdx] += valVol; if (valNfG !== null) acNfM[mIdx] += valNfG; if (valCliG !== null) acCliM[mIdx] += valCliG;
-                            if (valReG !== null) acReM[mIdx] += valReG;
-                            if (valOcupMesG !== null && valOcupMesG > 0) { sOcpM[mIdx] = valOcupMesG; cOcpM[mIdx]++; }
-                            if (valDropMesAcumulado !== null && valDropMesAcumulado > 0) { sDropM[mIdx] = valDropMesAcumulado; }
-                            if (valDropSizeMesAcumulado !== null && valDropSizeMesAcumulado > 0) { sDropSizeM[mIdx] = valDropSizeMesAcumulado; }
-                            if (valNsMesG !== null && valNsMesG > 0) { sNsM[mIdx] = valNsMesG; cNsM[mIdx]++; }
-                            if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
-                            if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
-                            if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
-                            if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[mIdx] += valOnTimeMesG; cOnTimeM[mIdx]++; }
-                            if (valInFullMesG !== null && valInFullMesG > 0) { sInFullM[mIdx] += valInFullMesG; cInFullM[mIdx]++; }
-                        }
-                    }
-                }
+                        elBadge.className = "badge-kpi";
+                        if (elVal) elVal.className = "valor";
 
-                // --- INÍCIO NOVA LÓGICA DE CÁLCULO EXATO PARA TELA 1 ---
-                let linhasPreenchidas = [];
-                for (let i = 1; i < linhas.length; i++) {
-                    const cols = safeSplit(linhas[i]);
-                    let dPlanilha = cols[idxData] ? cols[idxData].replace(/"/g, '').trim() : "";
-                    if (!dPlanilha) continue;
-                    let parts = dPlanilha.split('/');
-                    // Considera preenchido o dia se houver Volume Expedido digitado
-                    if (parts.length === 3 && parseInt(parts[2]) === anoDeExibicao && parseInt(parts[1]) === (mesDeExibicaoIdx + 1)) {
-                        if (converter(cols[idxs.vol]) !== null) {
-                            linhasPreenchidas.push(cols);
-                        }
-                    }
-                }
-
-                // Pega os dois últimos dias com dados do mês (Atual e Anterior)
-                let lHoje = linhasPreenchidas.length > 0 ? linhasPreenchidas[linhasPreenchidas.length - 1] : null;
-                let lOntem = linhasPreenchidas.length > 1 ? linhasPreenchidas[linhasPreenchidas.length - 2] : null;
-
-                // --- INÍCIO: INSERE A DATA DA PLANILHA DIRETO NO TÍTULO ---
-                let elDataPainel = document.getElementById('data-painel');
-                if (elDataPainel && lHoje && lHoje[idxData]) {
-                    elDataPainel.textContent = lHoje[idxData].replace(/"/g, '').trim();
-                }
-                // --- FIM: DATA NO TÍTULO ---
-
-                const getVStr = (l, idCol) => (l && l[idxs[idCol]]) ? l[idxs[idCol]].replace(/"/g, '').trim() || "-" : "-";
-                const getVNum = (l, idCol) => converter(getVStr(l, idCol));
-
-                function attKpiCard(idEl, idCol, maiorMelhor = true, ignoraCondicional = false) {
-                    let vHojeStr = getVStr(lHoje, idCol);
-                    let vH = getVNum(lHoje, idCol);
-                    let vO = getVNum(lOntem, idCol);
-
-                    let elVal = document.getElementById(idEl + '-valor');
-                    if (elVal) {
-                        // Se for Volume, Dropsize ou Peso, adiciona o " KG"
-                        if (idCol === 'vol' || idCol === 'drop' || idCol === 'dropsizeHoje') {
-                            elVal.textContent = vHojeStr !== "-" ? vHojeStr + " KG" : "-";
+                        if (ignoraCondicional) {
+                            elBadge.classList.add('badge-neutro');
+                            if (elVal) elVal.classList.add('text-neutro');
                         } else {
-                            elVal.textContent = vHojeStr;
-                        }
-                    }
-                    
-                    if (ignoraCondicional) {
-                        if(elVal) elVal.className = 'valor';
-                        return; // Pula o resto (Ex: Terceiros)
-                    }
-
-                    let cardEl = document.getElementById(idEl + '-card');
-                    let badgeEl = document.getElementById(idEl + '-badge');
-
-                    if (cardEl && badgeEl && vH !== null && vO !== null && vO !== 0) {
-                        let varPerc = ((vH - vO) / vO) * 100;
-                        let cor = 'neutro'; let icon = 'fa-minus'; let txtVar = varPerc.toFixed(1).replace('.', ',') + '%';
-                        
-                        if (varPerc > 0) { 
-                            cor = maiorMelhor ? 'positivo' : 'negativo'; 
-                            icon = 'fa-caret-up'; 
-                            txtVar = '+' + txtVar; 
-                        } else if (varPerc < 0) { 
-                            cor = maiorMelhor ? 'negativo' : 'positivo'; 
-                            icon = 'fa-caret-down'; 
-                        }
-
-                        cardEl.className = 'card card-' + cor;
-                        badgeEl.className = 'badge-kpi ' + cor;
-                        badgeEl.innerHTML = `<i class="fas ${icon}"></i> ${txtVar}`;
-                        elVal.className = 'valor text-' + cor;
-                    } else if (cardEl && badgeEl) {
-                        cardEl.className = 'card card-neutro';
-                        badgeEl.className = 'badge-kpi neutro';
-                        badgeEl.innerHTML = `<i class="fas fa-minus"></i> 0,0%`;
-                        elVal.className = 'valor text-neutro';
-                    }
-                }
-
-                // Dispara os cálculos pros 9 cards (id HTML, id Planilha, Maior_é_Bom?, Ignora_Cor?)
-                attKpiCard('vol', 'vol', true);
-                attKpiCard('drop', 'drop', true);
-                attKpiCard('ocp', 'ocp', true);
-                attKpiCard('nf', 'nf', true);
-                attKpiCard('terc', 'terceiros', true, true); // Ignora condicional
-                attKpiCard('dropsize-hoje', 'dropsizeHoje', true);
-                attKpiCard('abs', 'abs', false); // Menor absenteísmo é Bom = False
-                attKpiCard('abs-perc', 'absPerc', false); // Menor é Bom = False
-                attKpiCard('cli', 'cli', true);
-
-                // Carrega os valores estáticos das sub-tabelas
-                const mapTabelas = {
-                    'f-total':'fTotal', 'f-parados':'fParados', 'f-dispo':'fDispo', 'f-util':'fUtil',
-                    'ft-total':'ftTotal', 'ft-parados':'ftParados', 'ft-dispo':'ftDispo', 'ft-util':'ftUtil',
-                    'md-total':'mdTotal', 'md-vagas':'mdVagas', 'md-ferias':'mdFerias', 'md-faltas':'mdFaltas',
-                    'md-atestados':'mdAtestados', 'md-banco':'mdBanco', 'md-util':'mdUtil',
-                    'aux-total':'auxTotal', 'aux-vagas':'auxVagas', 'aux-ferias':'auxFerias', 'aux-faltas':'auxFaltas',
-                    'aux-atestados':'auxAtestados', 'aux-banco':'auxBanco', 'aux-util':'auxUtil',
-                    'mt-total':'mtTotal', 'mt-vagas':'mtVagas', 'mt-ferias':'mtFerias', 'mt-faltas':'mtFaltas',
-                    'mt-atestados':'mtAtestados', 'mt-banco':'mtBanco', 'mt-util':'mtUtil'
-                };
-                for(let idT in mapTabelas) { 
-                    let el = document.getElementById(idT); 
-                    if(el) {
-                        let valFormatado = getVStr(lHoje, mapTabelas[idT]);
-                        // Se o valor for "0", deixa vazio (em branco)
-                        el.textContent = (valFormatado === "0") ? "" : valFormatado; 
-                    }
-                }
-                // --- FIM NOVA LÓGICA ---
-
-                const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
-                for (let i = 0; i < ultimoDiaMesExibicao; i++) {
-                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null) {
-                        labF.push(String(i + 1).padStart(2, '0'));
-                        vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
-                        vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
-                    }
-                }
-
-                renderizarGraficoDiario(labF, vVolF, mesExibicaoNome);
-                renderizarGraficoMensal(mesesExtenso, acVolM, anoAtual);
-                renderizarOcupacaoDiaria(labF, vOcpF, mesExibicaoNome);
-                renderizarOcupacaoMensal(mesesExtenso, sOcpM.map((s,i)=>cOcpM[i]>0?s:0), anoAtual);
-                renderizarDropDiario(labF, vDropF, vDropSizeF, mesExibicaoNome);
-                renderizarDropMensal(mesesExtenso, sDropM, sDropSizeM, anoAtual);
-                renderizarNfDiario(labF, vNfF, vCliF, mesExibicaoNome);
-                renderizarNfMensal(mesesExtenso, acNfM, acCliM, anoAtual);
-                renderizarNsDiario(labF, vNsF, mesExibicaoNome);
-                renderizarNsMensal(mesesExtenso, sNsM.map((s,i)=>cNsM[i]>0?s:0), anoAtual);
-                renderizarReDiario(labF, vReF, mesExibicaoNome);
-                renderizarReMensal(mesesExtenso, acReM, anoAtual);
-                renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
-                renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
-                const labAderenciaF = []; const vAderenciaF = []; const vApontamentosF = [];
-                for (let i = 0; i < ultimoDiaMesExibicao; i++) {
-                    if (dAderenciaR[i] !== null || dApontamentosR[i] !== null) {
-                        labAderenciaF.push(String(i + 1).padStart(2, '0'));
-                        vAderenciaF.push(dAderenciaR[i]||0);
-                        vApontamentosF.push(dApontamentosR[i]||0);
-                    }
-                }
-                renderizarAderenciaDiario(labAderenciaF, vAderenciaF, vApontamentosF, mesExibicaoNome);
-
-                let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
-                renderizarVelocimetro('graficoVelocimetro1', mediaOtifMesTela6, `ENTREGAS OTIF (%) ${mesExibicaoNome} - MÉDIA`);
-
-                let mediaOnTimeMesTela6 = cOnTimeM[mesDeExibicaoIdx] > 0 ? sOnTimeM[mesDeExibicaoIdx] / cOnTimeM[mesDeExibicaoIdx] : 0;
-                renderizarVelocimetro('graficoVelocimetro2', mediaOnTimeMesTela6, `ENTREGAS ON TIME (%) ${mesExibicaoNome} - MÉDIA`, '#f39c12');
-
-                let mediaInFullMesTela6 = cInFullM[mesDeExibicaoIdx] > 0 ? sInFullM[mesDeExibicaoIdx] / cInFullM[mesDeExibicaoIdx] : 0;
-                renderizarVelocimetro('graficoVelocimetro3', mediaInFullMesTela6, `ENTREGAS IN FULL (%) ${mesExibicaoNome} - MÉDIA`, '#3498db');
-
-                if (window.chartOtifCombinadoT6Inst) window.chartOtifCombinadoT6Inst.destroy();
-                if (window.chartOtifCombinadoMensalT6Inst) window.chartOtifCombinadoMensalT6Inst.destroy();
-
-                const ctxCombinadoT6 = document.getElementById('graficoOtifXOnTimeXInFullT6').getContext('2d');
-                const ctxCombinadoMensalT6 = document.getElementById('graficoOtifXOnTimeXInFullMensalT6').getContext('2d');
-                const labelsDiasTarget = Array.from({length: ultimoDiaMesExibicao}, (_, i) => String(i + 1).padStart(2, '0'));
-
-                window.chartOtifCombinadoT6Inst = new Chart(ctxCombinadoT6, {
-                    type: 'line',
-                    data: {
-                        labels: labelsDiasTarget,
-                        datasets: [
-                            { label: 'OTIF', data: dOtifR, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 },
-                            { label: 'ON TIME', data: dOnTimeR, borderColor: '#f39c12', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 },
-                            { label: 'IN FULL', data: dInFullR, borderColor: '#00ced1', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        layout: { padding: { top: 15, bottom: 5, right: 10 } },
-                        plugins: {
-                            datalabels: { display: false },
-                            title: {
-                                display: true,
-                                text: `ENTREGAS OTIF X ON TIME X IN FULL (%) - ${mesExibicaoNome}`,
-                                color: '#a0aec0',
-                                font: { size: 15, weight: 'bold' },
-                                padding: { bottom: 25 }
-                            },
-                            legend: {
-                                display: true,
-                                position: 'bottom',
-                                labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12 }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                min: 85,
-                                max: 100,
-                                display: true,
-                                border: { display: false },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                                ticks: { 
-                                    color: '#ffffff', 
-                                    font: { size: 9 }, 
-                                    stepSize: 1,
-                                    autoSkip: false,
-                                    callback: (v) => v + '%' 
-                                }
-                            },
-                            x: {
-                                offset: true,
-                                border: { display: false },
-                                grid: { display: false },
-                                ticks: { color: '#ffffff', font: { size: 10 }, padding: 8 }
+                            let positivo = maiorMelhor ? (diff >= 0) : (diff <= 0);
+                            if (diff === 0) {
+                                elBadge.classList.add('badge-neutro');
+                                if (elVal) elVal.classList.add('text-neutro');
+                            } else if (positivo) {
+                                elBadge.classList.add('badge-positivo');
+                                if (elVal) elVal.classList.add('text-positivo');
+                            } else {
+                                elBadge.classList.add('badge-negativo');
+                                if (elVal) elVal.classList.add('text-negativo');
                             }
                         }
+                    } else {
+                        elBadge.textContent = "-";
+                        elBadge.className = "badge-kpi badge-neutro";
+                        if (elVal) elVal.className = "valor text-neutro";
                     }
-                });
+                }
+            }
 
-                const dataOtifMensalArr = mesesExtenso.map((_, i) => cOtifM[i] > 0 ? sOtifM[i] / cOtifM[i] : 0);
-                const dataOnTimeMensalArr = mesesExtenso.map((_, i) => cOnTimeM[i] > 0 ? sOnTimeM[i] / cOnTimeM[i] : 0);
-                const dataInFullMensalArr = mesesExtenso.map((_, i) => cInFullM[i] > 0 ? sInFullM[i] / cInFullM[i] : 0);
+            attKpiCard('vol', 'vol', true, false);
+            attKpiCard('ocp', 'ocp', true, false);
+            attKpiCard('nf', 'nf', true, false);
+            attKpiCard('abs', 'absPerc', false, false);
+            attKpiCard('drop', 'drop', true, false);
+            attKpiCard('dropsizeHoje', 'dropsizeHoje', true, false);
+            attKpiCard('cli', 'cli', true, false);
+            attKpiCard('terc', 'terceiros', false, true);
 
-                window.chartOtifCombinadoMensalT6Inst = new Chart(ctxCombinadoMensalT6, {
-                    type: 'bar',
-                    data: {
-                        labels: mesesExtenso,
-                        datasets: [
-                            { label: 'OTIF', data: dataOtifMensalArr, backgroundColor: '#2ecc71', borderRadius: 2, barPercentage: 0.8 },
-                            { label: 'ON TIME', data: dataOnTimeMensalArr, backgroundColor: '#f39c12', borderRadius: 2, barPercentage: 0.8 },
-                            { label: 'IN FULL', data: dataInFullMensalArr, backgroundColor: '#00ced1', borderRadius: 2, barPercentage: 0.8 }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        layout: { padding: { top: 25, bottom: 5, right: 10 } },
-                        plugins: {
-                            datalabels: {
-                                display: (context) => context.dataset.data[context.dataIndex] > 0,
-                                align: 'top',
-                                anchor: 'end',
-                                offset: 2,
-                                color: '#ffffff',
-                                font: { weight: 'bold', size: 9 },
-                                textStrokeColor: 'rgba(0, 0, 0, 0.7)',
-                                textStrokeWidth: 2,
-                                formatter: (v) => v > 0 ? v.toFixed(1) + '%' : ''
-                            },
-                            title: {
-                                display: true,
-                                text: `ENTREGAS OTIF X ON TIME X IN FULL (%) - ${anoDeExibicao} (MÉDIA)`,
-                                color: '#a0aec0',
-                                font: { size: 15, weight: 'bold' },
-                                padding: { bottom: 25 }
-                            },
-                            legend: {
-                                display: true,
-                                position: 'bottom',
-                                labels: { color: '#ffffff', font: { size: 10, weight: 'bold' }, boxWidth: 12 }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                min: 85,
-                                max: 100,
-                                display: false,
-                                border: { display: false },
-                                grid: { display: false }
-                            },
-                            x: {
-                                border: { display: false },
-                                grid: { display: false },
-                                ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 }
-                            }
-                        }
-                    }
-                });
+            let mapTabelas = {
+                fTotal: 'fTotal', fParados: 'fParados', fDispo: 'fDispo', fUtil: 'fUtil',
+                ftTotal: 'ftTotal', ftParados: 'ftParados', ftDispo: 'ftDispo', ftUtil: 'ftUtil',
+                mdTotal: 'mdTotal', mdVagas: 'mdVagas', mdFerias: 'mdFerias', mdAfastados: 'mdAfastados', mdFaltas: 'mdFaltas', mdAtestados: 'mdAtestados',
+                adTotal: 'adTotal', adVagas: 'adVagas', adFerias: 'adFerias', adAfastados: 'adAfastados', adFaltas: 'adFaltas', adAtestados: 'adAtestados',
+                mtTotal: 'mtTotal', mtVagas: 'mtVagas', mtFerias: 'mtFerias', mtAfastados: 'mtAfastados', mtFaltas: 'mtFaltas', mtAtestados: 'mtAtestados'
+            };
 
-            } catch (err) { console.error("Erro:", err); }
+            for (let idT in mapTabelas) { 
+                let el = document.getElementById(idT); 
+                if (el) {
+                    let valFormatado = getVStr(lHoje, mapTabelas[idT]);
+                    el.textContent = (valFormatado === "0") ? "" : valFormatado; 
+                }
+            }
+
+            let labelsDiario = linhasPreenchidas.map(l => l[idxData].replace(/"/g, '').trim());
+            let getArrayNum = (idCol) => linhasPreenchidas.map(l => getVNum(l, idCol));
+
+            renderizarGraficoSimples('graficoVolumeDiario', labelsDiario, getArrayNum('vol'), `VOLUME EXPEDIDO (KG) - ${mesNome}`, '#2ecc71', 'rgba(46, 204, 113, 0.2)');
+            renderizarGraficoSimples('graficoOcupacaoDiario', labelsDiario, getArrayNum('ocp'), `OCUPAÇÃO (%) - ${mesNome}`, '#f1c40f', 'rgba(241, 196, 15, 0.2)');
+            renderizarGraficoSimples('graficoNfsDiario', labelsDiario, getArrayNum('nf'), `NF'S - ${mesNome}`, '#1abc9c', 'rgba(26, 188, 156, 0.2)');
+            renderizarGraficoSimples('graficoAbsenteismoDiario', labelsDiario, getArrayNum('absPerc'), `ABSENTEÍSMO (%) - ${mesNome}`, '#e74c3c', 'rgba(231, 76, 60, 0.2)');
+            
+            renderizarGraficoSimples('graficoDropsizeDiario', labelsDiario, getArrayNum('dropsizeHoje'), `DROPSIZE (KG) - ${mesNome}`, '#00cec9', 'rgba(0, 206, 201, 0.2)');
+            renderizarGraficoSimples('graficoPesoVeiculoDiario', labelsDiario, getArrayNum('drop'), `PESO X VEÍCULO (KG) - ${mesNome}`, '#e84393', 'rgba(232, 67, 147, 0.2)');
+            renderizarGraficoSimples('graficoClientesDiario', labelsDiario, getArrayNum('cli'), `CLIENTES - ${mesNome}`, '#3498db', 'rgba(52, 152, 219, 0.2)');
+            
+            let valAderencia = linhasPreenchidas.map(l => getVNum(l, 'ocp'));
+            let valApontamentos = linhasPreenchidas.map(l => getVNum(l, 'nf'));
+            renderizarAderenciaDiario(labelsDiario, valAderencia, valApontamentos, mesNome);
         }
 
-        function renderizarVelocimetro(id, valor, titulo, corPrincipal = '#2ecc71') {
-            const ctx = document.getElementById(id).getContext('2d');
-            if (window['chart_' + id]) window['chart_' + id].destroy();
-            
-            let valGrafico = valor > 100 ? 100 : valor;
-            let valRestante = 100 - valGrafico;
+        function getCommonOptions(titulo) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: titulo, color: '#ffffff', font: { size: 12, weight: 'bold' } },
+                    datalabels: {
+                        color: '#ffffff',
+                        font: { size: 9, weight: 'bold' },
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: (val) => val > 0 ? val : ''
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#ffffff', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#ffffff', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+                }
+            };
+        }
 
-            window['chart_' + id] = new Chart(ctx, {
-                type: 'doughnut',
+        function renderizarGraficoSimples(canvasId, labels, valores, titulo, corBorda, corFundo) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (window[canvasId + 'Inst']) window[canvasId + 'Inst'].destroy();
+
+            window[canvasId + 'Inst'] = new Chart(ctx, {
+                type: 'line',
                 data: {
-                    labels: ['Realizado', 'Faltante'],
+                    labels: labels,
                     datasets: [{
-                        data: [valGrafico, valRestante],
-                        backgroundColor: [corPrincipal, 'rgba(255, 255, 255, 0.08)'],
-                        borderWidth: 0,
+                        label: titulo,
+                        data: valores,
+                        borderColor: corBorda,
+                        backgroundColor: corFundo,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 3
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    circumference: 180,
-                    rotation: -90,
-                    cutout: '75%',
-                    plugins: {
-                        legend: { display: false },
-                        title: { 
-                            display: true, 
-                            text: titulo, 
-                            color: '#a0aec0', 
-                            font: { size: 14, weight: 'bold' },
-                            padding: { bottom: 10 }
-                        },
-                        datalabels: {
-                            display: function(context) { 
-                                return context.dataIndex === 0;
-                            },
-                            anchor: 'center',
-                            align: 'center',
-                            color: '#ffffff',
-                            font: { size: 18, weight: 'bold' },
-                            formatter: function() { 
-                                return valor > 0 ? valor.toFixed(1) + '%' : '0%'; 
-                            }
-                        }
-                    }
-                }
+                options: getCommonOptions(titulo),
+                plugins: [ChartDataLabels]
             });
         }
 
-        function renderizarGraficoDiario(labels, valores, mesNome) {
-            const ctx = document.getElementById('graficoVolume').getContext('2d'); if (chartInstance) chartInstance.destroy();
-            let opt = getCommonOptions(`VOLUME EXPEDIDO (KG) - ${mesNome}`, true, false, false);
-            opt.plugins.datalabels.rotation = -45;
-            opt.plugins.datalabels.align = 'top';
-            opt.plugins.datalabels.offset = 2;
-            chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Volume (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.4)', borderColor: '#00ced1', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: opt });
-        }
-        function renderizarGraficoMensal(labels, valores, ano) {
-            const ctx = document.getElementById('graficoMensal').getContext('2d'); if (chartMensalInstance) chartMensalInstance.destroy();
-            chartMensalInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Volume Mensal (KG)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`VOLUME EXPEDIDO (KG) - ${ano} (TOTAL)`, true) });
-        }
-        function renderizarOcupacaoDiaria(labels, ocup, mesNome) {
-            const ctx = document.getElementById('graficoOcupacaoDiario').getContext('2d'); if (chartOcupDiario) chartOcupDiario.destroy();
-            let opt = getCommonOptions(`OCUPAÇÃO (%) - ${mesNome}`, true, true);
-            opt.plugins.datalabels.rotation = -45;
-            opt.plugins.datalabels.align = 'top';
-            chartOcupDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderRadius: 2 } ] }, options: opt });
-        }
-        function renderizarOcupacaoMensal(labels, ocup, ano) {
-            const ctx = document.getElementById('graficoOcupacaoMensal').getContext('2d'); if (chartOcupMensal) chartOcupMensal.destroy();
-            chartOcupMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Ocupação (%)', data: ocup, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: getCommonOptions(`OCUPAÇÃO (%) - ${ano} (MÉDIA)`, true, true) });
-        }
-        function renderizarDropDiario(labels, valoresDrop, valoresDropSize, mesNome) {
-            const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
-            let opcoesComLegenda = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${mesNome}`, true);
-            opcoesComLegenda.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 12, weight: 'bold' }, padding: 20 } };
-            chartDropDiario = new Chart(ctx, { data: { labels: labels, datasets: [ { type: 'line', label: 'PESOxVEÍCULO', data: valoresDrop, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2, order: 1 }, { type: 'bar', label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, order: 2 } ] }, options: opcoesComLegenda });
-        }
-        function renderizarDropMensal(labels, valoresDrop, valoresDropSize, ano) {
-            const ctx = document.getElementById('graficoDropMensal').getContext('2d'); 
-            if (chartDropMensal) chartDropMensal.destroy();
-            let opt = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${ano} (MÉDIA)`, true);
-            opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } } };
-            chartDropMensal = new Chart(ctx, { 
-                type: 'bar', 
-                data: { 
-                    labels: labels, 
-                    datasets: [
-                        { label: 'PESOxVEÍCULO', data: valoresDrop, backgroundColor: '#ff8c00', borderRadius: 2, barPercentage: 0.8 },
-                        { label: 'DROPSIZE', data: valoresDropSize, backgroundColor: '#2ecc71', borderRadius: 2, barPercentage: 0.8 }
-                    ] 
-                }, 
-                options: opt 
-            });
-        }
-        function renderizarNfDiario(labels, valoresNf, valoresCli, mesNome) {
-            const ctx = document.getElementById('graficoNfDiario').getContext('2d'); if (chartNfDiario) chartNfDiario.destroy();
-            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${mesNome}`, true);
-            opt.plugins.datalabels.rotation = -45;
-            opt.plugins.datalabels.align = 'top';
-            opt.plugins.datalabels.offset = 4;
-            chartNfDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.5)', borderColor: '#00ced1', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }, { label: "CLIENTES", data: valoresCli, backgroundColor: 'rgba(255, 255, 0, 0.5)', borderColor: '#ffff00', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
-        }
-        function renderizarNfMensal(labels, valoresNf, valoresCli, ano) {
-            const ctx = document.getElementById('graficoNfMensal').getContext('2d'); if (chartNfMensal) chartNfMensal.destroy();
-            let opt = getCommonOptions(`NF'S X CLIENTES (QTD) - ${ano} (TOTAL)`, true);
-            opt.plugins.datalabels.rotation = -45;
-            opt.plugins.datalabels.align = 'top';
-            opt.plugins.datalabels.offset = 4;
-            chartNfMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "NF'S", data: valoresNf, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }, { label: "CLIENTES", data: valoresCli, backgroundColor: '#ffff00', borderColor: '#ffff00', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
-        }
-        function renderizarNsDiario(labels, valores, mesNome) {
-            const ctx = document.getElementById('graficoNsDiario').getContext('2d'); if (chartNsDiario) chartNsDiario.destroy();
-            let opt = getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${mesNome}`, true, true, false);
-            chartNsDiario = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Nível de Serviço (%)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderRadius: 2 } ] }, options: opt });
-        }
-        function renderizarNsMensal(labels, valores, ano) {
-            const ctx = document.getElementById('graficoNsMensal').getContext('2d'); if (chartNsMensal) chartNsMensal.destroy();
-            chartNsMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: 'Nível de Serviço (%)', data: valores, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 } ] }, options: getCommonOptions(`NÍVEL DE SERVIÇO D+1 (%) - ${ano} (MÉDIA)`, true, true) });
-        }
-        function renderizarReDiario(labels, valores, mesNome) {
-            const ctx = document.getElementById('graficoReDiario').getContext('2d'); if (chartReDiario) chartReDiario.destroy();
-            chartReDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Reentregas (QTD)', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.4)', borderColor: '#2ecc71', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${mesNome}`, true) });
-        }
-        function renderizarReMensal(labels, valores, ano) {
-            const ctx = document.getElementById('graficoReMensal').getContext('2d'); if (chartReMensal) chartReMensal.destroy();
-            chartReMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Total Reentregas', data: valores, backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 2, barPercentage: 0.6 }] }, options: getCommonOptions(`REENTREGAS D+2 (QTD) - ${ano} (TOTAL)`, true) });
-        }
-        function renderizarDevolucaoDiario(labels, valoresTot, valoresOp, mesNome) {
-            const ctx = document.getElementById('graficoDevolucaoDiario').getContext('2d'); if (chartDevolDiario) chartDevolDiario.destroy();
-            let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X DEVOLUÇÃO OPERAÇÃO (%) - ${mesNome}`, true, true);
-            chartDevolDiario = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: "DEVOLUÇÃO TOTAL", data: valoresTot, borderColor: '#e74c3c', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 }, { label: "DEVOLUÇÃO OPERAÇÃO", data: valoresOp, borderColor: '#f39c12', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 2 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
-        }
-        function renderizarDevolucaoMensal(labels, valoresTot, valoresOp, ano) {
-            const ctx = document.getElementById('graficoDevolucaoMensal').getContext('2d'); if (chartDevolMensal) chartDevolMensal.destroy();
-            let opt = getCommonOptions(`DEVOLUÇÃO TOTAL X DEVOLUÇÃO OPERAÇÃO (%) - ${ano} (MÉDIA)`, true, true);
-            chartDevolMensal = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [ { label: "DEVOLUÇÃO TOTAL", data: valoresTot, backgroundColor: '#e74c3c', borderRadius: 2, barPercentage: 0.6 }, { label: "DEVOLUÇÃO OPERAÇÃO", data: valoresOp, backgroundColor: '#f39c12', borderRadius: 2, barPercentage: 0.6 } ] }, options: { ...opt, plugins: { ...opt.plugins, legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10 } } } } } });
-        }
-
-        function getCommonOptions(titulo, showDL, isPerc = false, showY = false) { 
-            return { 
-                responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 5, right: 10 } }, 
-                plugins: { 
-                    datalabels: { display: showDL, anchor: 'end', align: 'top', offset: 4, color: '#ffffff', font: { weight: 'bold', size: 10 }, textStrokeColor: 'rgba(0, 0, 0, 0.7)', textStrokeWidth: 2, formatter: (v) => v > 0 ? (isPerc ? v.toFixed(1) + '%' : Math.round(v).toLocaleString('pt-BR')) : '' }, 
-                    title: { display: !!titulo, text: titulo, color: '#a0aec0', font: { size: 15, weight: 'bold' }, padding: { bottom: 50 } }, legend: { display: false } 
-                }, 
-                scales: { 
-                    y: { beginAtZero: true, display: showY, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#ffffff', font: { size: 10 }, callback: function(value) { return isPerc ? value + '%' : value; } } }, 
-                    x: { grid: { display: false }, ticks: { color: '#ffffff', font: { size: 9 }, padding: 8 } } 
-                } 
-            }; 
-        }
-
-        fetchPlanilha(); 
-        setInterval(fetchPlanilha, 60000);
-        aplicarExibicaoTela();
         function renderizarAderenciaDiario(labels, valoresAderencia, valoresApontamentos, mesNome) {
             const ctx = document.getElementById('graficoAderenciaDiario').getContext('2d'); 
             if (window.chartAderenciaDiarioInst) window.chartAderenciaDiarioInst.destroy();
             
-            let opt = getCommonOptions(`ADERÊNCIA X APONTAMENTOS CERCA (%) - ${mesNome}`, true, true, false);
+            let opt = getCommonOptions(`ADERÊNCIA X APONTAMENTOS - ${mesNome}`);
             opt.plugins.legend = { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 10, weight: 'bold' } } };
-            opt.plugins.datalabels.rotation = -45;
-            opt.plugins.datalabels.align = 'top';
-            opt.plugins.datalabels.offset = 4;
             
             window.chartAderenciaDiarioInst = new Chart(ctx, { 
                 type: 'bar', 
                 data: { 
                     labels: labels, 
                     datasets: [ 
-                        { type: 'line', label: 'APONTAMENTOS CERCA', data: valoresApontamentos, borderColor: '#ffff00', backgroundColor: 'rgba(255, 255, 0, 0.2)', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, order: 1 },
-                        { type: 'bar', label: 'ADERÊNCIA', data: valoresAderencia, backgroundColor: 'rgba(0, 206, 209, 0.8)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 2, barPercentage: 0.6, order: 2 } 
+                        { type: 'line', label: 'APONTAMENTOS', data: valoresApontamentos, borderColor: '#ffff00', backgroundColor: 'rgba(255, 255, 0, 0.2)', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 2, order: 1 },
+                        { type: 'bar', label: 'ADERÊNCIA', data: valoresAderencia, backgroundColor: 'rgba(0, 206, 201, 0.7)', borderRadius: 4, order: 2 } 
                     ] 
                 }, 
-                options: opt 
+                options: opt,
+                plugins: [ChartDataLabels]
             });
         }
     </script>
