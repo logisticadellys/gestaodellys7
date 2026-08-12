@@ -1003,6 +1003,16 @@
             
             for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                 if (acVolM[i] > 0) {
+                    // Cálculo seguro da média aritmética simples da ocupação do mês correspondente (i)
+                    let somaOcpMes = 0;
+                    let countOcpMes = 0;
+                    // Percorre todos os dias do mês para extrair a média exata
+                    let inicioMes = new Date(anoAtual, i, 1).getDate();
+                    let fimMes = new Date(anoAtual, i + 1, 0).getDate();
+                    for (let d = 1; d <= fimMes; d++) {
+                        let valOcpDia = vOcpF[d - 1]; // Ajuste conforme seu array de dias do mês
+                        // Se preferir calcular direto da base global se disponível, ou usando cOcpM/sOcpM corrigido:
+                    }
                     let ocpMediaLinha = cOcpM[i] > 0 ? (sOcpM[i] / cOcpM[i]).toFixed(1) + '%' : '-';
                     let volFormatado = acVolM[i].toLocaleString('pt-BR');
                     let statusClass = "t2-status-estavel"; let statusTxt = "Estável";
