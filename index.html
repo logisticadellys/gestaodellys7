@@ -115,6 +115,15 @@
         .t2-status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
         .t2-status-estavel { background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3); }
         .t2-status-alerta { background: rgba(243,156,18,0.15); color: #f39c12; border: 1px solid rgba(243,156,18,0.3); }
+        /* Tooltip de Informações Tela 2 */
+        .t2-info-wrapper { position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+        .t2-info-icon { color: #a0aec0; font-size: 1.1em; transition: color 0.2s; }
+        .t2-info-wrapper:hover .t2-info-icon { color: #00ced1; }
+        .t2-tooltip { visibility: hidden; width: 310px; background-color: #0b192c; color: #e2e8f0; text-align: left; border-radius: 8px; padding: 12px; border: 1px solid #00ced1; box-shadow: 0 6px 16px rgba(0,0,0,0.6); position: absolute; z-index: 999; top: 120%; right: 0; opacity: 0; transition: opacity 0.3s ease; font-size: 0.75em; font-weight: normal; line-height: 1.4; }
+        .t2-info-wrapper:hover .t2-tooltip, .t2-info-wrapper:focus .t2-tooltip { visibility: visible; opacity: 1; }
+        .t2-tooltip h4 { margin: 0 0 6px 0; color: #00ced1; font-size: 1.05em; font-weight: bold; border-bottom: 1px solid rgba(0,206,209,0.3); padding-bottom: 4px; }
+        .t2-tooltip ul { margin: 0; padding-left: 16px; }
+        .t2-tooltip li { margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -278,6 +287,26 @@
     </div>
 
     <div id="tela2" class="tela">
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: -15px;">
+            <div class="t2-info-wrapper" tabindex="0">
+                <i class="fas fa-circle-info t2-info-icon"></i>
+                <div class="t2-tooltip">
+                    <h4><i class="fas fa-circle-info" style="margin-right: 5px;"></i> Legendas e Informações</h4>
+                    <ul>
+                        <li><b>Pico Diário:</b> O pico destacado nos cards diários é baseado no <b>Volume Expedido (KG)</b>.</li>
+                        <li><b>Destaque Mensal (Troféu):</b> O melhor mês no histórico é definido pelo <b>maior volume expedido</b>.</li>
+                        <li><b>Cálculo do Status:</b>
+                            <ul>
+                                <li><b style="color: #2ecc71;">Acima Média:</b> Volume superior à média geral acumulada.</li>
+                                <li><b style="color: #2ecc71;">Estável:</b> Volume entre 80% e 100% da média acumulada.</li>
+                                <li><b style="color: #f39c12;">Baixo Vol.:</b> Volume inferior a 80% da média acumulada.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <div class="t2-top-kpis">
             <div class="t2-kpi-card">
                 <span class="t2-kpi-title"><i class="fas fa-box-open" style="color: #2ecc71; margin-right: 6px;"></i> VOL. EXPEDIDO (<span id="t2-mes-lbl">MÊS</span>)</span>
@@ -311,8 +340,8 @@
             <div class="t2-table-container" style="flex: 1;">
                 <table class="t2-table">
                     <thead>
-                        <tr><th colspan="4" id="t2-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME POR MÊS</th></tr>
-                        <tr><th>Mês</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
+                        <tr><th colspan="5" id="t2-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME E OCUPAÇÃO POR MÊS (2026)</th></tr>
+                        <tr><th>Mês</th><th>Ocupação Média</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
                     </thead>
                     <tbody id="t2-table-body">
                         </tbody>
@@ -964,8 +993,12 @@
             let diasTrabalhados = vVolF.filter(v => v > 0).length || 1;
             let mediaDiaria = volTotalMes / diasTrabalhados;
             
-            let picoOcp = 0; let diaPico = "-"; let indexPico = -1;
-            vOcpF.forEach((val, idx) => { if (val > picoOcp) { picoOcp = val; diaPico = labF[idx]; indexPico = idx; } });
+            let picoOcp = 0; let diaPico = "-";
+            vOcpF.forEach((val, idx) => { if (val > picoOcp) { picoOcp = val; diaPico = labF[idx]; } });
+
+            // Pico do mini card diário é baseado no maior VOLUME EXPEDIDO
+            let maxVolDiario = 0; let indexPico = -1;
+            vVolF.forEach((val, idx) => { if (val > maxVolDiario) { maxVolDiario = val; indexPico = idx; } });
 
             document.getElementById('t2-vol-mes').textContent = volTotalMes.toLocaleString('pt-BR') + ' kg';
             document.getElementById('t2-ocp-mes').textContent = ocpMediaMes.toFixed(1) + '%';
@@ -973,14 +1006,14 @@
             document.getElementById('t2-pico-val').textContent = picoOcp > 0 ? picoOcp.toFixed(1) + '%' : '-';
             document.getElementById('t2-pico-dia').textContent = diaPico !== "-" ? `DIA ${diaPico}` : '-';
 
-            // 2. Popula os Mini Cards Horizontais
+            // 2. Monta os Mini Cards Diários (Pico destacado pelo VOLUME)
             let containerMC = document.getElementById('t2-minicards-container');
             containerMC.innerHTML = '';
             for (let i = 0; i < labF.length; i++) {
                 let isPico = (i === indexPico);
                 let volDia = vVolF[i] ? vVolF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
                 let ocpDia = vOcpF[i] ? vOcpF[i].toFixed(1) + '%' : '0.0%';
-                
+
                 let cardHTML = `
                     <div class="t2-minicard ${isPico ? 'pico' : ''}">
                         <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl">(PICO)</span>' : ''}</span>
@@ -991,43 +1024,47 @@
                 containerMC.innerHTML += cardHTML;
             }
 
-            // 3. Popula a Tabela de Histórico e Acha o Maior Volume
+            // 3. Popula a Tabela de Histórico de Volume e Ocupação por Mês
             let tbody = document.getElementById('t2-table-body');
             tbody.innerHTML = '';
+
             let mediaGeral = acVolM.reduce((a,b)=>a+b,0) / (mesDeExibicaoIdx + 1);
-            
             let maxVol = 0;
-            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                if (acVolM[i] > maxVol) maxVol = acVolM[i];
-            }
-            
-            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                if (acVolM[i] > 0) {
-                    let volFormatado = acVolM[i].toLocaleString('pt-BR');
-                    let statusClass = "t2-status-estavel"; let statusTxt = "Estável";
-                    if (acVolM[i] > mediaGeral * 1.1) { statusTxt = "Acima Média"; }
-                    else if (acVolM[i] < mediaGeral * 0.9) { statusTxt = "Baixo Vol."; statusClass = "t2-status-alerta"; }
+            for (let i = 0; i <= mesDeExibicaoIdx; i++) { if (acVolM[i] > maxVol) maxVol = acVolM[i]; }
 
-                    let diffHtml = "-";
-                    if (i > 0 && acVolM[i-1] > 0) {
-                        let diffPerc = ((acVolM[i] - acVolM[i-1]) / acVolM[i-1]) * 100;
-                        let corDiff = diffPerc > 0 ? '#2ecc71' : (diffPerc < 0 ? '#e74c3c' : '#f1c40f');
-                        let iconDiff = diffPerc > 0 ? '▲' : (diffPerc < 0 ? '▼' : '▬');
-                        diffHtml = `<span style="color: ${corDiff}; font-weight: bold;">${iconDiff} ${Math.abs(diffPerc).toFixed(1)}%</span>`;
-                    }
-                    
-                    let isMax = (acVolM[i] === maxVol && maxVol > 0);
-                    let rowStyle = isMax ? 'style="background: rgba(46, 204, 113, 0.15); border-left: 4px solid #2ecc71;"' : '';
-                    let iconMax = isMax ? ' <i class="fas fa-trophy" style="color: #f1c40f; margin-left: 5px;" title="Maior Volume"></i>' : '';
+            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                let volMes = acVolM[i];
+                let ocpMesVal = cOcpM[i] > 0 ? (sOcpM[i] / cOcpM[i]).toFixed(1) + '%' : '0.0%';
+                let isMax = (volMes === maxVol && volMes > 0);
+                let statusText = 'Estável';
+                let statusClass = 't2-status-estavel';
 
-                    let tr = `<tr ${rowStyle}>
-                        <td>${mesesExtenso[i]}</td>
-                        <td style="${isMax ? 'font-weight: 900; color: #2ecc71;' : ''}">${volFormatado}${iconMax}</td>
-                        <td><span class="t2-status-badge ${statusClass}">${statusTxt}</span></td>
-                        <td>${diffHtml}</td>
-                    </tr>`;
-                    tbody.innerHTML += tr;
+                if (volMes > mediaGeral) {
+                    statusText = 'Acima Média';
+                    statusClass = 't2-status-estavel';
+                } else if (volMes < mediaGeral * 0.8) {
+                    statusText = 'Baixo Vol.';
+                    statusClass = 't2-status-alerta';
                 }
+
+                let varTxt = '-';
+                let varCor = '#a0aec0';
+                if (i > 0 && acVolM[i-1] > 0) {
+                    let diff = ((volMes - acVolM[i-1]) / acVolM[i-1]) * 100;
+                    varTxt = (diff >= 0 ? '▲ +' : '▼ ') + diff.toFixed(1) + '%';
+                    varCor = diff >= 0 ? '#2ecc71' : '#e74c3c';
+                }
+
+                let rowHTML = `
+                    <tr style="${isMax ? 'background: rgba(241,196,15,0.15); font-weight: bold;' : ''}">
+                        <td>${mesesExtenso[i]} ${isMax ? '<i class="fas fa-trophy" style="color: #f1c40f; margin-left: 5px;"></i>' : ''}</td>
+                        <td style="color: #3498db; font-weight: bold;">${ocpMesVal}</td>
+                        <td>${volMes.toLocaleString('pt-BR')} kg</td>
+                        <td><span class="t2-status-badge ${statusClass}">${statusText}</span></td>
+                        <td style="color: ${varCor};">${varTxt}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += rowHTML;
             }
 
             // 4. Renderiza o Gráfico Misto Base
