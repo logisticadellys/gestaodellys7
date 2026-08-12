@@ -278,6 +278,22 @@
     </div>
 
     <div id="tela2" class="tela">
+        <div class="info-header-container">
+            <div class="info-header-icon"><i class="fas fa-info"></i></div>
+            <div class="info-tooltip-box">
+                <h4>Regras de Negócio</h4>
+                <ul>
+                    <li><b>Pico Diário:</b> Calculado com base no maior Volume Expedido no dia.</li>
+                    <li><b>Destaque Mensal:</b> Destaca no histórico o mês com maior Volume Expedido.</li>
+                    <li><b>Status da Tabela:</b>
+                        <br>• <span style="color:#2ecc71;"><b>Acima Média:</b></span> Volume &gt; +10% da média mensal.
+                        <br>• <span style="color:#f1c40f;"><b>Estável:</b></span> Volume entre -10% e +10% da média.
+                        <br>• <span style="color:#e74c3c;"><b>Baixo Vol.:</b></span> Volume &lt; -10% da média mensal.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <div class="t2-top-kpis">
             <div class="t2-kpi-card">
                 <span class="t2-kpi-title"><i class="fas fa-box-open" style="color: #2ecc71; margin-right: 6px;"></i> VOL. EXPEDIDO (<span id="t2-mes-lbl">MÊS</span>)</span>
@@ -295,27 +311,27 @@
                 <span class="t2-kpi-sub" style="color: #9b59b6;">■ Base Dias Trabalhados</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE OCUPAÇÃO (<span id="t2-pico-mes-lbl">MÊS</span>)</span>
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE VOLUME (<span id="t2-pico-mes-lbl">MÊS</span>)</span>
                 <span class="t2-kpi-value" id="t2-pico-val">-</span>
                 <span class="t2-kpi-sub text-neutro" id="t2-pico-dia">-</span>
             </div>
         </div>
 
         <div class="t2-minicards-wrapper" id="t2-minicards-container">
-            </div>
+        </div>
 
         <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 2; padding: 1vh;">
+            <div class="chart-container" style="flex: 1.2; padding: 1vh;">
                 <canvas id="t2-grafico-misto"></canvas>
             </div>
-            <div class="t2-table-container" style="flex: 1;">
+            <div class="t2-table-container" style="flex: 1.8;">
                 <table class="t2-table">
                     <thead>
-                        <tr><th colspan="4" id="t2-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME POR MÊS</th></tr>
-                        <tr><th>Mês</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
+                        <tr><th colspan="5" id="t2-tabela-titulo" style="text-align: center; font-size: 1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME E OCUPAÇÃO POR MÊS (2026)</th></tr>
+                        <tr><th>Mês</th><th>Ocupação Média (%)</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
                     </thead>
                     <tbody id="t2-table-body">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -1003,6 +1019,7 @@
             
             for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                 if (acVolM[i] > 0) {
+                    let ocpMediaLinha = cOcpM[i] > 0 ? (sOcpM[i] / cOcpM[i]).toFixed(1) + '%' : '-';
                     let volFormatado = acVolM[i].toLocaleString('pt-BR');
                     let statusClass = "t2-status-estavel"; let statusTxt = "Estável";
                     if (acVolM[i] > mediaGeral * 1.1) { statusTxt = "Acima Média"; }
@@ -1022,6 +1039,7 @@
 
                     let tr = `<tr ${rowStyle}>
                         <td>${mesesExtenso[i]}</td>
+                        <td style="font-weight: bold; color: #3498db;">${ocpMediaLinha}</td>
                         <td style="${isMax ? 'font-weight: 900; color: #2ecc71;' : ''}">${volFormatado}${iconMax}</td>
                         <td><span class="t2-status-badge ${statusClass}">${statusTxt}</span></td>
                         <td>${diffHtml}</td>
