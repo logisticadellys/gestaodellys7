@@ -115,92 +115,12 @@
         .t2-status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
         .t2-status-estavel { background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3); }
         .t2-status-alerta { background: rgba(243,156,18,0.15); color: #f39c12; border: 1px solid rgba(243,156,18,0.3); }
-        /* Ícone e Tooltip de Informações no Cabeçalho */
-        .info-header-container {
-            position: absolute;
-            left: clamp(140px, 16vw, 220px);
-            display: inline-block;
-            cursor: pointer;
-            z-index: 1000;
-        }
-        .info-header-icon {
-            color: #00ced1;
-            font-size: 1.2em;
-            background: rgba(0, 206, 209, 0.15);
-            border: 1px solid #00ced1;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        .info-header-icon:hover {
-            background: #00ced1;
-            color: #0b192c;
-            box-shadow: 0 0 10px rgba(0, 206, 209, 0.6);
-        }
-        .info-tooltip-box {
-            visibility: hidden;
-            opacity: 0;
-            width: 320px;
-            background-color: #102542;
-            color: #ffffff;
-            text-align: left;
-            border-radius: 8px;
-            padding: 12px 15px;
-            position: absolute;
-            z-index: 1001;
-            top: 125%;
-            left: 0;
-            border: 1.5px solid #00ced1;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.6);
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            font-size: 0.75em;
-            font-weight: normal;
-            line-height: 1.4;
-        }
-        .info-header-container:hover .info-tooltip-box {
-            visibility: visible;
-            opacity: 1;
-        }
-        .info-tooltip-box h4 {
-            margin: 0 0 8px 0;
-            color: #00ced1;
-            font-size: 0.95em;
-            text-transform: uppercase;
-            border-bottom: 1px solid rgba(0,206,209,0.3);
-            padding-bottom: 4px;
-        }
-        .info-tooltip-box ul {
-            margin: 0;
-            padding-left: 15px;
-        }
-        .info-tooltip-box li {
-            margin-bottom: 6px;
-        }
     </style>
 </head>
 <body>
 
     <header>
         <img src="dellyslogo.png" alt="Logo" class="logo-img">
-        <div class="info-header-container">
-            <div class="info-header-icon"><i class="fas fa-info"></i></div>
-            <div class="info-tooltip-box">
-                <h4>Regras e Regras de Negócio</h4>
-                <ul>
-                    <li><b>Pico Diário:</b> Calculado com base no maior Volume Expedido no dia.</li>
-                    <li><b>Destaque Mensal:</b> Destaca no histórico o mês com maior Volume Expedido.</li>
-                    <li><b>Status da Tabela:</b>
-                        <br>• <span style="color:#2ecc71;"><b>Acima Média:</b></span> Volume &gt; +10% da média mensal.
-                        <br>• <span style="color:#f1c40f;"><b>Estável:</b></span> Volume entre -10% e +10% da média.
-                        <br>• <span style="color:#e74c3c;"><b>Baixo Vol.:</b></span> Volume &lt; -10% da média mensal.
-                    </li>
-                </ul>
-            </div>
-        </div>
         <h1 class="titulo-painel">
             GESTÃO À VISTA - FILIAL 7
             <span id="data-painel" style="font-family: 'Courier New', Courier, monospace; font-size: 0.6em; color: #f1c40f; text-shadow: none; vertical-align: middle; margin-left: 15px; border: 1px dashed #f1c40f; padding: 2px 10px; border-radius: 6px; letter-spacing: 1px; font-weight: bold;"></span>
@@ -375,37 +295,27 @@
                 <span class="t2-kpi-sub" style="color: #9b59b6;">■ Base Dias Trabalhados</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DIÁRIO (<span id="t2-pico-mes-lbl">MÊS</span>)</span>
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE OCUPAÇÃO (<span id="t2-pico-mes-lbl">MÊS</span>)</span>
                 <span class="t2-kpi-value" id="t2-pico-val">-</span>
                 <span class="t2-kpi-sub text-neutro" id="t2-pico-dia">-</span>
             </div>
         </div>
 
         <div class="t2-minicards-wrapper" id="t2-minicards-container">
-        </div>
+            </div>
 
         <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 1.6; padding: 1vh;">
+            <div class="chart-container" style="flex: 2; padding: 1vh;">
                 <canvas id="t2-grafico-misto"></canvas>
             </div>
-            <div class="t2-table-container" style="flex: 1.4;">
+            <div class="t2-table-container" style="flex: 1;">
                 <table class="t2-table">
                     <thead>
-                        <tr>
-                            <th colspan="5" id="t2-tabela-titulo" style="text-align: center; font-size: 1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">
-                                HISTÓRICO DE VOLUME E OCUPAÇÃO POR MÊS (2026)
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>Mês</th>
-                            <th>Ocupação Média (%)</th>
-                            <th>Volume (kg)</th>
-                            <th>Status</th>
-                            <th>Vs Mês Ant.</th>
-                        </tr>
+                        <tr><th colspan="4" id="t2-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME POR MÊS</th></tr>
+                        <tr><th>Mês</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
                     </thead>
                     <tbody id="t2-table-body">
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
@@ -1039,200 +949,86 @@
             });
         }
 
-        function renderizarDashboardTela2(dadosDiarios, dadosMensais) {
-            if (!dadosDiarios || dadosDiarios.length === 0) return;
-
-            const mesesNomes = ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'];
+        function renderizarDashboardTela2(labF, vVolF, vOcpF, mesNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoAtual, mesDeExibicaoIdx) {
+            document.getElementById('t2-mes-lbl').textContent = mesNome;
+            document.getElementById('t2-ocp-mes-lbl').textContent = mesNome;
+            document.getElementById('t2-pico-mes-lbl').textContent = mesNome;
+            document.getElementById('t2-media-mes-lbl').textContent = mesNome;
             
-            let ultimoReg = dadosDiarios[dadosDiarios.length - 1];
-            let mesAtualNum = parseInt(ultimoReg.data.split('/')[1], 10) - 1;
-            let mesAtualNome = mesesNomes[mesAtualNum] || 'MÊS ATUAL';
+            const tabelaTitulo = document.getElementById('t2-tabela-titulo');
+            if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO DE VOLUME POR MÊS (${anoAtual})`;
 
-            document.getElementById('t2-mes-lbl').textContent = mesAtualNome;
-            document.getElementById('t2-ocp-mes-lbl').textContent = mesAtualNome;
-            document.getElementById('t2-media-mes-lbl').textContent = mesAtualNome;
-            document.getElementById('t2-pico-mes-lbl').textContent = mesAtualNome;
-
-            let registrosMesAtual = dadosDiarios.filter(d => {
-                let m = parseInt(d.data.split('/')[1], 10) - 1;
-                return m === mesAtualNum;
-            });
-
-            if (registrosMesAtual.length === 0) registrosMesAtual = dadosDiarios;
-
-            let totalVolMes = registrosMesAtual.reduce((acc, d) => acc + d.volume, 0);
+            // 1. Popula os KPIs Superiores
+            let volTotalMes = acVolM[mesDeExibicaoIdx] || 0;
+            let ocpMediaMes = cOcpM[mesDeExibicaoIdx] > 0 ? (sOcpM[mesDeExibicaoIdx] / cOcpM[mesDeExibicaoIdx]) : 0;
+            let diasTrabalhados = vVolF.filter(v => v > 0).length || 1;
+            let mediaDiaria = volTotalMes / diasTrabalhados;
             
-            // Cálculo da Média de Ocupação validando a coluna de Data preenchida
-            let diasValidos = registrosMesAtual.filter(d => d.data && d.data.trim() !== '');
-            let mediaOcupMes = diasValidos.length > 0 
-                ? (diasValidos.reduce((acc, d) => acc + d.ocupacao, 0) / diasValidos.length) 
-                : 0;
+            let picoOcp = 0; let diaPico = "-"; let indexPico = -1;
+            vOcpF.forEach((val, idx) => { if (val > picoOcp) { picoOcp = val; diaPico = labF[idx]; indexPico = idx; } });
 
-            let mediaDiariaVol = totalVolMes / registrosMesAtual.length;
+            document.getElementById('t2-vol-mes').textContent = volTotalMes.toLocaleString('pt-BR') + ' kg';
+            document.getElementById('t2-ocp-mes').textContent = ocpMediaMes.toFixed(1) + '%';
+            document.getElementById('t2-media-dia').textContent = Math.round(mediaDiaria).toLocaleString('pt-BR') + ' kg';
+            document.getElementById('t2-pico-val').textContent = picoOcp > 0 ? picoOcp.toFixed(1) + '%' : '-';
+            document.getElementById('t2-pico-dia').textContent = diaPico !== "-" ? `DIA ${diaPico}` : '-';
 
-            // Maior Volume para definir o Pico
-            let maiorVolReg = registrosMesAtual.reduce((max, d) => d.volume > max.volume ? d : max, registrosMesAtual[0]);
-
-            document.getElementById('t2-vol-mes').textContent = (totalVolMes / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' TON';
-            document.getElementById('t2-ocp-mes').textContent = mediaOcupMes.toFixed(1) + '%';
-            document.getElementById('t2-media-dia').textContent = (mediaDiariaVol / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' TON/DIA';
-            document.getElementById('t2-pico-val').textContent = (maiorVolReg.volume / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' TON';
-            document.getElementById('t2-pico-dia').textContent = `★ Pico no Dia ${maiorVolReg.data.split('/')[0]}`;
-
-            // Mini cards diários destacando Pico pelo maior Volume
-            const containerMC = document.getElementById('t2-minicards-container');
+            // 2. Popula os Mini Cards Horizontais
+            let containerMC = document.getElementById('t2-minicards-container');
             containerMC.innerHTML = '';
-            
-            registrosMesAtual.forEach(d => {
-                let diaNum = d.data.split('/')[0];
-                let isPico = (d.data === maiorVolReg.data);
+            for (let i = 0; i < labF.length; i++) {
+                let isPico = (i === indexPico);
+                let volDia = vVolF[i] ? vVolF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
+                let ocpDia = vOcpF[i] ? vOcpF[i].toFixed(1) + '%' : '0.0%';
                 
-                let cardHtml = `
+                let cardHTML = `
                     <div class="t2-minicard ${isPico ? 'pico' : ''}">
-                        <span class="t2-mc-dia">DIA ${diaNum} ${isPico ? '<i class="fas fa-crown t2-mc-pico-lbl" title="Pico de Volume"></i>' : ''}</span>
-                        <span class="t2-mc-val" style="color: ${d.ocupacao >= 100 ? '#e74c3c' : '#ffffff'};">${d.ocupacao.toFixed(1)}%</span>
-                        <span class="t2-mc-vol">${(d.volume / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} TON</span>
+                        <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl">(PICO)</span>' : ''}</span>
+                        <span class="t2-mc-val">${ocpDia}</span>
+                        <span class="t2-mc-vol">${volDia}</span>
                     </div>
                 `;
-                containerMC.innerHTML += cardHtml;
-            });
-
-            // Gráfico Misto da Tela 2
-            const ctx = document.getElementById('t2-grafico-misto').getContext('2d');
-            if (window.t2ChartMistoInst) window.t2ChartMistoInst.destroy();
-
-            let labelsGraph = registrosMesAtual.map(d => d.data.split('/')[0]);
-            let dataVol = registrosMesAtual.map(d => (d.volume / 1000).toFixed(1));
-            let dataOcup = registrosMesAtual.map(d => d.ocupacao.toFixed(1));
-
-            window.t2ChartMistoInst = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labelsGraph,
-                    datasets: [
-                        {
-                            type: 'line',
-                            label: 'Ocupação (%)',
-                            data: dataOcup,
-                            borderColor: '#3498db',
-                            backgroundColor: '#3498db',
-                            borderWidth: 3,
-                            yAxisID: 'yOcup',
-                            tension: 0.3,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#3498db',
-                            datalabels: {
-                                align: 'top',
-                                anchor: 'end',
-                                color: '#3498db',
-                                font: { weight: 'bold', size: 9 },
-                                formatter: (val) => val + '%'
-                            }
-                        },
-                        {
-                            type: 'bar',
-                            label: 'Volume (TON)',
-                            data: dataVol,
-                            backgroundColor: 'rgba(46, 204, 113, 0.75)',
-                            borderColor: '#2ecc71',
-                            borderWidth: 1,
-                            yAxisID: 'yVol',
-                            datalabels: {
-                                align: 'end',
-                                anchor: 'end',
-                                color: '#2ecc71',
-                                font: { weight: 'bold', size: 9 },
-                                formatter: (val) => val
-                            }
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: { color: '#ffffff', font: { weight: 'bold', size: 10 } }
-                        },
-                        title: {
-                            display: true,
-                            text: `ACOMPANHAMENTO DIÁRIO DE EXPEDIÇÃO - ${mesAtualNome}`,
-                            color: '#00ced1',
-                            font: { size: 13, weight: 'bold' }
-                        }
-                    },
-                    scales: {
-                        x: { ticks: { color: '#ffffff', font: { weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        yVol: {
-                            type: 'linear',
-                            position: 'left',
-                            title: { display: true, text: 'Volume (TON)', color: '#2ecc71', font: { weight: 'bold' } },
-                            ticks: { color: '#2ecc71' },
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        },
-                        yOcup: {
-                            type: 'linear',
-                            position: 'right',
-                            title: { display: true, text: 'Ocupação (%)', color: '#3498db', font: { weight: 'bold' } },
-                            ticks: { color: '#3498db' },
-                            grid: { drawOnChartArea: false }
-                        }
-                    }
-                }
-            });
-
-            // Tabela do histórico
-            const tBody = document.getElementById('t2-table-body');
-            tBody.innerHTML = '';
-            
-            let totalVolTodosMeses = dadosMensais.reduce((acc, m) => acc + m.volume, 0);
-            let mediaVolMensalGeral = dadosMensais.length > 0 ? (totalVolTodosMeses / dadosMensais.length) : 0;
-
-            for (let i = 0; i < dadosMensais.length; i++) {
-                let item = dadosMensais[i];
-                let itemAnt = i > 0 ? dadosMensais[i - 1] : null;
-                
-                let diffPerc = '-';
-                if (itemAnt && itemAnt.volume > 0) {
-                    let perc = ((item.volume - itemAnt.volume) / itemAnt.volume) * 100;
-                    diffPerc = (perc >= 0 ? '+' : '') + perc.toFixed(1) + '%';
-                }
-
-                // Cálculo da Média de Ocupação do Mês para a Tabela
-                let regDoMes = dadosDiarios.filter(d => {
-                    let mNome = mesesNomes[parseInt(d.data.split('/')[1], 10) - 1];
-                    return mNome === item.mes.toUpperCase();
-                });
-                let regValidosMes = regDoMes.filter(d => d.data && d.data.trim() !== '');
-                let mediaOcupLinha = regValidosMes.length > 0
-                    ? (regValidosMes.reduce((acc, d) => acc + d.ocupacao, 0) / regValidosMes.length).toFixed(1) + '%'
-                    : '-';
-
-                // Classificação do Status
-                let statusBadge = '<span class="t2-status-badge t2-status-estavel">ESTÁVEL</span>';
-                if (mediaVolMensalGeral > 0) {
-                    let dev = ((item.volume - mediaVolMensalGeral) / mediaVolMensalGeral) * 100;
-                    if (dev > 10) {
-                        statusBadge = '<span class="t2-status-badge t2-status-estavel" style="background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid #2ecc71;">ACIMA MÉDIA</span>';
-                    } else if (dev < -10) {
-                        statusBadge = '<span class="t2-status-badge t2-status-alerta" style="background: rgba(231,76,60,0.2); color: #e74c3c; border: 1px solid #e74c3c;">BAIXO VOL.</span>';
-                    }
-                }
-
-                let row = `
-                    <tr>
-                        <td style="font-weight: bold; color: #00ced1;">${item.mes}</td>
-                        <td style="font-weight: bold; color: #3498db;">${mediaOcupLinha}</td>
-                        <td>${(item.volume / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} TON</td>
-                        <td>${statusBadge}</td>
-                        <td style="font-weight: bold; color: ${diffPerc.startsWith('+') ? '#2ecc71' : (diffPerc === '-' ? '#fff' : '#e74c3c')};">${diffPerc}</td>
-                    </tr>
-                `;
-                tBody.innerHTML += row;
+                containerMC.innerHTML += cardHTML;
             }
-        }
+
+            // 3. Popula a Tabela de Histórico e Acha o Maior Volume
+            let tbody = document.getElementById('t2-table-body');
+            tbody.innerHTML = '';
+            let mediaGeral = acVolM.reduce((a,b)=>a+b,0) / (mesDeExibicaoIdx + 1);
+            
+            let maxVol = 0;
+            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                if (acVolM[i] > maxVol) maxVol = acVolM[i];
+            }
+            
+            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                if (acVolM[i] > 0) {
+                    let volFormatado = acVolM[i].toLocaleString('pt-BR');
+                    let statusClass = "t2-status-estavel"; let statusTxt = "Estável";
+                    if (acVolM[i] > mediaGeral * 1.1) { statusTxt = "Acima Média"; }
+                    else if (acVolM[i] < mediaGeral * 0.9) { statusTxt = "Baixo Vol."; statusClass = "t2-status-alerta"; }
+
+                    let diffHtml = "-";
+                    if (i > 0 && acVolM[i-1] > 0) {
+                        let diffPerc = ((acVolM[i] - acVolM[i-1]) / acVolM[i-1]) * 100;
+                        let corDiff = diffPerc > 0 ? '#2ecc71' : (diffPerc < 0 ? '#e74c3c' : '#f1c40f');
+                        let iconDiff = diffPerc > 0 ? '▲' : (diffPerc < 0 ? '▼' : '▬');
+                        diffHtml = `<span style="color: ${corDiff}; font-weight: bold;">${iconDiff} ${Math.abs(diffPerc).toFixed(1)}%</span>`;
+                    }
+                    
+                    let isMax = (acVolM[i] === maxVol && maxVol > 0);
+                    let rowStyle = isMax ? 'style="background: rgba(46, 204, 113, 0.15); border-left: 4px solid #2ecc71;"' : '';
+                    let iconMax = isMax ? ' <i class="fas fa-trophy" style="color: #f1c40f; margin-left: 5px;" title="Maior Volume"></i>' : '';
+
+                    let tr = `<tr ${rowStyle}>
+                        <td>${mesesExtenso[i]}</td>
+                        <td style="${isMax ? 'font-weight: 900; color: #2ecc71;' : ''}">${volFormatado}${iconMax}</td>
+                        <td><span class="t2-status-badge ${statusClass}">${statusTxt}</span></td>
+                        <td>${diffHtml}</td>
+                    </tr>`;
+                    tbody.innerHTML += tr;
+                }
+            }
 
             // 4. Renderiza o Gráfico Misto Base
             const ctx = document.getElementById('t2-grafico-misto').getContext('2d');
