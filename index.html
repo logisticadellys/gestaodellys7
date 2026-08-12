@@ -312,7 +312,7 @@
                 <table class="t2-table">
                     <thead>
                         <tr><th colspan="4" id="t2-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME POR MÊS</th></tr>
-                        <tr><th>Mês</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
+                        <tr><th>Mês</th><th>Ocupação (%)</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
                     </thead>
                     <tbody id="t2-table-body">
                         </tbody>
@@ -1003,6 +1003,7 @@
             
             for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                 if (acVolM[i] > 0) {
+                    let ocpMediaLinha = cOcpM[i] > 0 ? (sOcpM[i] / cOcpM[i]).toFixed(1) + '%' : '-';
                     let volFormatado = acVolM[i].toLocaleString('pt-BR');
                     let statusClass = "t2-status-estavel"; let statusTxt = "Estável";
                     if (acVolM[i] > mediaGeral * 1.1) { statusTxt = "Acima Média"; }
@@ -1022,6 +1023,7 @@
 
                     let tr = `<tr ${rowStyle}>
                         <td>${mesesExtenso[i]}</td>
+                        <td style="font-weight: bold; color: #3498db;">${ocpMediaLinha}</td>
                         <td style="${isMax ? 'font-weight: 900; color: #2ecc71;' : ''}">${volFormatado}${iconMax}</td>
                         <td><span class="t2-status-badge ${statusClass}">${statusTxt}</span></td>
                         <td>${diffHtml}</td>
