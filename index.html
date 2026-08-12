@@ -115,94 +115,12 @@
         .t2-status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
         .t2-status-estavel { background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3); }
         .t2-status-alerta { background: rgba(243,156,18,0.15); color: #f39c12; border: 1px solid rgba(243,156,18,0.3); }
-        /* Ícone e Tooltip de Informações no Cabeçalho */
-        .info-header-container {
-            position: absolute;
-            top: 1.5vh;
-            right: 2vw;
-            display: inline-block;
-            cursor: pointer;
-            z-index: 1000;
-        }
-        .info-header-icon {
-            color: #a0aec0; /* Cor Cinza */
-            font-size: 1.2em;
-            background: rgba(160, 174, 192, 0.15);
-            border: 1px solid #a0aec0;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        .info-header-icon:hover {
-            background: #a0aec0;
-            color: #0b192c;
-            box-shadow: 0 0 10px rgba(160, 174, 192, 0.6);
-        }
-        .info-tooltip-box {
-            visibility: hidden;
-            opacity: 0;
-            width: 320px;
-            background-color: #102542;
-            color: #ffffff;
-            text-align: left;
-            border-radius: 8px;
-            padding: 12px 15px;
-            position: absolute;
-            z-index: 1001;
-            top: 125%;
-            right: 0;
-            left: auto;
-            border: 1.5px solid #a0aec0;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.6);
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            font-size: 0.75em;
-            font-weight: normal;
-            line-height: 1.4;
-        }
-        .info-header-container:hover .info-tooltip-box {
-            visibility: visible;
-            opacity: 1;
-        }
-        .info-tooltip-box h4 {
-            margin: 0 0 8px 0;
-            color: #a0aec0;
-            font-size: 0.95em;
-            text-transform: uppercase;
-            border-bottom: 1px solid rgba(160, 174, 192, 0.3);
-            padding-bottom: 4px;
-        }
-        .info-tooltip-box ul {
-            margin: 0;
-            padding-left: 15px;
-        }
-        .info-tooltip-box li {
-            margin-bottom: 6px;
-        }
     </style>
 </head>
 <body>
 
     <header>
         <img src="dellyslogo.png" alt="Logo" class="logo-img">
-        <div class="info-header-container">
-            <div class="info-header-icon"><i class="fas fa-info"></i></div>
-            <div class="info-tooltip-box">
-                <h4>Regras de Negócio</h4>
-                <ul>
-                    <li><b>Pico Diário:</b> Calculado com base no maior Volume Expedido no dia.</li>
-                    <li><b>Destaque Mensal:</b> Destaca no histórico o mês com maior Volume Expedido.</li>
-                    <li><b>Status da Tabela:</b>
-                        <br>• <span style="color:#2ecc71;"><b>Acima Média:</b></span> Volume &gt; +10% da média mensal.
-                        <br>• <span style="color:#f1c40f;"><b>Estável:</b></span> Volume entre -10% e +10% da média.
-                        <br>• <span style="color:#e74c3c;"><b>Baixo Vol.:</b></span> Volume &lt; -10% da média mensal.
-                    </li>
-                </ul>
-            </div>
-        </div>
         <h1 class="titulo-painel">
             GESTÃO À VISTA - FILIAL 7
             <span id="data-painel" style="font-family: 'Courier New', Courier, monospace; font-size: 0.6em; color: #f1c40f; text-shadow: none; vertical-align: middle; margin-left: 15px; border: 1px dashed #f1c40f; padding: 2px 10px; border-radius: 6px; letter-spacing: 1px; font-weight: bold;"></span>
@@ -360,22 +278,6 @@
     </div>
 
     <div id="tela2" class="tela">
-        <div class="info-header-container">
-            <div class="info-header-icon"><i class="fas fa-info"></i></div>
-            <div class="info-tooltip-box">
-                <h4>Regras de Negócio</h4>
-                <ul>
-                    <li><b>Pico Diário:</b> Calculado com base no maior Volume Expedido no dia.</li>
-                    <li><b>Destaque Mensal:</b> Destaca no histórico o mês com maior Volume Expedido.</li>
-                    <li><b>Status da Tabela:</b>
-                        <br>• <span style="color:#2ecc71;"><b>Acima Média:</b></span> Volume &gt; +10% da média mensal.
-                        <br>• <span style="color:#f1c40f;"><b>Estável:</b></span> Volume entre -10% e +10% da média.
-                        <br>• <span style="color:#e74c3c;"><b>Baixo Vol.:</b></span> Volume &lt; -10% da média mensal.
-                    </li>
-                </ul>
-            </div>
-        </div>
-
         <div class="t2-top-kpis">
             <div class="t2-kpi-card">
                 <span class="t2-kpi-title"><i class="fas fa-box-open" style="color: #2ecc71; margin-right: 6px;"></i> VOL. EXPEDIDO (<span id="t2-mes-lbl">MÊS</span>)</span>
@@ -393,27 +295,27 @@
                 <span class="t2-kpi-sub" style="color: #9b59b6;">■ Base Dias Trabalhados</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE VOLUME (<span id="t2-pico-mes-lbl">MÊS</span>)</span>
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE OCUPAÇÃO (<span id="t2-pico-mes-lbl">MÊS</span>)</span>
                 <span class="t2-kpi-value" id="t2-pico-val">-</span>
                 <span class="t2-kpi-sub text-neutro" id="t2-pico-dia">-</span>
             </div>
         </div>
 
         <div class="t2-minicards-wrapper" id="t2-minicards-container">
-        </div>
+            </div>
 
         <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 1.6; padding: 1vh;">
+            <div class="chart-container" style="flex: 2; padding: 1vh;">
                 <canvas id="t2-grafico-misto"></canvas>
             </div>
-            <div class="t2-table-container" style="flex: 1.4;">
+            <div class="t2-table-container" style="flex: 1;">
                 <table class="t2-table">
                     <thead>
-                        <tr><th colspan="5" id="t2-tabela-titulo" style="text-align: center; font-size: 1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME E OCUPAÇÃO POR MÊS (2026)</th></tr>
-                        <tr><th>Mês</th><th>Ocupação Média (%)</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
+                        <tr><th colspan="4" id="t2-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME POR MÊS</th></tr>
+                        <tr><th>Mês</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
                     </thead>
                     <tbody id="t2-table-body">
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
@@ -1054,7 +956,7 @@
             document.getElementById('t2-media-mes-lbl').textContent = mesNome;
             
             const tabelaTitulo = document.getElementById('t2-tabela-titulo');
-            if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO DE VOLUME E OCUPAÇÃO POR MÊS (2026)`;
+            if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO DE VOLUME POR MÊS (${anoAtual})`;
 
             // 1. Popula os KPIs Superiores
             let volTotalMes = acVolM[mesDeExibicaoIdx] || 0;
@@ -1062,14 +964,13 @@
             let diasTrabalhados = vVolF.filter(v => v > 0).length || 1;
             let mediaDiaria = volTotalMes / diasTrabalhados;
             
-            // PICO DIÁRIO BASEADO EM VOLUME (e não mais ocupação)
-            let picoVol = 0; let diaPico = "-"; let indexPico = -1;
-            vVolF.forEach((val, idx) => { if (val > picoVol) { picoVol = val; diaPico = labF[idx]; indexPico = idx; } });
+            let picoOcp = 0; let diaPico = "-"; let indexPico = -1;
+            vOcpF.forEach((val, idx) => { if (val > picoOcp) { picoOcp = val; diaPico = labF[idx]; indexPico = idx; } });
 
             document.getElementById('t2-vol-mes').textContent = volTotalMes.toLocaleString('pt-BR') + ' kg';
             document.getElementById('t2-ocp-mes').textContent = ocpMediaMes.toFixed(1) + '%';
             document.getElementById('t2-media-dia').textContent = Math.round(mediaDiaria).toLocaleString('pt-BR') + ' kg';
-            document.getElementById('t2-pico-val').textContent = picoVol > 0 ? picoVol.toLocaleString('pt-BR') + ' kg' : '-';
+            document.getElementById('t2-pico-val').textContent = picoOcp > 0 ? picoOcp.toFixed(1) + '%' : '-';
             document.getElementById('t2-pico-dia').textContent = diaPico !== "-" ? `DIA ${diaPico}` : '-';
 
             // 2. Popula os Mini Cards Horizontais
@@ -1103,10 +1004,6 @@
             for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                 if (acVolM[i] > 0) {
                     let volFormatado = acVolM[i].toLocaleString('pt-BR');
-                    
-                    // Cálculo da Ocupação Média Mensal (dividindo a soma de ocupação pela qtd de dias válidos no mês)
-                    let ocpMediaLinha = cOcpM[i] > 0 ? (sOcpM[i] / cOcpM[i]).toFixed(1) + '%' : '-';
-
                     let statusClass = "t2-status-estavel"; let statusTxt = "Estável";
                     if (acVolM[i] > mediaGeral * 1.1) { statusTxt = "Acima Média"; }
                     else if (acVolM[i] < mediaGeral * 0.9) { statusTxt = "Baixo Vol."; statusClass = "t2-status-alerta"; }
@@ -1123,10 +1020,8 @@
                     let rowStyle = isMax ? 'style="background: rgba(46, 204, 113, 0.15); border-left: 4px solid #2ecc71;"' : '';
                     let iconMax = isMax ? ' <i class="fas fa-trophy" style="color: #f1c40f; margin-left: 5px;" title="Maior Volume"></i>' : '';
 
-                    // Inserção das 5 colunas no HTML, incluindo a Média de Ocupação
                     let tr = `<tr ${rowStyle}>
                         <td>${mesesExtenso[i]}</td>
-                        <td style="font-weight: bold; color: #3498db;">${ocpMediaLinha}</td>
                         <td style="${isMax ? 'font-weight: 900; color: #2ecc71;' : ''}">${volFormatado}${iconMax}</td>
                         <td><span class="t2-status-badge ${statusClass}">${statusTxt}</span></td>
                         <td>${diffHtml}</td>
@@ -1134,35 +1029,6 @@
                     tbody.innerHTML += tr;
                 }
             }
-
-            // 4. Renderiza o Gráfico Misto Base
-            const ctx = document.getElementById('t2-grafico-misto').getContext('2d');
-            if (window.chartMistoT2) window.chartMistoT2.destroy();
-            
-            window.chartMistoT2 = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labF,
-                    datasets: [
-                        { type: 'line', label: 'Ocupação (%)', data: vOcpF, borderColor: '#f1c40f', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#f1c40f', yAxisID: 'y1' },
-                        { type: 'bar', label: 'Volume (KG)', data: vVolF, backgroundColor: 'rgba(0, 206, 209, 0.6)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 4, yAxisID: 'y' }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
-                    plugins: {
-                        title: { display: true, text: `📊 VOLUME EXPEDIDO E OCUPAÇÃO - ${mesNome}`, color: '#a0aec0', font: { size: 18, weight: 'bold' } },
-                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: {size: 13, weight: 'bold'} } },
-                        datalabels: { display: false }
-                    },
-                    scales: {
-                        x: { ticks: { color: '#ffffff', font: {size: 11, weight: 'bold'} }, grid: { display: false } },
-                        y: { type: 'linear', display: true, position: 'left', ticks: { color: '#00ced1', font: {size: 11, weight: 'bold'} }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#f1c40f', font: {size: 11, weight: 'bold'}, callback: v => v + '%' }, grid: { display: false } }
-                    }
-                }
-            });
-        }
 
             // 4. Renderiza o Gráfico Misto Base
             const ctx = document.getElementById('t2-grafico-misto').getContext('2d');
