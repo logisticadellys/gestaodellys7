@@ -44,12 +44,12 @@
             border: 1px solid #2ecc71;
             border-radius: 8px;
             padding: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.7);
             color: #ffffff;
             font-size: 0.75em;
             font-weight: normal;
             line-height: 1.4;
-            z-index: 1000;
+            z-index: 99999;
             text-align: left;
         }
         .info-popover-t2.ativo { display: block; }
@@ -1303,6 +1303,20 @@
                 options: opt 
             });
         }
+        function togglePopoverInfo(event) {
+            event.stopPropagation();
+            const popover = document.getElementById('info-popover-box');
+            if (popover) {
+                popover.classList.toggle('ativo');
+            }
+        }
+
+        window.addEventListener('click', () => {
+            const popover = document.getElementById('info-popover-box');
+            if (popover) {
+                popover.classList.remove('ativo');
+            }
+        });
     </script>
 </body>
 </html>
