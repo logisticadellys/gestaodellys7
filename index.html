@@ -456,6 +456,40 @@
                 const csv = await response.text();
                 const linhas = csv.split(/\r?\n/).filter(l => l.trim() !== "");
                 if (linhas.length === 0) return;
+                // --- INÍCIO: LEITURA DA ABA METAS ---
+                let metasPorDia = {};
+                try {
+                    // Substitua 'SEU_GID_DA_ABA_METAS' pelo GID numérico real da sua aba Metas na URL da planilha
+                    const gidMetas = "SEU_GID_DA_ABA_METAS"; 
+                    const urlMetasFinal = spreadsheetUrl.includes('gid=') 
+                        ? spreadsheetUrl.replace(/gid=\d+/, `gid=${gidMetas}`) 
+                        : spreadsheetUrl + '&sheet=Metas';
+                        
+                    const resMetas = await fetch(`${urlMetasFinal}&timestamp=${new Date().getTime()}`);
+                    const csvMetas = await resMetas.text();
+                    const linhasMetas = csvMetas.split(/\r?\n/).filter(l => l.trim() !== "");
+                    
+                    if (linhasMetas.length > 0) {
+                        const cabecalhoMetas = safeSplit(linhasMetas[0]).map(t => t.toUpperCase());
+                        const idxDataMeta = cabecalhoMetas.indexOf("DATA");
+                        const idxMetaOcp = cabecalhoMetas.indexOf("META OCUPAÇÃO (%)");
+                        
+                        for (let m = 1; m < linhasMetas.length; m++) {
+                            const colsM = safeSplit(linhasMetas[m]);
+                            if (colsM[idxDataMeta] && colsM[idxMetaOcp]) {
+                                let dataStr = colsM[idxDataMeta].replace(/"/g, '').trim();
+                                let valMeta = converter(colsM[idxMetaOcp]);
+                                if (dataStr && valMeta !== null) {
+                                    metasPorDia[dataStr] = valMeta;
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Erro ao carregar aba Metas:", err);
+                }
+                window.metasPorDiaGlobal = metasPorDia;
+                // --- FIM: LEITURA DA ABA METAS ---
 
                 const cabecalho = safeSplit(linhas[0]).map(txt => txt.replace(/"/g, '').trim().toUpperCase());
                 const idxData = cabecalho.indexOf("DATA");
@@ -981,22 +1015,51 @@
             document.getElementById('t2-pico-val').textContent = picoOcp > 0 ? picoOcp.toFixed(1) + '%' : '-';
             document.getElementById('t2-pico-dia').textContent = diaPico !== "-" ? `DIA ${diaPico}` : '-';
 
-            // 2. Popula os Mini Cards Horizontais
+            // 2. Popula os Mini Cards Horizontais com Metas da Planilha e Cores
             let containerMC = document.getElementById('t2-minicards-container');
-            containerMC.innerHTML = '';
-            for (let i = 0; i < labF.length; i++) {
-                let isPico = (i === indexPicoVol); // Agora destaca (pico) o maior volume expedido
-                let volDia = vVolF[i] ? vVolF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
-                let ocpDia = vOcpF[i] ? vOcpF[i].toFixed(1) + '%' : '0.0%';
+            if (containerMC) {
+                containerMC.innerHTML = '';
                 
-                let cardHTML = `
-                    <div class="t2-minicard ${isPico ? 'pico' : ''}">
-                        <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl">(PICO)</span>' : ''}</span>
-                        <span class="t2-mc-val">${ocpDia}</span>
-                        <span class="t2-mc-vol">${volDia}</span>
-                    </div>
-                `;
-                containerMC.innerHTML += cardHTML;
+                let metasMapa = window.metasPorDiaGlobal || {};
+                
+                for (let i = 0; i < labF.length; i++) {
+                    let isPico = (i === indexPicoVol); 
+                    let volDia = vVolF[i] ? vVolF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
+                    let ocpVal = vOcpF[i] !== null ? vOcpF[i] : 0;
+                    let ocpDiaStr = vOcpF[i] !== null ? vOcpF[i].toFixed(1) + '%' : '0.0%';
+                    
+                    let diaStr = String(labF[i]).trim();
+                    let mesStr = String(mesDeExibicaoIdx + 1).trim();
+                    let mesPad = mesStr.padStart(2, '0');
+                    let diaPad = diaStr.padStart(2, '0');
+                    
+                    let chave1 = `${diaPad}/${mesPad}/${anoAtual}`;
+                    let chave2 = `${diaStr}/${mesStr}/${anoAtual}`;
+                    let chave3 = `${diaPad}/${mesPad}`;
+                    let chave4 = `${diaStr}/${mesStr}`;
+                    
+                    let metaDia = 60.0; // Padrão se não achar
+                    if (metasMapa[chave1] !== undefined) metaDia = metasMapa[chave1];
+                    else if (metasMapa[chave2] !== undefined) metaDia = metasMapa[chave2];
+                    else if (metasMapa[chave3] !== undefined) metaDia = metasMapa[chave3];
+                    else if (metasMapa[chave4] !== undefined) metaDia = metasMapa[chave4];
+                    else {
+                        let chaves = Object.keys(metasMapa);
+                        if (chaves[i] !== undefined) metaDia = metasMapa[chaves[i]];
+                    }
+                    
+                    let corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
+                    
+                    let cardHTML = `
+                        <div class="t2-minicard ${isPico ? 'pico' : ''}">
+                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
+                            <span class="t2-mc-val" style="color: ${corOcupacao};">${ocpDiaStr}</span>
+                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">Meta: ${metaDia.toFixed(1)}%</span>
+                            <span class="t2-mc-vol" style="color: #2ecc71;">${volDia}</span>
+                        </div>
+                    `;
+                    containerMC.innerHTML += cardHTML;
+                }
             }
 
             // 3. Popula a Tabela de Histórico e Acha o Maior Volume
