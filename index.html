@@ -1027,22 +1027,27 @@
                 let ocpVal = vOcpF[i] !== null ? vOcpF[i] : 0;
                 let ocpDiaStr = vOcpF[i] !== null ? vOcpF[i].toFixed(1) + '%' : '0.0%';
             
-                // Tratamento flexível para achar a data na aba Metas
                 let diaStr = String(labF[i]).trim();
                 let mesStr = String(mesDeExibicaoIdx + 1).trim();
                 let mesPad = mesStr.padStart(2, '0');
                 let diaPad = diaStr.padStart(2, '0');
             
-                let chave1 = `${diaPad}/${mesPad}/${anoAtual}`;
-                let chave2 = `${diaStr}/${mesStr}/${anoAtual}`;
+                // Usando anoDeExibicao (que é a variável correta do seu painel)
+                let chave1 = `${diaPad}/${mesPad}/${anoDeExibicao}`;
+                let chave2 = `${diaStr}/${mesStr}/${anoDeExibicao}`;
                 let chave3 = `${diaPad}/${mesPad}`;
                 let chave4 = `${diaStr}/${mesStr}`;
             
-                let metaDia = 70.0; // Padrão de segurança
+                let metaDia = 60.0; // Padrão atualizado para 60% caso não ache
                 if (metasMapa[chave1] !== undefined) metaDia = metasMapa[chave1];
                 else if (metasMapa[chave2] !== undefined) metaDia = metasMapa[chave2];
                 else if (metasMapa[chave3] !== undefined) metaDia = metasMapa[chave3];
                 else if (metasMapa[chave4] !== undefined) metaDia = metasMapa[chave4];
+                else {
+                    // Tenta achar caso as chaves da planilha tenham formato diferente (ex: YYYY-MM-DD ou apenas índice)
+                    let chaves = Object.keys(metasMapa);
+                    if (chaves[i] !== undefined) metaDia = metasMapa[chaves[i]];
+                }
             
                 // Regra de cores: Verde se bateu a meta, Vermelho se ficou abaixo
                 let corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
