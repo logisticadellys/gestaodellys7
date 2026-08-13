@@ -1015,7 +1015,7 @@
             document.getElementById('t2-pico-val').textContent = picoOcp > 0 ? picoOcp.toFixed(1) + '%' : '-';
             document.getElementById('t2-pico-dia').textContent = diaPico !== "-" ? `DIA ${diaPico}` : '-';
 
-            // Novo bloco para adicionar:
+            // 2. Popula os Mini Cards Horizontais com Metas da Planilha e Cores
             let containerMC = document.getElementById('t2-minicards-container');
             containerMC.innerHTML = '';
         
@@ -1027,13 +1027,22 @@
                 let ocpVal = vOcpF[i] !== null ? vOcpF[i] : 0;
                 let ocpDiaStr = vOcpF[i] !== null ? vOcpF[i].toFixed(1) + '%' : '0.0%';
             
-                // Formata a chave para buscar a meta do dia (ex: '01/08/2026')
-                let diaFormatado = String(labF[i]).padStart(2, '0');
-                let mesFormatado = String(mesDeExibicaoIdx + 1).padStart(2, '0');
-                let chaveData = `${diaFormatado}/${mesFormatado}/${anoAtual}`;
+                // Tratamento flexível para achar a data na aba Metas
+                let diaStr = String(labF[i]).trim();
+                let mesStr = String(mesDeExibicaoIdx + 1).trim();
+                let mesPad = mesStr.padStart(2, '0');
+                let diaPad = diaStr.padStart(2, '0');
             
-                // Pega a meta da aba (se não encontrar para o dia, assume 70% como padrão)
-                let metaDia = metasMapa[chaveData] !== undefined ? metasMapa[chaveData] : 70.0;
+                let chave1 = `${diaPad}/${mesPad}/${anoAtual}`;
+                let chave2 = `${diaStr}/${mesStr}/${anoAtual}`;
+                let chave3 = `${diaPad}/${mesPad}`;
+                let chave4 = `${diaStr}/${mesStr}`;
+            
+                let metaDia = 70.0; // Padrão de segurança
+                if (metasMapa[chave1] !== undefined) metaDia = metasMapa[chave1];
+                else if (metasMapa[chave2] !== undefined) metaDia = metasMapa[chave2];
+                else if (metasMapa[chave3] !== undefined) metaDia = metasMapa[chave3];
+                else if (metasMapa[chave4] !== undefined) metaDia = metasMapa[chave4];
             
                 // Regra de cores: Verde se bateu a meta, Vermelho se ficou abaixo
                 let corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
