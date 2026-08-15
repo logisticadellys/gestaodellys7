@@ -98,16 +98,54 @@
         .t2-kpi-value { font-size: clamp(1.4em, 2vw, 2em); color: #ffffff; font-weight: 900; margin-bottom: 6px; }
         .t2-kpi-sub { font-size: clamp(0.65em, 0.7vw, 0.8em); font-weight: bold; text-transform: uppercase; }
         
-        .t2-minicards-wrapper { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; scrollbar-width: thin; scrollbar-color: #3498db #102542; }
-        .t2-minicard { background: #102542; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1vh 0.8vw; min-width: 90px; text-align: center; display: flex; flex-direction: column; gap: 6px; }
+        .t2-minicards-wrapper { 
+            display: flex; 
+            gap: 0.5vw; /* Margem flexível entre os cards */
+            overflow: hidden; /* Remove completamente a barra de rolagem horizontal */
+            padding-bottom: 5px; 
+            flex-shrink: 0; 
+            width: 100%; 
+            box-sizing: border-box;
+        }
+        
+        .t2-minicard { 
+            background: #102542; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 8px; 
+            padding: 1vh 0.2vw; 
+            min-width: 0; /* Fundamental: impede que o card force uma largura estática e quebre a tela */
+            flex: 1; /* Força todos os cards a dividirem o espaço da tela por igual */
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 4px; 
+            justify-content: center; 
+        }
         .t2-minicard.pico { border-color: #3498db; box-shadow: 0 0 12px rgba(52,152,219,0.4); }
         .t2-mc-dia { font-size: clamp(0.65em, 0.8vw, 0.85em); color: #a0aec0; font-weight: bold; text-transform: uppercase; }
         .t2-mc-pico-lbl { color: #3498db; font-size: 0.85em; }
         .t2-mc-val { font-size: clamp(1.1em, 1.4vw, 1.5em); color: #ffffff; font-weight: bold; }
         .t2-mc-vol { background: rgba(46,204,113,0.15); color: #2ecc71; font-size: clamp(0.6em, 0.75vw, 0.8em); padding: 3px 6px; border-radius: 4px; font-weight: bold; }
         
-        .t2-base-grid { display: flex; gap: 20px; flex: 1; min-height: 0; }
-        .t2-table-container { overflow-y: auto; background: #102542; border-radius: 12px; border: 2px solid #00ced1; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .t2-base-grid { 
+            display: flex; 
+            gap: 1.5vw; 
+            flex: 1; 
+            min-height: 0; 
+            min-width: 0; 
+            width: 100%; 
+            box-sizing: border-box; 
+        }
+        
+        .t2-table-container { 
+            overflow-y: auto; 
+            background: #102542; 
+            border-radius: 12px; 
+            border: 2px solid #00ced1; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+            min-width: 0; /* Evita que tabelas grandes estourem a largura */
+            min-height: 0; /* Evita que tabelas longas estourem a altura da tela */
+        }
         .t2-table { width: 100%; border-collapse: collapse; text-align: left; }
         .t2-table th { background: rgba(0,206,209,0.2); color: #00ced1; padding: 1.2vh 1vw; font-size: 0.8em; text-transform: uppercase; position: sticky; top: 0; font-weight: 800; }
         .t2-table td { padding: 1vh 1vw; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85em; color: #e2e8f0; }
@@ -115,6 +153,13 @@
         .t2-status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
         .t2-status-estavel { background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3); }
         .t2-status-alerta { background: rgba(243,156,18,0.15); color: #f39c12; border: 1px solid rgba(243,156,18,0.3); }
+        /* Ajustes específicos para telas de Notebooks */
+        @media (max-width: 1366px) {
+            .t2-mc-val { font-size: clamp(0.85em, 1vw, 1.2em); } 
+            .t2-mc-dia { font-size: 0.6em; }
+            .t2-mc-vol { font-size: 0.55em; padding: 2px 4px; }
+            .t2-table th, .t2-table td { padding: 0.6vh 0.5vw; font-size: 0.75em; }
+        }
     </style>
 </head>
 <body>
