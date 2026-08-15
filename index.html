@@ -160,11 +160,39 @@
             .t2-mc-vol { font-size: 0.55em; padding: 2px 4px; }
             .t2-table th, .t2-table td { padding: 0.6vh 0.5vw; font-size: 0.75em; }
         }
+        /* Estilos para o ícone de ajuda na Tela 2 */
+        #info-icon { 
+            position: absolute; left: 160px; top: 50%; transform: translateY(-50%); 
+            color: #a0aec0; cursor: pointer; font-size: 1.2em; opacity: 0.7; z-index: 100; display: none; 
+        }
+        #info-icon:hover { opacity: 1; color: #fff; }
+        
+        .modal-regras { 
+            position: absolute; top: 8vh; left: 2vw; background: #102542; border: 1px solid #00ced1; 
+            padding: 15px; border-radius: 8px; width: 350px; z-index: 999; display: none; font-size: 0.85em;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .modal-regras h4 { color: #00ced1; margin-top: 0; }
+        .modal-regras ul { padding-left: 20px; color: #e2e8f0; }
+        .status-cor { font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>
+        <!-- Ícone e Modal -->
+        <i class="fas fa-info-circle" id="info-icon"></i>
+        <div id="modal-ajuda" class="modal-regras">
+            <h4>Regras do Painel</h4>
+            <ul>
+                <li><strong>Cards Diários:</strong> O "PICO" é calculado com base no peso.</li>
+                <li><strong>Histórico mensal:</strong> O destaque do "troféu" é pelo cálculo do peso.</li>
+                <li><strong>Status mensal:</strong> Comparado com a média do período:</li>
+            </ul>
+            <p><span class="status-cor" style="color:#2ecc71">● Acima da Média:</span> > 110% da média</p>
+            <p><span class="status-cor" style="color:#f1c40f">● Estável:</span> 90% a 110% da média</p>
+            <p><span class="status-cor" style="color:#e74c3c">● Baixo Volume:</span> < 90% da média</p>
+        </div>
         <img src="dellyslogo.png" alt="Logo" class="logo-img">
         <h1 class="titulo-painel">
             GESTÃO À VISTA - FILIAL 7
@@ -449,11 +477,18 @@
             // --- INÍCIO: ALTERA O TÍTULO PRINCIPAL APENAS NA TELA 2 ---
             const h1 = document.querySelector('.titulo-painel');
             const spanData = document.getElementById('data-painel');
+            const infoIcon = document.getElementById('info-icon');
+            const modal = document.getElementById('modal-ajuda');
+            
             if (telaAtual === 2) {
                 h1.innerHTML = '<i class="fas fa-boxes-stacked" style="margin-right: 10px; color: #2ecc71;"></i>VOLUME EXPEDIDO E OCUPAÇÃO';
+                infoIcon.style.display = 'block'; // Mostra o ícone apenas na Tela 2
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - FILIAL 7';
+                infoIcon.style.display = 'none'; // Esconde nas outras telas
+                modal.style.display = 'none';    // Fecha o modal caso mude de tela
             }
+            
             if (spanData) h1.appendChild(spanData);
             // --- FIM ---
             
@@ -1280,6 +1315,10 @@
                 options: opt 
             });
         }
+        document.getElementById('info-icon').addEventListener('click', () => {
+            const modal = document.getElementById('modal-ajuda');
+            modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
+        });
     </script>
 </body>
 </html>
