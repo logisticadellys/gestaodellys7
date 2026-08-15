@@ -108,13 +108,26 @@
             box-sizing: border-box;
         }
         
+        .t2-page {
+            display: none;
+            gap: 0.5vw;
+            width: 100%;
+            animation: fadePage 0.8s ease-in-out;
+        }
+        .t2-page.ativa {
+            display: flex;
+        }
+        @keyframes fadePage {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
         .t2-minicard { 
             background: #102542; 
             border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 8px; 
             padding: 1vh 0.2vw; 
-            min-width: 0; /* Fundamental: impede que o card force uma largura estática e quebre a tela */
-            flex: 1; /* Força todos os cards a dividirem o espaço da tela por igual */
+            width: calc(100% / 8); /* Define exatamente 8 cards por tela */
+            flex-shrink: 0;
             text-align: center; 
             display: flex; 
             flex-direction: column; 
@@ -1107,6 +1120,8 @@
                 
                 let metasMapa = window.metasPorDiaGlobal || {};
                 
+                let todosOsCards = [];
+
                 for (let i = 0; i < labF.length; i++) {
                     let isPico = (i === indexPicoVol); 
                     let volDia = vVolF[i] ? vVolF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
@@ -1123,7 +1138,7 @@
                     let chave3 = `${diaPad}/${mesPad}`;
                     let chave4 = `${diaStr}/${mesStr}`;
                     
-                    let metaDia = 60.0; // Padrão se não achar
+                    let metaDia = 60.0;
                     if (metasMapa[chave1] !== undefined) metaDia = metasMapa[chave1];
                     else if (metasMapa[chave2] !== undefined) metaDia = metasMapa[chave2];
                     else if (metasMapa[chave3] !== undefined) metaDia = metasMapa[chave3];
@@ -1143,8 +1158,36 @@
                             <span class="t2-mc-vol" style="color: #2ecc71;">${volDia}</span>
                         </div>
                     `;
-                    containerMC.innerHTML += cardHTML;
+                    todosOsCards.push(cardHTML);
                 }
+                
+                // Lógica de Paginação (Agrupando de 8 em 8)
+                let cardsPorPagina = 8;
+                for (let p = 0; p < todosOsCards.length; p += cardsPorPagina) {
+                    let chunk = todosOsCards.slice(p, p + cardsPorPagina);
+                    let activeClass = p === 0 ? 'ativa' : ''; // Primeira página inicia ativa
+                    containerMC.innerHTML += `<div class="t2-page ${activeClass}">${chunk.join('')}</div>`;
+                }
+                
+                // Limpa temporizador antigo caso a planilha atualize
+                if (window.t2CarouselInterval) clearInterval(window.t2CarouselInterval);
+                
+                // Inicia transição a cada 15 segundos (15000ms)
+                window.t2CarouselInterval = setInterval(() => {
+                    let pages = document.querySelectorAll('.t2-page');
+                    if (pages.length <= 1) return; // Se tiver só 1 página, não faz nada
+                    
+                    let activeIdx = -1;
+                    pages.forEach((p, idx) => { 
+                        if(p.classList.contains('ativa')) { 
+                            activeIdx = idx; 
+                            p.classList.remove('ativa'); 
+                        } 
+                    });
+                    
+                    let nextIdx = (activeIdx + 1) % pages.length;
+                    pages[nextIdx].classList.add('ativa');
+                }, 15000);
             }
 
             // 3. Popula a Tabela de Histórico e Acha o Maior Volume
