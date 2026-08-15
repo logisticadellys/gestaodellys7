@@ -108,25 +108,31 @@
             box-sizing: border-box;
         }
         
-        .t2-page {
-            display: none;
-            gap: 0.5vw;
+        #t2-minicards-container {
+            overflow: hidden;
+            position: relative;
             width: 100%;
-            animation: fadePage 0.8s ease-in-out;
         }
-        .t2-page.ativa {
+        
+        .t2-track {
             display: flex;
+            width: 100%;
+            transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        @keyframes fadePage {
-            0% { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(0); }
+        
+        .t2-page {
+            display: flex;
+            flex-shrink: 0;
+            width: 100%;
+            gap: 0.5vw;
         }
+        
         .t2-minicard { 
             background: #102542; 
             border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 8px; 
             padding: 1vh 0.2vw; 
-            width: calc(100% / 8); /* Define exatamente 8 cards por tela */
+            width: calc((100% - 3.5vw) / 8); 
             flex-shrink: 0;
             text-align: center; 
             display: flex; 
@@ -1161,33 +1167,31 @@
                     todosOsCards.push(cardHTML);
                 }
                 
-                // Lógica de Paginação (Agrupando de 8 em 8)
+                // Lógica de Paginação com Deslize Lateral
                 let cardsPorPagina = 8;
+                let paginasHTML = '';
+                
                 for (let p = 0; p < todosOsCards.length; p += cardsPorPagina) {
                     let chunk = todosOsCards.slice(p, p + cardsPorPagina);
-                    let activeClass = p === 0 ? 'ativa' : ''; // Primeira página inicia ativa
-                    containerMC.innerHTML += `<div class="t2-page ${activeClass}">${chunk.join('')}</div>`;
+                    paginasHTML += `<div class="t2-page">${chunk.join('')}</div>`;
                 }
                 
-                // Limpa temporizador antigo caso a planilha atualize
+                containerMC.innerHTML = `<div class="t2-track" id="t2-track">${paginasHTML}</div>`;
+                
+                let totalPaginas = Math.ceil(todosOsCards.length / cardsPorPagina);
+                let paginaAtual = 0;
+                
                 if (window.t2CarouselInterval) clearInterval(window.t2CarouselInterval);
                 
-                // Inicia transição a cada 15 segundos (15000ms)
-                window.t2CarouselInterval = setInterval(() => {
-                    let pages = document.querySelectorAll('.t2-page');
-                    if (pages.length <= 1) return; // Se tiver só 1 página, não faz nada
-                    
-                    let activeIdx = -1;
-                    pages.forEach((p, idx) => { 
-                        if(p.classList.contains('ativa')) { 
-                            activeIdx = idx; 
-                            p.classList.remove('ativa'); 
-                        } 
-                    });
-                    
-                    let nextIdx = (activeIdx + 1) % pages.length;
-                    pages[nextIdx].classList.add('ativa');
-                }, 15000);
+                if (totalPaginas > 1) {
+                    window.t2CarouselInterval = setInterval(() => {
+                        paginaAtual = (paginaAtual + 1) % totalPaginas;
+                        let track = document.getElementById('t2-track');
+                        if (track) {
+                            track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                        }
+                    }, 15000);
+                }
             }
 
             // 3. Popula a Tabela de Histórico e Acha o Maior Volume
