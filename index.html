@@ -121,10 +121,12 @@
         }
         
         .t2-page {
-            display: flex;
-            flex-shrink: 0;
-            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr); /* Cria 8 colunas idênticas */
             gap: 0.5vw;
+            width: 100%;
+            flex-shrink: 0;
+            box-sizing: border-box;
         }
         
         .t2-minicard { 
@@ -132,8 +134,8 @@
             border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 8px; 
             padding: 1vh 0.2vw; 
-            width: calc((100% - 3.5vw) / 8); 
-            flex-shrink: 0;
+            width: 100%; /* O Grid cuida da largura */
+            box-sizing: border-box;
             text-align: center; 
             display: flex; 
             flex-direction: column; 
