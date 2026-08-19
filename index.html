@@ -428,10 +428,10 @@
                 <span class="t2-kpi-value" id="t3-pico-drop-val">-</span>
                 <span class="t2-kpi-sub" style="color: #ff8c00;" id="t3-pico-drop-dia">-</span>
             </div>
-            <div class="t2-kpi-card" style="border-top-color: #9b59b6;">
-                <span class="t2-kpi-title"><i class="fas fa-ruler-combined" style="color: #9b59b6; margin-right: 6px;"></i> PICO DE DROPSIZE (<span id="t3-mes-lbl2">MÊS</span>)</span>
+            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
+                <span class="t2-kpi-title"><i class="fas fa-ruler-combined" style="color: #2ecc71; margin-right: 6px;"></i> PICO DE DROPSIZE (<span id="t3-mes-lbl2">MÊS</span>)</span>
                 <span class="t2-kpi-value" id="t3-pico-dropsize-val">-</span>
-                <span class="t2-kpi-sub" style="color: #9b59b6;" id="t3-pico-dropsize-dia">-</span>
+                <span class="t2-kpi-sub" style="color: #2ecc71;" id="t3-pico-dropsize-dia">-</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #1abc9c;">
                 <span class="t2-kpi-title"><i class="fas fa-file-invoice-dollar" style="color: #1abc9c; margin-right: 6px;"></i> ACUMULADO NF'S (<span id="t3-mes-lbl3">MÊS</span>)</span>
@@ -979,7 +979,7 @@
                                 <div class="t2-minicard">
                                     <span class="t2-mc-dia">DIA ${labF[i]}</span>
                                     <span class="t2-mc-val" style="font-size: 1em; color: #ff8c00;">${dropVal}</span>
-                                    <span class="t2-mc-vol" style="background: rgba(155, 89, 182, 0.15); color: #9b59b6; margin-top: 4px;">Drop: ${dropSizeVal}</span>
+                                    <span class="t2-mc-vol" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; margin-top: 4px;">Drop: ${dropSizeVal}</span>
                                 </div>
                             `;
                             todosOsCards.push(cardHTML);
@@ -1030,7 +1030,7 @@
                             labels: labF,
                             datasets: [
                             { type: 'line', label: 'Peso x Veículo (KG)', data: vDropF, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#ff8c00', yAxisID: 'y' },
-                            { type: 'bar', label: 'Dropsize (KG)', data: vDropSizeF, backgroundColor: 'rgba(155, 89, 182, 0.6)', borderColor: '#9b59b6', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
+                            { type: 'bar', label: 'Dropsize (KG)', data: vDropSizeF, backgroundColor: 'rgba(46, 204, 113, 0.6)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
                         ]
                         },
                         options: {
@@ -1043,7 +1043,7 @@
                             scales: {
                                 x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
                                 y: { type: 'linear', display: true, position: 'left', ticks: { color: '#ff8c00', font: { size: 11, weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                                y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#9b59b6', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
+                                y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#2ecc71', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
                             }
                         }
                     });
