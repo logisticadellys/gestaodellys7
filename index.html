@@ -421,11 +421,79 @@
     </div>
 
     <div id="tela3" class="tela">
-        <div class="grid-graficos">
-            <div class="chart-container"><canvas id="graficoDropsizeDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoDropMensal"></canvas></div>
-            <div class="chart-container"><canvas id="graficoNfDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoNfMensal"></canvas></div>
+        
+        <!-- Mini-Cards Diários: Esteira superior (Layout Planejado) -->
+        <div class="t2-minicards-wrapper" id="t3-minicards-container">
+            <div class="t2-track">
+                <div class="t2-page" style="grid-template-columns: repeat(8, 1fr);">
+                    <!-- Exemplo visual estático do Card Diário de Pico -->
+                    <div class="t2-minicard pico">
+                        <span class="t2-mc-dia">DIA 01 <br><span class="t2-mc-pico-lbl"><i class="fas fa-crown"></i> PICO</span></span>
+                        <span class="t2-mc-val" style="color: #ff8c00;">1.520 kg</span>
+                        <span class="t2-mc-vol" style="color: #2ecc71;">Drop: 850 kg</span>
+                    </div>
+                    <!-- Exemplo visual estático do Card Diário Normal -->
+                    <div class="t2-minicard">
+                        <span class="t2-mc-dia">DIA 02</span>
+                        <span class="t2-mc-val" style="color: #ffffff;">1.200 kg</span>
+                        <span class="t2-mc-vol" style="background: rgba(255,255,255,0.05); color: #a0aec0;">Drop: 780 kg</span>
+                    </div>
+                    <!-- (Cards restantes podem ser injetados via JS futuramente) -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Estruturação em 4 Blocos Individuais (KPI + Gráfico) -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5vw; flex: 1; min-height: 0; padding-top: 1vh;">
+            
+            <!-- Bloco 1 (Peso x Veículo) -->
+            <div style="display: flex; flex-direction: column; gap: 1.5vh; height: 100%;">
+                <div class="t2-kpi-card" style="border-top-color: #ff8c00; flex: 0 0 auto;">
+                    <span class="t2-kpi-title"><i class="fas fa-truck-moving" style="color: #ff8c00; margin-right: 6px;"></i> PESO X VEÍCULO</span>
+                    <span class="t2-kpi-value" id="t3-kpi-peso">-</span>
+                    <span class="t2-kpi-sub text-positivo">▲ Acumulado / Média</span>
+                </div>
+                <div class="chart-container" style="flex: 1; min-height: 0; padding: 1vh;">
+                    <canvas id="graficoDropsizeDiario"></canvas>
+                </div>
+            </div>
+
+            <!-- Bloco 2 (Dropsize) -->
+            <div style="display: flex; flex-direction: column; gap: 1.5vh; height: 100%;">
+                <div class="t2-kpi-card" style="border-top-color: #2ecc71; flex: 0 0 auto;">
+                    <span class="t2-kpi-title"><i class="fas fa-ruler-combined" style="color: #2ecc71; margin-right: 6px;"></i> DROPSIZE</span>
+                    <span class="t2-kpi-value" id="t3-kpi-drop">-</span>
+                    <span class="t2-kpi-sub" style="color: #2ecc71;">■ Indicador de Meta</span>
+                </div>
+                <div class="chart-container" style="flex: 1; min-height: 0; padding: 1vh;">
+                    <canvas id="graficoDropMensal"></canvas>
+                </div>
+            </div>
+
+            <!-- Bloco 3 (NF's) -->
+            <div style="display: flex; flex-direction: column; gap: 1.5vh; height: 100%;">
+                <div class="t2-kpi-card" style="border-top-color: #00ced1; flex: 0 0 auto;">
+                    <span class="t2-kpi-title"><i class="fas fa-file-invoice" style="color: #00ced1; margin-right: 6px;"></i> TOTAL NF'S</span>
+                    <span class="t2-kpi-value" id="t3-kpi-nfs">-</span>
+                    <span class="t2-kpi-sub text-neutro">▲ Total Acumulado</span>
+                </div>
+                <div class="chart-container" style="flex: 1; min-height: 0; padding: 1vh;">
+                    <canvas id="graficoNfDiario"></canvas>
+                </div>
+            </div>
+
+            <!-- Bloco 4 (Clientes) -->
+            <div style="display: flex; flex-direction: column; gap: 1.5vh; height: 100%;">
+                <div class="t2-kpi-card" style="border-top-color: #f1c40f; flex: 0 0 auto;">
+                    <span class="t2-kpi-title"><i class="fas fa-users" style="color: #f1c40f; margin-right: 6px;"></i> CLIENTES</span>
+                    <span class="t2-kpi-value" id="t3-kpi-cli">-</span>
+                    <span class="t2-kpi-sub" style="color: #f1c40f;">■ Média de Atendimento</span>
+                </div>
+                <div class="chart-container" style="flex: 1; min-height: 0; padding: 1vh;">
+                    <canvas id="graficoNfMensal"></canvas>
+                </div>
+            </div>
+
         </div>
     </div>
 
