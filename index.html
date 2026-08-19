@@ -421,7 +421,48 @@
     </div>
 
     <div id="tela3" class="tela">
-        <!-- Tela 3 limpa sem os 4 gráficos e seus quadrados -->
+        <!-- Topo com 4 Cards de KPI -->
+        <div class="t2-top-kpis">
+            <div class="t2-kpi-card" style="border-top-color: #ff8c00;">
+                <span class="t2-kpi-title"><i class="fas fa-weight-scale" style="color: #ff8c00; margin-right: 6px;"></i> PICO DE PESO X VEÍCULO (<span id="t3-mes-lbl">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t3-pico-drop-val">-</span>
+                <span class="t2-kpi-sub" style="color: #ff8c00;" id="t3-pico-drop-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #e67e22;">
+                <span class="t2-kpi-title"><i class="fas fa-ruler-combined" style="color: #e67e22; margin-right: 6px;"></i> PICO DE DROPSIZE (<span id="t3-mes-lbl2">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t3-pico-dropsize-val">-</span>
+                <span class="t2-kpi-sub" style="color: #e67e22;" id="t3-pico-dropsize-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #1abc9c;">
+                <span class="t2-kpi-title"><i class="fas fa-file-invoice-dollar" style="color: #1abc9c; margin-right: 6px;"></i> ACUMULADO NF'S (<span id="t3-mes-lbl3">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t3-acm-nf">-</span>
+                <span class="t2-kpi-sub text-positivo">▲ Total do Mês</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #3498db;">
+                <span class="t2-kpi-title"><i class="fas fa-store" style="color: #3498db; margin-right: 6px;"></i> ACUMULADO CLIENTES (<span id="t3-mes-lbl4">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t3-acm-cli">-</span>
+                <span class="t2-kpi-sub" style="color: #3498db;">■ Base Mensal</span>
+            </div>
+        </div>
+    
+        <!-- Mini Cards Diários (Carrossel) -->
+        <div class="t2-minicards-wrapper" id="t3-minicards-container"></div>
+    
+        <!-- Base: Gráfico à Esquerda e Tabela à Direita -->
+        <div class="t2-base-grid">
+            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
+                <canvas id="t3-grafico-misto"></canvas>
+            </div>
+            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
+                <table class="t2-table">
+                    <thead>
+                        <tr><th colspan="5" id="t3-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO ANUAL (PESO X VEÍCULO / DROPSIZE)</th></tr>
+                        <tr><th>Mês</th><th>Peso x Veículo</th><th>Dropsize</th><th>Clientes</th><th>NF's</th></tr>
+                    </thead>
+                    <tbody id="t3-table-body"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <div id="tela4" class="tela">
@@ -895,6 +936,116 @@
                         vAderenciaF.push(dAderenciaR[i]||0);
                         vApontamentosF.push(dApontamentosR[i]||0);
                     }
+                }
+                renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx);
+                function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
+                    // Atualiza os títulos dos meses nos KPIs
+                    ['t3-mes-lbl', 't3-mes-lbl2', 't3-mes-lbl3', 't3-mes-lbl4'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.textContent = mesNome;
+                    });
+                
+                    // 1. Cálculo dos Picos e Acumulados
+                    let picoDrop = 0, diaPicoDrop = "-";
+                    vDropF.forEach((val, idx) => { if (val > picoDrop) { picoDrop = val; diaPicoDrop = labF[idx]; } });
+                
+                    let picoDropSize = 0, diaPicoDropSize = "-";
+                    vDropSizeF.forEach((val, idx) => { if (val > picoDropSize) { picoDropSize = val; diaPicoDropSize = labF[idx]; } });
+                
+                    let totalNfMes = acNfM[mesDeExibicaoIdx] || 0;
+                    let totalCliMes = acCliM[mesDeExibicaoIdx] || 0; // ou média/total dependendo da sua regra
+                
+                    document.getElementById('t3-pico-drop-val').textContent = picoDrop > 0 ? picoDrop.toLocaleString('pt-BR') + ' kg' : '-';
+                    document.getElementById('t3-pico-drop-dia').textContent = diaPicoDrop !== "-" ? `DIA ${diaPicoDrop}` : '-';
+                
+                    document.getElementById('t3-pico-dropsize-val').textContent = picoDropSize > 0 ? picoDropSize.toLocaleString('pt-BR') + ' kg' : '-';
+                    document.getElementById('t3-pico-dropsize-dia').textContent = diaPicoDropSize !== "-" ? `DIA ${diaPicoDropSize}` : '-';
+                
+                    document.getElementById('t3-acm-nf').textContent = totalNfMes.toLocaleString('pt-BR');
+                    document.getElementById('t3-acm-cli').textContent = totalCliMes.toLocaleString('pt-BR');
+                
+                    // 2. Mini Cards Diários (Picos diários de Peso x Veículo e Dropsize)
+                    let containerMC = document.getElementById('t3-minicards-container');
+                    if (containerMC) {
+                        containerMC.innerHTML = '';
+                        let todosOsCards = [];
+                
+                        for (let i = 0; i < labF.length; i++) {
+                            let dropVal = vDropF[i] ? vDropF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
+                            let dropSizeVal = vDropSizeF[i] ? vDropSizeF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
+                            
+                            let cardHTML = `
+                                <div class="t2-minicard">
+                                    <span class="t2-mc-dia">DIA ${labF[i]}</span>
+                                    <span class="t2-mc-val" style="font-size: 1em; color: #ff8c00;">${dropVal}</span>
+                                    <span class="t2-mc-vol" style="background: rgba(230,126,34,0.15); color: #e67e22; margin-top: 4px;">Drop: ${dropSizeVal}</span>
+                                </div>
+                            `;
+                            todosOsCards.push(cardHTML);
+                        }
+                
+                        let cardsPorPagina = 8;
+                        let paginasHTML = '';
+                        for (let p = 0; p < todosOsCards.length; p += cardsPorPagina) {
+                            paginasHTML += `<div class="t2-page">${todosOsCards.slice(p, p + cardsPorPagina).join('')}</div>`;
+                        }
+                        containerMC.innerHTML = `<div class="t2-track" id="t3-track">${paginasHTML}</div>`;
+                        
+                        let totalPaginas = Math.ceil(todosOsCards.length / cardsPorPagina);
+                        let paginaAtual = 0;
+                        if (window.t3CarouselInterval) clearInterval(window.t3CarouselInterval);
+                        if (totalPaginas > 1) {
+                            window.t3CarouselInterval = setInterval(() => {
+                                paginaAtual = (paginaAtual + 1) % totalPaginas;
+                                let track = document.getElementById('t3-track');
+                                if (track) track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                            }, 15000);
+                        }
+                    }
+                
+                    // 3. Tabela de Histórico Anual
+                    let tbody = document.getElementById('t3-table-body');
+                    tbody.innerHTML = '';
+                    for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                        if (sDropM[i] > 0 || sDropSizeM[i] > 0) {
+                            let tr = `<tr>
+                                <td>${mesesExtenso[i]}</td>
+                                <td>${sDropM[i] ? sDropM[i].toLocaleString('pt-BR') + ' kg' : '-'}</td>
+                                <td>${sDropSizeM[i] ? sDropSizeM[i].toLocaleString('pt-BR') + ' kg' : '-'}</td>
+                                <td>${acCliM[i] ? acCliM[i].toLocaleString('pt-BR') : '-'}</td>
+                                <td>${acNfM[i] ? acNfM[i].toLocaleString('pt-BR') : '-'}</td>
+                            </tr>`;
+                            tbody.innerHTML += tr;
+                        }
+                    }
+                
+                    // 4. Gráfico Misto (Peso x Veículo vs Dropsize)
+                    const ctx = document.getElementById('t3-grafico-misto').getContext('2d');
+                    if (window.chartMistoT3) window.chartMistoT3.destroy();
+                
+                    window.chartMistoT3 = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labF,
+                            datasets: [
+                                { type: 'line', label: 'Peso x Veículo (KG)', data: vDropF, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#ff8c00', yAxisID: 'y' },
+                                { type: 'bar', label: 'Dropsize (KG)', data: vDropSizeF, backgroundColor: 'rgba(230, 126, 34, 0.6)', borderColor: '#e67e22', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
+                            plugins: {
+                                title: { display: true, text: `📊 PESO X VEÍCULOS x DROPSIZE - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
+                                legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
+                                datalabels: { display: false }
+                            },
+                            scales: {
+                                x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
+                                y: { type: 'linear', display: true, position: 'left', ticks: { color: '#ff8c00', font: { size: 11, weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                                y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#e67e22', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
+                            }
+                        }
+                    });
                 }
                 renderizarAderenciaDiario(labAderenciaF, vAderenciaF, vApontamentosF, mesExibicaoNome);
 
