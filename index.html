@@ -451,8 +451,25 @@
             #tela3 .t2-mc-val { font-size: clamp(0.9em, 1.1vw, 1.2em) !important; }
             #tela3 .t2-mc-dia { font-size: clamp(0.55em, 0.7vw, 0.75em) !important; }
             #tela3 .t2-mc-vol { padding: 1px 4px !important; font-size: clamp(0.5em, 0.65vw, 0.7em) !important; margin-top: 1px !important; }
+            
+            /* Novos estilos para os controles do carrossel na Tela 3 */
+            .controles-carrossel-t3 { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; margin-left: 5px; }
+            .btn-carrossel-t3 { background: rgba(255,255,255,0.05); border: 1px solid rgba(0,206,209,0.4); color: #a0aec0; cursor: pointer; padding: 2px 8px; border-radius: 4px; font-size: 0.65em; transition: 0.2s; font-weight: bold; text-transform: uppercase; }
+            .btn-carrossel-t3:hover { background: #00ced1; color: #0b192c; }
+            .btn-carrossel-t3.active { background: #2ecc71; color: #0b192c; border-color: #2ecc71; }
+            .nav-setas-t3 { display: none; gap: 5px; } /* Oculto por padrão, aparece no modo manual */
         </style>
+        
         <div style="display: flex; flex-direction: column; gap: 0.5vh; width: 100%; flex-shrink: 0;">
+            <!-- Controles do Carrossel T3 -->
+            <div class="controles-carrossel-t3">
+                <button id="btn-t3-auto" class="btn-carrossel-t3 active" onclick="toggleCarrosselT3()">AUTO: ON</button>
+                <div id="nav-setas-t3" class="nav-setas-t3">
+                    <button class="btn-carrossel-t3" onclick="mudarPaginaCarrosselT3(-1)">&#10094;</button>
+                    <button class="btn-carrossel-t3" onclick="mudarPaginaCarrosselT3(1)">&#10095;</button>
+                </div>
+            </div>
+            
             <div class="t2-minicards-wrapper" id="t3-minicards-drop-container"></div>
             <div class="t2-minicards-wrapper" id="t3-minicards-dropsize-container"></div>
         </div>
@@ -511,6 +528,61 @@
     </div>
     
     <script>
+        // --- VARIÁVEIS E FUNÇÕES GLOBAIS PARA O CARROSSEL DA TELA 3 ---
+        let t3CarrosselAuto = true;
+        let t3PaginaAtual = 0;
+        let t3TotalPaginas = 0;
+        
+        function toggleCarrosselT3() {
+            t3CarrosselAuto = !t3CarrosselAuto;
+            const btn = document.getElementById('btn-t3-auto');
+            const setas = document.getElementById('nav-setas-t3');
+            
+            if (t3CarrosselAuto) {
+                btn.textContent = "AUTO: ON";
+                btn.classList.add('active');
+                btn.style.background = "#2ecc71";
+                setas.style.display = 'none';
+                iniciarCarrosselT3();
+            } else {
+                btn.textContent = "MANUAL";
+                btn.classList.remove('active');
+                btn.style.background = "rgba(255,255,255,0.05)";
+                btn.style.color = "#a0aec0";
+                setas.style.display = 'flex';
+                if (window.t3CarouselInterval) clearInterval(window.t3CarouselInterval);
+            }
+        }
+        
+        function mudarPaginaCarrosselT3(direcao) {
+            if (t3TotalPaginas <= 1) return;
+            
+            if (direcao === 1) {
+                t3PaginaAtual = (t3PaginaAtual + 1) % t3TotalPaginas;
+            } else {
+                t3PaginaAtual = (t3PaginaAtual - 1 + t3TotalPaginas) % t3TotalPaginas;
+            }
+            atualizarPosicaoCarrosselT3();
+        }
+        
+        function atualizarPosicaoCarrosselT3() {
+            let trackDrop = document.getElementById('t3-track-drop');
+            let trackDropSize = document.getElementById('t3-track-dropsize');
+            if (trackDrop) trackDrop.style.transform = `translateX(-${t3PaginaAtual * 100}%)`;
+            if (trackDropSize) trackDropSize.style.transform = `translateX(-${t3PaginaAtual * 100}%)`;
+        }
+        
+        function iniciarCarrosselT3() {
+            if (window.t3CarouselInterval) clearInterval(window.t3CarouselInterval);
+            if (t3TotalPaginas > 1 && t3CarrosselAuto) {
+                window.t3CarouselInterval = setInterval(() => {
+                    t3PaginaAtual = (t3PaginaAtual + 1) % t3TotalPaginas;
+                    atualizarPosicaoCarrosselT3();
+                }, 20000); // 20 segundos para mudar de página
+            }
+        }
+        // --- FIM DA LÓGICA DO CARROSSEL TELA 3 ---
+        
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
         Chart.register(ChartDataLabels);
 
@@ -1023,20 +1095,11 @@
                         containerDrop.innerHTML = `<div class="t2-track" id="t3-track-drop">${paginasDropHTML}</div>`;
                         containerDropSize.innerHTML = `<div class="t2-track" id="t3-track-dropsize">${paginasDropSizeHTML}</div>`;
                         
-                        let totalPaginas = Math.ceil(cardsDrop.length / cardsPorPagina);
-                        let paginaAtual = 0;
-                        
-                        if (window.t3CarouselInterval) clearInterval(window.t3CarouselInterval);
-                        if (totalPaginas > 1) {
-                            window.t3CarouselInterval = setInterval(() => {
-                                paginaAtual = (paginaAtual + 1) % totalPaginas;
-                                let trackDrop = document.getElementById('t3-track-drop');
-                                let trackDropSize = document.getElementById('t3-track-dropsize');
-                                // Move ambos os carrosseis ao mesmo tempo
-                                if (trackDrop) trackDrop.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                                if (trackDropSize) trackDropSize.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                            }, 20000); // 20 segundos para mudar de página
-                        }
+                        t3TotalPaginas = Math.ceil(cardsDrop.length / cardsPorPagina);
+
+                        // Inicia o carrossel usando as funções globais que criamos
+                        iniciarCarrosselT3();
+                        atualizarPosicaoCarrosselT3();
                     }
                 
                     // 3. Tabela de Histórico Anual
@@ -1590,6 +1653,7 @@
             const modal = document.getElementById('modal-ajuda');
             modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
         });
+        
     </script>
 </body>
 </html>
