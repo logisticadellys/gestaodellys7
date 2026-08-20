@@ -446,7 +446,11 @@
         </div>
     
         <!-- Mini Cards Diários (Carrossel) -->
-        <div class="t2-minicards-wrapper" id="t3-minicards-container"></div>
+        <!-- Mini Cards Diários (Carrossel) -->
+        <div style="display: flex; flex-direction: column; gap: 1vh; width: 100%; flex-shrink: 0;">
+            <div class="t2-minicards-wrapper" id="t3-minicards-drop-container"></div>
+            <div class="t2-minicards-wrapper" id="t3-minicards-dropsize-container"></div>
+        </div>
     
         <!-- Base: Gráfico à Esquerda e Tabela à Direita -->
         <div class="t2-base-grid">
@@ -964,43 +968,69 @@
                     document.getElementById('t3-acm-nf').textContent = totalNfMes.toLocaleString('pt-BR');
                     document.getElementById('t3-acm-cli').textContent = totalCliMes.toLocaleString('pt-BR');
                 
-                    // 2. Mini Cards Diários (Picos diários de Peso x Veículo e Dropsize)
-                    let containerMC = document.getElementById('t3-minicards-container');
-                    if (containerMC) {
-                        containerMC.innerHTML = '';
-                        let todosOsCards = [];
+                    // 2. Mini Cards Diários (Picos diários de Peso x Veículo e Dropsize separados)
+                    let containerDrop = document.getElementById('t3-minicards-drop-container');
+                    let containerDropSize = document.getElementById('t3-minicards-dropsize-container');
+                    
+                    if (containerDrop && containerDropSize) {
+                        let cardsDrop = [];
+                        let cardsDropSize = [];
+                
+                        // Encontrar índices dos picos para destacar
+                        let idxPicoDrop = vDropF.indexOf(picoDrop);
+                        let idxPicoDropSize = vDropSizeF.indexOf(picoDropSize);
                 
                         for (let i = 0; i < labF.length; i++) {
+                            let isPicoDrop = (i === idxPicoDrop && picoDrop > 0);
+                            let isPicoDropSize = (i === idxPicoDropSize && picoDropSize > 0);
+                            
                             let dropVal = vDropF[i] ? vDropF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
                             let dropSizeVal = vDropSizeF[i] ? vDropSizeF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
                             
-                            // Dentro do loop dos mini-cards:
-                            let cardHTML = `
-                                <div class="t2-minicard">
-                                    <span class="t2-mc-dia">DIA ${labF[i]}</span>
+                            // Card Peso x Veículo (Laranja)
+                            cardsDrop.push(`
+                                <div class="t2-minicard ${isPicoDrop ? 'pico' : ''}" ${isPicoDrop ? 'style="border-color: #ff8c00; box-shadow: 0 0 12px rgba(255, 140, 0, 0.4);"' : ''}>
+                                    <span class="t2-mc-dia">DIA ${labF[i]} ${isPicoDrop ? '<br><span style="color: #ff8c00; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
                                     <span class="t2-mc-val" style="font-size: 1em; color: #ff8c00;">${dropVal}</span>
-                                    <span class="t2-mc-vol" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; margin-top: 4px;">Drop: ${dropSizeVal}</span>
+                                    <span class="t2-mc-vol" style="background: rgba(255, 140, 0, 0.15); color: #ff8c00; margin-top: 4px;">Peso x Veículo</span>
                                 </div>
-                            `;
-                            todosOsCards.push(cardHTML);
+                            `);
+                            
+                            // Card Dropsize (Verde)
+                            cardsDropSize.push(`
+                                <div class="t2-minicard ${isPicoDropSize ? 'pico' : ''}" ${isPicoDropSize ? 'style="border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);"' : ''}>
+                                    <span class="t2-mc-dia">DIA ${labF[i]} ${isPicoDropSize ? '<br><span style="color: #2ecc71; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
+                                    <span class="t2-mc-val" style="font-size: 1em; color: #2ecc71;">${dropSizeVal}</span>
+                                    <span class="t2-mc-vol" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; margin-top: 4px;">Dropsize</span>
+                                </div>
+                            `);
                         }
                 
                         let cardsPorPagina = 8;
-                        let paginasHTML = '';
-                        for (let p = 0; p < todosOsCards.length; p += cardsPorPagina) {
-                            paginasHTML += `<div class="t2-page">${todosOsCards.slice(p, p + cardsPorPagina).join('')}</div>`;
-                        }
-                        containerMC.innerHTML = `<div class="t2-track" id="t3-track">${paginasHTML}</div>`;
+                        let paginasDropHTML = '';
+                        let paginasDropSizeHTML = '';
                         
-                        let totalPaginas = Math.ceil(todosOsCards.length / cardsPorPagina);
+                        for (let p = 0; p < cardsDrop.length; p += cardsPorPagina) {
+                            paginasDropHTML += `<div class="t2-page">${cardsDrop.slice(p, p + cardsPorPagina).join('')}</div>`;
+                            paginasDropSizeHTML += `<div class="t2-page">${cardsDropSize.slice(p, p + cardsPorPagina).join('')}</div>`;
+                        }
+                        
+                        containerDrop.innerHTML = `<div class="t2-track" id="t3-track-drop">${paginasDropHTML}</div>`;
+                        containerDropSize.innerHTML = `<div class="t2-track" id="t3-track-dropsize">${paginasDropSizeHTML}</div>`;
+                        
+                        let totalPaginas = Math.ceil(cardsDrop.length / cardsPorPagina);
                         let paginaAtual = 0;
+                        
                         if (window.t3CarouselInterval) clearInterval(window.t3CarouselInterval);
                         if (totalPaginas > 1) {
                             window.t3CarouselInterval = setInterval(() => {
                                 paginaAtual = (paginaAtual + 1) % totalPaginas;
-                                let track = document.getElementById('t3-track');
-                                if (track) track.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                            }, 15000);
+                                let trackDrop = document.getElementById('t3-track-drop');
+                                let trackDropSize = document.getElementById('t3-track-dropsize');
+                                // Move ambos os carrosseis ao mesmo tempo
+                                if (trackDrop) trackDrop.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                                if (trackDropSize) trackDropSize.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                            }, 15000); // 15 segundos para mudar de página
                         }
                     }
                 
