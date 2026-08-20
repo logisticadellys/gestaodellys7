@@ -1055,15 +1055,15 @@
                         }
                     }
                 
-                    // 4. Alternância entre Peso x Dropsize e NF's x Clientes (Estilo Montanha)
+                    // 4. Alternância entre Peso x Dropsize e NF's (Linha) x Clientes (Coluna)
                     const ctx = document.getElementById('t3-grafico-misto').getContext('2d');
                     if (window.t3ChartAlternatingInterval) clearInterval(window.t3ChartAlternatingInterval);
-
-                    let modoGraficoT3 = 0; // 0 = Peso x Dropsize, 1 = NF's x Clientes (Montanha)
-
+                    
+                    let modoGraficoT3 = 0; // 0 = Peso x Dropsize, 1 = NF's x Clientes
+                    
                     function renderizarGraficoAlternadoT3() {
                         if (window.chartMistoT3) window.chartMistoT3.destroy();
-
+                    
                         if (modoGraficoT3 === 0) {
                             window.chartMistoT3 = new Chart(ctx, {
                                 type: 'bar',
@@ -1090,18 +1090,18 @@
                             });
                         } else {
                             window.chartMistoT3 = new Chart(ctx, {
-                                type: 'line',
+                                type: 'bar',
                                 data: {
                                     labels: labF,
                                     datasets: [
-                                        { label: "NF'S", data: vNfF, backgroundColor: 'rgba(0, 206, 209, 0.35)', borderColor: '#00ced1', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#00ced1', yAxisID: 'y' },
-                                        { label: "CLIENTES", data: vCliF, backgroundColor: 'rgba(155, 89, 182, 0.35)', borderColor: '#9b59b6', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#9b59b6', yAxisID: 'y1' }
+                                        { type: 'line', label: "NF'S", data: vNfF, borderColor: '#00ced1', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#00ced1', yAxisID: 'y' },
+                                        { type: 'bar', label: "CLIENTES", data: vCliF, backgroundColor: 'rgba(155, 89, 182, 0.6)', borderColor: '#9b59b6', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
                                     ]
                                 },
                                 options: {
                                     responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
                                     plugins: {
-                                        title: { display: true, text: `⛰️ NF'S X CLIENTES - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
+                                        title: { display: true, text: `📊 NF'S X CLIENTES - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
                                         legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
                                         datalabels: { display: false }
                                     },
@@ -1114,8 +1114,10 @@
                             });
                         }
                     }
-
+                    
                     renderizarGraficoAlternadoT3();
+                    
+                    // Transição ajustada para 20 segundos (20000ms)
                     window.t3ChartAlternatingInterval = setInterval(() => {
                         modoGraficoT3 = modoGraficoT3 === 0 ? 1 : 0;
                         renderizarGraficoAlternadoT3();
