@@ -446,8 +446,13 @@
         </div>
     
         <!-- Mini Cards Diários (Carrossel) -->
-        <!-- Mini Cards Diários (Carrossel) -->
-        <div style="display: flex; flex-direction: column; gap: 1vh; width: 100%; flex-shrink: 0;">
+        <style>
+            #tela3 .t2-minicard { padding: 0.5vh 0.2vw !important; gap: 2px !important; }
+            #tela3 .t2-mc-val { font-size: clamp(0.9em, 1.1vw, 1.2em) !important; }
+            #tela3 .t2-mc-dia { font-size: clamp(0.55em, 0.7vw, 0.75em) !important; }
+            #tela3 .t2-mc-vol { padding: 1px 4px !important; font-size: clamp(0.5em, 0.65vw, 0.7em) !important; margin-top: 1px !important; }
+        </style>
+        <div style="display: flex; flex-direction: column; gap: 0.5vh; width: 100%; flex-shrink: 0;">
             <div class="t2-minicards-wrapper" id="t3-minicards-drop-container"></div>
             <div class="t2-minicards-wrapper" id="t3-minicards-dropsize-container"></div>
         </div>
