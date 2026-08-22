@@ -1045,34 +1045,55 @@
                     // --- 3. TABELAS ROTATIVAS DA TELA 3 (3 VISÕES A CADA 30s) ---
                     let tbody3 = document.getElementById('t3-table-body');
                     let tabelaTitulo3 = document.getElementById('t3-tabela-titulo');
-                    
-                    // Filtra apenas os meses que possuem dados até o mês de exibição atual
+    
+                    // Vamos calcular os acumulados mensais reais direto dos arrays diários se os mensais vierem vazios
+                    let sDropM_Calc = Array(12).fill(0);
+                    let sDropSizeM_Calc = Array(12).fill(0);
+                    let acNfM_Calc = Array(12).fill(0);
+                    let acCliM_Calc = Array(12).fill(0);
+                    let contDiasMes = Array(12).fill(0);
+    
+                    for (let i = 0; i < ultimoDiaMesExibicao; i++) {
+                        let mIdx = mesDeExibicaoIdx; // Mês atual sendo exibido
+                        if (dDropR[i]) { sDropM_Calc[mIdx] += dDropR[i]; }
+                        if (dDropSizeR[i]) { sDropSizeM_Calc[mIdx] += dDropSizeR[i]; contDiasMes[mIdx]++; }
+                        if (dNfR[i]) { acNfM_Calc[mIdx] += dNfR[i]; }
+                        if (dCliR[i]) { acCliM_Calc[mIdx] += dCliR[i]; }
+                    }
+    
+                    // Se sDropM[mesDeExibicaoIdx] estiver vazio, usa o calculado ou o global
+                    let arrayPesoUsar = sDropM.map((v, idx) => v > 0 ? v : sDropM_Calc[idx]);
+                    let arrayDropSizeUsar = sDropSizeM.map((v, idx) => {
+                        if (v > 0) return v;
+                        return contDiasMes[idx] > 0 ? sDropSizeM_Calc[idx] / contDiasMes[idx] : 0; // Média do dropsize se for o caso
+                    });
+                    let arrayNfUsar = acNfM.map((v, idx) => v > 0 ? v : acNfM_Calc[idx]);
+                    let arrayCliUsar = acCliM.map((v, idx) => v > 0 ? v : acCliM_Calc[idx]);
+    
                     let mesesValidosT3 = [];
                     for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                        if (sDropM[i] > 0 || sDropSizeM[i] > 0 || acNfM[i] > 0 || acCliM[i] > 0) {
+                        if (arrayPesoUsar[i] > 0 || arrayDropSizeUsar[i] > 0 || arrayNfUsar[i] > 0 || arrayCliUsar[i] > 0) {
                             mesesValidosT3.push(i);
                         }
                     }
-                    
-                    // Descobre os melhores índices (maiores valores) para destaque em cada métrica
+    
+                    // Descobre os melhores índices (maiores valores) para destaque
                     let melhorDrop = -1, valMaxDrop = -1;
                     let melhorDropSize = -1, valMaxDropSize = -1;
                     let melhorNf = -1, valMaxNf = -1;
                     let melhorCli = -1, valMaxCli = -1;
-                    
+    
                     mesesValidosT3.forEach(i => {
-                        if (sDropM[i] > valMaxDrop) { valMaxDrop = sDropM[i]; melhorDrop = i; }
-                        if (sDropSizeM[i] > valMaxDropSize) { valMaxDropSize = sDropSizeM[i]; melhorDropSize = i; }
-                        if (acNfM[i] > valMaxNf) { valMaxNf = acNfM[i]; melhorNf = i; }
-                        if (acCliM[i] > valMaxCli) { valMaxCli = acCliM[i]; melhorCli = i; }
+                        if (arrayPesoUsar[i] > valMaxDrop) { valMaxDrop = arrayPesoUsar[i]; melhorDrop = i; }
+                        if (arrayDropSizeUsar[i] > valMaxDropSize) { valMaxDropSize = arrayDropSizeUsar[i]; melhorDropSize = i; }
+                        if (arrayNfUsar[i] > valMaxNf) { valMaxNf = arrayNfUsar[i]; melhorNf = i; }
+                        if (arrayCliUsar[i] > valMaxCli) { valMaxCli = arrayCliUsar[i]; melhorCli = i; }
                     });
-                    
-                    // Função auxiliar para calcular a % Vs Mês Ant.
-                    function calcVsAnt(arr, idx, atualI) {
-                        if (idx === 0) return "-";
-                        let mesAntI = mesesValidosT3[idx - 1];
-                        // Garante que o mês anterior é sequencial imediato ou pega o valor direto
-                        let valAtual = arr[atualI];
+    
+                    function calcVsAnt(arr, idxArr, mesesValidos) {
+                        if (idxArr === 0) return "-";
+                        let mesAntI = mesesValidos[idxArr - 1];
+                        let valAtual = arr[mesesValidos[idxArr]];
                         let valAnt = arr[mesAntI];
                         if (!valAnt || valAnt === 0) return "-";
                         let perc = ((valAtual - valAnt) / valAnt) * 100;
@@ -1080,33 +1101,30 @@
                         let icone = perc > 0 ? '▲' : (perc < 0 ? '▼' : '▬');
                         return `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(perc).toFixed(1)}%</span>`;
                     }
-                    
-                    // Montagem das 3 tabelas em HTML
+    
                     let htmlTabela1 = '';
                     let htmlTabela2 = '';
                     let htmlTabela3 = '';
-                    
+    
                     mesesValidosT3.forEach((i, idxArr) => {
                         let mNome = mesesExtenso[i];
                         
-                        // Dados brutos
-                        let vDrop = sDropM[i] ? sDropM[i].toLocaleString('pt-BR') + ' kg' : '-';
-                        let vDropSize = sDropSizeM[i] ? sDropSizeM[i].toLocaleString('pt-BR') + ' kg' : '-';
-                        let vNf = acNfM[i] ? acNfM[i].toLocaleString('pt-BR') : '-';
-                        let vCli = acCliM[i] ? acCliM[i].toLocaleString('pt-BR') : '-';
+                        let vDrop = arrayPesoUsar[i] ? arrayPesoUsar[i].toLocaleString('pt-BR', {maximumFractionDigits: 0}) + ' kg' : '-';
+                        let vDropSize = arrayDropSizeUsar[i] ? arrayDropSizeUsar[i].toLocaleString('pt-BR', {maximumFractionDigits: 1}) + ' kg' : '-';
+                        let vNf = arrayNfUsar[i] ? arrayNfUsar[i].toLocaleString('pt-BR', {maximumFractionDigits: 0}) : '-';
+                        let vCli = arrayCliUsar[i] ? arrayCliUsar[i].toLocaleString('pt-BR', {maximumFractionDigits: 0}) : '-';
                         
-                        // Destaques (Troféu ou negrito para o melhor)
                         let isBestDrop = (i === melhorDrop);
                         let isBestDropSize = (i === melhorDropSize);
                         let isBestNf = (i === melhorNf);
                         let isBestCli = (i === melhorCli);
-                    
+    
                         let styleDrop = isBestDrop ? 'background: rgba(46, 204, 113, 0.15); font-weight: bold; color: #2ecc71;' : '';
                         let styleDropSize = isBestDropSize ? 'background: rgba(46, 204, 113, 0.15); font-weight: bold; color: #2ecc71;' : '';
                         let styleNf = isBestNf ? 'background: rgba(0, 206, 209, 0.15); font-weight: bold; color: #00ced1;' : '';
                         let styleCli = isBestCli ? 'background: rgba(155, 89, 182, 0.15); font-weight: bold; color: #9b59b6;' : '';
-                    
-                        // Tabela 1: Padrão
+    
+                        // Tabela 1
                         htmlTabela1 += `<tr>
                             <td>${mNome}</td>
                             <td style="${styleDrop}">${vDrop} ${isBestDrop ? '<i class="fas fa-trophy" style="color: #f1c40f;"></i>' : ''}</td>
@@ -1114,48 +1132,42 @@
                             <td style="${styleNf}">${vNf} ${isBestNf ? '<i class="fas fa-trophy" style="color: #f1c40f;"></i>' : ''}</td>
                             <td style="${styleCli}">${vCli} ${isBestCli ? '<i class="fas fa-trophy" style="color: #f1c40f;"></i>' : ''}</td>
                         </tr>`;
-                    
-                        // Tabela 2: Peso x Veículo e Dropsize com Vs Mês Ant.
-                        let vsDrop = calcVsAnt(sDropM, idxArr, i);
-                        let vsDropSize = calcVsAnt(sDropSizeM, idxArr, i);
+    
+                        // Tabela 2 (Peso x Veículo e Dropsize com Vs Mês Ant)
+                        let vsDrop = calcVsAnt(arrayPesoUsar, idxArr, mesesValidosT3);
+                        let vsDropSize = calcVsAnt(arrayDropSizeUsar, idxArr, mesesValidosT3);
                         htmlTabela2 += `<tr>
                             <td>${mNome}</td>
-                            <td style="${styleDrop}">${vDrop}</td>
+                            <td style="${styleDrop}">${vDrop} ${isBestDrop ? '<i class="fas fa-trophy" style="color: #f1c40f;"></i>' : ''}</td>
                             <td>${vsDrop}</td>
-                            <td style="${styleDropSize}">${vDropSize}</td>
+                            <td style="${styleDropSize}">${vDropSize} ${isBestDropSize ? '<i class="fas fa-trophy" style="color: #f1c40f;"></i>' : ''}</td>
                             <td>${vsDropSize}</td>
                         </tr>`;
-                    
-                        // Tabela 3: NF's e Clientes com Vs Mês Ant.
-                        let vsNf = calcVsAnt(acNfM, idxArr, i);
-                        let vsCli = calcVsAnt(acCliM, idxArr, i);
+    
+                        // Tabela 3 (NF's e Clientes com Vs Mês Ant)
+                        let vsNf = calcVsAnt(arrayNfUsar, idxArr, mesesValidosT3);
+                        let vsCli = calcVsAnt(arrayCliUsar, idxArr, mesesValidosT3);
                         htmlTabela3 += `<tr>
                             <td>${mNome}</td>
-                            <td style="${styleNf}">${vNf}</td>
+                            <td style="${styleNf}">${vNf} ${isBestNf ? '<i class="fas fa-trophy" style="color: #f1c40f;"></i>' : ''}</td>
                             <td>${vsNf}</td>
-                            <td style="${styleCli}">${vCli}</td>
+                            <td style="${styleCli}">${vCli} ${isBestCli ? '<i class="fas fa-trophy" style="color: #f1c40f;"></i>' : ''}</td>
                             <td>${vsCli}</td>
                         </tr>`;
                     });
-                    
-                    // Vetor com as 3 visões para o carrossel de 30 segundos
+    
                     let visoesTabela3 = [
                         { titulo: `HISTÓRICO MENSAL - VOLUME E OPERAÇÃO (${anoAtual})`, cabecalho: `<tr><th>Mês</th><th>Peso x Veículo</th><th>Dropsize</th><th>NF's</th><th>Clientes</th></tr>`, corpo: htmlTabela1 },
                         { titulo: `HISTÓRICO MENSAL - PESO E DROPSIZE VS MÊS ANT. (${anoAtual})`, cabecalho: `<tr><th>Mês</th><th>Peso x Veículo</th><th>Vs Mês Ant.</th><th>Dropsize</th><th>Vs Mês Ant.</th></tr>`, corpo: htmlTabela2 },
                         { titulo: `HISTÓRICO MENSAL - NF'S E CLIENTES VS MÊS ANT. (${anoAtual})`, cabecalho: `<tr><th>Mês</th><th>NF's</th><th>Vs Mês Ant.</th><th>Clientes</th><th>Vs Mês Ant.</th></tr>`, corpo: htmlTabela3 }
                     ];
-                    
+    
                     let indiceVisaoT3 = 0;
-                    
+    
                     function atualizarTabelaTela3() {
                         let visaoAtual = visoesTabela3[indiceVisaoT3];
                         if (tabelaTitulo3) tabelaTitulo3.textContent = visaoAtual.titulo;
                         
-                        // Ajusta o cabeçalho da tabela dinamicamente se necessário, ou reconstrói as colunas th
-                        let theadTr = document.querySelector('#tela3 .t2-table thead tr:nth-child(2)');
-                        if (theadTr) theadTr.innerHTML = visaoAtual.cabecalho.replace(/<\/?tr>/g, '').replace(/<\/?th[^>]*>/g, (match) => match.includes('th') ? match : match); // Mantém estrutura limpa
-                        
-                        // Se preferir substituir todo o thead da tabela 3 para garantir que o número de colunas bati exato:
                         let tableHeadEl = document.querySelector('#tela3 .t2-table thead');
                         if (tableHeadEl) {
                             tableHeadEl.innerHTML = `
@@ -1163,14 +1175,11 @@
                                 ${visaoAtual.cabecalho}
                             `;
                         }
-                        
-                        tbody3.innerHTML = visaoAtual.corpo;
+                        if (tbody3) tbody3.innerHTML = visaoAtual.corpo;
                     }
-                    
-                    // Executa a primeira vez
+    
                     atualizarTabelaTela3();
-                    
-                    // Configura a troca a cada 30 segundos
+    
                     if (window.t3TableInterval) clearInterval(window.t3TableInterval);
                     window.t3TableInterval = setInterval(() => {
                         indiceVisaoT3 = (indiceVisaoT3 + 1) % visoesTabela3.length;
