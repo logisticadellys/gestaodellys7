@@ -1042,10 +1042,44 @@
                         }
                     }
                 
-                    // 3. Alternância das 3 Tabelas do Histórico Anual (30s exatos por sub-tabela)
-                    if (window.t3TableAlternatingInterval) clearInterval(window.t3TableAlternatingInterval);
-                    
+                    // ==========================================
+                    // CONTROLE DE ROTAÇÃO - TELA 3
+                    // ==========================================
                     try {
+                        // ------------------------------------------
+                        // 1. ROTADOR DE SUBCARDS (A CADA 20 SEGUNDOS)
+                        // ------------------------------------------
+                        if (window.t3CardsInterval) clearInterval(window.t3CardsInterval);
+                    
+                        let modoCardsT3 = 0;
+                        function alternarSubcardsT3() {
+                            // Alterne a visibilidade ou conteúdo dos seus subcards da Tela 3
+                            const cardsGroup1 = document.querySelectorAll('.t3-card-grupo-1');
+                            const cardsGroup2 = document.querySelectorAll('.t3-card-grupo-2');
+                    
+                            if (cardsGroup1.length && cardsGroup2.length) {
+                                if (modoCardsT3 === 0) {
+                                    cardsGroup1.forEach(c => c.style.display = 'block');
+                                    cardsGroup2.forEach(c => c.style.display = 'none');
+                                } else {
+                                    cardsGroup1.forEach(c => c.style.display = 'none');
+                                    cardsGroup2.forEach(c => c.style.display = 'block');
+                                }
+                            }
+                        }
+                    
+                        alternarSubcardsT3();
+                        window.t3CardsInterval = setInterval(() => {
+                            modoCardsT3 = (modoCardsT3 + 1) % 2;
+                            alternarSubcardsT3();
+                        }, 20000); // 20 Segundos
+                    
+                    
+                        // ------------------------------------------
+                        // 2. ROTADOR DA TABELA (A CADA 30 SEGUNDOS)
+                        // ------------------------------------------
+                        if (window.t3TableAlternatingInterval) clearInterval(window.t3TableAlternatingInterval);
+                    
                         const arrDrop = (typeof sDropM !== 'undefined' && Array.isArray(sDropM)) ? sDropM : [];
                         const arrDropSize = (typeof sDropSizeM !== 'undefined' && Array.isArray(sDropSizeM)) ? sDropSizeM : [];
                         const arrNf = (typeof acNfM !== 'undefined' && Array.isArray(acNfM)) ? acNfM : [];
@@ -1055,7 +1089,6 @@
                     
                         let modoTabelaT3 = 0;
                     
-                        // Identifica os maiores valores do ano para destaque
                         let maxDrop = 0, maxDropSize = 0, maxNf = 0, maxCli = 0;
                         for (let i = 0; i <= maxIdx; i++) {
                             if (arrDrop[i] > maxDrop) maxDrop = arrDrop[i];
@@ -1072,7 +1105,6 @@
                             return `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
                         }
                     
-                        // Aplica o formato do print: fundo verde/turquesa escuro, texto verde brilhante e troféu amarelo
                         function formatarCelulaDestaque(valorFormatado, isMax) {
                             if (!isMax) return valorFormatado;
                             return `<div style="background: rgba(0, 206, 209, 0.18); border-radius: 4px; padding: 4px 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; box-sizing: border-box;">
@@ -1084,7 +1116,6 @@
                         function renderizarTabelaT3() {
                             const tbody = document.getElementById('t3-table-body');
                             if (!tbody) return;
-                    
                             const table = tbody.closest('table');
                             if (!table) return;
                     
@@ -1092,88 +1123,41 @@
                             let bodyHtml = '';
                     
                             if (modoTabelaT3 === 0) {
-                                // TABELA 1: Visão Geral
-                                headHtml = `<tr>
-                                    <th>Mês</th>
-                                    <th>Peso x Veículo</th>
-                                    <th>Dropsize</th>
-                                    <th>NF's</th>
-                                    <th>Clientes</th>
-                                </tr>`;
-                    
+                                headHtml = `<tr><th>Mês</th><th>Peso x Veículo</th><th>Dropsize</th><th>NF's</th><th>Clientes</th></tr>`;
                                 for (let i = 0; i <= maxIdx; i++) {
                                     if ((arrDrop[i] || 0) > 0 || (arrDropSize[i] || 0) > 0 || (arrNf[i] || 0) > 0) {
-                                        let isMaxDrop = (arrDrop[i] === maxDrop && maxDrop > 0);
-                                        let isMaxDropSize = (arrDropSize[i] === maxDropSize && maxDropSize > 0);
-                                        let isMaxNf = (arrNf[i] === maxNf && maxNf > 0);
-                                        let isMaxCli = (arrCli[i] === maxCli && maxCli > 0);
-                    
                                         bodyHtml += `<tr>
                                             <td>${arrMeses[i] || ''}</td>
-                                            <td>${formatarCelulaDestaque(arrDrop[i] ? arrDrop[i].toLocaleString('pt-BR') + ' kg' : '-', isMaxDrop)}</td>
-                                            <td>${formatarCelulaDestaque(arrDropSize[i] ? arrDropSize[i].toLocaleString('pt-BR') + ' kg' : '-', isMaxDropSize)}</td>
-                                            <td>${formatarCelulaDestaque(arrNf[i] ? arrNf[i].toLocaleString('pt-BR') : '-', isMaxNf)}</td>
-                                            <td>${formatarCelulaDestaque(arrCli[i] ? arrCli[i].toLocaleString('pt-BR') : '-', isMaxCli)}</td>
+                                            <td>${formatarCelulaDestaque(arrDrop[i] ? arrDrop[i].toLocaleString('pt-BR') + ' kg' : '-', arrDrop[i] === maxDrop && maxDrop > 0)}</td>
+                                            <td>${formatarCelulaDestaque(arrDropSize[i] ? arrDropSize[i].toLocaleString('pt-BR') + ' kg' : '-', arrDropSize[i] === maxDropSize && maxDropSize > 0)}</td>
+                                            <td>${formatarCelulaDestaque(arrNf[i] ? arrNf[i].toLocaleString('pt-BR') : '-', arrNf[i] === maxNf && maxNf > 0)}</td>
+                                            <td>${formatarCelulaDestaque(arrCli[i] ? arrCli[i].toLocaleString('pt-BR') : '-', arrCli[i] === maxCli && maxCli > 0)}</td>
                                         </tr>`;
                                     }
                                 }
                             } else if (modoTabelaT3 === 1) {
-                                // TABELA 2: Peso x Veículo e Dropsize com Vs Mês Ant.
-                                headHtml = `<tr>
-                                    <th>Mês</th>
-                                    <th>Peso x Veículo</th>
-                                    <th>Vs Mês Ant.</th>
-                                    <th>Dropsize</th>
-                                    <th>Vs Mês Ant.</th>
-                                </tr>`;
-                    
+                                headHtml = `<tr><th>Mês</th><th>Peso x Veículo</th><th>Vs Mês Ant.</th><th>Dropsize</th><th>Vs Mês Ant.</th></tr>`;
                                 for (let i = 0; i <= maxIdx; i++) {
                                     if ((arrDrop[i] || 0) > 0 || (arrDropSize[i] || 0) > 0) {
-                                        let isMaxDrop = (arrDrop[i] === maxDrop && maxDrop > 0);
-                                        let isMaxDropSize = (arrDropSize[i] === maxDropSize && maxDropSize > 0);
-                    
-                                        let valDropStr = formatarCelulaDestaque(arrDrop[i] ? arrDrop[i].toLocaleString('pt-BR') + ' kg' : '-', isMaxDrop);
-                                        let valDropSizeStr = formatarCelulaDestaque(arrDropSize[i] ? arrDropSize[i].toLocaleString('pt-BR') + ' kg' : '-', isMaxDropSize);
-                    
-                                        let diffDrop = calcDiffPerc(arrDrop[i], i > 0 ? arrDrop[i - 1] : 0);
-                                        let diffDropSize = calcDiffPerc(arrDropSize[i], i > 0 ? arrDropSize[i - 1] : 0);
-                    
                                         bodyHtml += `<tr>
                                             <td>${arrMeses[i] || ''}</td>
-                                            <td>${valDropStr}</td>
-                                            <td>${diffDrop}</td>
-                                            <td>${valDropSizeStr}</td>
-                                            <td>${diffDropSize}</td>
+                                            <td>${formatarCelulaDestaque(arrDrop[i] ? arrDrop[i].toLocaleString('pt-BR') + ' kg' : '-', arrDrop[i] === maxDrop && maxDrop > 0)}</td>
+                                            <td>${calcDiffPerc(arrDrop[i], i > 0 ? arrDrop[i - 1] : 0)}</td>
+                                            <td>${formatarCelulaDestaque(arrDropSize[i] ? arrDropSize[i].toLocaleString('pt-BR') + ' kg' : '-', arrDropSize[i] === maxDropSize && maxDropSize > 0)}</td>
+                                            <td>${calcDiffPerc(arrDropSize[i], i > 0 ? arrDropSize[i - 1] : 0)}</td>
                                         </tr>`;
                                     }
                                 }
                             } else if (modoTabelaT3 === 2) {
-                                // TABELA 3: NF's e Clientes com Vs Mês Ant.
-                                headHtml = `<tr>
-                                    <th>Mês</th>
-                                    <th>NF's</th>
-                                    <th>Vs Mês Ant.</th>
-                                    <th>Clientes</th>
-                                    <th>Vs Mês Ant.</th>
-                                </tr>`;
-                    
+                                headHtml = `<tr><th>Mês</th><th>NF's</th><th>Vs Mês Ant.</th><th>Clientes</th><th>Vs Mês Ant.</th></tr>`;
                                 for (let i = 0; i <= maxIdx; i++) {
                                     if ((arrNf[i] || 0) > 0 || (arrCli[i] || 0) > 0) {
-                                        let isMaxNf = (arrNf[i] === maxNf && maxNf > 0);
-                                        let isMaxCli = (arrCli[i] === maxCli && maxCli > 0);
-                    
-                                        let valNfStr = formatarCelulaDestaque(arrNf[i] ? arrNf[i].toLocaleString('pt-BR') : '-', isMaxNf);
-                                        let valCliStr = formatarCelulaDestaque(arrCli[i] ? arrCli[i].toLocaleString('pt-BR') : '-', isMaxCli);
-                    
-                                        let diffNf = calcDiffPerc(arrNf[i], i > 0 ? arrNf[i - 1] : 0);
-                                        let diffCli = calcDiffPerc(arrCli[i], i > 0 ? arrCli[i - 1] : 0);
-                    
                                         bodyHtml += `<tr>
                                             <td>${arrMeses[i] || ''}</td>
-                                            <td>${valNfStr}</td>
-                                            <td>${diffNf}</td>
-                                            <td>${valCliStr}</td>
-                                            <td>${diffCli}</td>
+                                            <td>${formatarCelulaDestaque(arrNf[i] ? arrNf[i].toLocaleString('pt-BR') : '-', arrNf[i] === maxNf && maxNf > 0)}</td>
+                                            <td>${calcDiffPerc(arrNf[i], i > 0 ? arrNf[i - 1] : 0)}</td>
+                                            <td>${formatarCelulaDestaque(arrCli[i] ? arrCli[i].toLocaleString('pt-BR') : '-', arrCli[i] === maxCli && maxCli > 0)}</td>
+                                            <td>${calcDiffPerc(arrCli[i], i > 0 ? arrCli[i - 1] : 0)}</td>
                                         </tr>`;
                                     }
                                 }
@@ -1182,26 +1166,48 @@
                             const thead = table.querySelector('thead');
                             if (thead) {
                                 const rows = thead.getElementsByTagName('tr');
-                                if (rows.length > 1) {
-                                    rows[1].outerHTML = headHtml;
-                                } else {
-                                    thead.innerHTML += headHtml;
-                                }
+                                if (rows.length > 1) rows[1].outerHTML = headHtml;
+                                else thead.innerHTML += headHtml;
                             }
-                    
                             tbody.innerHTML = bodyHtml;
                         }
                     
                         renderizarTabelaT3();
-                    
-                        // Intervalo de 30 segundos exatos (30000 ms)
                         window.t3TableAlternatingInterval = setInterval(() => {
                             modoTabelaT3 = (modoTabelaT3 + 1) % 3;
                             renderizarTabelaT3();
-                        }, 30000);
+                        }, 30000); // 30 Segundos
+                    
+                    
+                        // ------------------------------------------
+                        // 3. ROTADOR DE GRÁFICOS (A CADA 40 SEGUNDOS)
+                        // ------------------------------------------
+                        if (window.t3ChartInterval) clearInterval(window.t3ChartInterval);
+                    
+                        let modoGraficoT3 = 0;
+                        function alternarGraficoT3() {
+                            const containerG1 = document.getElementById('t3-chart-container-1'); // Ex: Peso x Veículo x Drop
+                            const containerG2 = document.getElementById('t3-chart-container-2'); // Ex: NF's x Clientes
+                    
+                            if (containerG1 && containerG2) {
+                                if (modoGraficoT3 === 0) {
+                                    containerG1.style.display = 'block';
+                                    containerG2.style.display = 'none';
+                                } else {
+                                    containerG1.style.display = 'none';
+                                    containerG2.style.display = 'block';
+                                }
+                            }
+                        }
+                    
+                        alternarGraficoT3();
+                        window.t3ChartInterval = setInterval(() => {
+                            modoGraficoT3 = (modoGraficoT3 + 1) % 2;
+                            alternarGraficoT3();
+                        }, 40000); // 40 Segundos
                     
                     } catch (err) {
-                        console.error("Erro na tabela Tela 3:", err);
+                        console.error("Erro no controle da Tela 3:", err);
                     }
                 
                     // 4. Alternância com NF'S em Azul (#00ced1) e CLIENTES em Roxo (#9b59b6)
