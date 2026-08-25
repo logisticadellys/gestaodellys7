@@ -1584,9 +1584,16 @@
             for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                 if (acVolM[i] > 0) {
                     let volFormatado = acVolM[i].toLocaleString('pt-BR');
-                    let statusClass = "t2-status-estavel"; let statusTxt = "Estável";
-                    if (acVolM[i] > mediaGeral * 1.1) { statusTxt = "Acima Média"; }
-                    else if (acVolM[i] < mediaGeral * 0.9) { statusTxt = "Baixo Vol."; statusClass = "t2-status-alerta"; }
+                    let statusTxt = "Estável";
+                    let statusStyle = "color: #f1c40f; border: 1px solid #f1c40f; background: rgba(241, 196, 15, 0.1);";
+                    
+                    if (acVolM[i] > mediaGeral * 1.1) {
+                        statusTxt = "Acima Média";
+                        statusStyle = "color: #2ecc71; border: 1px solid #2ecc71; background: rgba(46, 204, 113, 0.1);";
+                    } else if (acVolM[i] < mediaGeral * 0.9) {
+                        statusTxt = "Baixo Vol.";
+                        statusStyle = "color: #e74c3c; border: 1px solid #e74c3c; background: rgba(231, 76, 60, 0.1);";
+                    }
 
                     let diffHtml = "-";
                     if (i > 0 && acVolM[i-1] > 0) {
@@ -1603,7 +1610,7 @@
                     let tr = `<tr ${rowStyle}>
                         <td>${mesesExtenso[i]}</td>
                         <td style="${isMax ? 'font-weight: 900; color: #2ecc71;' : ''}">${volFormatado}${iconMax}</td>
-                        <td><span class="t2-status-badge ${statusClass}">${statusTxt}</span></td>
+                        <td><span class="t2-status-badge" style="${statusStyle}">${statusTxt}</span></td>
                         <td>${diffHtml}</td>
                     </tr>`;
                     tbody.innerHTML += tr;
