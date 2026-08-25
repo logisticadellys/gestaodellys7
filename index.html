@@ -466,8 +466,8 @@
                 <table class="t2-table">
                     <thead>
                         <tr><th colspan="5" id="t3-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0, 206, 209, 0.2); border-bottom: 2px solid #00ced1;"></th></tr>
-                        <tr><th>Mês</th><th>Peso x Veículo</th><th>Dropsize</th><th>NF's</th><th>Clientes</th></tr>
                     </thead>
+                    <thead id="t3-table-head"></thead>
                     <tbody id="t3-table-body"></tbody>
                 </table>
             </div>
@@ -1042,21 +1042,135 @@
                         }
                     }
                 
-                    // 3. Tabela de Histórico Anual
-                    let tbody = document.getElementById('t3-table-body');
-                    tbody.innerHTML = '';
+                    // 3. Alternância das 3 Tabelas do Histórico Anual (a cada 30s)
+                    if (window.t3TableAlternatingInterval) clearInterval(window.t3TableAlternatingInterval);
+                    
+                    let modoTabelaT3 = 0;
+
+                    // Identifica os maiores valores do ano para destaque com troféu verde
+                    let maxDrop = 0, maxDropSize = 0, maxNf = 0, maxCli = 0;
                     for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                        if (sDropM[i] > 0 || sDropSizeM[i] > 0) {
-                            let tr = `<tr>
-                                <td>${mesesExtenso[i]}</td>
-                                <td>${sDropM[i] ? sDropM[i].toLocaleString('pt-BR') + ' kg' : '-'}</td>
-                                <td>${sDropSizeM[i] ? sDropSizeM[i].toLocaleString('pt-BR') + ' kg' : '-'}</td>
-                                <td>${acNfM[i] ? acNfM[i].toLocaleString('pt-BR') : '-'}</td>
-                                <td>${acCliM[i] ? acCliM[i].toLocaleString('pt-BR') : '-'}</td>
-                            </tr>`;
-                            tbody.innerHTML += tr;
-                        }
+                        if (sDropM[i] > maxDrop) maxDrop = sDropM[i];
+                        if (sDropSizeM[i] > maxDropSize) maxDropSize = sDropSizeM[i];
+                        if (acNfM[i] > maxNf) maxNf = acNfM[i];
+                        if (acCliM[i] > maxCli) maxCli = acCliM[i];
                     }
+
+                    function calcDiffPerc(atual, anterior) {
+                        if (!anterior || anterior === 0 || !atual) return '<span style="color: #a0aec0;">-</span>';
+                        let diff = ((atual - anterior) / anterior) * 100;
+                        let cor = diff > 0 ? '#2ecc71' : (diff < 0 ? '#e74c3c' : '#f1c40f');
+                        let icone = diff > 0 ? '▲' : (diff < 0 ? '▼' : '▬');
+                        return `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
+                    }
+
+                    function renderizarTabelaT3() {
+                        const thead = document.getElementById('t3-table-head');
+                        const tbody = document.getElementById('t3-table-body');
+                        if (!thead || !tbody) return;
+
+                        let headHtml = '';
+                        let bodyHtml = '';
+
+                        if (modoTabelaT3 === 0) {
+                            // TABELA 1: Visão Geral
+                            headHtml = `<tr>
+                                <th>Mês</th>
+                                <th>Peso x Veículo</th>
+                                <th>Dropsize</th>
+                                <th>NF's</th>
+                                <th>Clientes</th>
+                            </tr>`;
+
+                            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                                if (sDropM[i] > 0 || sDropSizeM[i] > 0 || acNfM[i] > 0) {
+                                    bodyHtml += `<tr>
+                                        <td>${mesesExtenso[i]}</td>
+                                        <td>${sDropM[i] ? sDropM[i].toLocaleString('pt-BR') + ' kg' : '-'}</td>
+                                        <td>${sDropSizeM[i] ? sDropSizeM[i].toLocaleString('pt-BR') + ' kg' : '-'}</td>
+                                        <td>${acNfM[i] ? acNfM[i].toLocaleString('pt-BR') : '-'}</td>
+                                        <td>${acCliM[i] ? acCliM[i].toLocaleString('pt-BR') : '-'}</td>
+                                    </tr>`;
+                                }
+                            }
+                        } else if (modoTabelaT3 === 1) {
+                            // TABELA 2: Peso x Veículo e Dropsize com Vs Mês Ant.
+                            headHtml = `<tr>
+                                <th>Mês</th>
+                                <th>Peso x Veículo</th>
+                                <th>Vs Mês Ant.</th>
+                                <th>Dropsize</th>
+                                <th>Vs Mês Ant.</th>
+                            </tr>`;
+
+                            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                                if (sDropM[i] > 0 || sDropSizeM[i] > 0) {
+                                    let isMaxDrop = (sDropM[i] === maxDrop && maxDrop > 0);
+                                    let isMaxDropSize = (sDropSizeM[i] === maxDropSize && maxDropSize > 0);
+
+                                    let trophyDrop = isMaxDrop ? ' <i class="fas fa-trophy" style="color: #2ecc71; margin-left: 4px;" title="Melhor Mês"></i>' : '';
+                                    let trophyDropSize = isMaxDropSize ? ' <i class="fas fa-trophy" style="color: #2ecc71; margin-left: 4px;" title="Melhor Mês"></i>' : '';
+
+                                    let valDropStr = sDropM[i] ? `<span style="${isMaxDrop ? 'color: #2ecc71; font-weight: bold;' : ''}">${sDropM[i].toLocaleString('pt-BR')} kg${trophyDrop}</span>` : '-';
+                                    let valDropSizeStr = sDropSizeM[i] ? `<span style="${isMaxDropSize ? 'color: #2ecc71; font-weight: bold;' : ''}">${sDropSizeM[i].toLocaleString('pt-BR')} kg${trophyDropSize}</span>` : '-';
+
+                                    let diffDrop = calcDiffPerc(sDropM[i], i > 0 ? sDropM[i - 1] : 0);
+                                    let diffDropSize = calcDiffPerc(sDropSizeM[i], i > 0 ? sDropSizeM[i - 1] : 0);
+
+                                    bodyHtml += `<tr>
+                                        <td>${mesesExtenso[i]}</td>
+                                        <td>${valDropStr}</td>
+                                        <td>${diffDrop}</td>
+                                        <td>${valDropSizeStr}</td>
+                                        <td>${diffDropSize}</td>
+                                    </tr>`;
+                                }
+                            }
+                        } else if (modoTabelaT3 === 2) {
+                            // TABELA 3: NF's e Clientes com Vs Mês Ant.
+                            headHtml = `<tr>
+                                <th>Mês</th>
+                                <th>NF's</th>
+                                <th>Vs Mês Ant.</th>
+                                <th>Clientes</th>
+                                <th>Vs Mês Ant.</th>
+                            </tr>`;
+
+                            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                                if (acNfM[i] > 0 || acCliM[i] > 0) {
+                                    let isMaxNf = (acNfM[i] === maxNf && maxNf > 0);
+                                    let isMaxCli = (acCliM[i] === maxCli && maxCli > 0);
+
+                                    let trophyNf = isMaxNf ? ' <i class="fas fa-trophy" style="color: #2ecc71; margin-left: 4px;" title="Melhor Mês"></i>' : '';
+                                    let trophyCli = isMaxCli ? ' <i class="fas fa-trophy" style="color: #2ecc71; margin-left: 4px;" title="Melhor Mês"></i>' : '';
+
+                                    let valNfStr = acNfM[i] ? `<span style="${isMaxNf ? 'color: #2ecc71; font-weight: bold;' : ''}">${acNfM[i].toLocaleString('pt-BR')}${trophyNf}</span>` : '-';
+                                    let valCliStr = acCliM[i] ? `<span style="${isMaxCli ? 'color: #2ecc71; font-weight: bold;' : ''}">${acCliM[i].toLocaleString('pt-BR')}${trophyCli}</span>` : '-';
+
+                                    let diffNf = calcDiffPerc(acNfM[i], i > 0 ? acNfM[i - 1] : 0);
+                                    let diffCli = calcDiffPerc(acCliM[i], i > 0 ? acCliM[i - 1] : 0);
+
+                                    bodyHtml += `<tr>
+                                        <td>${mesesExtenso[i]}</td>
+                                        <td>${valNfStr}</td>
+                                        <td>${diffNf}</td>
+                                        <td>${valCliStr}</td>
+                                        <td>${diffCli}</td>
+                                    </tr>`;
+                                }
+                            }
+                        }
+
+                        thead.innerHTML = headHtml;
+                        tbody.innerHTML = bodyHtml;
+                    }
+
+                    renderizarTabelaT3();
+
+                    window.t3TableAlternatingInterval = setInterval(() => {
+                        modoTabelaT3 = (modoTabelaT3 + 1) % 3;
+                        renderizarTabelaT3();
+                    }, 30000);
                 
                     // 4. Alternância com NF'S em Azul (#00ced1) e CLIENTES em Roxo (#9b59b6)
                     const ctx = document.getElementById('t3-grafico-misto').getContext('2d');
