@@ -552,12 +552,15 @@
             const modal = document.getElementById('modal-ajuda');
             
             if (telaAtual === 2) {
-                h1.innerHTML = '<i class="fas fa-boxes-stacked" style="margin-right: 10px; color: #2ecc71;"></i>VOLUME EXPEDIDO E OCUPAÇÃO - EV';
-                infoIcon.style.display = 'block'; // Mostra o ícone apenas na Tela 2
+                h1.innerHTML = '<i class="fas fa-boxes-stacked" style="margin-right: 10px; color: #2ecc71;"></i>VOLUME EXPEDIDO & OCUPAÇÃO - EV';
+                infoIcon.style.display = 'block';
+            } else if (telaAtual === 3) {
+                h1.innerHTML = '<i class="fas fa-truck" style="margin-right: 10px; color: #2ecc71;"></i>DISTRIBUIÇÃO & ENTREGA - EV';
+                infoIcon.style.display = 'none';
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
-                infoIcon.style.display = 'none'; // Esconde nas outras telas
-                modal.style.display = 'none';    // Fecha o modal caso mude de tela
+                infoIcon.style.display = 'none';
+                modal.style.display = 'none';
             }
             
             if (spanData) h1.appendChild(spanData);
