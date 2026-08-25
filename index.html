@@ -1548,6 +1548,8 @@
                 
                 let todosOsCards = [];
 
+                let todosOsCards = [];
+
                 for (let i = 0; i < labF.length; i++) {
                     let isPico = (i === indexPicoVol); 
                     let volDia = vVolF[i] ? vVolF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
@@ -1564,23 +1566,32 @@
                     let chave3 = `${diaPad}/${mesPad}`;
                     let chave4 = `${diaStr}/${mesStr}`;
                     
-                    let metaDia = 60.0;
+                    // 1. Busca a meta sem forçar valor 60% padrão
+                    let metaDia = null;
                     if (metasMapa[chave1] !== undefined) metaDia = metasMapa[chave1];
                     else if (metasMapa[chave2] !== undefined) metaDia = metasMapa[chave2];
                     else if (metasMapa[chave3] !== undefined) metaDia = metasMapa[chave3];
                     else if (metasMapa[chave4] !== undefined) metaDia = metasMapa[chave4];
-                    else {
-                        let chaves = Object.keys(metasMapa);
-                        if (chaves[i] !== undefined) metaDia = metasMapa[chaves[i]];
+                    
+                    // 2. Trata exibição da meta e cor da ocupação
+                    let textoMeta = '';
+                    let corOcupacao = '#2ecc71'; // Cor padrão verde caso não exista meta definida
+                
+                    if (metaDia !== null && metaDia !== undefined && String(metaDia).trim() !== '') {
+                        let metaNum = parseFloat(String(metaDia).replace(',', '.'));
+                        if (!isNaN(metaNum)) {
+                            if (metaNum <= 1 && metaNum > 0) metaNum = metaNum * 100; // Ajusta se a planilha usar decimal (ex: 0.60)
+                            textoMeta = `Meta: ${metaNum.toFixed(1)}%`;
+                            corOcupacao = ocpVal >= metaNum ? '#2ecc71' : '#e74c3c'; // Verde se atingiu, vermelho se não
+                        }
                     }
                     
-                    let corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
-                    
+                    // 3. Monta o HTML exibindo textoMeta
                     let cardHTML = `
                         <div class="t2-minicard ${isPico ? 'pico' : ''}">
                             <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
                             <span class="t2-mc-val" style="color: ${corOcupacao};">${ocpDiaStr}</span>
-                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">Meta: ${metaDia.toFixed(1)}%</span>
+                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">${textoMeta}</span>
                             <span class="t2-mc-vol" style="color: #2ecc71;">${volDia}</span>
                         </div>
                     `;
