@@ -525,27 +525,65 @@
             else { btn.textContent = "Auto: OFF"; btn.className = "btn-auto auto-off"; timerDisp.style.visibility = "hidden"; }
         }
 
+        // --- NOVO BLOCO DE CONTROLE E RESET DE TELAS ---
+
+        function resetarTodosCarrosseisETimer() {
+            // 1. Reinicia o contador regressivo global do painel
+            tempoRestante = 90;
+            const timerDisp = document.getElementById('timer-display');
+            if (timerDisp) timerDisp.textContent = tempoRestante;
+        
+            // 2. Reseta carrossel da Tela 2 para a primeira página
+            const trackT2 = document.getElementById('t2-track');
+            if (trackT2) {
+                trackT2.style.transition = 'none';
+                trackT2.style.transform = 'translateX(0%)';
+                setTimeout(() => { trackT2.style.transition = 'transform 1s cubic-bezier(0.25, 1, 0.5, 1)'; }, 50);
+            }
+        
+            // 3. Reseta carrosseis da Tela 3 para a primeira página
+            const trackDrop = document.getElementById('t3-track-drop');
+            const trackDropSize = document.getElementById('t3-track-dropsize');
+            if (trackDrop) {
+                trackDrop.style.transition = 'none';
+                trackDrop.style.transform = 'translateX(0%)';
+                setTimeout(() => { trackDrop.style.transition = 'transform 1s cubic-bezier(0.25, 1, 0.5, 1)'; }, 50);
+            }
+            if (trackDropSize) {
+                trackDropSize.style.transition = 'none';
+                trackDropSize.style.transform = 'translateX(0%)';
+                setTimeout(() => { trackDropSize.style.transition = 'transform 1s cubic-bezier(0.25, 1, 0.5, 1)'; }, 50);
+            }
+        
+            // 4. Reinicia intervalos de rotação interna da Tela 3
+            if (window.t2CarouselInterval) { clearInterval(window.t2CarouselInterval); window.t2CarouselInterval = null; }
+            if (window.t3CarouselInterval) { clearInterval(window.t3CarouselInterval); window.t3CarouselInterval = null; }
+            if (window.t3CardsInterval) { clearInterval(window.t3CardsInterval); window.t3CardsInterval = null; }
+            if (window.t3TableAlternatingInterval) { clearInterval(window.t3TableAlternatingInterval); window.t3TableAlternatingInterval = null; }
+            if (window.t3ChartInterval) { clearInterval(window.t3ChartInterval); window.t3ChartInterval = null; }
+            if (window.t3ChartAlternatingInterval) { clearInterval(window.t3ChartAlternatingInterval); window.t3ChartAlternatingInterval = null; }
+        }
+        
         function mudarTelaManual(direcao) { 
-            if (autoMode) tempoRestante = 90;
             if (direcao === 1) telaAtual = telaAtual === 6 ? 1 : telaAtual + 1;
             else telaAtual = telaAtual === 1 ? 6 : telaAtual - 1;
             aplicarExibicaoTela();
         }
-
-        setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 90; } } }, 1000);
-
+        
         function alternarTelas() {
             telaAtual = telaAtual === 6 ? 1 : telaAtual + 1;
             aplicarExibicaoTela();
         }
-
+        
         function aplicarExibicaoTela() {
+            // Executa o reset de timers e posições a cada troca
+            resetarTodosCarrosseisETimer();
+        
             const telas = document.querySelectorAll('.tela');
             telas.forEach((t, i) => {
                 t.classList.toggle('ativa', i + 1 === telaAtual);
             });
             
-            // --- INÍCIO: ALTERA O TÍTULO PRINCIPAL APENAS NA TELA 2 ---
             const h1 = document.querySelector('.titulo-painel');
             const spanData = document.getElementById('data-painel');
             const infoIcon = document.getElementById('info-icon');
@@ -560,14 +598,19 @@
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
                 infoIcon.style.display = 'none';
-                modal.style.display = 'none';
+                if (modal) modal.style.display = 'none';
             }
             
             if (spanData) h1.appendChild(spanData);
-            // --- FIM ---
+            
+            if (typeof fetchPlanilha === 'function') {
+                fetchPlanilha();
+            }
             
             window.dispatchEvent(new Event('resize'));
+            
         }
+        setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 90; } } }, 1000);
 
         window.addEventListener('resize', () => { 
             [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, window.chartAderenciaDiarioInst].forEach(c => c && c.resize());
