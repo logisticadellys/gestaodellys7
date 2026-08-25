@@ -1559,53 +1559,28 @@
                     let mesPad = mesStr.padStart(2, '0');
                     let diaPad = diaStr.padStart(2, '0');
                     
-                    // Variações de chaves possíveis para busca na planilha
                     let chave1 = `${diaPad}/${mesPad}/${anoAtual}`;
                     let chave2 = `${diaStr}/${mesStr}/${anoAtual}`;
                     let chave3 = `${diaPad}/${mesPad}`;
                     let chave4 = `${diaStr}/${mesStr}`;
-                    let chave5 = diaStr; // Apenas o número do dia (ex: "1", "3")
-                    let chave6 = diaPad; // Dia com zero (ex: "01", "03")
                     
-                    // Busca a meta em todas as chaves possíveis ou por posição na planilha
-                    let metaRaw = undefined;
-                    if (typeof metasMapa !== 'undefined' && metasMapa) {
-                        if (metasMapa[chave1] !== undefined) metaRaw = metasMapa[chave1];
-                        else if (metasMapa[chave2] !== undefined) metaRaw = metasMapa[chave2];
-                        else if (metasMapa[chave3] !== undefined) metaRaw = metasMapa[chave3];
-                        else if (metasMapa[chave4] !== undefined) metaRaw = metasMapa[chave4];
-                        else if (metasMapa[chave5] !== undefined) metaRaw = metasMapa[chave5];
-                        else if (metasMapa[chave6] !== undefined) metaRaw = metasMapa[chave6];
-                        else {
-                            let chaves = Object.keys(metasMapa);
-                            if (chaves[i] !== undefined) metaRaw = metasMapa[chaves[i]];
-                        }
+                    let metaDia = 60.0;
+                    if (metasMapa[chave1] !== undefined) metaDia = metasMapa[chave1];
+                    else if (metasMapa[chave2] !== undefined) metaDia = metasMapa[chave2];
+                    else if (metasMapa[chave3] !== undefined) metaDia = metasMapa[chave3];
+                    else if (metasMapa[chave4] !== undefined) metaDia = metasMapa[chave4];
+                    else {
+                        let chaves = Object.keys(metasMapa);
+                        if (chaves[i] !== undefined) metaDia = metasMapa[chaves[i]];
                     }
                     
-                    let textoMeta = '';
-                    let corOcupacao = '#2ecc71'; // Verde padrão se não houver meta
-                
-                    // Se existir valor cadastrado para o dia na planilha
-                    if (metaRaw !== null && metaRaw !== undefined) {
-                        // Limpa símbolos de % e formata vírgulas
-                        let metaLimpa = String(metaRaw).replace('%', '').replace(',', '.').trim();
-                        
-                        if (metaLimpa !== '') {
-                            let metaNum = parseFloat(metaLimpa);
-                            if (!isNaN(metaNum) && metaNum > 0) {
-                                if (metaNum <= 1) metaNum = metaNum * 100; // Ajusta se estiver em decimal (ex: 0.6)
-                                
-                                textoMeta = `Meta: ${metaNum.toFixed(1)}%`;
-                                corOcupacao = ocpVal >= metaNum ? '#2ecc71' : '#e74c3c'; // Compara ocupação com a meta
-                            }
-                        }
-                    }
+                    let corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
                     
                     let cardHTML = `
                         <div class="t2-minicard ${isPico ? 'pico' : ''}">
                             <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
                             <span class="t2-mc-val" style="color: ${corOcupacao};">${ocpDiaStr}</span>
-                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">${textoMeta}</span>
+                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">Meta: ${metaDia.toFixed(1)}%</span>
                             <span class="t2-mc-vol" style="color: #2ecc71;">${volDia}</span>
                         </div>
                     `;
