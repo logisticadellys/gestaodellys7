@@ -1567,21 +1567,43 @@
                     let metaEncontrada = false;
                     let metaDia = null;
                     
-                    if (metasMapa[chave1] !== undefined) { metaDia = metasMapa[chave1]; metaEncontrada = true; }
-                    else if (metasMapa[chave2] !== undefined) { metaDia = metasMapa[chave2]; metaEncontrada = true; }
-                    else if (metasMapa[chave3] !== undefined) { metaDia = metasMapa[chave3]; metaEncontrada = true; }
-                    else if (metasMapa[chave4] !== undefined) { metaDia = metasMapa[chave4]; metaEncontrada = true; }
-                    else {
-                        let chaves = Object.keys(metasMapa);
-                        if (chaves[i] !== undefined) { metaDia = metasMapa[chaves[i]]; metaEncontrada = true; }
+                    // Garante que o dia do gráfico tenha dois dígitos (ex: "01", "04")
+                    let diaCard = String(labF[i]).padStart(2, '0'); 
+                    
+                    // Procura a meta correta dentro do metasMapa verificando apenas o dia
+                    for (let chave in metasMapa) {
+                        let diaChave = "";
+                        
+                        // Se a data vier da planilha como "01/08/2026" (Formato BR)
+                        if (chave.includes('/')) {
+                            diaChave = chave.split('/')[0];
+                        } 
+                        // Se a data vier como "2026-08-01T..." (Formato ISO/Banco de dados)
+                        else if (chave.includes('-')) {
+                            diaChave = chave.split('T')[0].split('-')[2]; 
+                        }
+                        
+                        // Se o dia da planilha bater com o dia do card, achamos a meta!
+                        if (diaChave === diaCard) {
+                            let valorMeta = metasMapa[chave];
+                            // Prevenção: caso a planilha envie "60,00%" como texto em vez de número
+                            if (typeof valorMeta === 'string') {
+                                valorMeta = parseFloat(valorMeta.replace(',', '.').replace('%', ''));
+                            }
+                            metaDia = valorMeta;
+                            metaEncontrada = true;
+                            break; 
+                        }
                     }
                     
                     let corOcupacao = '#ffffff';
-                    let exibirOcupacao = "&nbsp;"; // Deixa em branco sem perder a altura (não fica invisível)
+                    let exibirOcupacao = "&nbsp;"; // Fica em branco sem perder a altura do card
                     let exibirMeta = "Meta: -";
                     
-                    if (metaEncontrada) {
-                        corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
+                    if (metaEncontrada && metaDia !== null) {
+                        // Prevenção: garante que ocpVal seja tratado como número na comparação
+                        let ocpNum = typeof ocpVal === 'string' ? parseFloat(ocpVal.replace(',', '.')) : ocpVal;
+                        corOcupacao = ocpNum >= metaDia ? '#2ecc71' : '#e74c3c';
                         exibirOcupacao = ocpDiaStr;
                         exibirMeta = `Meta: ${metaDia.toFixed(1)}%`;
                     }
