@@ -1564,23 +1564,33 @@
                     let chave3 = `${diaPad}/${mesPad}`;
                     let chave4 = `${diaStr}/${mesStr}`;
                     
-                    let metaDia = 60.0;
-                    if (metasMapa[chave1] !== undefined) metaDia = metasMapa[chave1];
-                    else if (metasMapa[chave2] !== undefined) metaDia = metasMapa[chave2];
-                    else if (metasMapa[chave3] !== undefined) metaDia = metasMapa[chave3];
-                    else if (metasMapa[chave4] !== undefined) metaDia = metasMapa[chave4];
+                    let metaEncontrada = false;
+                    let metaDia = null;
+                    
+                    if (metasMapa[chave1] !== undefined) { metaDia = metasMapa[chave1]; metaEncontrada = true; }
+                    else if (metasMapa[chave2] !== undefined) { metaDia = metasMapa[chave2]; metaEncontrada = true; }
+                    else if (metasMapa[chave3] !== undefined) { metaDia = metasMapa[chave3]; metaEncontrada = true; }
+                    else if (metasMapa[chave4] !== undefined) { metaDia = metasMapa[chave4]; metaEncontrada = true; }
                     else {
                         let chaves = Object.keys(metasMapa);
-                        if (chaves[i] !== undefined) metaDia = metasMapa[chaves[i]];
+                        if (chaves[i] !== undefined) { metaDia = metasMapa[chaves[i]]; metaEncontrada = true; }
                     }
                     
-                    let corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
+                    let corOcupacao = '#ffffff';
+                    let exibirOcupacao = "&nbsp;"; // Deixa em branco sem perder a altura (não fica invisível)
+                    let exibirMeta = "Meta: -";
+                    
+                    if (metaEncontrada) {
+                        corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
+                        exibirOcupacao = ocpDiaStr;
+                        exibirMeta = `Meta: ${metaDia.toFixed(1)}%`;
+                    }
                     
                     let cardHTML = `
                         <div class="t2-minicard ${isPico ? 'pico' : ''}">
                             <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
-                            <span class="t2-mc-val" style="color: ${corOcupacao};">${ocpDiaStr}</span>
-                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">Meta: ${metaDia.toFixed(1)}%</span>
+                            <span class="t2-mc-val" style="color: ${corOcupacao};">${exibirOcupacao}</span>
+                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">${exibirMeta}</span>
                             <span class="t2-mc-vol" style="color: #2ecc71;">${volDia}</span>
                         </div>
                     `;
