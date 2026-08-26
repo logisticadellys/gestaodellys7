@@ -1712,25 +1712,50 @@
                 data: {
                     labels: labF,
                     datasets: [
-                        { type: 'line', label: 'Ocupação (%)', data: vOcpF, borderColor: '#f1c40f', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#f1c40f', yAxisID: 'y1' },
-                        { type: 'bar', label: 'Volume (KG)', data: vVolF, backgroundColor: 'rgba(0, 206, 209, 0.6)', borderColor: '#00ced1', borderWidth: 1, borderRadius: 4, yAxisID: 'y' }
+                        { 
+                            type: 'line', 
+                            label: 'Ocupação (%)', 
+                            data: vOcpF, 
+                            borderColor: '#f1c40f', 
+                            borderWidth: 3, 
+                            fill: false, 
+                            tension: 0.4, 
+                            pointRadius: 3, 
+                            pointBackgroundColor: '#f1c40f', 
+                            yAxisID: 'y' 
+                        },
+                        { 
+                            type: 'bar', 
+                            label: 'Volume (kg)', 
+                            data: vVolF, 
+                            backgroundColor: 'rgba(46, 204, 113, 0.6)', 
+                            borderColor: '#2ecc71', 
+                            borderWidth: 1, 
+                            borderRadius: 4, 
+                            yAxisID: 'y1' 
+                        }
                     ]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    layout: { padding: { top: 10, right: 10, bottom: 5 } },
                     plugins: {
-                        title: { display: true, text: `📊 VOLUME EXPEDIDO E OCUPAÇÃO - ${mesNome}`, color: '#a0aec0', font: { size: 18, weight: 'bold' } },
-                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: {size: 13, weight: 'bold'} } },
+                        title: { display: true, text: `📊 VOLUME EXPEDIDO X OCUPAÇÃO - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
+                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
                         datalabels: { display: false }
                     },
                     scales: {
-                        x: { ticks: { color: '#ffffff', font: {size: 11, weight: 'bold'} }, grid: { display: false } },
-                        y: { type: 'linear', display: true, position: 'left', ticks: { color: '#00ced1', font: {size: 11, weight: 'bold'} }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#f1c40f', font: {size: 11, weight: 'bold'}, callback: v => v + '%' }, grid: { display: false } }
+                        x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
+                        y: { type: 'linear', display: true, position: 'left', ticks: { color: '#f1c40f', font: { size: 11, weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#2ecc71', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
                     }
                 }
             });
         }
+    </script>
+</body>
+</html>
         function renderizarDropDiario(labels, valoresDrop, valoresDropSize, mesNome) {
             const ctx = document.getElementById('graficoDropsizeDiario').getContext('2d'); if (chartDropDiario) chartDropDiario.destroy();
             let opcoesComLegenda = getCommonOptions(`PESOxVEÍCULO (KG) X DROPSIZE (KG) - ${mesNome}`, true);
