@@ -1564,29 +1564,23 @@
                     let chave3 = `${diaPad}/${mesPad}`;
                     let chave4 = `${diaStr}/${mesStr}`;
                     
-                    let metaDia = null;
+                    let metaDia = 60.0;
                     if (metasMapa[chave1] !== undefined) metaDia = metasMapa[chave1];
                     else if (metasMapa[chave2] !== undefined) metaDia = metasMapa[chave2];
                     else if (metasMapa[chave3] !== undefined) metaDia = metasMapa[chave3];
                     else if (metasMapa[chave4] !== undefined) metaDia = metasMapa[chave4];
-
-                    let ocpTexto = "";
-                    let metaTexto = "Meta: -";
-                    let corOcupacao = "#ffffff";
-
-                    if (metaDia !== null && metaDia !== undefined) {
-                        metaTexto = `Meta: ${metaDia.toFixed(1)}%`;
-                        if (vOcpF[i] !== null && vOcpF[i] !== undefined) {
-                            ocpTexto = `${vOcpF[i].toFixed(1)}%`;
-                            corOcupacao = vOcpF[i] >= metaDia ? '#2ecc71' : '#e74c3c';
-                        }
+                    else {
+                        let chaves = Object.keys(metasMapa);
+                        if (chaves[i] !== undefined) metaDia = metasMapa[chaves[i]];
                     }
-
+                    
+                    let corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
+                    
                     let cardHTML = `
                         <div class="t2-minicard ${isPico ? 'pico' : ''}">
                             <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
-                            <span class="t2-mc-val" style="color: ${corOcupacao};">${ocpTexto}</span>
-                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">${metaTexto}</span>
+                            <span class="t2-mc-val" style="color: ${corOcupacao};">${ocpDiaStr}</span>
+                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">Meta: ${metaDia.toFixed(1)}%</span>
                             <span class="t2-mc-vol" style="color: #2ecc71;">${volDia}</span>
                         </div>
                     `;
