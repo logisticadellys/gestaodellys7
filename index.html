@@ -1567,41 +1567,51 @@
                     let metaEncontrada = false;
                     let metaDia = null;
                     
-                    // Garante que o dia do gráfico tenha dois dígitos (ex: "01", "04")
-                    let diaCard = String(labF[i]).padStart(2, '0'); 
+                    // Converte o dia do gráfico para NÚMERO (ex: "01" vira 1, "10" vira 10)
+                    let diaCardNum = parseInt(labF[i], 10); 
                     
-                    // Procura a meta correta dentro do metasMapa verificando apenas o dia
                     for (let chave in metasMapa) {
-                        let diaChave = "";
+                        let chaveStr = String(chave).trim();
+                        let diaChaveNum = null;
                         
-                        // Se a data vier da planilha como "01/08/2026" (Formato BR)
-                        if (chave.includes('/')) {
-                            diaChave = chave.split('/')[0];
+                        // 1. Tenta extrair de formato DD/MM/YYYY (ex: "01/08/2026")
+                        if (chaveStr.includes('/')) {
+                            diaChaveNum = parseInt(chaveStr.split('/')[0], 10);
                         } 
-                        // Se a data vier como "2026-08-01T..." (Formato ISO/Banco de dados)
-                        else if (chave.includes('-')) {
-                            diaChave = chave.split('T')[0].split('-')[2]; 
+                        // 2. Tenta extrair de formato ISO/Banco (ex: "2026-08-01...")
+                        else if (chaveStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+                            diaChaveNum = parseInt(chaveStr.split('-')[2].substring(0, 2), 10);
+                        }
+                        // 3. Tenta extrair de formato padrão JavaScript (ex: "Sat Aug 01 2026...")
+                        else {
+                            let partes = chaveStr.split(' ');
+                            if (partes.length > 2) {
+                                diaChaveNum = parseInt(partes[2], 10);
+                            }
                         }
                         
-                        // Se o dia da planilha bater com o dia do card, achamos a meta!
-                        if (diaChave === diaCard) {
+                        // Se o número do dia da planilha for igual ao número do dia do card, achou!
+                        if (diaChaveNum === diaCardNum) {
                             let valorMeta = metasMapa[chave];
-                            // Prevenção: caso a planilha envie "60,00%" como texto em vez de número
+                            
                             if (typeof valorMeta === 'string') {
                                 valorMeta = parseFloat(valorMeta.replace(',', '.').replace('%', ''));
                             }
-                            metaDia = valorMeta;
-                            metaEncontrada = true;
-                            break; 
+                            
+                            // Garante que o valor da meta é um número válido antes de prosseguir
+                            if (!isNaN(valorMeta)) {
+                                metaDia = valorMeta;
+                                metaEncontrada = true;
+                                break; 
+                            }
                         }
                     }
                     
                     let corOcupacao = '#ffffff';
-                    let exibirOcupacao = "&nbsp;"; // Fica em branco sem perder a altura do card
+                    let exibirOcupacao = "&nbsp;"; // Mantém a altura do card intacta
                     let exibirMeta = "Meta: -";
                     
                     if (metaEncontrada && metaDia !== null) {
-                        // Prevenção: garante que ocpVal seja tratado como número na comparação
                         let ocpNum = typeof ocpVal === 'string' ? parseFloat(ocpVal.replace(',', '.')) : ocpVal;
                         corOcupacao = ocpNum >= metaDia ? '#2ecc71' : '#e74c3c';
                         exibirOcupacao = ocpDiaStr;
