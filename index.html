@@ -474,43 +474,41 @@
         </div>
     </div>
 
-    <div id="tela4" class="tela">
+    <div id="tela4" class="tela" style="display: flex; flex-direction: column; gap: 1vh; height: 100%; padding: 1vh; box-sizing: border-box;">
         <!-- Topo com 4 Cards de KPI -->
-        <div class="t2-top-kpis">
-            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
-                <span class="t2-kpi-title"><i class="fas fa-chart-line" style="color: #2ecc71; margin-right: 6px;"></i> MAIOR NÍVEL DE SERVIÇO (<span id="t4-mes-lbl">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-pico-ns-val">-</span>
-                <span class="t2-kpi-sub" style="color: #2ecc71;" id="t4-pico-ns-dia">-</span>
+        <div class="t4-top-kpis">
+            <div class="t4-kpi-card" style="border-top-color: #2ecc71;">
+                <span class="t4-kpi-title"><i class="fas fa-chart-line" style="color: #2ecc71; margin-right: 6px;"></i> MAIOR NÍVEL DE SERVIÇO (<span id="t4-mes-lbl">MÊS</span>)</span>
+                <span class="t4-kpi-value" id="t4-pico-ns-val">-</span>
+                <span class="t4-kpi-sub" style="color: #2ecc71;" id="t4-pico-ns-dia">-</span>
             </div>
-            <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-truck-ramp-box" style="color: #3498db; margin-right: 6px;"></i> MENOR REENTREGA (<span id="t4-mes-lbl2">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-menor-re-val">-</span>
-                <span class="t2-kpi-sub" style="color: #3498db;" id="t4-menor-re-dia">-</span>
+            <div class="t4-kpi-card" style="border-top-color: #3498db;">
+                <span class="t4-kpi-title"><i class="fas fa-truck-ramp-box" style="color: #3498db; margin-right: 6px;"></i> MENOR REENTREGA (<span id="t4-mes-lbl2">MÊS</span>)</span>
+                <span class="t4-kpi-value" id="t4-menor-re-val">-</span>
+                <span class="t4-kpi-sub" style="color: #3498db;" id="t4-menor-re-dia">-</span>
             </div>
-            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-bullseye" style="color: #f1c40f; margin-right: 6px;"></i> N.S. MÉDIO DO MÊS</span>
-                <span class="t2-kpi-value" id="t4-acm-ns">-</span>
-                <span class="t2-kpi-sub text-neutro">■ Média do Período</span>
+            <div class="t4-kpi-card" style="border-top-color: #f1c40f;">
+                <span class="t4-kpi-title"><i class="fas fa-bullseye" style="color: #f1c40f; margin-right: 6px;"></i> N.S. MÉDIO DO MÊS</span>
+                <span class="t4-kpi-value" id="t4-acm-ns">-</span>
+                <span class="t4-kpi-sub" style="color: #f1c40f;">■ Média do Período</span>
             </div>
-            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
-                <span class="t2-kpi-title"><i class="fas fa-rotate-left" style="color: #e74c3c; margin-right: 6px;"></i> REENTREGAS ACUMULADAS</span>
-                <span class="t2-kpi-value" id="t4-acm-re">-</span>
-                <span class="t2-kpi-sub" style="color: #e74c3c;">▼ Total do Mês</span>
+            <div class="t4-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t4-kpi-title"><i class="fas fa-rotate-left" style="color: #e74c3c; margin-right: 6px;"></i> REENTREGAS ACUMULADAS</span>
+                <span class="t4-kpi-value" id="t4-acm-re">-</span>
+                <span class="t4-kpi-sub" style="color: #e74c3c;">▼ Total do Mês</span>
             </div>
         </div>
 
         <!-- Mini Cards Diários (Carrossel) -->
-        <div style="display: flex; flex-direction: column; gap: 0.5vh; width: 100%; flex-shrink: 0;">
-            <div class="t2-minicards-wrapper" id="t4-minicards-container"></div>
-        </div>
+        <div class="t4-minicards-wrapper" id="t4-minicards-container"></div>
 
         <!-- Base: Gráfico à Esquerda e Tabela à Direita -->
-        <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
+        <div class="t4-base-grid">
+            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0; background: #1e2749; border-radius: 8px; border: 1px solid #00ced1;">
                 <canvas id="t4-grafico-misto"></canvas>
             </div>
-            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
-                <table class="t2-table">
+            <div class="t4-table-container">
+                <table class="t4-table">
                     <thead>
                         <tr><th colspan="5" id="t4-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0, 206, 209, 0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL</th></tr>
                         <tr><th>Mês</th><th>Nível de Serviço</th><th>Vs Mês Ant.</th><th>Reentregas</th><th>Vs Mês Ant.</th></tr>
@@ -547,13 +545,90 @@
             </div>
         </div>
     </div>
+
+    <!-- ENVOLVA O CSS EM UMA TAG <style> -->
+    <style>
+        /* =========================================
+           ESTILOS EXCLUSIVOS DA TELA 4
+        ========================================= */
+        .t4-top-kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1vw;
+            flex-shrink: 0;
+        }
+        
+        .t4-kpi-card {
+            background: #1e2749;
+            border-radius: 8px;
+            padding: 1.5vh 1vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-top: 4px solid;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .t4-kpi-title { font-size: 0.85em; font-weight: bold; color: #a0aabf; display: flex; align-items: center; }
+        .t4-kpi-value { font-size: 1.8em; font-weight: bold; color: #fff; margin: 1vh 0; }
+        .t4-kpi-sub { font-size: 0.75em; font-weight: bold; }
+        
+        .t4-minicards-wrapper {
+            display: flex;
+            gap: 0.5vw;
+            overflow-x: hidden;
+            padding: 0.5vh 0;
+            min-height: 80px;
+            flex-shrink: 0;
+        }
+        
+        .t4-base-grid {
+            display: flex;
+            gap: 1vw;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        .t4-table-container {
+            flex: 1;
+            min-width: 380px;
+            background: #1e2749;
+            border-radius: 8px;
+            border: 1px solid #00ced1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .t4-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #fff;
+            font-size: 0.85em;
+        }
+        
+        .t4-table th, .t4-table td {
+            padding: 1vh 0.5vw;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .t4-table th {
+            color: #00ced1;
+            font-weight: bold;
+            background: rgba(0,206,209,0.1);
+        }
+    </style>
     
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
         Chart.register(ChartDataLabels);
 
         let autoMode = false; let tempoRestante = 90; let telaAtual = 1;
+        let autoMode = false; let tempoRestante = 90; let telaAtual = 1;
         let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal;
+        let chartT4Misto = null;
+        let t4CarouselInterval = null;
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -600,6 +675,7 @@
             if (window.t3TableAlternatingInterval) { clearInterval(window.t3TableAlternatingInterval); window.t3TableAlternatingInterval = null; }
             if (window.t3ChartInterval) { clearInterval(window.t3ChartInterval); window.t3ChartInterval = null; }
             if (window.t3ChartAlternatingInterval) { clearInterval(window.t3ChartAlternatingInterval); window.t3ChartAlternatingInterval = null; }
+            if (window.t4CarouselInterval) { clearInterval(window.t4CarouselInterval); window.t4CarouselInterval = null; }
         }
         
         function mudarTelaManual(direcao) { 
@@ -621,7 +697,134 @@
             telas.forEach((t, i) => {
                 t.classList.toggle('ativa', i + 1 === telaAtual);
             });
-            
+
+            function renderizarDashboardTela4(dadosDiarios, dadosMensais) {
+            if (!dadosDiarios || dadosDiarios.length === 0) return;
+
+            const ultimoRegistro = dadosDiarios[dadosDiarios.length - 1];
+            const mesAtual = ultimoRegistro.mes || 'MÊS';
+
+            document.querySelectorAll('#t4-mes-lbl, #t4-mes-lbl2').forEach(el => el.textContent = mesAtual);
+
+            let maiorNs = -1, diaMaiorNs = '-';
+            let menorRe = Infinity, diaMenorRe = '-';
+            let somaNs = 0, somaRe = 0, contagem = 0;
+
+            dadosDiarios.forEach(d => {
+                const ns = parseFloat(d.nivelServico) || 0;
+                const re = parseFloat(d.reentregas) || 0;
+
+                if (ns > maiorNs) { maiorNs = ns; diaMaiorNs = d.dia || '-'; }
+                if (re < menorRe) { menorRe = re; diaMenorRe = d.dia || '-'; }
+
+                somaNs += ns;
+                somaRe += re;
+                contagem++;
+            });
+
+            document.getElementById('t4-pico-ns-val').textContent = (maiorNs * 100).toFixed(1) + '%';
+            document.getElementById('t4-pico-ns-dia').textContent = `▲ Dia ${diaMaiorNs}`;
+
+            document.getElementById('t4-menor-re-val').textContent = menorRe === Infinity ? '-' : menorRe;
+            document.getElementById('t4-menor-re-dia').textContent = `▼ Dia ${diaMenorRe}`;
+
+            document.getElementById('t4-acm-ns').textContent = contagem > 0 ? ((somaNs / contagem) * 100).toFixed(1) + '%' : '-';
+            document.getElementById('t4-acm-re').textContent = somaRe;
+
+            const containerMini = document.getElementById('t4-minicards-container');
+            if (containerMini) {
+                containerMini.innerHTML = '';
+                dadosDiarios.forEach(d => {
+                    const card = document.createElement('div');
+                    card.style.cssText = `
+                        background: #1e2749; border-radius: 6px; padding: 6px 10px; min-width: 90px;
+                        display: flex; flex-direction: column; align-items: center; justify-content: center;
+                        border-bottom: 3px solid #00ced1; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    `;
+                    const nsFormat = ((parseFloat(d.nivelServico) || 0) * 100).toFixed(0) + '%';
+                    card.innerHTML = `
+                        <span style="font-size: 0.7em; color: #a0aabf; font-weight: bold;">Dia ${d.dia}</span>
+                        <span style="font-size: 1.1em; color: #2ecc71; font-weight: bold; margin: 2px 0;">${nsFormat}</span>
+                        <span style="font-size: 0.65em; color: #e74c3c;">Reentr: ${d.reentregas || 0}</span>
+                    `;
+                    containerMini.appendChild(card);
+                });
+            }
+
+            const ctx = document.getElementById('t4-grafico-misto');
+            if (ctx) {
+                if (chartT4Misto) chartT4Misto.destroy();
+
+                const labels = dadosDiarios.map(d => `Dia ${d.dia}`);
+                const dataNs = dadosDiarios.map(d => ((parseFloat(d.nivelServico) || 0) * 100).toFixed(1));
+                const dataRe = dadosDiarios.map(d => parseFloat(d.reentregas) || 0);
+
+                chartT4Misto = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: 'Nível de Serviço (%)',
+                                data: dataNs,
+                                borderColor: '#2ecc71',
+                                backgroundColor: '#2ecc71',
+                                borderWidth: 2,
+                                yAxisID: 'y1',
+                                datalabels: { display: false }
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Reentregas (Qtd)',
+                                data: dataRe,
+                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                                borderColor: '#e74c3c',
+                                borderWidth: 1,
+                                yAxisID: 'y2',
+                                datalabels: { display: false }
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#fff', font: { size: 10 } } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#a0aabf', font: { size: 9 } }, grid: { display: false } },
+                            y1: { type: 'linear', position: 'left', ticks: { color: '#2ecc71' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            y2: { type: 'linear', position: 'right', ticks: { color: '#e74c3c' }, grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            const tbody = document.getElementById('t4-table-body');
+            if (tbody && dadosMensais) {
+                tbody.innerHTML = '';
+                dadosMensais.forEach((m, idx) => {
+                    const tr = document.createElement('tr');
+                    const nsAtual = (parseFloat(m.nivelServico) || 0) * 100;
+                    const nsAnt = idx > 0 ? (parseFloat(dadosMensais[idx - 1].nivelServico) || 0) * 100 : nsAtual;
+                    const diffNs = nsAtual - nsAnt;
+
+                    const reAtual = parseFloat(m.reentregas) || 0;
+                    const reAnt = idx > 0 ? parseFloat(dadosMensais[idx - 1].reentregas) || 0 : reAtual;
+                    const diffRe = reAtual - reAnt;
+
+                    tr.innerHTML = `
+                        <td style="font-weight: bold;">${m.mes}</td>
+                        <td style="color: #2ecc71;">${nsAtual.toFixed(1)}%</td>
+                        <td style="color: ${diffNs >= 0 ? '#2ecc71' : '#e74c3c'};">${diffNs >= 0 ? '▲' : '▼'} ${Math.abs(diffNs).toFixed(1)}%</td>
+                        <td style="color: #e74c3c;">${reAtual}</td>
+                        <td style="color: ${diffRe <= 0 ? '#2ecc71' : '#e74c3c'};">${diffRe <= 0 ? '▼' : '▲'} ${Math.abs(diffRe)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
             const h1 = document.querySelector('.titulo-painel');
             const spanData = document.getElementById('data-painel');
             const infoIcon = document.getElementById('info-icon');
