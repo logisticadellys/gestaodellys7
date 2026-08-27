@@ -475,50 +475,11 @@
     </div>
 
     <div id="tela4" class="tela">
-        <!-- Topo com 4 Cards de KPI -->
-        <div class="t2-top-kpis">
-            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
-                <span class="t2-kpi-title"><i class="fas fa-chart-line" style="color: #2ecc71; margin-right: 6px;"></i> MAIOR NÍVEL DE SERVIÇO (<span id="t4-mes-lbl1">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-max-ns">-</span>
-                <span class="t2-kpi-sub text-positivo" id="t4-max-ns-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-calendar-check" style="color: #3498db; margin-right: 6px;"></i> MÉDIA NÍVEL DE SERVIÇO (<span id="t4-mes-lbl2">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-media-ns">-</span>
-                <span class="t2-kpi-sub" style="color: #3498db;">■ Média do Período</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
-                <span class="t2-kpi-title"><i class="fas fa-rotate-right" style="color: #e74c3c; margin-right: 6px;"></i> TOTAL DE REENTREGAS (<span id="t4-mes-lbl3">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-acm-re">-</span>
-                <span class="t2-kpi-sub text-negativo">▲ Acumulado do Mês</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-triangle-exclamation" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE REENTREGAS (<span id="t4-mes-lbl4">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-pico-re">-</span>
-                <span class="t2-kpi-sub text-neutro" id="t4-pico-re-dia">-</span>
-            </div>
-        </div>
-
-        <!-- Mini Cards Diários (Carrossel) -->
-        <div style="display: flex; flex-direction: column; gap: 0.5vh; width: 100%; flex-shrink: 0;">
-            <div class="t2-minicards-wrapper" id="t4-minicards-ns-container"></div>
-            <div class="t2-minicards-wrapper" id="t4-minicards-re-container"></div>
-        </div>
-
-        <!-- Base: Gráfico à Esquerda e Tabela à Direita -->
-        <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
-                <canvas id="t4-grafico-misto"></canvas>
-            </div>
-            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
-                <table class="t2-table">
-                    <thead>
-                        <tr><th colspan="5" id="t4-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0, 206, 209, 0.2); border-bottom: 2px solid #00ced1;"></th></tr>
-                        <tr><th>Mês</th><th>N. Serviço (%)</th><th>Vs Mês Ant.</th><th>Reentregas</th><th>Vs Mês Ant.</th></tr>
-                    </thead>
-                    <tbody id="t4-table-body"></tbody>
-                </table>
-            </div>
+        <div class="grid-graficos">
+            <div class="chart-container"><canvas id="graficoNsDiario"></canvas></div>
+            <div class="chart-container"><canvas id="graficoNsMensal"></canvas></div>
+            <div class="chart-container"><canvas id="graficoReDiario"></canvas></div>
+            <div class="chart-container"><canvas id="graficoReMensal"></canvas></div>
         </div>
     </div>
 
@@ -1017,7 +978,10 @@
 
                 // --- NOVA RENDERIZAÇÃO TELA 2 (DASHBOARD VOLUME & OCUPAÇÃO) ---
                 renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
-                renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoAtual, mesDeExibicaoIdx);
+                renderizarNsDiario(labF, vNsF, mesExibicaoNome);
+                renderizarNsMensal(mesesExtenso, sNsM.map((s,i)=>cNsM[i]>0?s:0), anoAtual);
+                renderizarReDiario(labF, vReF, mesExibicaoNome);
+                renderizarReMensal(mesesExtenso, acReM, anoAtual);
                 renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
                 renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
                 const labAderenciaF = []; const vAderenciaF = []; const vApontamentosF = [];
@@ -1123,162 +1087,6 @@
                             }, 20000); // 20 segundos para mudar de página
                         }
                     }
-                }
-                function renderizarDashboardTela4(labF, vNsF, vReF, mesNome, mesesExtenso, sNsM, cNsM, acReM, anoAtual, mesDeExibicaoIdx) {
-                    ['t4-mes-lbl1', 't4-mes-lbl2', 't4-mes-lbl3', 't4-mes-lbl4'].forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) el.textContent = mesNome;
-                    });
-        
-                    const tabelaTitulo4 = document.getElementById('t4-tabela-titulo');
-                    if (tabelaTitulo4) tabelaTitulo4.textContent = `HISTÓRICO MENSAL - NÍVEL DE SERVIÇO & REENTREGAS (${anoAtual})`;
-        
-                    // 1. KPIs
-                    let maxNs = 0, diaMaxNs = "-";
-                    vNsF.forEach((val, idx) => { if (val > maxNs) { maxNs = val; diaMaxNs = labF[idx]; } });
-        
-                    let somaNsVal = 0, countNsVal = 0;
-                    vNsF.forEach(val => { if (val > 0) { somaNsVal += val; countNsVal++; } });
-                    let mediaNs = countNsVal > 0 ? somaNsVal / countNsVal : 0;
-        
-                    let totalReMes = acReM[mesDeExibicaoIdx] || 0;
-        
-                    let picoRe = 0, diaPicoRe = "-";
-                    vReF.forEach((val, idx) => { if (val > picoRe) { picoRe = val; diaPicoRe = labF[idx]; } });
-        
-                    document.getElementById('t4-max-ns').textContent = maxNs > 0 ? maxNs.toFixed(1) + '%' : '-';
-                    document.getElementById('t4-max-ns-dia').textContent = diaMaxNs !== "-" ? `DIA ${diaMaxNs}` : '-';
-        
-                    document.getElementById('t4-media-ns').textContent = mediaNs > 0 ? mediaNs.toFixed(1) + '%' : '-';
-        
-                    document.getElementById('t4-acm-re').textContent = totalReMes.toLocaleString('pt-BR');
-        
-                    document.getElementById('t4-pico-re').textContent = picoRe > 0 ? picoRe.toLocaleString('pt-BR') : '-';
-                    document.getElementById('t4-pico-re-dia').textContent = diaPicoRe !== "-" ? `DIA ${diaPicoRe}` : '-';
-        
-                    // 2. Mini Cards Diários (Carrossel)
-                    let containerNs = document.getElementById('t4-minicards-ns-container');
-                    let containerRe = document.getElementById('t4-minicards-re-container');
-        
-                    if (containerNs && containerRe) {
-                        let cardsNs = [];
-                        let cardsRe = [];
-        
-                        let idxMaxNs = vNsF.indexOf(maxNs);
-                        let idxPicoRe = vReF.indexOf(picoRe);
-        
-                        for (let i = 0; i < labF.length; i++) {
-                            let isMaxNs = (i === idxMaxNs && maxNs > 0);
-                            let isPicoRe = (i === idxPicoRe && picoRe > 0);
-        
-                            let nsVal = vNsF[i] !== null && vNsF[i] > 0 ? vNsF[i].toFixed(1) + '%' : '0.0%';
-                            let reVal = vReF[i] !== null ? vReF[i].toLocaleString('pt-BR') : '0';
-        
-                            cardsNs.push(`
-                                <div class="t2-minicard ${isMaxNs ? 'pico' : ''}" ${isMaxNs ? 'style="border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);"' : ''}>
-                                    <span class="t2-mc-dia">DIA ${labF[i]} ${isMaxNs ? '<br><span style="color: #2ecc71; font-size: 0.85em;"><i class="fas fa-crown"></i> MÁX</span>' : ''}</span>
-                                    <span class="t2-mc-val" style="font-size: 1em; color: #2ecc71;">${nsVal}</span>
-                                    <span class="t2-mc-vol" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; margin-top: 4px;">Nível de Serviço</span>
-                                </div>
-                            `);
-        
-                            cardsRe.push(`
-                                <div class="t2-minicard ${isPicoRe ? 'pico' : ''}" ${isPicoRe ? 'style="border-color: #e74c3c; box-shadow: 0 0 12px rgba(231, 76, 60, 0.4);"' : ''}>
-                                    <span class="t2-mc-dia">DIA ${labF[i]} ${isPicoRe ? '<br><span style="color: #e74c3c; font-size: 0.85em;"><i class="fas fa-triangle-exclamation"></i> PICO</span>' : ''}</span>
-                                    <span class="t2-mc-val" style="font-size: 1em; color: #e74c3c;">${reVal}</span>
-                                    <span class="t2-mc-vol" style="background: rgba(231, 76, 60, 0.15); color: #e74c3c; margin-top: 4px;">Reentregas</span>
-                                </div>
-                            `);
-                        }
-        
-                        let cardsPorPagina = 8;
-                        let paginasNsHTML = '';
-                        let paginasReHTML = '';
-        
-                        for (let p = 0; p < cardsNs.length; p += cardsPorPagina) {
-                            paginasNsHTML += `<div class="t2-page">${cardsNs.slice(p, p + cardsPorPagina).join('')}</div>`;
-                            paginasReHTML += `<div class="t2-page">${cardsRe.slice(p, p + cardsPorPagina).join('')}</div>`;
-                        }
-        
-                        containerNs.innerHTML = `<div class="t2-track" id="t4-track-ns">${paginasNsHTML}</div>`;
-                        containerRe.innerHTML = `<div class="t2-track" id="t4-track-re">${paginasReHTML}</div>`;
-        
-                        let totalPaginas = Math.ceil(cardsNs.length / cardsPorPagina);
-                        let paginaAtual = 0;
-        
-                        if (window.t4CarouselInterval) clearInterval(window.t4CarouselInterval);
-                        if (totalPaginas > 1) {
-                            window.t4CarouselInterval = setInterval(() => {
-                                paginaAtual = (paginaAtual + 1) % totalPaginas;
-                                let trackNs = document.getElementById('t4-track-ns');
-                                let trackRe = document.getElementById('t4-track-re');
-                                if (trackNs) trackNs.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                                if (trackRe) trackRe.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                            }, 20000);
-                        }
-                    }
-        
-                    // 3. Tabela Histórico Mensal
-                    let tbody = document.getElementById('t4-table-body');
-                    if (tbody) {
-                        tbody.innerHTML = '';
-                        let bodyHtml = '';
-                        let nsMensalArr = mesesExtenso.map((_, i) => cNsM[i] > 0 ? sNsM[i] / cNsM[i] : 0);
-                        let maxNsM = Math.max(...nsMensalArr);
-        
-                        function calcDiffPerc(atual, anterior) {
-                            if (!anterior || anterior === 0 || !atual) return '<span style="color: #a0aec0;">-</span>';
-                            let diff = ((atual - anterior) / anterior) * 100;
-                            let cor = diff > 0 ? '#2ecc71' : (diff < 0 ? '#e74c3c' : '#f1c40f');
-                            let icone = diff > 0 ? '▲' : (diff < 0 ? '▼' : '▬');
-                            return `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
-                        }
-        
-                        for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                            if (nsMensalArr[i] > 0 || (acReM[i] || 0) > 0) {
-                                let isMax = (nsMensalArr[i] === maxNsM && maxNsM > 0);
-                                let rowStyle = isMax ? 'style="background: rgba(46, 204, 113, 0.15); border-left: 4px solid #2ecc71;"' : '';
-                                
-                                bodyHtml += `<tr ${rowStyle}>
-                                    <td>${mesesExtenso[i]}</td>
-                                    <td>${nsMensalArr[i] > 0 ? nsMensalArr[i].toFixed(1) + '%' : '-'}</td>
-                                    <td>${calcDiffPerc(nsMensalArr[i], i > 0 ? nsMensalArr[i-1] : 0)}</td>
-                                    <td>${acReM[i] ? acReM[i].toLocaleString('pt-BR') : '-'}</td>
-                                    <td>${calcDiffPerc(acReM[i], i > 0 ? acReM[i-1] : 0)}</td>
-                                </tr>`;
-                            }
-                        }
-                        tbody.innerHTML = bodyHtml;
-                    }
-        
-                    // 4. Gráfico Misto (Nível de Serviço vs Reentregas)
-                    const ctx = document.getElementById('t4-grafico-misto').getContext('2d');
-                    if (window.chartMistoT4) window.chartMistoT4.destroy();
-        
-                    window.chartMistoT4 = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: labF,
-                            datasets: [
-                                { type: 'line', label: 'Nível de Serviço D+1 (%)', data: vNsF, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#2ecc71', yAxisID: 'y' },
-                                { type: 'bar', label: 'Reentregas D+2 (Qtd)', data: vReF, backgroundColor: 'rgba(231, 76, 60, 0.6)', borderColor: '#e74c3c', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
-                            ]
-                        },
-                        options: {
-                            responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
-                            plugins: {
-                                title: { display: true, text: `📊 NÍVEL DE SERVIÇO X REENTREGAS - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
-                                legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
-                                datalabels: { display: false }
-                            },
-                            scales: {
-                                x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
-                                y: { type: 'linear', display: true, position: 'left', min: 80, max: 100, ticks: { color: '#2ecc71', font: { size: 11, weight: 'bold' }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                                y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, ticks: { color: '#e74c3c', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
-                            }
-                        }
-                    });
-                }
                 
                     // ==========================================
                     // CONTROLE DE ROTAÇÃO - TELA 3
