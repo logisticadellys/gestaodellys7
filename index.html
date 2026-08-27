@@ -376,45 +376,46 @@
         </div>
     </div>
 
-    <div id="tela2" class="tela">
+    <div id="tela3" class="tela">
+        <!-- Topo: 4 Cards de Destaque -->
         <div class="t2-top-kpis">
-            <div class="t2-kpi-card">
-                <span class="t2-kpi-title"><i class="fas fa-box-open" style="color: #2ecc71; margin-right: 6px;"></i> VOL. EXPEDIDO (<span id="t2-mes-lbl">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t2-vol-mes">-</span>
-                <span class="t2-kpi-sub text-positivo">▲ Acumulado do Mês</span>
+            <div class="t2-kpi-card" style="border-top-color: #e67e22;">
+                <span class="t2-kpi-title"><i class="fas fa-weight-hanging" style="color: #e67e22; margin-right: 6px;"></i> PICO DE PESO X VEÍCULO (MÊS)</span>
+                <span class="t2-kpi-value" id="t3-pico-peso-val">-</span>
+                <span class="t2-kpi-sub" style="color: #e67e22;" id="t3-pico-peso-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
+                <span class="t2-kpi-title"><i class="fas fa-ruler-combined" style="color: #2ecc71; margin-right: 6px;"></i> PICO DE DROPSIZE (MÊS)</span>
+                <span class="t2-kpi-value" id="t3-pico-drop-val">-</span>
+                <span class="t2-kpi-sub text-positivo" id="t3-pico-drop-dia">-</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-boxes-stacked" style="color: #3498db; margin-right: 6px;"></i> PICO DE VOLUME (<span id="t2-pico-vol-lbl">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t2-pico-vol-val">-</span>
-                <span class="t2-kpi-sub" style="color: #3498db;" id="t2-pico-vol-dia">-</span>
+                <span class="t2-kpi-title"><i class="fas fa-file-invoice" style="color: #3498db; margin-right: 6px;"></i> NF'S (MÊS)</span>
+                <span class="t2-kpi-value" id="t3-total-nfs-val">-</span>
+                <span class="t2-kpi-sub text-neutro">▲ Acumulado do Mês</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #9b59b6;">
-                <span class="t2-kpi-title"><i class="fas fa-truck-fast" style="color: #9b59b6; margin-right: 6px;"></i> MÉDIA DIÁRIA (<span id="t2-media-mes-lbl">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t2-media-dia">-</span>
-                <span class="t2-kpi-sub" style="color: #9b59b6;">■ Base Dias Trabalhados</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE OCUPAÇÃO (<span id="t2-pico-mes-lbl">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t2-pico-val">-</span>
-                <span class="t2-kpi-sub text-neutro" id="t2-pico-dia">-</span>
+                <span class="t2-kpi-title"><i class="fas fa-store" style="color: #9b59b6; margin-right: 6px;"></i> CLIENTES (MÊS)</span>
+                <span class="t2-kpi-value" id="t3-total-cli-val">-</span>
+                <span class="t2-kpi-sub" style="color: #9b59b6;">▲ Acumulado do Mês</span>
             </div>
         </div>
-
-        <div class="t2-minicards-wrapper" id="t2-minicards-container">
-            </div>
-
+    
+        <!-- Centro: Mini Cards Diários -->
+        <div class="t2-minicards-wrapper" id="t3-minicards-container"></div>
+    
+        <!-- Base: Gráfico e Tabela -->
         <div class="t2-base-grid">
             <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
-                <canvas id="t2-grafico-misto"></canvas>
+                <canvas id="t3-grafico-misto"></canvas>
             </div>
             <div class="t2-table-container" style="flex: 1; min-width: 380px;">
                 <table class="t2-table">
                     <thead>
-                        <tr><th colspan="4" id="t2-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME MENSAL</th></tr>
-                        <tr><th>Mês</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
+                        <tr><th colspan="4" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE DISTRIBUIÇÃO</th></tr>
+                        <tr><th>Mês</th><th>Peso Total</th><th>NF's</th><th>Clientes</th></tr>
                     </thead>
-                    <tbody id="t2-table-body">
-                        </tbody>
+                    <tbody id="t3-table-body"></tbody>
                 </table>
             </div>
         </div>
@@ -1951,6 +1952,94 @@
                     }
                 });
             }
+        }
+        let chartTela3 = null;
+
+        function renderizarTela3(dadosTela3) {
+            if (!dadosTela3) return;
+    
+            // 1. Atualizar Cards Superiores
+            if (dadosTela3.kpis) {
+                document.getElementById('t3-pico-peso-val').textContent = dadosTela3.kpis.picoPesoVal || '-';
+                document.getElementById('t3-pico-peso-dia').textContent = dadosTela3.kpis.picoPesoDia || '-';
+                
+                document.getElementById('t3-pico-drop-val').textContent = dadosTela3.kpis.picoDropVal || '-';
+                document.getElementById('t3-pico-drop-dia').textContent = dadosTela3.kpis.picoDropDia || '-';
+                
+                document.getElementById('t3-total-nfs-val').textContent = dadosTela3.kpis.totalNfs || '-';
+                document.getElementById('t3-total-cli-val').textContent = dadosTela3.kpis.totalClientes || '-';
+            }
+    
+            // 2. Renderizar Minicards Diários
+            const containerMini = document.getElementById('t3-minicards-container');
+            if (containerMini && dadosTela3.diario) {
+                containerMini.innerHTML = '';
+                dadosTela3.diario.forEach(item => {
+                    containerMini.insertAdjacentHTML('beforeend', `
+                        <div class="t2-minicard">
+                            <div class="t2-mini-dia">${item.dia}</div>
+                            <div class="t2-mini-val" style="color: #e67e22;">${item.peso} kg</div>
+                            <div class="t2-mini-sub" style="color: #3498db;">${item.nfs} NF's</div>
+                        </div>
+                    `);
+                });
+            }
+    
+            // 3. Renderizar Tabela
+            const tbody = document.getElementById('t3-table-body');
+            if (tbody && dadosTela3.historico) {
+                tbody.innerHTML = '';
+                dadosTela3.historico.forEach(row => {
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${row.mes}</td>
+                            <td>${row.pesoTotal}</td>
+                            <td>${row.nfs}</td>
+                            <td>${row.clientes}</td>
+                        </tr>
+                    `);
+                });
+            }
+    
+            // 4. Desenhar Gráfico Misto
+            const canvas = document.getElementById('t3-grafico-misto');
+            if (canvas && dadosTela3.grafico) {
+                if (chartTela3) chartTela3.destroy();
+    
+                chartTela3 = new Chart(canvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: dadosTela3.grafico.labels,
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: 'Dropsize (Kg/NF)',
+                                data: dadosTela3.grafico.dropsize,
+                                borderColor: '#2ecc71',
+                                borderWidth: 2,
+                                yAxisID: 'yDrop'
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Peso Total (Kg)',
+                                data: dadosTela3.grafico.peso,
+                                backgroundColor: 'rgba(230, 126, 34, 0.7)',
+                                yAxisID: 'yPeso'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            yPeso: { type: 'linear', position: 'left', ticks: { color: '#fff' } },
+                            yDrop: { type: 'linear', position: 'right', ticks: { color: '#fff' }, grid: { drawOnChartArea: false } },
+                            x: { ticks: { color: '#fff' } }
+                        },
+                        plugins: { legend: { labels: { color: '#fff' } } }
+                    }
+                }
+            });
         }
     </script>
 </body>
