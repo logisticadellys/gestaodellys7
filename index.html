@@ -1834,6 +1834,124 @@
             const modal = document.getElementById('modal-ajuda');
             modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
         });
+
+        // Variável global para armazenar a instância do gráfico da Tela 4
+        let chartTela4 = null;
+        
+        function renderizarTela4(dadosTela4) {
+            // 1. Atualizar Cards de Destaque no Topo
+            if (dadosTela4.kpis) {
+                document.getElementById('t4-pico-ns-val').textContent = dadosTela4.kpis.maiorNsVal || '-';
+                document.getElementById('t4-pico-ns-dia').textContent = dadosTela4.kpis.maiorNsDia || '-';
+                
+                document.getElementById('t4-media-ns-val').textContent = dadosTela4.kpis.mediaNsVal || '-';
+                
+                document.getElementById('t4-pico-re-val').textContent = dadosTela4.kpis.picoReVal || '-';
+                document.getElementById('t4-pico-re-dia').textContent = dadosTela4.kpis.picoReDia || '-';
+                
+                document.getElementById('t4-total-re-val').textContent = dadosTela4.kpis.totalReVal || '-';
+            }
+        
+            // 2. Renderizar Mini Cards Diários no Centro
+            const minicardsContainer = document.getElementById('t4-minicards-container');
+            if (minicardsContainer && dadosTela4.diario) {
+                minicardsContainer.innerHTML = ''; // Limpa conteúdo anterior
+                
+                dadosTela4.diario.forEach(item => {
+                    const cardHtml = `
+                        <div class="t2-minicard">
+                            <div class="t2-mini-dia">${item.dia}</div>
+                            <div class="t2-mini-val" style="color: #2ecc71;">${item.ns}%</div>
+                            <div class="t2-mini-sub" style="color: #e74c3c;">${item.reentregas} re-ent.</div>
+                        </div>
+                    `;
+                    minicardsContainer.insertAdjacentHTML('beforeend', cardHtml);
+                });
+            }
+        
+            // 3. Renderizar Tabela de Histórico
+            const tableBody = document.getElementById('t4-table-body');
+            if (tableBody && dadosTela4.historico) {
+                tableBody.innerHTML = ''; // Limpa tabela
+                
+                dadosTela4.historico.forEach(linha => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${linha.mes}</td>
+                        <td>${linha.ns}%</td>
+                        <td>${linha.reentregas}</td>
+                        <td class="${linha.variacao >= 0 ? 'text-positivo' : 'text-negativo'}">
+                            ${linha.variacao >= 0 ? '▲' : '▼'} ${Math.abs(linha.variacao)}%
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+        
+            // 4. Desenhar/Atualizar Gráfico Misto (Chart.js)
+            const canvas = document.getElementById('t4-grafico-misto');
+            if (canvas && dadosTela4.grafico) {
+                const ctx = canvas.getContext('2d');
+                
+                // Destrói o gráfico anterior para não sobrepor nem zerar a largura
+                if (chartTela4) {
+                    chartTela4.destroy();
+                }
+        
+                chartTela4 = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: dadosTela4.grafico.labels, // ex: ['Dia 1', 'Dia 2', ...]
+                        datasets: [
+                            {
+                                label: 'Nível de Serviço (%)',
+                                data: dadosTela4.grafico.dadosNs,
+                                type: 'line',
+                                borderColor: '#2ecc71',
+                                backgroundColor: '#2ecc71',
+                                borderWidth: 2,
+                                yAxisID: 'yNS'
+                            },
+                            {
+                                label: 'Reentregas (Qtd)',
+                                data: dadosTela4.grafico.dadosRe,
+                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                                borderColor: '#e74c3c',
+                                borderWidth: 1,
+                                yAxisID: 'yRE'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            yNS: {
+                                type: 'linear',
+                                position: 'left',
+                                title: { display: true, text: 'Nível de Serviço (%)', color: '#fff' },
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            },
+                            yRE: {
+                                type: 'linear',
+                                position: 'right',
+                                title: { display: true, text: 'Reentregas (Qtd)', color: '#fff' },
+                                ticks: { color: '#fff' },
+                                grid: { drawOnChartArea: false }
+                            },
+                            x: {
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#fff' } }
+                        }
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>
