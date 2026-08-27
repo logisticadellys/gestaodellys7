@@ -475,11 +475,49 @@
     </div>
 
     <div id="tela4" class="tela">
-        <div class="grid-graficos">
-            <div class="chart-container"><canvas id="graficoNsDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoNsMensal"></canvas></div>
-            <div class="chart-container"><canvas id="graficoReDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoReMensal"></canvas></div>
+        <!-- Topo com 4 Cards de KPI -->
+        <div class="t2-top-kpis">
+            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
+                <span class="t2-kpi-title"><i class="fas fa-chart-line" style="color: #2ecc71; margin-right: 6px;"></i> MAIOR NÍVEL DE SERVIÇO (<span id="t4-mes-lbl">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t4-pico-ns-val">-</span>
+                <span class="t2-kpi-sub" style="color: #2ecc71;" id="t4-pico-ns-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #3498db;">
+                <span class="t2-kpi-title"><i class="fas fa-truck-ramp-box" style="color: #3498db; margin-right: 6px;"></i> MENOR REENTREGA (<span id="t4-mes-lbl2">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t4-menor-re-val">-</span>
+                <span class="t2-kpi-sub" style="color: #3498db;" id="t4-menor-re-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
+                <span class="t2-kpi-title"><i class="fas fa-bullseye" style="color: #f1c40f; margin-right: 6px;"></i> N.S. MÉDIO DO MÊS</span>
+                <span class="t2-kpi-value" id="t4-acm-ns">-</span>
+                <span class="t2-kpi-sub text-neutro">■ Média do Período</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t2-kpi-title"><i class="fas fa-rotate-left" style="color: #e74c3c; margin-right: 6px;"></i> REENTREGAS ACUMULADAS</span>
+                <span class="t2-kpi-value" id="t4-acm-re">-</span>
+                <span class="t2-kpi-sub" style="color: #e74c3c;">▼ Total do Mês</span>
+            </div>
+        </div>
+
+        <!-- Mini Cards Diários (Carrossel) -->
+        <div style="display: flex; flex-direction: column; gap: 0.5vh; width: 100%; flex-shrink: 0;">
+            <div class="t2-minicards-wrapper" id="t4-minicards-container"></div>
+        </div>
+
+        <!-- Base: Gráfico à Esquerda e Tabela à Direita -->
+        <div class="t2-base-grid">
+            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
+                <canvas id="t4-grafico-misto"></canvas>
+            </div>
+            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
+                <table class="t2-table">
+                    <thead>
+                        <tr><th colspan="5" id="t4-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0, 206, 209, 0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL</th></tr>
+                        <tr><th>Mês</th><th>Nível de Serviço</th><th>Vs Mês Ant.</th><th>Reentregas</th><th>Vs Mês Ant.</th></tr>
+                    </thead>
+                    <tbody id="t4-table-body"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
