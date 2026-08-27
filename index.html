@@ -376,46 +376,45 @@
         </div>
     </div>
 
-    <div id="tela3" class="tela">
-        <!-- Topo: 4 Cards de Destaque -->
+    <div id="tela2" class="tela">
         <div class="t2-top-kpis">
-            <div class="t2-kpi-card" style="border-top-color: #e67e22;">
-                <span class="t2-kpi-title"><i class="fas fa-weight-hanging" style="color: #e67e22; margin-right: 6px;"></i> PICO DE PESO X VEÍCULO (MÊS)</span>
-                <span class="t2-kpi-value" id="t3-pico-peso-val">-</span>
-                <span class="t2-kpi-sub" style="color: #e67e22;" id="t3-pico-peso-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
-                <span class="t2-kpi-title"><i class="fas fa-ruler-combined" style="color: #2ecc71; margin-right: 6px;"></i> PICO DE DROPSIZE (MÊS)</span>
-                <span class="t2-kpi-value" id="t3-pico-drop-val">-</span>
-                <span class="t2-kpi-sub text-positivo" id="t3-pico-drop-dia">-</span>
+            <div class="t2-kpi-card">
+                <span class="t2-kpi-title"><i class="fas fa-box-open" style="color: #2ecc71; margin-right: 6px;"></i> VOL. EXPEDIDO (<span id="t2-mes-lbl">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t2-vol-mes">-</span>
+                <span class="t2-kpi-sub text-positivo">▲ Acumulado do Mês</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-file-invoice" style="color: #3498db; margin-right: 6px;"></i> NF'S (MÊS)</span>
-                <span class="t2-kpi-value" id="t3-total-nfs-val">-</span>
-                <span class="t2-kpi-sub text-neutro">▲ Acumulado do Mês</span>
+                <span class="t2-kpi-title"><i class="fas fa-boxes-stacked" style="color: #3498db; margin-right: 6px;"></i> PICO DE VOLUME (<span id="t2-pico-vol-lbl">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t2-pico-vol-val">-</span>
+                <span class="t2-kpi-sub" style="color: #3498db;" id="t2-pico-vol-dia">-</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #9b59b6;">
-                <span class="t2-kpi-title"><i class="fas fa-store" style="color: #9b59b6; margin-right: 6px;"></i> CLIENTES (MÊS)</span>
-                <span class="t2-kpi-value" id="t3-total-cli-val">-</span>
-                <span class="t2-kpi-sub" style="color: #9b59b6;">▲ Acumulado do Mês</span>
+                <span class="t2-kpi-title"><i class="fas fa-truck-fast" style="color: #9b59b6; margin-right: 6px;"></i> MÉDIA DIÁRIA (<span id="t2-media-mes-lbl">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t2-media-dia">-</span>
+                <span class="t2-kpi-sub" style="color: #9b59b6;">■ Base Dias Trabalhados</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE OCUPAÇÃO (<span id="t2-pico-mes-lbl">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t2-pico-val">-</span>
+                <span class="t2-kpi-sub text-neutro" id="t2-pico-dia">-</span>
             </div>
         </div>
-    
-        <!-- Centro: Mini Cards Diários -->
-        <div class="t2-minicards-wrapper" id="t3-minicards-container"></div>
-    
-        <!-- Base: Gráfico e Tabela -->
+
+        <div class="t2-minicards-wrapper" id="t2-minicards-container">
+            </div>
+
         <div class="t2-base-grid">
             <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
-                <canvas id="t3-grafico-misto"></canvas>
+                <canvas id="t2-grafico-misto"></canvas>
             </div>
             <div class="t2-table-container" style="flex: 1; min-width: 380px;">
                 <table class="t2-table">
                     <thead>
-                        <tr><th colspan="4" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE DISTRIBUIÇÃO</th></tr>
-                        <tr><th>Mês</th><th>Peso Total</th><th>NF's</th><th>Clientes</th></tr>
+                        <tr><th colspan="4" id="t2-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE VOLUME MENSAL</th></tr>
+                        <tr><th>Mês</th><th>Volume (kg)</th><th>Status</th><th>Vs Mês Ant.</th></tr>
                     </thead>
-                    <tbody id="t3-table-body"></tbody>
+                    <tbody id="t2-table-body">
+                        </tbody>
                 </table>
             </div>
         </div>
@@ -476,47 +475,11 @@
     </div>
 
     <div id="tela4" class="tela">
-        <!-- Topo com Cards de Destaque -->
-        <div class="t2-top-kpis">
-            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
-                <span class="t2-kpi-title"><i class="fas fa-award" style="color: #2ecc71; margin-right: 6px;"></i> MAIOR NÍVEL DE SERVIÇO (<span id="t4-mes-lbl1">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-pico-ns-val">-</span>
-                <span class="t2-kpi-sub text-positivo" id="t4-pico-ns-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-chart-line" style="color: #3498db; margin-right: 6px;"></i> MÉDIA NÍVEL DE SERVIÇO (<span id="t4-mes-lbl2">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-media-ns-val">-</span>
-                <span class="t2-kpi-sub" style="color: #3498db;">■ Meta Recomendada</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
-                <span class="t2-kpi-title"><i class="fas fa-rotate-left" style="color: #e74c3c; margin-right: 6px;"></i> PICO DE REENTREGAS (<span id="t4-mes-lbl3">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-pico-re-val">-</span>
-                <span class="t2-kpi-sub text-negativo" id="t4-pico-re-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-boxes-packing" style="color: #f1c40f; margin-right: 6px;"></i> TOTAL REENTREGAS (<span id="t4-mes-lbl4">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-total-re-val">-</span>
-                <span class="t2-kpi-sub text-neutro">▲ Acumulado do Mês</span>
-            </div>
-        </div>
-
-        <!-- Linhas Intermediárias: Mini Cards Diários -->
-        <div class="t2-minicards-wrapper" id="t4-minicards-container"></div>
-
-        <!-- Parte Inferior: Gráfico e Tabela de Histórico -->
-        <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
-                <canvas id="t4-grafico-misto"></canvas>
-            </div>
-            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
-                <table class="t2-table">
-                    <thead>
-                        <tr><th colspan="4" id="t4-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO DE SERVIÇO E REENTREGAS</th></tr>
-                        <tr><th>Mês</th><th>Nível de Serviço (%)</th><th>Reentregas (Qtd)</th><th>Vs Mês Ant.</th></tr>
-                    </thead>
-                    <tbody id="t4-table-body"></tbody>
-                </table>
-            </div>
+        <div class="grid-graficos">
+            <div class="chart-container"><canvas id="graficoNsDiario"></canvas></div>
+            <div class="chart-container"><canvas id="graficoNsMensal"></canvas></div>
+            <div class="chart-container"><canvas id="graficoReDiario"></canvas></div>
+            <div class="chart-container"><canvas id="graficoReMensal"></canvas></div>
         </div>
     </div>
 
@@ -1835,212 +1798,6 @@
             const modal = document.getElementById('modal-ajuda');
             modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
         });
-
-        // Variável global para armazenar a instância do gráfico da Tela 4
-        let chartTela4 = null;
-        
-        function renderizarTela4(dadosTela4) {
-            // 1. Atualizar Cards de Destaque no Topo
-            if (dadosTela4.kpis) {
-                document.getElementById('t4-pico-ns-val').textContent = dadosTela4.kpis.maiorNsVal || '-';
-                document.getElementById('t4-pico-ns-dia').textContent = dadosTela4.kpis.maiorNsDia || '-';
-                
-                document.getElementById('t4-media-ns-val').textContent = dadosTela4.kpis.mediaNsVal || '-';
-                
-                document.getElementById('t4-pico-re-val').textContent = dadosTela4.kpis.picoReVal || '-';
-                document.getElementById('t4-pico-re-dia').textContent = dadosTela4.kpis.picoReDia || '-';
-                
-                document.getElementById('t4-total-re-val').textContent = dadosTela4.kpis.totalReVal || '-';
-            }
-        
-            // 2. Renderizar Mini Cards Diários no Centro
-            const minicardsContainer = document.getElementById('t4-minicards-container');
-            if (minicardsContainer && dadosTela4.diario) {
-                minicardsContainer.innerHTML = ''; // Limpa conteúdo anterior
-                
-                dadosTela4.diario.forEach(item => {
-                    const cardHtml = `
-                        <div class="t2-minicard">
-                            <div class="t2-mini-dia">${item.dia}</div>
-                            <div class="t2-mini-val" style="color: #2ecc71;">${item.ns}%</div>
-                            <div class="t2-mini-sub" style="color: #e74c3c;">${item.reentregas} re-ent.</div>
-                        </div>
-                    `;
-                    minicardsContainer.insertAdjacentHTML('beforeend', cardHtml);
-                });
-            }
-        
-            // 3. Renderizar Tabela de Histórico
-            const tableBody = document.getElementById('t4-table-body');
-            if (tableBody && dadosTela4.historico) {
-                tableBody.innerHTML = ''; // Limpa tabela
-                
-                dadosTela4.historico.forEach(linha => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${linha.mes}</td>
-                        <td>${linha.ns}%</td>
-                        <td>${linha.reentregas}</td>
-                        <td class="${linha.variacao >= 0 ? 'text-positivo' : 'text-negativo'}">
-                            ${linha.variacao >= 0 ? '▲' : '▼'} ${Math.abs(linha.variacao)}%
-                        </td>
-                    `;
-                    tableBody.appendChild(tr);
-                });
-            }
-        
-            // 4. Desenhar/Atualizar Gráfico Misto (Chart.js)
-            const canvas = document.getElementById('t4-grafico-misto');
-            if (canvas && dadosTela4.grafico) {
-                const ctx = canvas.getContext('2d');
-                
-                // Destrói o gráfico anterior para não sobrepor nem zerar a largura
-                if (chartTela4) {
-                    chartTela4.destroy();
-                }
-        
-                chartTela4 = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: dadosTela4.grafico.labels, // ex: ['Dia 1', 'Dia 2', ...]
-                        datasets: [
-                            {
-                                label: 'Nível de Serviço (%)',
-                                data: dadosTela4.grafico.dadosNs,
-                                type: 'line',
-                                borderColor: '#2ecc71',
-                                backgroundColor: '#2ecc71',
-                                borderWidth: 2,
-                                yAxisID: 'yNS'
-                            },
-                            {
-                                label: 'Reentregas (Qtd)',
-                                data: dadosTela4.grafico.dadosRe,
-                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                                borderColor: '#e74c3c',
-                                borderWidth: 1,
-                                yAxisID: 'yRE'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            yNS: {
-                                type: 'linear',
-                                position: 'left',
-                                title: { display: true, text: 'Nível de Serviço (%)', color: '#fff' },
-                                ticks: { color: '#fff' },
-                                grid: { color: 'rgba(255,255,255,0.1)' }
-                            },
-                            yRE: {
-                                type: 'linear',
-                                position: 'right',
-                                title: { display: true, text: 'Reentregas (Qtd)', color: '#fff' },
-                                ticks: { color: '#fff' },
-                                grid: { drawOnChartArea: false }
-                            },
-                            x: {
-                                ticks: { color: '#fff' },
-                                grid: { color: 'rgba(255,255,255,0.1)' }
-                            }
-                        },
-                        plugins: {
-                            legend: { labels: { color: '#fff' } }
-                        }
-                    }
-                });
-            }
-        }
-        let chartTela3 = null;
-
-        function renderizarTela3(dadosTela3) {
-            if (!dadosTela3) return;
-    
-            // 1. Atualizar Cards Superiores
-            if (dadosTela3.kpis) {
-                document.getElementById('t3-pico-peso-val').textContent = dadosTela3.kpis.picoPesoVal || '-';
-                document.getElementById('t3-pico-peso-dia').textContent = dadosTela3.kpis.picoPesoDia || '-';
-                
-                document.getElementById('t3-pico-drop-val').textContent = dadosTela3.kpis.picoDropVal || '-';
-                document.getElementById('t3-pico-drop-dia').textContent = dadosTela3.kpis.picoDropDia || '-';
-                
-                document.getElementById('t3-total-nfs-val').textContent = dadosTela3.kpis.totalNfs || '-';
-                document.getElementById('t3-total-cli-val').textContent = dadosTela3.kpis.totalClientes || '-';
-            }
-    
-            // 2. Renderizar Minicards Diários
-            const containerMini = document.getElementById('t3-minicards-container');
-            if (containerMini && dadosTela3.diario) {
-                containerMini.innerHTML = '';
-                dadosTela3.diario.forEach(item => {
-                    containerMini.insertAdjacentHTML('beforeend', `
-                        <div class="t2-minicard">
-                            <div class="t2-mini-dia">${item.dia}</div>
-                            <div class="t2-mini-val" style="color: #e67e22;">${item.peso} kg</div>
-                            <div class="t2-mini-sub" style="color: #3498db;">${item.nfs} NF's</div>
-                        </div>
-                    `);
-                });
-            }
-    
-            // 3. Renderizar Tabela
-            const tbody = document.getElementById('t3-table-body');
-            if (tbody && dadosTela3.historico) {
-                tbody.innerHTML = '';
-                dadosTela3.historico.forEach(row => {
-                    tbody.insertAdjacentHTML('beforeend', `
-                        <tr>
-                            <td>${row.mes}</td>
-                            <td>${row.pesoTotal}</td>
-                            <td>${row.nfs}</td>
-                            <td>${row.clientes}</td>
-                        </tr>
-                    `);
-                });
-            }
-    
-            // 4. Desenhar Gráfico Misto
-            const canvas = document.getElementById('t3-grafico-misto');
-            if (canvas && dadosTela3.grafico) {
-                if (chartTela3) chartTela3.destroy();
-    
-                chartTela3 = new Chart(canvas.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: dadosTela3.grafico.labels,
-                        datasets: [
-                            {
-                                type: 'line',
-                                label: 'Dropsize (Kg/NF)',
-                                data: dadosTela3.grafico.dropsize,
-                                borderColor: '#2ecc71',
-                                borderWidth: 2,
-                                yAxisID: 'yDrop'
-                            },
-                            {
-                                type: 'bar',
-                                label: 'Peso Total (Kg)',
-                                data: dadosTela3.grafico.peso,
-                                backgroundColor: 'rgba(230, 126, 34, 0.7)',
-                                yAxisID: 'yPeso'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            yPeso: { type: 'linear', position: 'left', ticks: { color: '#fff' } },
-                            yDrop: { type: 'linear', position: 'right', ticks: { color: '#fff' }, grid: { drawOnChartArea: false } },
-                            x: { ticks: { color: '#fff' } }
-                        },
-                        plugins: { legend: { labels: { color: '#fff' } } }
-                    }
-                }
-            });
-        }
     </script>
 </body>
 </html>
