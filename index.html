@@ -474,12 +474,47 @@
         </div>
     </div>
 
+    <!-- ADICIONAR ESTE TRECHO: -->
     <div id="tela4" class="tela">
-        <div class="grid-graficos">
-            <div class="chart-container"><canvas id="graficoNsDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoNsMensal"></canvas></div>
-            <div class="chart-container"><canvas id="graficoReDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoReMensal"></canvas></div>
+        <div class="t2-top-kpis">
+            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
+                <span class="t2-kpi-title"><i class="fas fa-check-circle" style="color: #2ecc71; margin-right: 6px;"></i> NÍVEL DE SERVIÇO D+1 (<span id="t4-mes-lbl1">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t4-ns-mes">-</span>
+                <span class="t2-kpi-sub text-positivo">■ Média do Mês</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #3498db;">
+                <span class="t2-kpi-title"><i class="fas fa-trophy" style="color: #3498db; margin-right: 6px;"></i> PICO NS D+1 (<span id="t4-mes-lbl2">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t4-pico-ns-val">-</span>
+                <span class="t2-kpi-sub" style="color: #3498db;" id="t4-pico-ns-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t2-kpi-title"><i class="fas fa-rotate-left" style="color: #e74c3c; margin-right: 6px;"></i> REENTREGAS (<span id="t4-mes-lbl3">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t4-re-mes">-</span>
+                <span class="t2-kpi-sub" style="color: #e74c3c;">▲ Acumulado do Mês</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
+                <span class="t2-kpi-title"><i class="fas fa-triangle-exclamation" style="color: #f1c40f; margin-right: 6px;"></i> PICO DE REENTREGAS (<span id="t4-mes-lbl4">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t4-pico-re-val">-</span>
+                <span class="t2-kpi-sub text-neutro" id="t4-pico-re-dia">-</span>
+            </div>
+        </div>
+
+        <div class="t2-minicards-wrapper" id="t4-minicards-container"></div>
+
+        <div class="t2-base-grid">
+            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
+                <canvas id="t4-grafico-misto"></canvas>
+            </div>
+            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
+                <table class="t2-table">
+                    <thead>
+                        <tr><th colspan="4" id="t4-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - NS D+1 E REENTREGAS</th></tr>
+                        <tr><th>Mês</th><th>NS D+1 (%)</th><th>Reentregas (Qtd)</th><th>Vs Mês Ant.</th></tr>
+                    </thead>
+                    <tbody id="t4-table-body">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -525,7 +560,7 @@
             else { btn.textContent = "Auto: OFF"; btn.className = "btn-auto auto-off"; timerDisp.style.visibility = "hidden"; }
         }
 
-        // --- NOVO BLOCO DE CONTROLE E RESET DE TELAS ---
+        // --- BLOCO DE CONTROLE E RESET DE TELAS ---
 
         function resetarTodosCarrosseisETimer() {
             // 1. Reinicia o contador regressivo global do painel
@@ -555,13 +590,22 @@
                 setTimeout(() => { trackDropSize.style.transition = 'transform 1s cubic-bezier(0.25, 1, 0.5, 1)'; }, 50);
             }
         
-            // 4. Reinicia intervalos de rotação interna da Tela 3
+            // 4. Reseta carrossel da Tela 4 para a primeira página
+            const trackT4 = document.getElementById('t4-track');
+            if (trackT4) {
+                trackT4.style.transition = 'none';
+                trackT4.style.transform = 'translateX(0%)';
+                setTimeout(() => { trackT4.style.transition = 'transform 1s cubic-bezier(0.25, 1, 0.5, 1)'; }, 50);
+            }
+        
+            // 5. Reinicia intervalos de rotação interna
             if (window.t2CarouselInterval) { clearInterval(window.t2CarouselInterval); window.t2CarouselInterval = null; }
             if (window.t3CarouselInterval) { clearInterval(window.t3CarouselInterval); window.t3CarouselInterval = null; }
             if (window.t3CardsInterval) { clearInterval(window.t3CardsInterval); window.t3CardsInterval = null; }
             if (window.t3TableAlternatingInterval) { clearInterval(window.t3TableAlternatingInterval); window.t3TableAlternatingInterval = null; }
             if (window.t3ChartInterval) { clearInterval(window.t3ChartInterval); window.t3ChartInterval = null; }
             if (window.t3ChartAlternatingInterval) { clearInterval(window.t3ChartAlternatingInterval); window.t3ChartAlternatingInterval = null; }
+            if (window.t4CarouselInterval) { clearInterval(window.t4CarouselInterval); window.t4CarouselInterval = null; }
         }
         
         function mudarTelaManual(direcao) { 
@@ -583,32 +627,35 @@
             telas.forEach((t, i) => {
                 t.classList.toggle('ativa', i + 1 === telaAtual);
             });
-            
+        
             const h1 = document.querySelector('.titulo-painel');
             const spanData = document.getElementById('data-painel');
             const infoIcon = document.getElementById('info-icon');
             const modal = document.getElementById('modal-ajuda');
-            
+        
+            // Lógica do cabeçalho por tela
             if (telaAtual === 2) {
                 h1.innerHTML = '<i class="fas fa-boxes-stacked" style="margin-right: 10px; color: #2ecc71;"></i>VOLUME EXPEDIDO & OCUPAÇÃO - EV';
-                infoIcon.style.display = 'block';
+                if (infoIcon) infoIcon.style.display = 'block';
             } else if (telaAtual === 3) {
                 h1.innerHTML = '<i class="fas fa-truck" style="margin-right: 10px; color: #2ecc71;"></i>DISTRIBUIÇÃO & ENTREGA - EV';
-                infoIcon.style.display = 'none';
+                if (infoIcon) infoIcon.style.display = 'none';
+            } else if (telaAtual === 4) {
+                h1.innerHTML = '<i class="fas fa-chart-line" style="margin-right: 10px; color: #2ecc71;"></i>NÍVEL DE SERVIÇO & REENTREGAS - EV';
+                if (infoIcon) infoIcon.style.display = 'none';
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
-                infoIcon.style.display = 'none';
+                if (infoIcon) infoIcon.style.display = 'none';
                 if (modal) modal.style.display = 'none';
             }
-            
-            if (spanData) h1.appendChild(spanData);
-            
+        
+            if (spanData && h1) h1.appendChild(spanData);
+        
             if (typeof fetchPlanilha === 'function') {
                 fetchPlanilha();
             }
-            
+        
             window.dispatchEvent(new Event('resize'));
-            
         }
         setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 90; } } }, 1000);
 
@@ -978,10 +1025,8 @@
 
                 // --- NOVA RENDERIZAÇÃO TELA 2 (DASHBOARD VOLUME & OCUPAÇÃO) ---
                 renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
-                renderizarNsDiario(labF, vNsF, mesExibicaoNome);
-                renderizarNsMensal(mesesExtenso, sNsM.map((s,i)=>cNsM[i]>0?s:0), anoAtual);
-                renderizarReDiario(labF, vReF, mesExibicaoNome);
-                renderizarReMensal(mesesExtenso, acReM, anoAtual);
+                // ADICIONAR ESTA CHAMADA NO LUGAR:
+                renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
                 renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
                 renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
                 const labAderenciaF = []; const vAderenciaF = []; const vApontamentosF = [];
@@ -1798,6 +1843,126 @@
             const modal = document.getElementById('modal-ajuda');
             modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
         });
+        function renderizarDashboardTela4(labF, vNsF, vReF, mesNome, mesesExtenso, sNsM, cNsM, acReM, anoAtual, mesDeExibicaoIdx) {
+            // 1. Atualização dos Rótulos de Mês
+            document.getElementById('t4-mes-lbl1').textContent = mesNome;
+            document.getElementById('t4-mes-lbl2').textContent = mesNome;
+            document.getElementById('t4-mes-lbl3').textContent = mesNome;
+            document.getElementById('t4-mes-lbl4').textContent = mesNome;
+
+            const tabelaTitulo = document.getElementById('t4-tabela-titulo');
+            if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO MENSAL - NS D+1 E REENTREGAS (${anoAtual})`;
+
+            // 2. Cálculo dos KPIs Superiores
+            let nsMes = sNsM[mesDeExibicaoIdx] || 0;
+            let reMes = acReM[mesDeExibicaoIdx] || 0;
+
+            let picoNs = 0, diaPicoNs = "-";
+            vNsF.forEach((val, idx) => { if (val > picoNs) { picoNs = val; diaPicoNs = labF[idx]; } });
+
+            let picoRe = 0, diaPicoRe = "-";
+            vReF.forEach((val, idx) => { if (val > picoRe) { picoRe = val; diaPicoRe = labF[idx]; } });
+
+            document.getElementById('t4-ns-mes').textContent = nsMes > 0 ? nsMes.toFixed(1) + '%' : '-';
+            document.getElementById('t4-pico-ns-val').textContent = picoNs > 0 ? picoNs.toFixed(1) + '%' : '-';
+            document.getElementById('t4-pico-ns-dia').textContent = diaPicoNs !== "-" ? `DIA ${diaPicoNs}` : '-';
+
+            document.getElementById('t4-re-mes').textContent = reMes.toLocaleString('pt-BR');
+            document.getElementById('t4-pico-re-val').textContent = picoRe > 0 ? picoRe.toLocaleString('pt-BR') : '-';
+            document.getElementById('t4-pico-re-dia').textContent = diaPicoRe !== "-" ? `DIA ${diaPicoRe}` : '-';
+
+            // 3. Montagem dos Mini Cards Diários com Carrossel
+            let containerMC = document.getElementById('t4-minicards-container');
+            if (containerMC) {
+                let todosOsCards = [];
+                for (let i = 0; i < labF.length; i++) {
+                    let nsVal = vNsF[i] !== null ? vNsF[i].toFixed(1) + '%' : '0.0%';
+                    let reVal = vReF[i] !== null ? vReF[i].toLocaleString('pt-BR') : '0';
+                    let corNs = (vNsF[i] || 0) >= 95 ? '#2ecc71' : ((vNsF[i] || 0) >= 90 ? '#f1c40f' : '#e74c3c');
+
+                    todosOsCards.push(`
+                        <div class="t2-minicard">
+                            <span class="t2-mc-dia">DIA ${labF[i]}</span>
+                            <span class="t2-mc-val" style="color: ${corNs};">${nsVal}</span>
+                            <span class="t2-mc-vol" style="background: rgba(231, 76, 60, 0.15); color: #e74c3c;">Reentregas: ${reVal}</span>
+                        </div>
+                    `);
+                }
+
+                let cardsPorPagina = 8;
+                let paginasHTML = '';
+                for (let p = 0; p < todosOsCards.length; p += cardsPorPagina) {
+                    paginasHTML += `<div class="t2-page">${todosOsCards.slice(p, p + cardsPorPagina).join('')}</div>`;
+                }
+
+                containerMC.innerHTML = `<div class="t2-track" id="t4-track">${paginasHTML}</div>`;
+
+                let totalPaginas = Math.ceil(todosOsCards.length / cardsPorPagina);
+                let paginaAtual = 0;
+
+                if (window.t4CarouselInterval) clearInterval(window.t4CarouselInterval);
+                if (totalPaginas > 1) {
+                    window.t4CarouselInterval = setInterval(() => {
+                        paginaAtual = (paginaAtual + 1) % totalPaginas;
+                        let track = document.getElementById('t4-track');
+                        if (track) track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                    }, 20000);
+                }
+            }
+
+            // 4. Renderização do Gráfico Misto (Linhas NS% + Barras Reentregas)
+            const ctx = document.getElementById('t4-grafico-misto').getContext('2d');
+            if (window.chartMistoT4) window.chartMistoT4.destroy();
+
+            window.chartMistoT4 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labF,
+                    datasets: [
+                        { type: 'line', label: 'Nível de Serviço D+1 (%)', data: vNsF, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#2ecc71', yAxisID: 'y' },
+                        { type: 'bar', label: 'Reentregas (Qtd)', data: vReF, backgroundColor: 'rgba(231, 76, 60, 0.6)', borderColor: '#e74c3c', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
+                    plugins: {
+                        title: { display: true, text: `📊 NÍVEL DE SERVIÇO D+1 X REENTREGAS - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
+                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
+                        y: { type: 'linear', display: true, position: 'left', min: 80, max: 100, ticks: { color: '#2ecc71', font: { size: 11, weight: 'bold' }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, ticks: { color: '#e74c3c', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // 5. Preenchimento da Tabela de Histórico Mensal
+            let tbody = document.getElementById('t4-table-body');
+            if (tbody) {
+                tbody.innerHTML = '';
+                for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                    let valNs = sNsM[i] > 0 ? sNsM[i].toFixed(1) + '%' : '-';
+                    let valRe = acReM[i] ? acReM[i].toLocaleString('pt-BR') : '-';
+                    
+                    let diffHtml = '-';
+                    if (i > 0 && acReM[i-1] > 0 && acReM[i] > 0) {
+                        let diff = ((acReM[i] - acReM[i-1]) / acReM[i-1]) * 100;
+                        let cor = diff < 0 ? '#2ecc71' : (diff > 0 ? '#e74c3c' : '#f1c40f');
+                        let icone = diff > 0 ? '▲' : (diff < 0 ? '▼' : '▬');
+                        diffHtml = `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
+                    }
+
+                    tbody.innerHTML += `<tr>
+                        <td>${mesesExtenso[i]}</td>
+                        <td>${valNs}</td>
+                        <td>${valRe}</td>
+                        <td>${diffHtml}</td>
+                    </tr>`;
+                }
+            }
+        }
     </script>
 </body>
 </html>
