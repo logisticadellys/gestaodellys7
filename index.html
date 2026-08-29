@@ -477,10 +477,10 @@
     <!-- ADICIONAR ESTE TRECHO: -->
     <div id="tela4" class="tela">
         <div class="t2-top-kpis">
-            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
-                <span class="t2-kpi-title"><i class="fas fa-check-circle" style="color: #2ecc71; margin-right: 6px;"></i> NÍVEL DE SERVIÇO D+1 (<span id="t4-mes-lbl1">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t4-ns-mes">-</span>
-                <span class="t2-kpi-sub text-positivo">■ Média do Mês</span>
+            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #e74c3c; margin-right: 6px;"></i> PIOR PICO NÍVEL DE SERVIÇO D+1 (<span id="t4-mes-lbl2">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t4-pico-ns-val">-</span>
+                <span class="t2-kpi-sub" style="color: #e74c3c;" id="t4-pico-ns-dia">-</span>
             </div>
             <div class="t2-kpi-card" style="border-top-color: #3498db;">
                 <span class="t2-kpi-title"><i class="fas fa-trophy" style="color: #3498db; margin-right: 6px;"></i> PICO NS D+1 (<span id="t4-mes-lbl2">MÊS</span>)</span>
@@ -509,7 +509,8 @@
                 <table class="t2-table">
                     <thead>
                         <tr><th colspan="4" id="t4-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - NS D+1 E REENTREGAS</th></tr>
-                        <tr><th>Mês</th><th>NS D+1 (%)</th><th>Reentregas (Qtd)</th><th>Vs Mês Ant.</th></tr>
+                        <!-- ALTERADO AQUI -->
+                        <tr><th>Mês</th><th>NS D+1</th><th>Reentregas</th><th>Vs Mês Ant.</th></tr>
                     </thead>
                     <tbody id="t4-table-body">
                     </tbody>
@@ -1857,15 +1858,30 @@
             let nsMes = sNsM[mesDeExibicaoIdx] || 0;
             let reMes = acReM[mesDeExibicaoIdx] || 0;
 
-            let picoNs = 0, diaPicoNs = "-";
-            vNsF.forEach((val, idx) => { if (val > picoNs) { picoNs = val; diaPicoNs = labF[idx]; } });
-
+            // 1. NOVA LÓGICA: Pior Pico (Menor valor) para NS D+1
+            let piorPicoNs = 101; // Começa alto para achar o menor
+            let diaPiorPicoNs = "-";
+            
+            vNsF.forEach((val, idx) => { 
+                if (val > 0 && val < piorPicoNs) { 
+                    piorPicoNs = val; 
+                    diaPiorPicoNs = labF[idx]; 
+                } 
+            });
+            
+            // 2. MANTÉM: Lógica de Maior Pico para Reentregas
             let picoRe = 0, diaPicoRe = "-";
-            vReF.forEach((val, idx) => { if (val > picoRe) { picoRe = val; diaPicoRe = labF[idx]; } });
-
-            document.getElementById('t4-ns-mes').textContent = nsMes > 0 ? nsMes.toFixed(1) + '%' : '-';
-            document.getElementById('t4-pico-ns-val').textContent = picoNs > 0 ? picoNs.toFixed(1) + '%' : '-';
-            document.getElementById('t4-pico-ns-dia').textContent = diaPicoNs !== "-" ? `DIA ${diaPicoNs}` : '-';
+            vReF.forEach((val, idx) => { 
+                if (val > picoRe) { 
+                    picoRe = val; 
+                    diaPicoRe = labF[idx]; 
+                } 
+            });
+            
+            // 3. ATUALIZAÇÃO NO HTML
+            // A linha do 't4-ns-mes' foi apagada porque removemos o card no HTML.
+            document.getElementById('t4-pico-ns-val').textContent = piorPicoNs <= 100 ? piorPicoNs.toFixed(1) + '%' : '-';
+            document.getElementById('t4-pico-ns-dia').textContent = diaPiorPicoNs !== "-" ? `DIA ${diaPiorPicoNs}` : '-';
 
             document.getElementById('t4-re-mes').textContent = reMes.toLocaleString('pt-BR');
             document.getElementById('t4-pico-re-val').textContent = picoRe > 0 ? picoRe.toLocaleString('pt-BR') : '-';
@@ -1943,26 +1959,31 @@
             if (tbody) {
                 tbody.innerHTML = '';
                 for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                    let valNs = sNsM[i] > 0 ? sNsM[i].toFixed(1) + '%' : '-';
-                    let valRe = acReM[i] ? acReM[i].toLocaleString('pt-BR') : '-';
                     
-                    let diffHtml = '-';
-                    if (i > 0 && acReM[i-1] > 0 && acReM[i] > 0) {
-                        let diff = ((acReM[i] - acReM[i-1]) / acReM[i-1]) * 100;
-                        let cor = diff < 0 ? '#2ecc71' : (diff > 0 ? '#e74c3c' : '#f1c40f');
-                        let icone = diff > 0 ? '▲' : (diff < 0 ? '▼' : '▬');
-                        diffHtml = `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
-                    }
+                    // NOVA REGRA AQUI: Só adiciona se o mês tiver NS ou Reentregas maior que zero
+                    if ((sNsM[i] || 0) > 0 || (acReM[i] || 0) > 0) {
+                        
+                        let valNs = sNsM[i] > 0 ? sNsM[i].toFixed(1) + '%' : '-';
+                        let valRe = acReM[i] ? acReM[i].toLocaleString('pt-BR') : '-';
+                        
+                        let diffHtml = '-';
+                        if (i > 0 && acReM[i-1] > 0 && acReM[i] > 0) {
+                            let diff = ((acReM[i] - acReM[i-1]) / acReM[i-1]) * 100;
+                            let cor = diff < 0 ? '#2ecc71' : (diff > 0 ? '#e74c3c' : '#f1c40f');
+                            let icone = diff > 0 ? '▲' : (diff < 0 ? '▼' : '▬');
+                            diffHtml = `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
+                        }
 
-                    tbody.innerHTML += `<tr>
-                        <td>${mesesExtenso[i]}</td>
-                        <td>${valNs}</td>
-                        <td>${valRe}</td>
-                        <td>${diffHtml}</td>
-                    </tr>`;
+                        tbody.innerHTML += `<tr>
+                            <td>${mesesExtenso[i]}</td>
+                            <td>${valNs}</td>
+                            <td>${valRe}</td>
+                            <td>${diffHtml}</td>
+                        </tr>`;
+                    } // Fim do IF da nova regra
+                    
                 }
             }
-        }
     </script>
 </body>
 </html>
