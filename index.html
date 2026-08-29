@@ -1845,11 +1845,18 @@
             modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
         });
         function renderizarDashboardTela4(labF, vNsF, vReF, mesNome, mesesExtenso, sNsM, cNsM, acReM, anoAtual, mesDeExibicaoIdx) {
-            // 1. Atualização dos Rótulos de Mês
-            document.getElementById('t4-mes-lbl1').textContent = mesNome;
-            document.getElementById('t4-mes-lbl2').textContent = mesNome;
-            document.getElementById('t4-mes-lbl3').textContent = mesNome;
-            document.getElementById('t4-mes-lbl4').textContent = mesNome;
+            // 1. Atualização dos Rótulos de Mês (Agora com proteção contra erro)
+            let lbl1 = document.getElementById('t4-mes-lbl1');
+            if (lbl1) lbl1.textContent = mesNome;
+            
+            let lbl2 = document.getElementById('t4-mes-lbl2');
+            if (lbl2) lbl2.textContent = mesNome;
+            
+            let lbl3 = document.getElementById('t4-mes-lbl3');
+            if (lbl3) lbl3.textContent = mesNome;
+            
+            let lbl4 = document.getElementById('t4-mes-lbl4');
+            if (lbl4) lbl4.textContent = mesNome;
 
             const tabelaTitulo = document.getElementById('t4-tabela-titulo');
             if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO MENSAL - NS D+1 E REENTREGAS (${anoAtual})`;
