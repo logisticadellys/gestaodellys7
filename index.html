@@ -1941,36 +1941,7 @@
                 });
             }
         
-            // --- GERENCIAMENTO LIMPO DO ÍCONE DE INFO AO LADO DO LOGO ---
-            // Remove qualquer ícone anterior da Tela 4 para evitar duplicação ao trocar de tela
-            const antigoIcone = document.getElementById('t4-info-legenda-logo');
-            if (antigoIcone) antigoIcone.remove();
-        
-            let logoElement = document.querySelector('img[alt*="Logo"], img[alt*="Delly"], .logo img, .header-logo img, header img');
-            if (logoElement) {
-                let parentLogo = logoElement.parentNode;
-                let infoDiv = document.createElement('div');
-                infoDiv.id = 't4-info-legenda-logo';
-                infoDiv.style.cssText = 'display: inline-flex; align-items: center; margin-left: 15px; vertical-align: middle; cursor: pointer;';
-                
-                // Copia a mesma classe/estilo visual do "i" já existente no painel
-                infoDiv.innerHTML = `
-                    <span style="background: rgba(255,255,255,0.15); color: #a0aec0; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; border: 1px solid rgba(255,255,255,0.3);">i</span>
-                `;
-                
-                // Ao clicar, dispara a mesma ação/função que abre o modal de regras das outras telas (ex: abrirModalRegras ou similar do seu sistema)
-                infoDiv.onclick = function() {
-                    if (typeof abrirModalRegras === 'function') {
-                        abrirModalRegras("Cards Diários: O 'PICO' é calculado com base nas reentregas.");
-                    } else {
-                        alert("Cards Diários: O 'PICO' é calculado com base nas reentregas.");
-                    }
-                };
-        
-                parentLogo.insertBefore(infoDiv, logoElement.nextSibling);
-            }
-        
-            // 6. Tabela Histórico Mensal Tela 4 (Com Destaque de Troféu no estilo de pílula)
+            // 6. Tabela Histórico Mensal Tela 4 (Com Destaque de Troféu no estilo do print)
             const tbody = document.getElementById('t4-table-body');
             if (tbody) {
                 let bodyHtml = '';
@@ -1980,6 +1951,7 @@
                 let maxNs = -1;
                 let minRe = Infinity;
         
+                // Descobre os melhores valores considerando os dados originais corretos
                 for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                     let valNs = arrNs[i] || 0;
                     let valRe = arrRe[i] || 0;
@@ -2001,6 +1973,7 @@
                         let diff = i > 0 && arrRe[i-1] > 0 ? ((reNum - arrRe[i-1]) / arrRe[i-1]) * 100 : 0;
                         let diffStr = i > 0 && arrRe[i-1] > 0 ? `<span style="color: ${diff > 0 ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}%</span>` : '-';
         
+                        // Estilo em pílula idêntico ao print do seu painel
                         let estiloBadge = `background: rgba(0, 206, 209, 0.2); border-radius: 6px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 8px;`;
         
                         let celulaNs = isBestNs 
