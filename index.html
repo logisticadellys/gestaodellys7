@@ -1912,7 +1912,7 @@
                 containerMC.innerHTML = `<div class="t2-track" id="t4-track">${paginasHTML}</div>`;
             }
         
-            // 5. Gráfico Misto Tela 4
+            // 5. Gráfico Misto Tela 4 (Com o ícone de Legenda/Informação no título)
             const ctx = document.getElementById('t4-grafico-misto');
             if (ctx) {
                 if (window.chartMistoT4) window.chartMistoT4.destroy();
@@ -1928,7 +1928,12 @@
                     options: {
                         responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
                         plugins: {
-                            title: { display: true, text: `📊 NÍVEL DE SERVIÇO D+1 x REENTREGAS - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
+                            title: { 
+                                display: true, 
+                                text: `📊 NÍVEL DE SERVIÇO D+1 x REENTREGAS - ${mesNome}`, 
+                                color: '#a0aec0', 
+                                font: { size: 16, weight: 'bold' } 
+                            },
                             legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
                             datalabels: { display: false }
                         },
@@ -1941,7 +1946,25 @@
                 });
             }
         
-            // 6. Tabela Histórico Mensal Tela 4 (Com Destaque de Troféu no estilo do print)
+            // Inserção do ícone de Informação (ⓘ) com a legenda solicitada próximo ao topo da tela 4 ou cabeçalho do gráfico
+            let headerTela4 = document.getElementById('t4-header-info');
+            if (!headerTela4) {
+                // Se não existir um container específico, cria dinamicamente acima do gráfico ou tabela
+                const containerGrafico = ctx ? ctx.closest('.card, div') : null;
+                if (containerGrafico && !document.getElementById('t4-info-legenda')) {
+                    let infoDiv = document.createElement('div');
+                    infoDiv.id = 't4-info-legenda';
+                    infoDiv.style.cssText = 'display: flex; justify-content: flex-end; align-items: center; margin-bottom: 8px; padding: 0 10px;';
+                    infoDiv.innerHTML = `
+                        <div style="position: relative; display: inline-block; cursor: pointer;" title="Cards Diários: O 'PICO' é calculado com base nas reentregas.">
+                            <span style="background: rgba(255,255,255,0.1); color: #a0aec0; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 1px solid rgba(255,255,255,0.2);">i</span>
+                        </div>
+                    `;
+                    containerGrafico.parentNode.insertBefore(infoDiv, containerGrafico);
+                }
+            }
+        
+            // 6. Tabela Histórico Mensal Tela 4 (Com Destaque de Troféu no estilo de pílula)
             const tbody = document.getElementById('t4-table-body');
             if (tbody) {
                 let bodyHtml = '';
@@ -1951,7 +1974,6 @@
                 let maxNs = -1;
                 let minRe = Infinity;
         
-                // Descobre os melhores valores considerando os dados originais corretos
                 for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                     let valNs = arrNs[i] || 0;
                     let valRe = arrRe[i] || 0;
@@ -1973,7 +1995,6 @@
                         let diff = i > 0 && arrRe[i-1] > 0 ? ((reNum - arrRe[i-1]) / arrRe[i-1]) * 100 : 0;
                         let diffStr = i > 0 && arrRe[i-1] > 0 ? `<span style="color: ${diff > 0 ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}%</span>` : '-';
         
-                        // Estilo em pílula idêntico ao print do seu painel
                         let estiloBadge = `background: rgba(0, 206, 209, 0.2); border-radius: 6px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 8px;`;
         
                         let celulaNs = isBestNs 
