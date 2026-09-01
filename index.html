@@ -1941,46 +1941,47 @@
                 });
             }
         
-            // 6. Tabela Histórico Mensal Tela 4 (Com Destaque de Troféu)
+            // 6. Tabela Histórico Mensal Tela 4 (Com Destaque de Troféu no estilo do print)
             const tbody = document.getElementById('t4-table-body');
             if (tbody) {
                 let bodyHtml = '';
                 const arrNs = sNsM;
                 const arrRe = acReM;
         
-                // Primeiro: Descobrir o melhor NS (maior %) e a melhor Reentrega (menor quantidade > 0)
                 let maxNs = -1;
                 let minRe = Infinity;
         
+                // Descobre os melhores valores considerando os dados originais corretos
                 for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                    let nsValCalc = cNsM[i] > 0 ? sNsM[i] / cNsM[i] : 0;
-                    let reValCalc = arrRe[i] || 0;
+                    let valNs = arrNs[i] || 0;
+                    let valRe = arrRe[i] || 0;
         
-                    if (nsValCalc > maxNs) maxNs = nsValCalc;
-                    if (reValCalc > 0 && reValCalc < minRe) minRe = reValCalc;
+                    if (valNs > maxNs) maxNs = valNs;
+                    if (valRe > 0 && valRe < minRe) minRe = valRe;
                 }
         
-                // Segundo: Montar as linhas da tabela aplicando o troféu onde corresponder
                 for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                     if ((arrNs[i] || 0) > 0 || (arrRe[i] || 0) > 0) {
-                        let nsMesNum = cNsM[i] > 0 ? sNsM[i] / cNsM[i] : 0;
-                        let reMesNum = arrRe[i] || 0;
+                        let nsNum = arrNs[i] || 0;
+                        let reNum = arrRe[i] || 0;
         
-                        let isBestNs = (nsMesNum === maxNs && maxNs > 0);
-                        let isBestRe = (reMesNum === minRe && minRe !== Infinity);
+                        let isBestNs = (nsNum === maxNs && maxNs > 0);
+                        let isBestRe = (reNum === minRe && minRe !== Infinity);
         
-                        let nsVal = nsMesNum > 0 ? nsMesNum.toFixed(1) + '%' : '-';
-                        let reVal = reMesNum > 0 ? reMesNum.toLocaleString('pt-BR') : '-';
-                        let diff = i > 0 && arrRe[i-1] > 0 ? ((reMesNum - arrRe[i-1]) / arrRe[i-1]) * 100 : 0;
+                        let nsVal = nsNum > 0 ? nsNum.toFixed(1) + '%' : '-';
+                        let reVal = reNum > 0 ? reNum.toLocaleString('pt-BR') : '-';
+                        let diff = i > 0 && arrRe[i-1] > 0 ? ((reNum - arrRe[i-1]) / arrRe[i-1]) * 100 : 0;
                         let diffStr = i > 0 && arrRe[i-1] > 0 ? `<span style="color: ${diff > 0 ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}%</span>` : '-';
         
-                        // Formatação das colunas com o troféu se for o recorde do período
+                        // Estilo em pílula idêntico ao print do seu painel
+                        let estiloBadge = `background: rgba(0, 206, 209, 0.2); border-radius: 6px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 8px;`;
+        
                         let celulaNs = isBestNs 
-                            ? `<div style="display: inline-flex; align-items: center; gap: 6px;"><span style="color: #00ff88; font-weight: bold;">${nsVal}</span><i class="fas fa-trophy" style="color: #ffd700;" title="Melhor Mês"></i></div>` 
+                            ? `<div style="${estiloBadge}"><span style="color: #00ff88; font-weight: bold;">${nsVal}</span><i class="fas fa-trophy" style="color: #ffd700;" title="Melhor Mês"></i></div>` 
                             : nsVal;
         
                         let celulaRe = isBestRe 
-                            ? `<div style="display: inline-flex; align-items: center; gap: 6px;"><span style="color: #00ff88; font-weight: bold;">${reVal}</span><i class="fas fa-trophy" style="color: #ffd700;" title="Melhor Mês"></i></div>` 
+                            ? `<div style="${estiloBadge}"><span style="color: #00ff88; font-weight: bold;">${reVal}</span><i class="fas fa-trophy" style="color: #ffd700;" title="Melhor Mês"></i></div>` 
                             : reVal;
         
                         bodyHtml += `<tr>
