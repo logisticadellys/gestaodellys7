@@ -1941,21 +1941,33 @@
                 });
             }
         
-            // Inserção do ícone de Informação (ⓘ) exatamente ao lado do Logo
-            let infoLegendaLogo = document.getElementById('t4-info-legenda-logo');
-            if (!infoLegendaLogo) {
-                // Procura pelo elemento do logo da Delly's (padrão de imagem ou container de logo)
-                let logoElement = document.querySelector('img[alt*="Logo"], img[alt*="Delly"], .logo img, .header-logo img, header img');
-                if (logoElement) {
-                    let parentLogo = logoElement.parentNode;
-                    let infoDiv = document.createElement('div');
-                    infoDiv.id = 't4-info-legenda-logo';
-                    infoDiv.style.cssText = 'display: inline-flex; align-items: center; margin-left: 15px; vertical-align: middle; cursor: pointer;';
-                    infoDiv.innerHTML = `
-                        <span style="background: rgba(255,255,255,0.15); color: #a0aec0; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; border: 1px solid rgba(255,255,255,0.3);" title="Cards Diários: O 'PICO' é calculado com base nas reentregas.">i</span>
-                    `;
-                    parentLogo.insertBefore(infoDiv, logoElement.nextSibling);
-                }
+            // --- GERENCIAMENTO LIMPO DO ÍCONE DE INFO AO LADO DO LOGO ---
+            // Remove qualquer ícone anterior da Tela 4 para evitar duplicação ao trocar de tela
+            const antigoIcone = document.getElementById('t4-info-legenda-logo');
+            if (antigoIcone) antigoIcone.remove();
+        
+            let logoElement = document.querySelector('img[alt*="Logo"], img[alt*="Delly"], .logo img, .header-logo img, header img');
+            if (logoElement) {
+                let parentLogo = logoElement.parentNode;
+                let infoDiv = document.createElement('div');
+                infoDiv.id = 't4-info-legenda-logo';
+                infoDiv.style.cssText = 'display: inline-flex; align-items: center; margin-left: 15px; vertical-align: middle; cursor: pointer;';
+                
+                // Copia a mesma classe/estilo visual do "i" já existente no painel
+                infoDiv.innerHTML = `
+                    <span style="background: rgba(255,255,255,0.15); color: #a0aec0; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; border: 1px solid rgba(255,255,255,0.3);">i</span>
+                `;
+                
+                // Ao clicar, dispara a mesma ação/função que abre o modal de regras das outras telas (ex: abrirModalRegras ou similar do seu sistema)
+                infoDiv.onclick = function() {
+                    if (typeof abrirModalRegras === 'function') {
+                        abrirModalRegras("Cards Diários: O 'PICO' é calculado com base nas reentregas.");
+                    } else {
+                        alert("Cards Diários: O 'PICO' é calculado com base nas reentregas.");
+                    }
+                };
+        
+                parentLogo.insertBefore(infoDiv, logoElement.nextSibling);
             }
         
             // 6. Tabela Histórico Mensal Tela 4 (Com Destaque de Troféu no estilo de pílula)
