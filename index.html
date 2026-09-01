@@ -1912,7 +1912,7 @@
                 containerMC.innerHTML = `<div class="t2-track" id="t4-track">${paginasHTML}</div>`;
             }
         
-            // 5. Gráfico Misto Tela 4 (Com o ícone de Legenda/Informação no título)
+            // 5. Gráfico Misto Tela 4
             const ctx = document.getElementById('t4-grafico-misto');
             if (ctx) {
                 if (window.chartMistoT4) window.chartMistoT4.destroy();
@@ -1928,12 +1928,7 @@
                     options: {
                         responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
                         plugins: {
-                            title: { 
-                                display: true, 
-                                text: `📊 NÍVEL DE SERVIÇO D+1 x REENTREGAS - ${mesNome}`, 
-                                color: '#a0aec0', 
-                                font: { size: 16, weight: 'bold' } 
-                            },
+                            title: { display: true, text: `📊 NÍVEL DE SERVIÇO D+1 x REENTREGAS - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
                             legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
                             datalabels: { display: false }
                         },
@@ -1946,21 +1941,20 @@
                 });
             }
         
-            // Inserção do ícone de Informação (ⓘ) com a legenda solicitada próximo ao topo da tela 4 ou cabeçalho do gráfico
-            let headerTela4 = document.getElementById('t4-header-info');
-            if (!headerTela4) {
-                // Se não existir um container específico, cria dinamicamente acima do gráfico ou tabela
-                const containerGrafico = ctx ? ctx.closest('.card, div') : null;
-                if (containerGrafico && !document.getElementById('t4-info-legenda')) {
+            // Inserção do ícone de Informação (ⓘ) exatamente ao lado do Logo
+            let infoLegendaLogo = document.getElementById('t4-info-legenda-logo');
+            if (!infoLegendaLogo) {
+                // Procura pelo elemento do logo da Delly's (padrão de imagem ou container de logo)
+                let logoElement = document.querySelector('img[alt*="Logo"], img[alt*="Delly"], .logo img, .header-logo img, header img');
+                if (logoElement) {
+                    let parentLogo = logoElement.parentNode;
                     let infoDiv = document.createElement('div');
-                    infoDiv.id = 't4-info-legenda';
-                    infoDiv.style.cssText = 'display: flex; justify-content: flex-end; align-items: center; margin-bottom: 8px; padding: 0 10px;';
+                    infoDiv.id = 't4-info-legenda-logo';
+                    infoDiv.style.cssText = 'display: inline-flex; align-items: center; margin-left: 15px; vertical-align: middle; cursor: pointer;';
                     infoDiv.innerHTML = `
-                        <div style="position: relative; display: inline-block; cursor: pointer;" title="Cards Diários: O 'PICO' é calculado com base nas reentregas.">
-                            <span style="background: rgba(255,255,255,0.1); color: #a0aec0; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 1px solid rgba(255,255,255,0.2);">i</span>
-                        </div>
+                        <span style="background: rgba(255,255,255,0.15); color: #a0aec0; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; border: 1px solid rgba(255,255,255,0.3);" title="Cards Diários: O 'PICO' é calculado com base nas reentregas.">i</span>
                     `;
-                    containerGrafico.parentNode.insertBefore(infoDiv, containerGrafico);
+                    parentLogo.insertBefore(infoDiv, logoElement.nextSibling);
                 }
             }
         
