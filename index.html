@@ -1839,121 +1839,131 @@
             modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
         });
         function renderizarDashboardTela4(labF, vNsF, vReF, mesNome, mesesExtenso, sNsM, cNsM, acReM, anoAtual, mesDeExibicaoIdx) {
-            // 1. Atualização dos Rótulos de Mês
-            document.getElementById('t4-mes-lbl2').textContent = mesNome;
-            document.getElementById('t4-mes-lbl3').textContent = mesNome;
-            document.getElementById('t4-mes-lbl4').textContent = mesNome;
-
-            const tabelaTitulo = document.getElementById('t4-tabela-titulo');
-            if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO MENSAL - NS D+1 E REENTREGAS (${anoAtual})`;
-
-            // Lógica para achar o Pior Pico de Nível de Serviço D+1 (menor valor > 0)
-            let piorPicoNs = Infinity; 
-            let diaPiorPicoNs = "-"; 
-            
-            vNsF.forEach((val, idx) => { 
-                if (val > 0 && val < piorPicoNs) { 
-                    piorPicoNs = val; 
-                    diaPiorPicoNs = labF[idx]; 
-                } 
+            // Atualiza os labels dos meses na Tela 4
+            ['t4-mes-lbl2', 't4-mes-lbl3', 't4-mes-lbl4'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = mesNome;
             });
-            
-            if (piorPicoNs === Infinity) piorPicoNs = 0; // Fallback caso não haja dados
         
-            // Atualiza os elementos na tela
-            document.getElementById('t4-pico-ns-val').textContent = piorPicoNs > 0 ? piorPicoNs.toFixed(1) + '%' : '-';
-            document.getElementById('t4-pico-ns-dia').textContent = diaPiorPicoNs !== "-" ? `DIA ${diaPiorPicoNs}` : '-';
-
-            // 3. Montagem dos Mini Cards Diários com Carrossel
-            let containerMC = document.getElementById('t4-minicards-container');
-            if (containerMC) {
-                let todosOsCards = [];
-                for (let i = 0; i < labF.length; i++) {
-                    let nsVal = vNsF[i] !== null ? vNsF[i].toFixed(1) + '%' : '0.0%';
-                    let reVal = vReF[i] !== null ? vReF[i].toLocaleString('pt-BR') : '0';
-                    let corNs = (vNsF[i] || 0) >= 95 ? '#2ecc71' : ((vNsF[i] || 0) >= 90 ? '#f1c40f' : '#e74c3c');
-
-                    todosOsCards.push(`
-                        <div class="t2-minicard">
-                            <span class="t2-mc-dia">DIA ${labF[i]}</span>
-                            <span class="t2-mc-val" style="color: ${corNs};">${nsVal}</span>
-                            <span class="t2-mc-vol" style="background: rgba(231, 76, 60, 0.15); color: #e74c3c;">Reentregas: ${reVal}</span>
-                        </div>
-                    `);
+            // 1. Acumulado de Reentregas do Mês
+            let totalReMes = acReM[mesDeExibicaoIdx] || 0;
+            const elReMes = document.getElementById('t4-re-mes');
+            if (elReMes) elReMes.textContent = totalReMes.toLocaleString('pt-BR');
+        
+            // 2. Pico de Reentregas
+            let picoRe = 0;
+            let diaPicoRe = "-";
+            vReF.forEach((val, idx) => {
+                if (val > picoRe) {
+                    picoRe = val;
+                    diaPicoRe = labF[idx];
                 }
-
+            });
+        
+            const elPicoReVal = document.getElementById('t4-pico-re-val');
+            const elPicoReDia = document.getElementById('t4-pico-re-dia');
+            if (elPicoReVal) elPicoReVal.textContent = picoRe > 0 ? picoRe.toLocaleString('pt-BR') : '-';
+            if (elPicoReDia) elPicoReDia.textContent = diaPicoRe !== "-" ? `DIA ${diaPicoRe}` : '-';
+        
+            // 3. Pior Pico Nível de Serviço D+1 (menor valor)
+            let piorNs = 101;
+            let diaPiorNs = "-";
+            vNsF.forEach((val, idx) => {
+                if (val !== null && val > 0 && val < piorNs) {
+                    piorNs = val;
+                    diaPiorNs = labF[idx];
+                }
+            });
+            if (piorNs === 101) piorNs = 0;
+        
+            const elNsVal = document.getElementById('t4-pico-ns-val');
+            const elNsDia = document.getElementById('t4-pico-ns-dia');
+            if (elNsVal) elNsVal.textContent = piorNs > 0 ? piorNs.toFixed(1) + '%' : '-';
+            if (elNsDia) elNsDia.textContent = diaPiorNs !== "-" ? `DIA ${diaPiorNs}` : '-';
+        
+            // 4. Mini Cards Diários da Tela 4
+            const containerMC = document.getElementById('t4-minicards-container');
+            if (containerMC) {
+                containerMC.innerHTML = '';
+                let todosCards = [];
+        
+                let idxPicoRe = vReF.indexOf(picoRe);
+        
+                for (let i = 0; i < labF.length; i++) {
+                    let isPico = (i === idxPicoRe && picoRe > 0);
+                    let reVal = vReF[i] ? vReF[i].toLocaleString('pt-BR') : '0';
+                    let nsVal = vNsF[i] !== null && vNsF[i] > 0 ? vNsF[i].toFixed(1) + '%' : '-';
+        
+                    let cardHTML = `
+                        <div class="t2-minicard ${isPico ? 'pico' : ''}">
+                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span style="color: #f1c40f; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
+                            <span class="t2-mc-val" style="color: #e74c3c;">${reVal}</span>
+                            <span class="t2-mc-vol" style="background: rgba(231, 76, 60, 0.15); color: #e74c3c; margin-top: 4px;">NS: ${nsVal}</span>
+                        </div>
+                    `;
+                    todosCards.push(cardHTML);
+                }
+        
                 let cardsPorPagina = 8;
                 let paginasHTML = '';
-                for (let p = 0; p < todosOsCards.length; p += cardsPorPagina) {
-                    paginasHTML += `<div class="t2-page">${todosOsCards.slice(p, p + cardsPorPagina).join('')}</div>`;
+                for (let p = 0; p < todosCards.length; p += cardsPorPagina) {
+                    paginasHTML += `<div class="t2-page">${todosCards.slice(p, p + cardsPorPagina).join('')}</div>`;
                 }
-
                 containerMC.innerHTML = `<div class="t2-track" id="t4-track">${paginasHTML}</div>`;
-
-                let totalPaginas = Math.ceil(todosOsCards.length / cardsPorPagina);
-                let paginaAtual = 0;
-
-                if (window.t4CarouselInterval) clearInterval(window.t4CarouselInterval);
-                if (totalPaginas > 1) {
-                    window.t4CarouselInterval = setInterval(() => {
-                        paginaAtual = (paginaAtual + 1) % totalPaginas;
-                        let track = document.getElementById('t4-track');
-                        if (track) track.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                    }, 20000);
-                }
             }
-
-            // 4. Renderização do Gráfico Misto (Linhas NS% + Barras Reentregas)
-            const ctx = document.getElementById('t4-grafico-misto').getContext('2d');
-            if (window.chartMistoT4) window.chartMistoT4.destroy();
-
-            window.chartMistoT4 = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labF,
-                    datasets: [
-                        { type: 'line', label: 'Nível de Serviço D+1 (%)', data: vNsF, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#2ecc71', yAxisID: 'y' },
-                        { type: 'bar', label: 'Reentregas (Qtd)', data: vReF, backgroundColor: 'rgba(231, 76, 60, 0.6)', borderColor: '#e74c3c', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
-                    plugins: {
-                        title: { display: true, text: `📊 NÍVEL DE SERVIÇO D+1 X REENTREGAS - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
-                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
-                        datalabels: { display: false }
+        
+            // 5. Gráfico Misto Tela 4
+            const ctx = document.getElementById('t4-grafico-misto');
+            if (ctx) {
+                if (window.chartMistoT4) window.chartMistoT4.destroy();
+                window.chartMistoT4 = new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: labF,
+                        datasets: [
+                            { type: 'line', label: 'Nível de Serviço D+1 (%)', data: vNsF, borderColor: '#3498db', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, yAxisID: 'y' },
+                            { type: 'bar', label: 'Reentregas (Qtd)', data: vReF, backgroundColor: 'rgba(231, 76, 60, 0.6)', borderColor: '#e74c3c', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
+                        ]
                     },
-                    scales: {
-                        x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
-                        y: { type: 'linear', display: true, position: 'left', min: 80, max: 100, ticks: { color: '#2ecc71', font: { size: 11, weight: 'bold' }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, ticks: { color: '#e74c3c', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
+                    options: {
+                        responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
+                        plugins: {
+                            title: { display: true, text: `📊 NÍVEL DE SERVIÇO D+1 x REENTREGAS - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
+                            legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
+                            datalabels: { display: false }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
+                            y: { type: 'linear', display: true, position: 'left', min: 80, max: 100, ticks: { color: '#3498db', font: { size: 11, weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#e74c3c', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
+                        }
                     }
-                }
-            });
-
-            // 5. Preenchimento da Tabela de Histórico Mensal
-            let tbody = document.getElementById('t4-table-body');
+                });
+            }
+        
+            // 6. Tabela Histórico Mensal Tela 4
+            const tbody = document.getElementById('t4-table-body');
             if (tbody) {
-                tbody.innerHTML = '';
+                let bodyHtml = '';
+                const arrNs = sNsM;
+                const arrRe = acReM;
+        
                 for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                    let valNs = sNsM[i] > 0 ? sNsM[i].toFixed(1) + '%' : '-';
-                    let valRe = acReM[i] ? acReM[i].toLocaleString('pt-BR') : '-';
-                    
-                    let diffHtml = '-';
-                    if (i > 0 && acReM[i-1] > 0 && acReM[i] > 0) {
-                        let diff = ((acReM[i] - acReM[i-1]) / acReM[i-1]) * 100;
-                        let cor = diff < 0 ? '#2ecc71' : (diff > 0 ? '#e74c3c' : '#f1c40f');
-                        let icone = diff > 0 ? '▲' : (diff < 0 ? '▼' : '▬');
-                        diffHtml = `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
+                    if ((arrNs[i] || 0) > 0 || (arrRe[i] || 0) > 0) {
+                        let nsVal = arrNs[i] ? arrNs[i].toFixed(1) + '%' : '-';
+                        let reVal = arrRe[i] ? arrRe[i].toLocaleString('pt-BR') : '-';
+                        let diff = i > 0 && arrRe[i-1] > 0 ? ((arrRe[i] - arrRe[i-1]) / arrRe[i-1]) * 100 : 0;
+                        let diffStr = i > 0 && arrRe[i-1] > 0 ? `<span style="color: ${diff > 0 ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}%</span>` : '-';
+        
+                        bodyHtml += `<tr>
+                            <td>${mesesExtenso[i]}</td>
+                            <td>${nsVal}</td>
+                            <td>${reVal}</td>
+                            <td>${diffStr}</td>
+                        </tr>`;
                     }
-
-                    tbody.innerHTML += `<tr>
-                        <td>${mesesExtenso[i]}</td>
-                        <td>${valNs}</td>
-                        <td>${valRe}</td>
-                        <td>${diffHtml}</td>
-                    </tr>`;
                 }
+                tbody.innerHTML = bodyHtml;
             }
         }
     </script>
