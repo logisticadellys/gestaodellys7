@@ -515,10 +515,7 @@
 
     <div id="tela5" class="tela">
         <div class="grid-graficos">
-            <div class="chart-container"><canvas id="graficoDevolucaoDiario"></canvas></div>
-            <div class="chart-container"><canvas id="graficoDevolucaoMensal"></canvas></div>
-            <div class="chart-container"><canvas id="graficoAderenciaDiario"></canvas></div>
-            <div class="chart-container"></div>
+            <!-- Gráficos de devolução e aderência removidos -->
         </div>
     </div>
 
@@ -545,7 +542,7 @@
         Chart.register(ChartDataLabels);
 
         let autoMode = false; let tempoRestante = 90; let telaAtual = 1;
-        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal;
+        let chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal;
 
         function toggleAuto() {
             autoMode = !autoMode;
@@ -655,7 +652,7 @@
         setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 90; } } }, 1000);
 
         window.addEventListener('resize', () => { 
-            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartDevolDiario, chartDevolMensal, window.chartAderenciaDiarioInst].forEach(c => c && c.resize());
+            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal].forEach(c => c && c.resize());
             if (window['chart_graficoVelocimetro1']) window['chart_graficoVelocimetro1'].resize();
             if (window['chart_graficoVelocimetro2']) window['chart_graficoVelocimetro2'].resize();
             if (window['chart_graficoVelocimetro3']) window['chart_graficoVelocimetro3'].resize();
@@ -1020,16 +1017,6 @@
                 renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
                 // ADICIONAR ESTA CHAMADA NO LUGAR:
                 renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
-                renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
-                renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
-                const labAderenciaF = []; const vAderenciaF = []; const vApontamentosF = [];
-                for (let i = 0; i < ultimoDiaMesExibicao; i++) {
-                    if (dAderenciaR[i] !== null || dApontamentosR[i] !== null) {
-                        labAderenciaF.push(String(i + 1).padStart(2, '0'));
-                        vAderenciaF.push(dAderenciaR[i]||0);
-                        vApontamentosF.push(dApontamentosR[i]||0);
-                    }
-                }
                 renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx);
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
@@ -1361,7 +1348,6 @@
                         renderizarGraficoAlternadoT3();
                     }, 20000);
                 }
-                renderizarAderenciaDiario(labAderenciaF, vAderenciaF, vApontamentosF, mesExibicaoNome);
 
                 let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
                 renderizarVelocimetro('graficoVelocimetro1', mediaOtifMesTela6, `ENTREGAS OTIF (%) ${mesExibicaoNome} - MÉDIA`);
