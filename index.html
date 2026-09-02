@@ -885,12 +885,10 @@
                     const cols = safeSplit(linhas[i]);
                     let dPlanilha = cols[idxData] ? cols[idxData].replace(/"/g, '').trim() : "";
                     if (!dPlanilha) continue;
-                    let parts = dPlanilha.split('/');
-                    // Considera preenchido o dia se houver Volume Expedido digitado
-                    if (parts.length === 3 && parseInt(parts[2]) === anoDeExibicao && parseInt(parts[1]) === (mesDeExibicaoIdx + 1)) {
-                        if (converter(cols[idxs.vol]) !== null) {
-                            linhasPreenchidas.push(cols);
-                        }
+                    
+                    // Considera preenchido o dia se houver Volume Expedido digitado (ignora a trava de mês para a Tela 1)
+                    if (converter(cols[idxs.vol]) !== null) {
+                        linhasPreenchidas.push(cols);
                     }
                 }
 
