@@ -1050,20 +1050,22 @@
                     }
                 }
 
-                // --- NOVA RENDERIZAÇÃO TELA 2 (DASHBOARD VOLUME & OCUPAÇÃO) ---
+                // Chamada sequencial de todas as telas dentro do fetchPlanilha
                 renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
-                // ADICIONAR ESTA CHAMADA NO LUGAR:
-                renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
                 renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx);
+                renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
+                renderizarDashboardTela5(labF, vAderF, vApontF, mesExibicaoNome, mesDeExibicaoIdx);
+                
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
-                    // Atualiza os títulos dos meses nos KPIs
-                    ['t3-mes-lbl', 't3-mes-lbl2', 't3-mes-lbl3', 't3-mes-lbl4'].forEach(id => {
+                    // Helper seguro para atribuição de texto no DOM
+                    const setTexto = (id, valor) => {
                         const el = document.getElementById(id);
-                        if (el) el.textContent = mesNome;
-                    });
-
-                    const tabelaTitulo3 = document.getElementById('t3-tabela-titulo');
-                    if (tabelaTitulo3) tabelaTitulo3.textContent = `HISTÓRICO MENSAL (${anoAtual})`;
+                        if (el) el.textContent = valor;
+                    };
+                
+                    // Atualiza os títulos dos meses nos KPIs
+                    ['t3-mes-lbl', 't3-mes-lbl2', 't3-mes-lbl3', 't3-mes-lbl4'].forEach(id => setTexto(id, mesNome));
+                    setTexto('t3-tabela-titulo', `HISTÓRICO MENSAL (${anoAtual})`);
                 
                     // 1. Cálculo dos Picos e Acumulados
                     let picoDrop = 0, diaPicoDrop = "-";
@@ -1073,37 +1075,34 @@
                     vDropSizeF.forEach((val, idx) => { if (val > picoDropSize) { picoDropSize = val; diaPicoDropSize = labF[idx]; } });
                 
                     let totalNfMes = acNfM[mesDeExibicaoIdx] || 0;
-                    let totalCliMes = acCliM[mesDeExibicaoIdx] || 0; // ou média/total dependendo da sua regra
+                    let totalCliMes = acCliM[mesDeExibicaoIdx] || 0;
                 
-                    document.getElementById('t3-pico-drop-val').textContent = picoDrop > 0 ? picoDrop.toLocaleString('pt-BR') + ' kg' : '-';
-                    document.getElementById('t3-pico-drop-dia').textContent = diaPicoDrop !== "-" ? `DIA ${diaPicoDrop}` : '-';
+                    // Atualização segura dos KPIs
+                    setTexto('t3-pico-drop-val', picoDrop > 0 ? picoDrop.toLocaleString('pt-BR') + ' kg' : '-');
+                    setTexto('t3-pico-drop-dia', diaPicoDrop !== "-" ? `DIA ${diaPicoDrop}` : '-');
+                    setTexto('t3-pico-dropsize-val', picoDropSize > 0 ? picoDropSize.toLocaleString('pt-BR') + ' kg' : '-');
+                    setTexto('t3-pico-dropsize-dia', diaPicoDropSize !== "-" ? `DIA ${diaPicoDropSize}` : '-');
+                    setTexto('t3-acm-nf', totalNfMes.toLocaleString('pt-BR'));
+                    setTexto('t3-acm-cli', totalCliMes.toLocaleString('pt-BR'));
                 
-                    document.getElementById('t3-pico-dropsize-val').textContent = picoDropSize > 0 ? picoDropSize.toLocaleString('pt-BR') + ' kg' : '-';
-                    document.getElementById('t3-pico-dropsize-dia').textContent = diaPicoDropSize !== "-" ? `DIA ${diaPicoDropSize}` : '-';
-                
-                    document.getElementById('t3-acm-nf').textContent = totalNfMes.toLocaleString('pt-BR');
-                    document.getElementById('t3-acm-cli').textContent = totalCliMes.toLocaleString('pt-BR');
-                
-                    // 2. Mini Cards Diários (Picos diários de Peso x Veículo e Dropsize separados)
+                    // 2. Mini Cards Diários
                     let containerDrop = document.getElementById('t3-minicards-drop-container');
                     let containerDropSize = document.getElementById('t3-minicards-dropsize-container');
-                    
+                
                     if (containerDrop && containerDropSize) {
                         let cardsDrop = [];
                         let cardsDropSize = [];
                 
-                        // Encontrar índices dos picos para destacar
                         let idxPicoDrop = vDropF.indexOf(picoDrop);
                         let idxPicoDropSize = vDropSizeF.indexOf(picoDropSize);
                 
                         for (let i = 0; i < labF.length; i++) {
                             let isPicoDrop = (i === idxPicoDrop && picoDrop > 0);
                             let isPicoDropSize = (i === idxPicoDropSize && picoDropSize > 0);
-                            
+                
                             let dropVal = vDropF[i] ? vDropF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
                             let dropSizeVal = vDropSizeF[i] ? vDropSizeF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
-                            
-                            // Card Peso x Veículo (Laranja)
+                
                             cardsDrop.push(`
                                 <div class="t2-minicard ${isPicoDrop ? 'pico' : ''}" ${isPicoDrop ? 'style="border-color: #ff8c00; box-shadow: 0 0 12px rgba(255, 140, 0, 0.4);"' : ''}>
                                     <span class="t2-mc-dia">DIA ${labF[i]} ${isPicoDrop ? '<br><span style="color: #ff8c00; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
@@ -1111,8 +1110,7 @@
                                     <span class="t2-mc-vol" style="background: rgba(255, 140, 0, 0.15); color: #ff8c00; margin-top: 4px;">Peso x Veículo</span>
                                 </div>
                             `);
-                            
-                            // Card Dropsize (Verde)
+                
                             cardsDropSize.push(`
                                 <div class="t2-minicard ${isPicoDropSize ? 'pico' : ''}" ${isPicoDropSize ? 'style="border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);"' : ''}>
                                     <span class="t2-mc-dia">DIA ${labF[i]} ${isPicoDropSize ? '<br><span style="color: #2ecc71; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
@@ -1125,86 +1123,62 @@
                         let cardsPorPagina = 8;
                         let paginasDropHTML = '';
                         let paginasDropSizeHTML = '';
-                        
+                
                         for (let p = 0; p < cardsDrop.length; p += cardsPorPagina) {
                             paginasDropHTML += `<div class="t2-page">${cardsDrop.slice(p, p + cardsPorPagina).join('')}</div>`;
                             paginasDropSizeHTML += `<div class="t2-page">${cardsDropSize.slice(p, p + cardsPorPagina).join('')}</div>`;
                         }
-                        
+                
                         containerDrop.innerHTML = `<div class="t2-track" id="t3-track-drop">${paginasDropHTML}</div>`;
                         containerDropSize.innerHTML = `<div class="t2-track" id="t3-track-dropsize">${paginasDropSizeHTML}</div>`;
-                        
+                
                         let totalPaginas = Math.ceil(cardsDrop.length / cardsPorPagina);
                         let paginaAtual = 0;
-                        
+                
                         if (window.t3CarouselInterval) clearInterval(window.t3CarouselInterval);
                         if (totalPaginas > 1) {
                             window.t3CarouselInterval = setInterval(() => {
                                 paginaAtual = (paginaAtual + 1) % totalPaginas;
                                 let trackDrop = document.getElementById('t3-track-drop');
                                 let trackDropSize = document.getElementById('t3-track-dropsize');
-                                // Move ambos os carrosseis ao mesmo tempo
                                 if (trackDrop) trackDrop.style.transform = `translateX(-${paginaAtual * 100}%)`;
                                 if (trackDropSize) trackDropSize.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                            }, 20000); // 20 segundos para mudar de página
+                            }, 20000);
                         }
                     }
                 
-                    // ==========================================
-                    // CONTROLE DE ROTAÇÃO - TELA 3
-                    // ==========================================
+                    // 3. Rotação de Subcards e Tabela
                     try {
-                        // ------------------------------------------
-                        // 1. ROTADOR DE SUBCARDS (A CADA 20 SEGUNDOS)
-                        // ------------------------------------------
                         if (window.t3CardsInterval) clearInterval(window.t3CardsInterval);
-                    
                         let modoCardsT3 = 0;
                         function alternarSubcardsT3() {
-                            // Alterne a visibilidade ou conteúdo dos seus subcards da Tela 3
                             const cardsGroup1 = document.querySelectorAll('.t3-card-grupo-1');
                             const cardsGroup2 = document.querySelectorAll('.t3-card-grupo-2');
-                    
                             if (cardsGroup1.length && cardsGroup2.length) {
-                                if (modoCardsT3 === 0) {
-                                    cardsGroup1.forEach(c => c.style.display = 'block');
-                                    cardsGroup2.forEach(c => c.style.display = 'none');
-                                } else {
-                                    cardsGroup1.forEach(c => c.style.display = 'none');
-                                    cardsGroup2.forEach(c => c.style.display = 'block');
-                                }
+                                cardsGroup1.forEach(c => c.style.display = modoCardsT3 === 0 ? 'block' : 'none');
+                                cardsGroup2.forEach(c => c.style.display = modoCardsT3 === 0 ? 'none' : 'block');
                             }
                         }
-                    
                         alternarSubcardsT3();
                         window.t3CardsInterval = setInterval(() => {
                             modoCardsT3 = (modoCardsT3 + 1) % 2;
                             alternarSubcardsT3();
-                        }, 20000); // 20 Segundos
-                    
-                    
-                        // ------------------------------------------
-                        // 2. ROTADOR DA TABELA (A CADA 30 SEGUNDOS)
-                        // ------------------------------------------
+                        }, 20000);
+                
                         if (window.t3TableAlternatingInterval) clearInterval(window.t3TableAlternatingInterval);
-                    
                         const arrDrop = (typeof sDropM !== 'undefined' && Array.isArray(sDropM)) ? sDropM : [];
                         const arrDropSize = (typeof sDropSizeM !== 'undefined' && Array.isArray(sDropSizeM)) ? sDropSizeM : [];
                         const arrNf = (typeof acNfM !== 'undefined' && Array.isArray(acNfM)) ? acNfM : [];
                         const arrCli = (typeof acCliM !== 'undefined' && Array.isArray(acCliM)) ? acCliM : [];
                         const arrMeses = (typeof mesesExtenso !== 'undefined' && Array.isArray(mesesExtenso)) ? mesesExtenso : ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
                         const maxIdx = (typeof mesDeExibicaoIdx !== 'undefined' && mesDeExibicaoIdx !== null) ? mesDeExibicaoIdx : (arrDrop.length - 1);
-                    
+                
                         let modoTabelaT3 = 0;
-                    
-                        let maxDrop = 0, maxDropSize = 0, maxNf = 0, maxCli = 0;
-                        for (let i = 0; i <= maxIdx; i++) {
-                            if (arrDrop[i] > maxDrop) maxDrop = arrDrop[i];
-                            if (arrDropSize[i] > maxDropSize) maxDropSize = arrDropSize[i];
-                            if (arrNf[i] > maxNf) maxNf = arrNf[i];
-                            if (arrCli[i] > maxCli) maxCli = arrCli[i];
-                        }
-                    
+                        let maxDrop = Math.max(...arrDrop.slice(0, maxIdx + 1), 0);
+                        let maxDropSize = Math.max(...arrDropSize.slice(0, maxIdx + 1), 0);
+                        let maxNf = Math.max(...arrNf.slice(0, maxIdx + 1), 0);
+                        let maxCli = Math.max(...arrCli.slice(0, maxIdx + 1), 0);
+                
                         function calcDiffPerc(atual, anterior) {
                             if (!anterior || anterior === 0 || !atual) return '<span style="color: #a0aec0;">-</span>';
                             let diff = ((atual - anterior) / anterior) * 100;
@@ -1212,7 +1186,7 @@
                             let icone = diff > 0 ? '▲' : (diff < 0 ? '▼' : '▬');
                             return `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
                         }
-                    
+                
                         function formatarCelulaDestaque(valorFormatado, isMax) {
                             if (!isMax) return valorFormatado;
                             return `<div style="background: rgba(0, 206, 209, 0.18); border-radius: 4px; padding: 4px 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; box-sizing: border-box;">
@@ -1220,16 +1194,15 @@
                                 <i class="fas fa-trophy" style="color: #ffd700; font-size: 0.9em;" title="Melhor Mês"></i>
                             </div>`;
                         }
-                    
+                
                         function renderizarTabelaT3() {
                             const tbody = document.getElementById('t3-table-body');
                             if (!tbody) return;
                             const table = tbody.closest('table');
                             if (!table) return;
-                    
-                            let headHtml = '';
-                            let bodyHtml = '';
-                    
+                
+                            let headHtml = '', bodyHtml = '';
+                
                             if (modoTabelaT3 === 0) {
                                 headHtml = `<tr><th>Mês</th><th>Peso x Veículo</th><th>Dropsize</th><th>NF's</th><th>Clientes</th></tr>`;
                                 for (let i = 0; i <= maxIdx; i++) {
@@ -1270,7 +1243,7 @@
                                     }
                                 }
                             }
-                    
+                
                             const thead = table.querySelector('thead');
                             if (thead) {
                                 const rows = thead.getElementsByTagName('tr');
@@ -1279,111 +1252,85 @@
                             }
                             tbody.innerHTML = bodyHtml;
                         }
-                    
+                
                         renderizarTabelaT3();
                         window.t3TableAlternatingInterval = setInterval(() => {
                             modoTabelaT3 = (modoTabelaT3 + 1) % 3;
                             renderizarTabelaT3();
-                        }, 30000); // 30 Segundos
-                    
-                    
-                        // ------------------------------------------
-                        // 3. ROTADOR DE GRÁFICOS (A CADA 40 SEGUNDOS)
-                        // ------------------------------------------
-                        if (window.t3ChartInterval) clearInterval(window.t3ChartInterval);
-                    
-                        let modoGraficoT3 = 0;
-                        function alternarGraficoT3() {
-                            const containerG1 = document.getElementById('t3-chart-container-1'); // Ex: Peso x Veículo x Drop
-                            const containerG2 = document.getElementById('t3-chart-container-2'); // Ex: NF's x Clientes
-                    
-                            if (containerG1 && containerG2) {
-                                if (modoGraficoT3 === 0) {
-                                    containerG1.style.display = 'block';
-                                    containerG2.style.display = 'none';
-                                } else {
-                                    containerG1.style.display = 'none';
-                                    containerG2.style.display = 'block';
-                                }
-                            }
-                        }
-                    
-                        alternarGraficoT3();
-                        window.t3ChartInterval = setInterval(() => {
-                            modoGraficoT3 = (modoGraficoT3 + 1) % 2;
-                            alternarGraficoT3();
-                        }, 40000); // 40 Segundos
-                    
+                        }, 30000);
+                
                     } catch (err) {
                         console.error("Erro no controle da Tela 3:", err);
                     }
                 
-                    // 4. Alternância com NF'S em Azul (#00ced1) e CLIENTES em Roxo (#9b59b6)
-                    const ctx = document.getElementById('t3-grafico-misto').getContext('2d');
-                    if (window.t3ChartAlternatingInterval) clearInterval(window.t3ChartAlternatingInterval);
-                    
-                    let modoGraficoT3 = 0; // 0 = Peso x Dropsize, 1 = NF's x Clientes
-                    
-                    function renderizarGraficoAlternadoT3() {
-                        if (window.chartMistoT3) window.chartMistoT3.destroy();
-                    
-                        if (modoGraficoT3 === 0) {
-                            window.chartMistoT3 = new Chart(ctx, {
-                                type: 'bar',
-                                data: {
-                                    labels: labF,
-                                    datasets: [
-                                        { type: 'line', label: 'Peso x Veículo (KG)', data: vDropF, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#ff8c00', yAxisID: 'y' },
-                                        { type: 'bar', label: 'Dropsize (KG)', data: vDropSizeF, backgroundColor: 'rgba(46, 204, 113, 0.6)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
-                                    ]
-                                },
-                                options: {
-                                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
-                                    plugins: {
-                                        title: { display: true, text: `📊 PESO X VEÍCULOS x DROPSIZE - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
-                                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
-                                        datalabels: { display: false }
+                    // 4. Alternância Dinâmica do Gráfico Misto (Chart.js)
+                    const elCanvas = document.getElementById('t3-grafico-misto');
+                    if (elCanvas) {
+                        const ctx = elCanvas.getContext('2d');
+                        if (window.t3ChartAlternatingInterval) clearInterval(window.t3ChartAlternatingInterval);
+                
+                        let modoGraficoMisto = 0; // 0 = Peso x Dropsize, 1 = NF's x Clientes
+                
+                        function renderizarGraficoAlternadoT3() {
+                            if (window.chartMistoT3) window.chartMistoT3.destroy();
+                
+                            if (modoGraficoMisto === 0) {
+                                window.chartMistoT3 = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labF,
+                                        datasets: [
+                                            { type: 'line', label: 'Peso x Veículo (KG)', data: vDropF, borderColor: '#ff8c00', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#ff8c00', yAxisID: 'y' },
+                                            { type: 'bar', label: 'Dropsize (KG)', data: vDropSizeF, backgroundColor: 'rgba(46, 204, 113, 0.6)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
+                                        ]
                                     },
-                                    scales: {
-                                        x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
-                                        y: { type: 'linear', display: true, position: 'left', ticks: { color: '#ff8c00', font: { size: 11, weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                                        y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#2ecc71', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
+                                    options: {
+                                        responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
+                                        plugins: {
+                                            title: { display: true, text: `📊 PESO X VEÍCULOS x DROPSIZE - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
+                                            legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
+                                            datalabels: { display: false }
+                                        },
+                                        scales: {
+                                            x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
+                                            y: { type: 'linear', display: true, position: 'left', ticks: { color: '#ff8c00', font: { size: 11, weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                                            y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#2ecc71', font: { size: 11, weight: 'bold' } }, grid: { display: false } }
+                                        }
                                     }
-                                }
-                            });
-                        } else {
-                            window.chartMistoT3 = new Chart(ctx, {
-                                type: 'bar',
-                                data: {
-                                    labels: labF,
-                                    datasets: [
-                                        { type: 'line', label: "NF'S", data: vNfF, borderColor: '#00ced1', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#00ced1', yAxisID: 'y' },
-                                        { type: 'bar', label: "CLIENTES", data: vCliF, backgroundColor: 'rgba(155, 89, 182, 0.6)', borderColor: '#9b59b6', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
-                                    ]
-                                },
-                                options: {
-                                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
-                                    plugins: {
-                                        title: { display: true, text: `📊 NF'S X CLIENTES - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
-                                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
-                                        datalabels: { display: false }
+                                });
+                            } else {
+                                window.chartMistoT3 = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labF,
+                                        datasets: [
+                                            { type: 'line', label: "NF'S", data: vNfF, borderColor: '#00ced1', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#00ced1', yAxisID: 'y' },
+                                            { type: 'bar', label: "CLIENTES", data: vCliF, backgroundColor: 'rgba(155, 89, 182, 0.6)', borderColor: '#9b59b6', borderWidth: 1, borderRadius: 4, yAxisID: 'y1' }
+                                        ]
                                     },
-                                    scales: {
-                                        x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
-                                        y: { type: 'linear', display: true, position: 'left', beginAtZero: true, suggestedMax: 3500, ticks: { color: '#00ced1', font: { size: 11, weight: 'bold' }, stepSize: 500 }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                                        y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, suggestedMax: 3500, ticks: { color: '#9b59b6', font: { size: 11, weight: 'bold' }, stepSize: 500 }, grid: { display: false } }
+                                    options: {
+                                        responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
+                                        plugins: {
+                                            title: { display: true, text: `📊 NF'S X CLIENTES - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
+                                            legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
+                                            datalabels: { display: false }
+                                        },
+                                        scales: {
+                                            x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
+                                            y: { type: 'linear', display: true, position: 'left', beginAtZero: true, suggestedMax: 3500, ticks: { color: '#00ced1', font: { size: 11, weight: 'bold' }, stepSize: 500 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                                            y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, suggestedMax: 3500, ticks: { color: '#9b59b6', font: { size: 11, weight: 'bold' }, stepSize: 500 }, grid: { display: false } }
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
-                    }
-                    
-                    renderizarGraficoAlternadoT3();
-                    
-                    window.t3ChartAlternatingInterval = setInterval(() => {
-                        modoGraficoT3 = modoGraficoT3 === 0 ? 1 : 0;
+                
                         renderizarGraficoAlternadoT3();
-                    }, 20000);
+                        window.t3ChartAlternatingInterval = setInterval(() => {
+                            modoGraficoMisto = modoGraficoMisto === 0 ? 1 : 0;
+                            renderizarGraficoAlternadoT3();
+                        }, 20000);
+                    }
                 }
 
                 let mediaOtifMesTela6 = cOtifM[mesDeExibicaoIdx] > 0 ? sOtifM[mesDeExibicaoIdx] / cOtifM[mesDeExibicaoIdx] : 0;
@@ -1833,7 +1780,103 @@
         fetchPlanilha(); 
         setInterval(fetchPlanilha, 60000);
         aplicarExibicaoTela();
-        atualizarTabelaTela5(); // Chamada adicionada para rodar no carregamento inicial
+
+        // 1. Renderizador da Tela 5 (Aderência x Apontamentos)
+        function renderizarDashboardTela5(labF, vAderF, vApontF, mesNome, mesDeExibicaoIdx) {
+            // 1. Renderizador da Tela 5 (Cards + Tabela + Gráfico)
+            function renderizarDashboardTela5(labF, vAderF, vApontF, mesNome, mesDeExibicaoIdx) {
+                atualizarTabelaTela5();
+                renderizarAderenciaDiario(labF, vAderF, vApontF, mesNome);
+            
+                // Cálculo Picos Aderência
+                let maxAder = 0, diaMaxAder = "-";
+                let minAder = 101, diaMinAder = "-";
+                vAderF.forEach((val, idx) => {
+                    if (val !== null && val > 0) {
+                        if (val > maxAder) { maxAder = val; diaMaxAder = labF[idx]; }
+                        if (val < minAder) { minAder = val; diaMinAder = labF[idx]; }
+                    }
+                });
+            
+                // Cálculo Picos Apontamento
+                let maxApont = 0, diaMaxApont = "-";
+                let minApont = 101, diaMinApont = "-";
+                vApontF.forEach((val, idx) => {
+                    if (val !== null && val > 0) {
+                        if (val > maxApont) { maxApont = val; diaMaxApont = labF[idx]; }
+                        if (val < minApont) { minApont = val; diaMinApont = labF[idx]; }
+                    }
+                });
+            
+                // Injeção nos Cards
+                const elPiorAderVal = document.getElementById('t5-pior-ader-val');
+                const elPiorAderDia = document.getElementById('t5-pior-ader-dia');
+                if (elPiorAderVal) elPiorAderVal.textContent = minAder < 101 ? minAder.toFixed(1) + '%' : '-';
+                if (elPiorAderDia) elPiorAderDia.textContent = diaMinAder !== "-" ? `DIA ${diaMinAder}` : '-';
+            
+                const elPicoAderVal = document.getElementById('t5-pico-ader-val');
+                const elPicoAderDia = document.getElementById('t5-pico-ader-dia');
+                if (elPicoAderVal) elPicoAderVal.textContent = maxAder > 0 ? maxAder.toFixed(1) + '%' : '-';
+                if (elPicoAderDia) elPicoAderDia.textContent = diaMaxAder !== "-" ? `DIA ${diaMaxAder}` : '-';
+            
+                const elPiorApontVal = document.getElementById('t5-pior-apont-val');
+                const elPiorApontDia = document.getElementById('t5-pior-apont-dia');
+                if (elPiorApontVal) elPiorApontVal.textContent = minApont < 101 ? minApont.toFixed(1) + '%' : '-';
+                if (elPiorApontDia) elPiorApontDia.textContent = diaMinApont !== "-" ? `DIA ${diaMinApont}` : '-';
+            
+                const elPicoApontVal = document.getElementById('t5-pico-apont-val');
+                const elPicoApontDia = document.getElementById('t5-pico-apont-dia');
+                if (elPicoApontVal) elPicoApontVal.textContent = maxApont > 0 ? maxApont.toFixed(1) + '%' : '-';
+                if (elPicoApontDia) elPicoApontDia.textContent = diaMaxApont !== "-" ? `DIA ${diaMaxApont}` : '-';
+            }
+
+            // Renderiza o gráfico central
+            renderizarAderenciaDiario(labF, vAderF, vApontF, mesNome);
+
+            // Calcula picos e piores picos de Aderência
+            let maxAder = 0, diaMaxAder = "-";
+            let minAder = 101, diaMinAder = "-";
+
+            vAderF.forEach((val, idx) => {
+                if (val !== null && val > 0) {
+                    if (val > maxAder) { maxAder = val; diaMaxAder = labF[idx]; }
+                    if (val < minAder) { minAder = val; diaMinAder = labF[idx]; }
+                }
+            });
+
+            // Calcula picos e piores picos de Apontamento
+            let maxApont = 0, diaMaxApont = "-";
+            let minApont = 101, diaMinApont = "-";
+
+            vApontF.forEach((val, idx) => {
+                if (val !== null && val > 0) {
+                    if (val > maxApont) { maxApont = val; diaMaxApont = labF[idx]; }
+                    if (val < minApont) { minApont = val; diaMinApont = labF[idx]; }
+                }
+            });
+
+            // Preenche os 4 cartões do topo
+            const elPiorAderVal = document.getElementById('t5-pior-ader-val');
+            const elPiorAderDia = document.getElementById('t5-pior-ader-dia');
+            if (elPiorAderVal) elPiorAderVal.textContent = minAder < 101 ? minAder.toFixed(1) + '%' : '-';
+            if (elPiorAderDia) elPiorAderDia.textContent = diaMinAder !== "-" ? `DIA ${diaMinAder}` : '-';
+
+            const elPicoAderVal = document.getElementById('t5-pico-ader-val');
+            const elPicoAderDia = document.getElementById('t5-pico-ader-dia');
+            if (elPicoAderVal) elPicoAderVal.textContent = maxAder > 0 ? maxAder.toFixed(1) + '%' : '-';
+            if (elPicoAderDia) elPicoAderDia.textContent = diaMaxAder !== "-" ? `DIA ${diaMaxAder}` : '-';
+
+            const elPiorApontVal = document.getElementById('t5-pior-apont-val');
+            const elPiorApontDia = document.getElementById('t5-pior-apont-dia');
+            if (elPiorApontVal) elPiorApontVal.textContent = minApont < 101 ? minApont.toFixed(1) + '%' : '-';
+            if (elPiorApontDia) elPiorApontDia.textContent = diaMinApont !== "-" ? `DIA ${diaMinApont}` : '-';
+
+            const elPicoApontVal = document.getElementById('t5-pico-apont-val');
+            const elPicoApontDia = document.getElementById('t5-pico-apont-dia');
+            if (elPicoApontVal) elPicoApontVal.textContent = maxApont > 0 ? maxApont.toFixed(1) + '%' : '-';
+            if (elPicoApontDia) elPicoApontDia.textContent = diaMaxApont !== "-" ? `DIA ${diaMaxApont}` : '-';
+        }
+
         function renderizarAderenciaDiario(labels, valoresAderencia, valoresApontamentos, mesNome) {
             const ctx = document.getElementById('graficoAderenciaDiario').getContext('2d'); 
             if (window.chartAderenciaDiarioInst) window.chartAderenciaDiarioInst.destroy();
