@@ -514,8 +514,45 @@
     </div>
 
     <div id="tela5" class="tela">
-        <div class="grid-graficos">
-            <!-- Gráficos de devolução e aderência removidos -->
+        <div class="t2-top-kpis">
+            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #e74c3c; margin-right: 6px;"></i> PIOR PICO ADERÊNCIA (<span id="t5-mes-lbl1">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t5-pior-ader-val">-</span>
+                <span class="t2-kpi-sub text-negativo" id="t5-pior-ader-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #2ecc71; margin-right: 6px;"></i> PICO DE ADERÊNCIA (<span id="t5-mes-lbl2">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t5-pico-ader-val">-</span>
+                <span class="t2-kpi-sub text-positivo" id="t5-pico-ader-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #e67e22;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #e67e22; margin-right: 6px;"></i> PIOR PICO APONTAMENTO (<span id="t5-mes-lbl3">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t5-pior-apont-val">-</span>
+                <span class="t2-kpi-sub" style="color: #e67e22;" id="t5-pior-apont-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #3498db;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #3498db; margin-right: 6px;"></i> PICO APONTAMENTO (<span id="t5-mes-lbl4">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t5-pico-apont-val">-</span>
+                <span class="t2-kpi-sub text-positivo" style="color: #3498db;" id="t5-pico-apont-dia">-</span>
+            </div>
+        </div>
+
+        <div class="t2-minicards-wrapper" id="t5-minicards-container"></div>
+
+        <div class="t2-base-grid">
+            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
+                <canvas id="t5-grafico-misto"></canvas>
+            </div>
+            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
+                <table class="t2-table">
+                    <thead>
+                        <tr><th colspan="5" id="t5-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - ADERÊNCIA E APONTAMENTOS</th></tr>
+                        <tr><th>Mês</th><th>Aderência (%)</th><th>Vs Mês Ant.</th><th>Apontamentos (%)</th><th>Vs Mês Ant.</th></tr>
+                    </thead>
+                    <tbody id="t5-table-body">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -1796,6 +1833,7 @@
         fetchPlanilha(); 
         setInterval(fetchPlanilha, 60000);
         aplicarExibicaoTela();
+        atualizarTabelaTela5(); // Chamada adicionada para rodar no carregamento inicial
         function renderizarAderenciaDiario(labels, valoresAderencia, valoresApontamentos, mesNome) {
             const ctx = document.getElementById('graficoAderenciaDiario').getContext('2d'); 
             if (window.chartAderenciaDiarioInst) window.chartAderenciaDiarioInst.destroy();
@@ -1979,6 +2017,53 @@
                 tbody.innerHTML = bodyHtml;
             }
         }
+        function atualizarTabelaTela5() {
+            let tbody5 = document.getElementById('t5-table-body');
+            if (!tbody5) return; // Se não achar a tabela, para por aqui
+            
+            tbody5.innerHTML = ''; // Limpa a tabela antes de preencher
+        
+            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                // Verifica se os arrays existem e têm dados
+                if (sAderenciaM && sApontamentosM && (sAderenciaM[i] > 0 || sApontamentosM[i] > 0)) {
+                    
+                    // 1. Cálculo Vs Mês Anterior (Aderência)
+                    let aderAtual = sAderenciaM[i] || 0;
+                    let aderAnt = i > 0 ? (sAderenciaM[i-1] || 0) : 0;
+                    let diffAder = '<span style="color: #a0aec0;">-</span>';
+                    
+                    if (aderAtual > 0 && aderAnt > 0) {
+                        let pAder = ((aderAtual - aderAnt) / aderAnt) * 100;
+                        let corAder = pAder > 0 ? '#2ecc71' : (pAder < 0 ? '#e74c3c' : '#f1c40f');
+                        let icoAder = pAder > 0 ? '▲' : (pAder < 0 ? '▼' : '▬');
+                        diffAder = `<span style="color: ${corAder}; font-weight:bold;">${icoAder} ${Math.abs(pAder).toFixed(1)}%</span>`;
+                    }
+        
+                    // 2. Cálculo Vs Mês Anterior (Apontamentos)
+                    let apontAtual = sApontamentosM[i] || 0;
+                    let apontAnt = i > 0 ? (sApontamentosM[i-1] || 0) : 0;
+                    let diffApont = '<span style="color: #a0aec0;">-</span>';
+                    
+                    if (apontAtual > 0 && apontAnt > 0) {
+                        let pApont = ((apontAtual - apontAnt) / apontAnt) * 100;
+                        let corApont = pApont > 0 ? '#2ecc71' : (pApont < 0 ? '#e74c3c' : '#f1c40f');
+                        let icoApont = pApont > 0 ? '▲' : (pApont < 0 ? '▼' : '▬');
+                        diffApont = `<span style="color: ${corApont}; font-weight:bold;">${icoApont} ${Math.abs(pApont).toFixed(1)}%</span>`;
+                    }
+        
+                    // 3. Monta a Linha
+                    tbody5.innerHTML += `
+                        <tr>
+                            <td>${mesesExtenso[i]}</td>
+                            <td>${aderAtual > 0 ? aderAtual.toFixed(1) + '%' : '-'}</td>
+                            <td>${diffAder}</td>
+                            <td>${apontAtual > 0 ? apontAtual.toFixed(1) + '%' : '-'}</td>
+                            <td>${diffApont}</td>
+                        </tr>
+                    `;
+                }
+            }
+        }        
     </script>
 </body>
 </html>
