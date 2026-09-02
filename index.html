@@ -514,40 +514,11 @@
     </div>
 
     <div id="tela5" class="tela">
-        <div class="t2-top-kpis">
-            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
-                <span class="t2-kpi-title"><i class="fas fa-bullseye" style="color: #2ecc71; margin-right: 6px;"></i> MÉDIA ADERÊNCIA (<span id="t5-mes-lbl1">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-media-aderencia">-</span>
-                <span class="t2-kpi-sub text-positivo">▲ Acumulado do Mês</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #3498db; margin-right: 6px;"></i> PICO DE ADERÊNCIA (<span id="t5-mes-lbl2">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-pico-aderencia-val">-</span>
-                <span class="t2-kpi-sub" style="color: #3498db;" id="t5-pico-aderencia-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-map-pin" style="color: #f1c40f; margin-right: 6px;"></i> APONTAMENTOS CERCA (<span id="t5-mes-lbl3">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-apontamentos-mes">-</span>
-                <span class="t2-kpi-sub text-neutro">Média do Período</span>
-            </div>
-        </div>
-
-        <div class="t2-minicards-wrapper" id="t5-minicards-container"></div>
-
-        <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
-                <canvas id="t5-grafico-misto"></canvas>
-            </div>
-            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
-                <table class="t2-table">
-                    <thead>
-                        <tr><th colspan="4" id="t5-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - ADERÊNCIA & APONTAMENTOS</th></tr>
-                        <tr><th>Mês</th><th>Aderência (%)</th><th>Apontamentos Cerca (%)</th><th>Vs Mês Ant.</th></tr>
-                    </thead>
-                    <tbody id="t5-table-body">
-                    </tbody>
-                </table>
-            </div>
+        <div class="grid-graficos">
+            <div class="chart-container"><canvas id="graficoDevolucaoDiario"></canvas></div>
+            <div class="chart-container"><canvas id="graficoDevolucaoMensal"></canvas></div>
+            <div class="chart-container"><canvas id="graficoAderenciaDiario"></canvas></div>
+            <div class="chart-container"></div>
         </div>
     </div>
 
@@ -666,9 +637,6 @@
                 if (infoIcon) infoIcon.style.display = 'none';
             } else if (telaAtual === 4) {
                 h1.innerHTML = '<i class="fas fa-chart-line" style="margin-right: 10px; color: #2ecc71;"></i>NÍVEL DE SERVIÇO & REENTREGAS - EV';
-                if (infoIcon) infoIcon.style.display = 'none';
-            } else if (telaAtual === 5) {
-                h1.innerHTML = '<i class="fas fa-bullseye" style="margin-right: 10px; color: #2ecc71;"></i>ADERÊNCIA & APONTAMENTOS CERCA - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
@@ -823,8 +791,6 @@
                 const dInFullR = Array(ultimoDiaMesExibicao).fill(null);
 
                 const acVolM = Array(12).fill(0); const sOcpM = Array(12).fill(0); const cOcpM = Array(12).fill(0);
-                const sAderenciaM = Array(12).fill(0); const cAderenciaM = Array(12).fill(0);
-                const sApontamentosM = Array(12).fill(0); const cApontamentosM = Array(12).fill(0);
                 const sDropM = Array(12).fill(0); const sDropSizeM = Array(12).fill(0);
                 const acNfM = Array(12).fill(0); const acCliM = Array(12).fill(0);
                 const sNsM = Array(12).fill(0); const cNsM = Array(12).fill(0);
@@ -877,8 +843,6 @@
                     let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
                     let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
                     let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
-                    let valAderenciaMesG = converter(colunas[cabecalho.indexOf("ADERÊNCIA (%) MÊS")]);
-                    let valApontamentosMesG = converter(colunas[cabecalho.indexOf("APONTAMENTOS CERCA (%) MÊS")]);
 
                     let pD = dataPlanilha.split('/');
                     if (pD.length === 3) {
@@ -899,19 +863,8 @@
                             }
                         }
                         if (aP === anoAtual) {
-                            let mIdx = mP - 1; // 1º: Declara o mês primeiro!
-                        
-                            // 2º: Agora sim, pode usar o mIdx nas suas validações de aderência
-                            if (valAderenciaMesG !== null && valAderenciaMesG > 0) { sAderenciaM[mIdx] = valAderenciaMesG; cAderenciaM[mIdx]++; }
-                            else if (valAderenciaG !== null && valAderenciaG > 0) { sAderenciaM[mIdx] += valAderenciaG; cAderenciaM[mIdx]++; }
-                            
-                            if (valApontamentosMesG !== null && valApontamentosMesG > 0) { sApontamentosM[mIdx] = valApontamentosMesG; cApontamentosM[mIdx]++; }
-                            else if (valApontamentosG !== null && valApontamentosG > 0) { sApontamentosM[mIdx] += valApontamentosG; cApontamentosM[mIdx]++; }
-                        
-                            // 3º: O restante das variáveis que você já tinha
-                            if (valVol !== null) acVolM[mIdx] += valVol; 
-                            if (valNfG !== null) acNfM[mIdx] += valNfG; 
-                            if (valCliG !== null) acCliM[mIdx] += valCliG;
+                            let mIdx = mP - 1;
+                            if (valVol !== null) acVolM[mIdx] += valVol; if (valNfG !== null) acNfM[mIdx] += valNfG; if (valCliG !== null) acCliM[mIdx] += valCliG;
                             if (valReG !== null) acReM[mIdx] += valReG;
                             if (valOcupMesG !== null && valOcupMesG > 0) { sOcpM[mIdx] = valOcupMesG; cOcpM[mIdx]++; }
                             if (valDropMesAcumulado !== null && valDropMesAcumulado > 0) { sDropM[mIdx] = valDropMesAcumulado; }
@@ -921,6 +874,7 @@
                             if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
                             if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
                             if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[mIdx] += valOnTimeMesG; cOnTimeM[mIdx]++; }
+                            if (valInFullMesG !== null && valInFullMesG > 0) { sInFullM[mIdx] += valInFullMesG; cInFullM[mIdx]++; }
                         }
                     }
                 }
@@ -1066,26 +1020,16 @@
                 renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
                 // ADICIONAR ESTA CHAMADA NO LUGAR:
                 renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
-                // 1. PRIMEIRO: Crie os arrays e execute o loop para preencher os dados
-                const labAderenciaF = []; 
-                const vAderenciaF = []; 
-                const vApontamentosF = [];
-                
+                renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
+                renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
+                const labAderenciaF = []; const vAderenciaF = []; const vApontamentosF = [];
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
                     if (dAderenciaR[i] !== null || dApontamentosR[i] !== null) {
                         labAderenciaF.push(String(i + 1).padStart(2, '0'));
-                        vAderenciaF.push(dAderenciaR[i] || 0);
-                        vApontamentosF.push(dApontamentosR[i] || 0);
+                        vAderenciaF.push(dAderenciaR[i]||0);
+                        vApontamentosF.push(dApontamentosR[i]||0);
                     }
                 }
-                
-                // 2. SEGUNDO: Chame as funções DEPOIS que os arrays já existem e estão preenchidos
-                // (Substituimos 'labF' por 'labAderenciaF' para puxar o array correto criado acima)
-                renderizarDashboardTela5(labAderenciaF, vAderenciaF, vApontamentosF, mesExibicaoNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontamentosM, cApontamentosM, anoDeExibicao, mesDeExibicaoIdx);
-                
-                renderizarDevolucaoDiario(labAderenciaF, vDevTotF, vDevOpF, mesExibicaoNome);
-                
-                renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
                 renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx);
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
@@ -1629,7 +1573,7 @@
             document.getElementById('t2-pico-vol-val').textContent = picoVol > 0 ? picoVol.toLocaleString('pt-BR') + ' kg' : '-';
             document.getElementById('t2-pico-vol-dia').textContent = diaPicoVol !== "-" ? `DIA ${diaPicoVol}` : '-';
             
-            document.getElementById('t2-media-dia').textContent = Math.round(mediaDiaria).toLocaleString('pt-BR');
+            document.getElementById('t2-media-dia').textContent = Math.round(mediaDiaria).toLocaleString('pt-BR') + ' kg';
             document.getElementById('t2-pico-val').textContent = picoOcp > 0 ? picoOcp.toFixed(1) + '%' : '-';
             document.getElementById('t2-pico-dia').textContent = diaPico !== "-" ? `DIA ${diaPico}` : '-';
 
@@ -2048,119 +1992,6 @@
                 }
                 tbody.innerHTML = bodyHtml;
             }
-        }
-        function renderizarDashboardTela5(labF, vAderenciaF, vApontamentosF, mesNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontamentosM, cApontamentosM, anoAtual, mesDeExibicaoIdx) {
-            ['t5-mes-lbl1', 't5-mes-lbl2', 't5-mes-lbl3'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = mesNome;
-            });
-
-            const tabelaTitulo = document.getElementById('t5-tabela-titulo');
-            if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO MENSAL - ADERÊNCIA & APONTAMENTOS (${anoAtual})`;
-
-            let somaAderencia = vAderenciaF.reduce((a, b) => a + b, 0);
-            let qtdAderencia = vAderenciaF.filter(v => v > 0).length || 1;
-            let mediaAderencia = somaAderencia / qtdAderencia;
-
-            let picoAderencia = 0, diaPicoAderencia = "-";
-            vAderenciaF.forEach((val, idx) => { if (val > picoAderencia) { picoAderencia = val; diaPicoAderencia = labF[idx]; } });
-
-            let somaApontamentos = vApontamentosF.reduce((a, b) => a + b, 0);
-            let qtdApontamentos = vApontamentosF.filter(v => v > 0).length || 1;
-            let mediaApontamentos = somaApontamentos / qtdApontamentos;
-
-            document.getElementById('t5-media-aderencia').textContent = mediaAderencia > 0 ? mediaAderencia.toFixed(1) + '%' : '-';
-            document.getElementById('t5-pico-aderencia-val').textContent = picoAderencia > 0 ? picoAderencia.toFixed(1) + '%' : '-';
-            document.getElementById('t5-pico-aderencia-dia').textContent = diaPicoAderencia !== "-" ? `DIA ${diaPicoAderencia}` : '-';
-            document.getElementById('t5-apontamentos-mes').textContent = mediaApontamentos > 0 ? mediaApontamentos.toFixed(1) + '%' : '-';
-
-            let containerMC = document.getElementById('t5-minicards-container');
-            if (containerMC) {
-                containerMC.innerHTML = '';
-                let todosOsCards = [];
-                let idxPico = vAderenciaF.indexOf(picoAderencia);
-
-                for (let i = 0; i < labF.length; i++) {
-                    let isPico = (i === idxPico && picoAderencia > 0);
-                    let aderVal = vAderenciaF[i] !== null ? vAderenciaF[i].toFixed(1) + '%' : '0.0%';
-                    let apontVal = vApontamentosF[i] !== null ? vApontamentosF[i].toFixed(1) + '%' : '0.0%';
-
-                    todosOsCards.push(`
-                        <div class="t2-minicard ${isPico ? 'pico' : ''}">
-                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span style="color: #3498db; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
-                            <span class="t2-mc-val" style="font-size: 1.1em; color: #2ecc71;">${aderVal}</span>
-                            <span class="t2-mc-vol" style="background: rgba(52,152,219,0.15); color: #3498db; margin-top: 4px;">Cerca: ${apontVal}</span>
-                        </div>
-                    `);
-                }
-
-                let cardsPorPagina = 8;
-                let paginasHTML = '';
-                for (let p = 0; p < todosOsCards.length; p += cardsPorPagina) {
-                    paginasHTML += `<div class="t2-page">${todosOsCards.slice(p, p + cardsPorPagina).join('')}</div>`;
-                }
-                containerMC.innerHTML = `<div class="t2-track" id="t5-track">${paginasHTML}</div>`;
-                
-                let totalPaginas = Math.ceil(todosOsCards.length / cardsPorPagina);
-                let paginaAtual = 0;
-                if (window.t5CarouselInterval) clearInterval(window.t5CarouselInterval);
-                if (totalPaginas > 1) {
-                    window.t5CarouselInterval = setInterval(() => {
-                        paginaAtual = (paginaAtual + 1) % totalPaginas;
-                        let track = document.getElementById('t5-track');
-                        if (track) track.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                    }, 20000);
-                }
-            }
-
-            const tbody = document.getElementById('t5-table-body');
-            if (tbody) {
-                let html = '';
-                let arrAderM = mesesExtenso.map((_, i) => cAderenciaM[i] > 0 ? sAderenciaM[i] / cAderenciaM[i] : 0);
-                let arrApontM = mesesExtenso.map((_, i) => cApontamentosM[i] > 0 ? sApontamentosM[i] / cApontamentosM[i] : 0);
-                
-                for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                    if (arrAderM[i] > 0 || arrApontM[i] > 0) {
-                        let prevAder = i > 0 ? arrAderM[i-1] : 0;
-                        let diff = prevAder > 0 ? ((arrAderM[i] - prevAder) / prevAder) * 100 : 0;
-                        let diffStr = prevAder > 0 ? `<span style="color: ${diff >= 0 ? '#2ecc71' : '#e74c3c'}; font-weight: bold;">${diff >= 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}%</span>` : '-';
-
-                        html += `<tr>
-                            <td>${mesesExtenso[i]}</td>
-                            <td>${arrAderM[i].toFixed(1)}%</td>
-                            <td>${arrApontM[i].toFixed(1)}%</td>
-                            <td>${diffStr}</td>
-                        </tr>`;
-                    }
-                }
-                tbody.innerHTML = html;
-            }
-
-            const ctx = document.getElementById('t5-grafico-misto').getContext('2d');
-            if (window.chartMistoT5) window.chartMistoT5.destroy();
-
-            window.chartMistoT5 = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labF,
-                    datasets: [
-                        { type: 'line', label: 'Aderência (%)', data: vAderenciaF, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#2ecc71', yAxisID: 'y' },
-                        { type: 'bar', label: 'Apontamentos Cerca (%)', data: vApontamentosF, backgroundColor: 'rgba(52, 152, 219, 0.6)', borderColor: '#3498db', borderWidth: 1, borderRadius: 4, yAxisID: 'y' }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
-                    plugins: {
-                        title: { display: true, text: `📊 ADERÊNCIA X APONTAMENTOS CERCA - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
-                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
-                        datalabels: { display: false }
-                    },
-                    scales: {
-                        x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
-                        y: { type: 'linear', display: true, position: 'left', min: 0, max: 100, ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                    }
-                }
-            });
         }
     </script>
 </body>
