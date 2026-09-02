@@ -514,45 +514,8 @@
     </div>
 
     <div id="tela5" class="tela">
-        <div class="t2-top-kpis">
-            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
-                <span class="t2-kpi-title"><i class="fas fa-crown" style="color: #2ecc71; margin-right: 6px;"></i> PICO DE ADERÊNCIA (<span id="t5-mes-lbl1">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-pico-ader-val">-</span>
-                <span class="t2-kpi-sub" style="color: #2ecc71;" id="t5-pico-ader-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #e74c3c; margin-right: 6px;"></i> PIOR PICO ADERÊNCIA (<span id="t5-mes-lbl2">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-pior-ader-val">-</span>
-                <span class="t2-kpi-sub" style="color: #e74c3c;" id="t5-pior-ader-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-location-dot" style="color: #3498db; margin-right: 6px;"></i> PICO APONT. CERCA (<span id="t5-mes-lbl3">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-pico-apont-val">-</span>
-                <span class="t2-kpi-sub" style="color: #3498db;" id="t5-pico-apont-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
-                <span class="t2-kpi-title"><i class="fas fa-triangle-exclamation" style="color: #f1c40f; margin-right: 6px;"></i> PIOR PICO APONT. CERCA (<span id="t5-mes-lbl4">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-pior-apont-val">-</span>
-                <span class="t2-kpi-sub text-neutro" id="t5-pior-apont-dia">-</span>
-            </div>
-        </div>
-
-        <div class="t2-minicards-wrapper" id="t5-minicards-container"></div>
-
-        <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
-                <canvas id="t5-grafico-misto"></canvas>
-            </div>
-            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
-                <table class="t2-table">
-                    <thead>
-                        <tr><th colspan="5" id="t5-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - ADERÊNCIA E APONTAMENTOS CERCA</th></tr>
-                        <tr><th>Mês</th><th>Aderência (%)</th><th>Vs Mês Ant.</th><th>Apontamento (%)</th><th>Vs Mês Ant.</th></tr>
-                    </thead>
-                    <tbody id="t5-table-body">
-                    </tbody>
-                </table>
-            </div>
+        <div class="grid-graficos">
+            <!-- Gráficos de devolução e aderência removidos -->
         </div>
     </div>
 
@@ -672,9 +635,6 @@
             } else if (telaAtual === 4) {
                 h1.innerHTML = '<i class="fas fa-chart-line" style="margin-right: 10px; color: #2ecc71;"></i>NÍVEL DE SERVIÇO & REENTREGAS - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
-            } else if (telaAtual === 5) {
-                h1.innerHTML = '<i class="fas fa-bullseye" style="margin-right: 10px; color: #2ecc71;"></i>ADERÊNCIA & APONTAMENTOS CERCA - EV';
-                if (infoIcon) infoIcon.style.display = 'none';
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
@@ -686,7 +646,6 @@
             if (typeof fetchPlanilha === 'function') {
                 fetchPlanilha();
             }
-        }
         
             window.dispatchEvent(new Event('resize'));
         }
@@ -725,11 +684,9 @@
             }
 
             const mesesExtenso = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
-            
             const mesExibicaoNome = mesesExtenso[mesDeExibicaoIdx];
             const hojeBusca = `${String(diaHojeNum).padStart(2, '0')}/${String(mesAtualIdx + 1).padStart(2, '0')}/${anoAtual}`;
-            const sAderM = Array(12).fill(0); const cAderM = Array(12).fill(0);
-            const sApontM = Array(12).fill(0); const cApontM = Array(12).fill(0);
+
             try {
                 const response = await fetch(`${spreadsheetUrl}&timestamp=${new Date().getTime()}`);
                 const csv = await response.text();
@@ -904,11 +861,6 @@
                         }
                         if (aP === anoAtual) {
                             let mIdx = mP - 1;
-                        
-                            // Leitura dos dados da Tela 5
-                            let valAderMesG = converter(colunas[cabecalho.indexOf("ADERÊNCIA (%) MÊS")]);
-                            let valApontMesG = converter(colunas[cabecalho.indexOf("APONTAMENTOS CERCA (%) MÊS")]);
-                        
                             if (valVol !== null) acVolM[mIdx] += valVol; if (valNfG !== null) acNfM[mIdx] += valNfG; if (valCliG !== null) acCliM[mIdx] += valCliG;
                             if (valReG !== null) acReM[mIdx] += valReG;
                             if (valOcupMesG !== null && valOcupMesG > 0) { sOcpM[mIdx] = valOcupMesG; cOcpM[mIdx]++; }
@@ -920,10 +872,6 @@
                             if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
                             if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[mIdx] += valOnTimeMesG; cOnTimeM[mIdx]++; }
                             if (valInFullMesG !== null && valInFullMesG > 0) { sInFullM[mIdx] += valInFullMesG; cInFullM[mIdx]++; }
-                        
-                            // Acúmulo dos valores da Tela 5
-                            if (valAderMesG !== null && valAderMesG > 0) { sAderM[mIdx] = valAderMesG; cAderM[mIdx]++; }
-                            if (valApontMesG !== null && valApontMesG > 0) { sApontM[mIdx] = valApontMesG; cApontM[mIdx]++; }
                         }
                     }
                 }
@@ -1054,51 +1002,33 @@
                         }
                     }
                 }
-                const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; 
-                const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; 
-                const vDevOpF = []; const vOtifF = []; const vAderF = []; const vApontF = [];
-                
+                // --- FIM NOVA LÓGICA ---
+
+                const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
                     if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null) {
                         labF.push(String(i + 1).padStart(2, '0'));
-                        vVolF.push(dVolR[i]||0); 
-                        vOcpF.push(dOcpR[i]||0); 
-                        vDropF.push(dDropR[i]||0); 
-                        vDropSizeF.push(dDropSizeR[i]||0); 
-                        vNfF.push(dNfR[i]||0); 
-                        vCliF.push(dCliR[i]||0); 
-                        vNsF.push(dNsR[i]||0); 
-                        vReF.push(dReR[i]||0);
-                        vDevTotF.push(dDevTot[i]||0); 
-                        vDevOpF.push(dDevOp[i]||0); 
-                        vOtifF.push(dOtifR[i]||0);
-                        vAderF.push(typeof dAderenciaR !== 'undefined' ? (dAderenciaR[i]||0) : 0);
-                        vApontF.push(typeof dApontamentosR !== 'undefined' ? (dApontamentosR[i]||0) : 0);
+                        vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
+                        vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
                     }
                 }
-                
-                // --- RENDERIZAÇÕES DAS TELAS (COM PROTEÇÃO TRY/CATCH) ---
-                try { renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx); } catch(e) { console.error("Erro T2:", e); }
-                try { renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx); } catch(e) { console.error("Erro T4:", e); }
-                try { renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx); } catch(e) { console.error("Erro T3:", e); }
-                try { 
-                    let sA = typeof sAderM !== 'undefined' ? sAderM : [];
-                    let cA = typeof cAderM !== 'undefined' ? cAderM : [];
-                    let sAp = typeof sApontM !== 'undefined' ? sApontM : [];
-                    let cAp = typeof cApontM !== 'undefined' ? cApontM : [];
-                    renderizarDashboardTela5(labF, vAderF, vApontF, mesExibicaoNome, mesesExtenso, sA, cA, sAp, cAp, anoDeExibicao, mesDeExibicaoIdx); 
-                } catch(e) { console.error("Erro T5:", e); }
-                
-                // --- DECLARAÇÃO DA TELA 3 ---
+
+                // --- NOVA RENDERIZAÇÃO TELA 2 (DASHBOARD VOLUME & OCUPAÇÃO) ---
+                renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
+                // ADICIONAR ESTA CHAMADA NO LUGAR:
+                renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
+                renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx);
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
+                    // Atualiza os títulos dos meses nos KPIs
                     ['t3-mes-lbl', 't3-mes-lbl2', 't3-mes-lbl3', 't3-mes-lbl4'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.textContent = mesNome;
                     });
-                
+
                     const tabelaTitulo3 = document.getElementById('t3-tabela-titulo');
                     if (tabelaTitulo3) tabelaTitulo3.textContent = `HISTÓRICO MENSAL (${anoAtual})`;
                 
+                    // 1. Cálculo dos Picos e Acumulados
                     let picoDrop = 0, diaPicoDrop = "-";
                     vDropF.forEach((val, idx) => { if (val > picoDrop) { picoDrop = val; diaPicoDrop = labF[idx]; } });
                 
@@ -1106,41 +1036,37 @@
                     vDropSizeF.forEach((val, idx) => { if (val > picoDropSize) { picoDropSize = val; diaPicoDropSize = labF[idx]; } });
                 
                     let totalNfMes = acNfM[mesDeExibicaoIdx] || 0;
-                    let totalCliMes = acCliM[mesDeExibicaoIdx] || 0;
+                    let totalCliMes = acCliM[mesDeExibicaoIdx] || 0; // ou média/total dependendo da sua regra
                 
-                    const elPicoDropVal = document.getElementById('t3-pico-drop-val');
-                    if(elPicoDropVal) elPicoDropVal.textContent = picoDrop > 0 ? picoDrop.toLocaleString('pt-BR') + ' kg' : '-';
-                    
-                    const elPicoDropDia = document.getElementById('t3-pico-drop-dia');
-                    if(elPicoDropDia) elPicoDropDia.textContent = diaPicoDrop !== "-" ? `DIA ${diaPicoDrop}` : '-';
+                    document.getElementById('t3-pico-drop-val').textContent = picoDrop > 0 ? picoDrop.toLocaleString('pt-BR') + ' kg' : '-';
+                    document.getElementById('t3-pico-drop-dia').textContent = diaPicoDrop !== "-" ? `DIA ${diaPicoDrop}` : '-';
                 
-                    const elPicoDSVal = document.getElementById('t3-pico-dropsize-val');
-                    if(elPicoDSVal) elPicoDSVal.textContent = picoDropSize > 0 ? picoDropSize.toLocaleString('pt-BR') + ' kg' : '-';
+                    document.getElementById('t3-pico-dropsize-val').textContent = picoDropSize > 0 ? picoDropSize.toLocaleString('pt-BR') + ' kg' : '-';
+                    document.getElementById('t3-pico-dropsize-dia').textContent = diaPicoDropSize !== "-" ? `DIA ${diaPicoDropSize}` : '-';
                 
-                    const elPicoDSDia = document.getElementById('t3-pico-dropsize-dia');
-                    if(elPicoDSDia) elPicoDSDia.textContent = diaPicoDropSize !== "-" ? `DIA ${diaPicoDropSize}` : '-';
+                    document.getElementById('t3-acm-nf').textContent = totalNfMes.toLocaleString('pt-BR');
+                    document.getElementById('t3-acm-cli').textContent = totalCliMes.toLocaleString('pt-BR');
                 
-                    const elAcmNf = document.getElementById('t3-acm-nf');
-                    if(elAcmNf) elAcmNf.textContent = totalNfMes.toLocaleString('pt-BR');
-                
-                    const elAcmCli = document.getElementById('t3-acm-cli');
-                    if(elAcmCli) elAcmCli.textContent = totalCliMes.toLocaleString('pt-BR');
-                
+                    // 2. Mini Cards Diários (Picos diários de Peso x Veículo e Dropsize separados)
                     let containerDrop = document.getElementById('t3-minicards-drop-container');
                     let containerDropSize = document.getElementById('t3-minicards-dropsize-container');
-                
+                    
                     if (containerDrop && containerDropSize) {
                         let cardsDrop = [];
                         let cardsDropSize = [];
+                
+                        // Encontrar índices dos picos para destacar
                         let idxPicoDrop = vDropF.indexOf(picoDrop);
                         let idxPicoDropSize = vDropSizeF.indexOf(picoDropSize);
                 
                         for (let i = 0; i < labF.length; i++) {
                             let isPicoDrop = (i === idxPicoDrop && picoDrop > 0);
                             let isPicoDropSize = (i === idxPicoDropSize && picoDropSize > 0);
+                            
                             let dropVal = vDropF[i] ? vDropF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
                             let dropSizeVal = vDropSizeF[i] ? vDropSizeF[i].toLocaleString('pt-BR') + ' kg' : '0 kg';
-                
+                            
+                            // Card Peso x Veículo (Laranja)
                             cardsDrop.push(`
                                 <div class="t2-minicard ${isPicoDrop ? 'pico' : ''}" ${isPicoDrop ? 'style="border-color: #ff8c00; box-shadow: 0 0 12px rgba(255, 140, 0, 0.4);"' : ''}>
                                     <span class="t2-mc-dia">DIA ${labF[i]} ${isPicoDrop ? '<br><span style="color: #ff8c00; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
@@ -1148,7 +1074,8 @@
                                     <span class="t2-mc-vol" style="background: rgba(255, 140, 0, 0.15); color: #ff8c00; margin-top: 4px;">Peso x Veículo</span>
                                 </div>
                             `);
-                
+                            
+                            // Card Dropsize (Verde)
                             cardsDropSize.push(`
                                 <div class="t2-minicard ${isPicoDropSize ? 'pico' : ''}" ${isPicoDropSize ? 'style="border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);"' : ''}>
                                     <span class="t2-mc-dia">DIA ${labF[i]} ${isPicoDropSize ? '<br><span style="color: #2ecc71; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
@@ -1161,148 +1088,41 @@
                         let cardsPorPagina = 8;
                         let paginasDropHTML = '';
                         let paginasDropSizeHTML = '';
-                
+                        
                         for (let p = 0; p < cardsDrop.length; p += cardsPorPagina) {
                             paginasDropHTML += `<div class="t2-page">${cardsDrop.slice(p, p + cardsPorPagina).join('')}</div>`;
                             paginasDropSizeHTML += `<div class="t2-page">${cardsDropSize.slice(p, p + cardsPorPagina).join('')}</div>`;
                         }
-                
+                        
                         containerDrop.innerHTML = `<div class="t2-track" id="t3-track-drop">${paginasDropHTML}</div>`;
                         containerDropSize.innerHTML = `<div class="t2-track" id="t3-track-dropsize">${paginasDropSizeHTML}</div>`;
-                
+                        
                         let totalPaginas = Math.ceil(cardsDrop.length / cardsPorPagina);
                         let paginaAtual = 0;
-                
+                        
                         if (window.t3CarouselInterval) clearInterval(window.t3CarouselInterval);
                         if (totalPaginas > 1) {
                             window.t3CarouselInterval = setInterval(() => {
                                 paginaAtual = (paginaAtual + 1) % totalPaginas;
                                 let trackDrop = document.getElementById('t3-track-drop');
                                 let trackDropSize = document.getElementById('t3-track-dropsize');
+                                // Move ambos os carrosseis ao mesmo tempo
                                 if (trackDrop) trackDrop.style.transform = `translateX(-${paginaAtual * 100}%)`;
                                 if (trackDropSize) trackDropSize.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                            }, 20000);
+                            }, 20000); // 20 segundos para mudar de página
                         }
                     }
-                }
                 
-                // --- DECLARAÇÃO DA TELA 5 ---
-                function renderizarDashboardTela5(labF, vAderF, vApontF, mesNome, mesesExtenso, sAderM, cAderM, sApontM, cApontM, anoAtual, mesDeExibicaoIdx) {
-                    ['t5-mes-lbl1', 't5-mes-lbl2', 't5-mes-lbl3', 't5-mes-lbl4'].forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) el.textContent = mesNome;
-                    });
-                
-                    const tabelaTitulo = document.getElementById('t5-tabela-titulo');
-                    if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO MENSAL (${anoAtual})`;
-                
-                    let picoAder = 0, diaPicoAder = "-", piorAder = 100, diaPiorAder = "-";
-                    let picoApont = 0, diaPicoApont = "-", piorApont = 100, diaPiorApont = "-";
-                
-                    vAderF.forEach((val, idx) => {
-                        if (val !== null && val > 0) {
-                            if (val > picoAder) { picoAder = val; diaPicoAder = labF[idx]; }
-                            if (val < piorAder) { piorAder = val; diaPiorAder = labF[idx]; }
-                        }
-                    });
-                
-                    vApontF.forEach((val, idx) => {
-                        if (val !== null && val > 0) {
-                            if (val > picoApont) { picoApont = val; diaPicoApont = labF[idx]; }
-                            if (val < piorApont) { piorApont = val; diaPiorApont = labF[idx]; }
-                        }
-                    });
-                
-                    const setTxt = (id, txt) => { const e = document.getElementById(id); if(e) e.textContent = txt; };
-                    setTxt('t5-pico-ader-val', picoAder > 0 ? picoAder.toFixed(1) + '%' : '-');
-                    setTxt('t5-pico-ader-dia', diaPicoAder !== "-" ? `DIA ${diaPicoAder}` : '-');
-                    setTxt('t5-pior-ader-val', piorAder < 100 ? piorAder.toFixed(1) + '%' : '-');
-                    setTxt('t5-pior-ader-dia', diaPiorAder !== "-" ? `DIA ${diaPiorAder}` : '-');
-                
-                    setTxt('t5-pico-apont-val', picoApont > 0 ? picoApont.toFixed(1) + '%' : '-');
-                    setTxt('t5-pico-apont-dia', diaPicoApont !== "-" ? `DIA ${diaPicoApont}` : '-');
-                    setTxt('t5-pior-apont-val', piorApont < 100 ? piorApont.toFixed(1) + '%' : '-');
-                    setTxt('t5-pior-apont-dia', diaPiorApont !== "-" ? `DIA ${diaPiorApont}` : '-');
-                
-                    const container = document.getElementById('t5-minicards-container');
-                    if (container) {
-                        let cards = [];
-                        for (let i = 0; i < labF.length; i++) {
-                            let adVal = vAderF[i] ? vAderF[i].toFixed(1) + '%' : '-';
-                            let apVal = vApontF[i] ? vApontF[i].toFixed(1) + '%' : '-';
-                            cards.push(`
-                                <div class="t2-minicard">
-                                    <span class="t2-mc-dia">DIA ${labF[i]}</span>
-                                    <span class="t2-mc-val" style="color: #2ecc71;">${adVal}</span>
-                                    <span class="t2-mc-vol" style="background: rgba(52,152,219,0.15); color: #3498db;">Cerca: ${apVal}</span>
-                                </div>
-                            `);
-                        }
-                        let cardsPorPagina = 8, paginasHTML = '';
-                        for (let p = 0; p < cards.length; p += cardsPorPagina) {
-                            paginasHTML += `<div class="t2-page">${cards.slice(p, p + cardsPorPagina).join('')}</div>`;
-                        }
-                        container.innerHTML = `<div class="t2-track" id="t5-track">${paginasHTML}</div>`;
-                    }
-                
-                    const tbody = document.getElementById('t5-table-body');
-                    if (tbody) {
-                        let html = '';
-                        function calcDiff(atual, anterior) {
-                            if (!anterior || anterior === 0 || !atual) return '<span style="color: #a0aec0;">-</span>';
-                            let diff = atual - anterior;
-                            let cor = diff >= 0 ? '#2ecc71' : '#e74c3c';
-                            let icone = diff >= 0 ? '▲' : '▼';
-                            return `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
-                        }
-                
-                        for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                            let valAder = (cAderM[i] && cAderM[i] > 0) ? sAderM[i] / cAderM[i] : 0;
-                            let valApont = (cApontM[i] && cApontM[i] > 0) ? sApontM[i] / cApontM[i] : 0;
-                            let prevAder = (i > 0 && cAderM[i-1] > 0) ? sAderM[i-1] / cAderM[i-1] : 0;
-                            let prevApont = (i > 0 && cApontM[i-1] > 0) ? sApontM[i-1] / cApontM[i-1] : 0;
-                
-                            if (valAder > 0 || valApont > 0) {
-                                html += `<tr>
-                                    <td>${mesesExtenso[i]}</td>
-                                    <td>${valAder > 0 ? valAder.toFixed(1) + '%' : '-'}</td>
-                                    <td>${calcDiff(valAder, prevAder)}</td>
-                                    <td>${valApont > 0 ? valApont.toFixed(1) + '%' : '-'}</td>
-                                    <td>${calcDiff(valApont, prevApont)}</td>
-                                </tr>`;
-                            }
-                        }
-                        tbody.innerHTML = html;
-                    }
-                
-                    const canvas = document.getElementById('t5-grafico-misto');
-                    if (canvas) {
-                        const ctx = canvas.getContext('2d');
-                        if (window.chartMistoT5) window.chartMistoT5.destroy();
-                        window.chartMistoT5 = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: labF,
-                                datasets: [
-                                    { label: 'Aderência (%)', data: vAderF, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.4 },
-                                    { label: 'Apontamento Cerca (%)', data: vApontF, borderColor: '#3498db', borderWidth: 3, fill: false, tension: 0.4 }
-                                ]
-                            },
-                            options: {
-                                responsive: true, maintainAspectRatio: false,
-                                plugins: {
-                                    title: { display: true, text: `📊 ADERÊNCIA X APONTAMENTO CERCA - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
-                                    legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 12, weight: 'bold' } } },
-                                    datalabels: { display: false }
-                                },
-                                scales: {
-                                    x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
-                                    y: { min: 0, max: 100, ticks: { color: '#2ecc71', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                                }
-                            }
-                        });
-                    }
-                }
+                    // ==========================================
+                    // CONTROLE DE ROTAÇÃO - TELA 3
+                    // ==========================================
+                    try {
+                        // ------------------------------------------
+                        // 1. ROTADOR DE SUBCARDS (A CADA 20 SEGUNDOS)
+                        // ------------------------------------------
+                        if (window.t3CardsInterval) clearInterval(window.t3CardsInterval);
+                    
+                        let modoCardsT3 = 0;
                         function alternarSubcardsT3() {
                             // Alterne a visibilidade ou conteúdo dos seus subcards da Tela 3
                             const cardsGroup1 = document.querySelectorAll('.t3-card-grupo-1');
@@ -1460,121 +1280,7 @@
                     } catch (err) {
                         console.error("Erro no controle da Tela 3:", err);
                     }
-
-                    function renderizarDashboardTela5(labF, vAderF, vApontF, mesNome, mesesExtenso, sAderM, cAderM, sApontM, cApontM, anoAtual, mesDeExibicaoIdx) {
-                        ['t5-mes-lbl1', 't5-mes-lbl2', 't5-mes-lbl3', 't5-mes-lbl4'].forEach(id => {
-                            const el = document.getElementById(id);
-                            if (el) el.textContent = mesNome;
-                        });
-    
-                        const tabelaTitulo = document.getElementById('t5-tabela-titulo');
-                        if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO MENSAL (${anoAtual})`;
-    
-                        let picoAder = 0, diaPicoAder = "-", piorAder = 100, diaPiorAder = "-";
-                        let picoApont = 0, diaPicoApont = "-", piorApont = 100, diaPiorApont = "-";
-    
-                        vAderF.forEach((val, idx) => {
-                            if (val !== null && val > 0) {
-                                if (val > picoAder) { picoAder = val; diaPicoAder = labF[idx]; }
-                                if (val < piorAder) { piorAder = val; diaPiorAder = labF[idx]; }
-                            }
-                        });
-    
-                        vApontF.forEach((val, idx) => {
-                            if (val !== null && val > 0) {
-                                if (val > picoApont) { picoApont = val; diaPicoApont = labF[idx]; }
-                                if (val < piorApont) { piorApont = val; diaPiorApont = labF[idx]; }
-                            }
-                        });
-    
-                        document.getElementById('t5-pico-ader-val').textContent = picoAder > 0 ? picoAder.toFixed(1) + '%' : '-';
-                        document.getElementById('t5-pico-ader-dia').textContent = diaPicoAder !== "-" ? `DIA ${diaPicoAder}` : '-';
-                        document.getElementById('t5-pior-ader-val').textContent = piorAder < 100 ? piorAder.toFixed(1) + '%' : '-';
-                        document.getElementById('t5-pior-ader-dia').textContent = diaPiorAder !== "-" ? `DIA ${diaPiorAder}` : '-';
-    
-                        document.getElementById('t5-pico-apont-val').textContent = picoApont > 0 ? picoApont.toFixed(1) + '%' : '-';
-                        document.getElementById('t5-pico-apont-dia').textContent = diaPicoApont !== "-" ? `DIA ${diaPicoApont}` : '-';
-                        document.getElementById('t5-pior-apont-val').textContent = piorApont < 100 ? piorApont.toFixed(1) + '%' : '-';
-                        document.getElementById('t5-pior-apont-dia').textContent = diaPiorApont !== "-" ? `DIA ${diaPiorApont}` : '-';
-    
-                        const container = document.getElementById('t5-minicards-container');
-                        if (container) {
-                            let cards = [];
-                            for (let i = 0; i < labF.length; i++) {
-                                let adVal = vAderF[i] ? vAderF[i].toFixed(1) + '%' : '-';
-                                let apVal = vApontF[i] ? vApontF[i].toFixed(1) + '%' : '-';
-                                cards.push(`
-                                    <div class="t2-minicard">
-                                        <span class="t2-mc-dia">DIA ${labF[i]}</span>
-                                        <span class="t2-mc-val" style="color: #2ecc71;">${adVal}</span>
-                                        <span class="t2-mc-vol" style="background: rgba(52,152,219,0.15); color: #3498db;">Cerca: ${apVal}</span>
-                                    </div>
-                                `);
-                            }
-                            let cardsPorPagina = 8, paginasHTML = '';
-                            for (let p = 0; p < cards.length; p += cardsPorPagina) {
-                                paginasHTML += `<div class="t2-page">${cards.slice(p, p + cardsPorPagina).join('')}</div>`;
-                            }
-                            container.innerHTML = `<div class="t2-track" id="t5-track">${paginasHTML}</div>`;
-                        }
-    
-                        const tbody = document.getElementById('t5-table-body');
-                        if (tbody) {
-                            let html = '';
-                            function calcDiff(atual, anterior) {
-                                if (!anterior || anterior === 0 || !atual) return '<span style="color: #a0aec0;">-</span>';
-                                let diff = atual - anterior;
-                                let cor = diff >= 0 ? '#2ecc71' : '#e74c3c';
-                                let icone = diff >= 0 ? '▲' : '▼';
-                                return `<span style="color: ${cor}; font-weight: bold;">${icone} ${Math.abs(diff).toFixed(1)}%</span>`;
-                            }
-    
-                            for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                                let valAder = cAderM[i] > 0 ? sAderM[i] / cAderM[i] : 0;
-                                let valApont = cApontM[i] > 0 ? sApontM[i] / cApontM[i] : 0;
-                                let prevAder = i > 0 && cAderM[i-1] > 0 ? sAderM[i-1] / cAderM[i-1] : 0;
-                                let prevApont = i > 0 && cApontM[i-1] > 0 ? sApontM[i-1] / cApontM[i-1] : 0;
-    
-                                if (valAder > 0 || valApont > 0) {
-                                    html += `<tr>
-                                        <td>${mesesExtenso[i]}</td>
-                                        <td>${valAder > 0 ? valAder.toFixed(1) + '%' : '-'}</td>
-                                        <td>${calcDiff(valAder, prevAder)}</td>
-                                        <td>${valApont > 0 ? valApont.toFixed(1) + '%' : '-'}</td>
-                                        <td>${calcDiff(valApont, prevApont)}</td>
-                                    </tr>`;
-                                }
-                            }
-                            tbody.innerHTML = html;
-                        }
-    
-                        const ctx = document.getElementById('t5-grafico-misto').getContext('2d');
-                        if (window.chartMistoT5) window.chartMistoT5.destroy();
-                        window.chartMistoT5 = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: labF,
-                                datasets: [
-                                    { label: 'Aderência (%)', data: vAderF, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.4 },
-                                    { label: 'Apontamento Cerca (%)', data: vApontF, borderColor: '#3498db', borderWidth: 3, fill: false, tension: 0.4 }
-                                ]
-                            },
-                            options: {
-                                responsive: true, maintainAspectRatio: false,
-                                plugins: {
-                                    title: { display: true, text: `📊 ADERÊNCIA X APONTAMENTO CERCA - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
-                                    legend: { display: true, position: 'bottom', labels: { color: '#ffffff', font: { size: 12, weight: 'bold' } } },
-                                    datalabels: { display: false }
-                                },
-                                scales: {
-                                    x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
-                                    y: { min: 0, max: 100, ticks: { color: '#2ecc71', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                                }
-                            }
-                        });
-                    }
-                    
-                    
+                
                     // 4. Alternância com NF'S em Azul (#00ced1) e CLIENTES em Roxo (#9b59b6)
                     const ctx = document.getElementById('t3-grafico-misto').getContext('2d');
                     if (window.t3ChartAlternatingInterval) clearInterval(window.t3ChartAlternatingInterval);
