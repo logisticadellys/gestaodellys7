@@ -1066,17 +1066,26 @@
                 renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
                 // ADICIONAR ESTA CHAMADA NO LUGAR:
                 renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
-                renderizarDashboardTela5(labF, vAderenciaF, vApontamentosF, mesExibicaoNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontamentosM, cApontamentosM, anoDeExibicao, mesDeExibicaoIdx);
-                renderizarDevolucaoDiario(labF, vDevTotF, vDevOpF, mesExibicaoNome);
-                renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
-                const labAderenciaF = []; const vAderenciaF = []; const vApontamentosF = [];
+                // 1. PRIMEIRO: Crie os arrays e execute o loop para preencher os dados
+                const labAderenciaF = []; 
+                const vAderenciaF = []; 
+                const vApontamentosF = [];
+                
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
                     if (dAderenciaR[i] !== null || dApontamentosR[i] !== null) {
                         labAderenciaF.push(String(i + 1).padStart(2, '0'));
-                        vAderenciaF.push(dAderenciaR[i]||0);
-                        vApontamentosF.push(dApontamentosR[i]||0);
+                        vAderenciaF.push(dAderenciaR[i] || 0);
+                        vApontamentosF.push(dApontamentosR[i] || 0);
                     }
                 }
+                
+                // 2. SEGUNDO: Chame as funções DEPOIS que os arrays já existem e estão preenchidos
+                // (Substituimos 'labF' por 'labAderenciaF' para puxar o array correto criado acima)
+                renderizarDashboardTela5(labAderenciaF, vAderenciaF, vApontamentosF, mesExibicaoNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontamentosM, cApontamentosM, anoDeExibicao, mesDeExibicaoIdx);
+                
+                renderizarDevolucaoDiario(labAderenciaF, vDevTotF, vDevOpF, mesExibicaoNome);
+                
+                renderizarDevolucaoMensal(mesesExtenso, sDevTotM.map((s,i)=>cDevTotM[i]>0?s/cDevTotM[i]:0), sDevOpM.map((s,i)=>cDevOpM[i]>0?s/cDevOpM[i]:0), anoAtual);
                 renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx);
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
@@ -1620,7 +1629,7 @@
             document.getElementById('t2-pico-vol-val').textContent = picoVol > 0 ? picoVol.toLocaleString('pt-BR') + ' kg' : '-';
             document.getElementById('t2-pico-vol-dia').textContent = diaPicoVol !== "-" ? `DIA ${diaPicoVol}` : '-';
             
-            document.getElementById('t2-media-dia').textContent = Math.round(mediaDiaria).toLocaleString('pt-BR') + ' kg';
+            document.getElementById('t2-media-dia').textContent = Math.round(mediaDiaria).toLocaleString('pt-BR');
             document.getElementById('t2-pico-val').textContent = picoOcp > 0 ? picoOcp.toFixed(1) + '%' : '-';
             document.getElementById('t2-pico-dia').textContent = diaPico !== "-" ? `DIA ${diaPico}` : '-';
 
