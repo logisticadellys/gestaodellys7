@@ -2067,41 +2067,42 @@
         }
 
         function renderizarDashboardTela5(labF, dAderenciaR, dApontamentosR, mesNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontM, cApontM, anoExibicao, mesIdx) {
-            ['t5-mes-lbl2', 't5-mes-lbl3', 't5-mes-lbl4'].forEach(id => {
+            // Adicionado 't5-mes-lbl1' abaixo para atualizar o mês do card PIOR PICO ADERÊNCIA
+            ['t5-mes-lbl1', 't5-mes-lbl2', 't5-mes-lbl3', 't5-mes-lbl4'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.textContent = mesNome;
             });
-
+        
             let qAder = cAderenciaM[mesIdx] || 0;
             let medAder = qAder > 0 ? (sAderenciaM[mesIdx] / qAder) : 0;
             const elAderMes = document.getElementById('t5-aderencia-mes');
             if (elAderMes) elAderMes.textContent = medAder > 0 ? medAder.toFixed(1) + '%' : '-';
-
+        
             let qApont = cApontM[mesIdx] || 0;
             let medApont = qApont > 0 ? (sApontM[mesIdx] / qApont) : 0;
             const elApontMes = document.getElementById('t5-apontamento-mes');
             if (elApontMes) elApontMes.textContent = medApont > 0 ? medApont.toFixed(1) + '%' : '-';
-
+        
             let picoAder = 0, diaPicoAder = "-";
             dAderenciaR.forEach((val, idx) => {
                 if (val !== null && val > picoAder) { picoAder = val; diaPicoAder = labF[idx]; }
             });
-
+        
             let picoApont = 0, diaPicoApont = "-";
             dApontamentosR.forEach((val, idx) => {
                 if (val !== null && val > picoApont) { picoApont = val; diaPicoApont = labF[idx]; }
             });
-
+        
             const elPicoAderVal = document.getElementById('t5-pico-ader-val');
             const elPicoAderDia = document.getElementById('t5-pico-ader-dia');
             if (elPicoAderVal) elPicoAderVal.textContent = picoAder > 0 ? picoAder.toFixed(1) + '%' : '-';
             if (elPicoAderDia) elPicoAderDia.textContent = diaPicoAder !== "-" ? `DIA ${diaPicoAder}` : '-';
-
+        
             const elPicoApontVal = document.getElementById('t5-pico-apont-val');
             const elPicoApontDia = document.getElementById('t5-pico-apont-dia');
             if (elPicoApontVal) elPicoApontVal.textContent = picoApont > 0 ? picoApont.toFixed(1) + '%' : '-';
             if (elPicoApontDia) elPicoApontDia.textContent = diaPicoApont !== "-" ? `DIA ${diaPicoApont}` : '-';
-
+        
             // 3. Mini Cards Diários da Tela 5
             const containerMC = document.getElementById('t5-minicards-container');
             if (containerMC) {
