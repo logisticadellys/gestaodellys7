@@ -2084,19 +2084,26 @@
             const elApontMes = document.getElementById('t5-apontamento-mes');
             if (elApontMes) elApontMes.textContent = medApont > 0 ? medApont.toFixed(1) + '%' : '-';
         
+            // Função auxiliar para tratar corretamente textos com '%', vírgulas e células vazias
+            const parseNum = (val) => {
+                if (val === null || val === undefined) return null;
+                let str = String(val).trim().replace('%', '').replace(',', '.');
+                if (str === '' || str === '-') return null;
+                let num = parseFloat(str);
+                return (!isNaN(num) && num > 0) ? num : null;
+            };
+        
             // =========================================================
-            // CÁLCULO DE ADERÊNCIA (%) - IGNORANDO CÉLULAS VAZIAS OU INVALIDAS
+            // CÁLCULO DE ADERÊNCIA (%) - IGNORANDO VAZIOS
             // =========================================================
             let piorAder = Infinity, diaPiorAder = "-";
             let picoAder = -1, diaPicoAder = "-";
         
             dAderenciaR.forEach((val, idx) => {
-                if (val !== null && val !== undefined && val !== '' && !isNaN(val)) {
-                    let num = parseFloat(val);
-                    if (num > 0) { // Desconsidera dias sem dados ou zerados por folga
-                        if (num < piorAder) { piorAder = num; diaPiorAder = labF[idx]; }
-                        if (num > picoAder) { picoAder = num; diaPicoAder = labF[idx]; }
-                    }
+                let num = parseNum(val);
+                if (num !== null) {
+                    if (num < piorAder) { piorAder = num; diaPiorAder = labF[idx]; }
+                    if (num > picoAder) { picoAder = num; diaPicoAder = labF[idx]; }
                 }
             });
             if (piorAder === Infinity) piorAder = 0;
@@ -2106,15 +2113,13 @@
             // CÁLCULO DE APONTAMENTOS CERCA (%) - IGNORANDO VAZIOS
             // =========================================================
             let piorApont = Infinity, diaPiorApont = "-";
-            let picoApont = -1, diaPicoApont = "-";
+            let picoApont = -1, diaPiorApont = "-";
         
             dApontamentosR.forEach((val, idx) => {
-                if (val !== null && val !== undefined && val !== '' && !isNaN(val)) {
-                    let num = parseFloat(val);
-                    if (num > 0) {
-                        if (num < piorApont) { piorApont = num; diaPiorApont = labF[idx]; }
-                        if (num > picoApont) { picoApont = num; diaPicoApont = labF[idx]; }
-                    }
+                let num = parseNum(val);
+                if (num !== null) {
+                    if (num < piorApont) { piorApont = num; diaPiorApont = labF[idx]; }
+                    if (num > picoApont) { picoApont = num; diaPicoApont = labF[idx]; }
                 }
             });
             if (piorApont === Infinity) piorApont = 0;
@@ -2123,43 +2128,52 @@
             // =========================================================
             // EXIBIÇÃO NOS CARDS SUPERIORES
             // =========================================================
-            
-            // Card 1: Pior Pico Aderência
+        
+            // Card 1: PIOR PICO ADERÊNCIA
             const elPiorAderVal = document.getElementById('t5-pior-ader-val');
             const elPiorAderDia = document.getElementById('t5-pior-ader-dia');
             if (elPiorAderVal) elPiorAderVal.textContent = piorAder > 0 ? piorAder.toFixed(1) + '%' : '-';
             if (elPiorAderDia) elPiorAderDia.textContent = diaPiorAder !== "-" ? `DIA ${diaPiorAder}` : '-';
         
-            // Card 2: Pico Aderência (Melhor)
+            // Card 2: PICO ADERÊNCIA (MELHOR)
             const elPicoAderVal = document.getElementById('t5-pico-ader-val');
             const elPicoAderDia = document.getElementById('t5-pico-ader-dia');
             if (elPicoAderVal) elPicoAderVal.textContent = picoAder > 0 ? picoAder.toFixed(1) + '%' : '-';
             if (elPicoAderDia) elPicoAderDia.textContent = diaPicoAder !== "-" ? `DIA ${diaPicoAder}` : '-';
         
-            // Card 3: Pior Pico Apontamento Cerca
+            // Card 3: PIOR PICO APONT. CERCA
             const elPiorApontVal = document.getElementById('t5-pior-apont-val');
             const elPiorApontDia = document.getElementById('t5-pior-apont-dia');
             if (elPiorApontVal) elPiorApontVal.textContent = piorApont > 0 ? piorApont.toFixed(1) + '%' : '-';
             if (elPiorApontDia) elPiorApontDia.textContent = diaPiorApont !== "-" ? `DIA ${diaPiorApont}` : '-';
         
-            // Card 4: Pico Apontamento Cerca (Melhor)
+            // Card 4: PICO APONT. CERCA (MELHOR) - COR ROXA (#9b59b6)
             const elPicoApontVal = document.getElementById('t5-pico-apont-val');
             const elPicoApontDia = document.getElementById('t5-pico-apont-dia');
-            if (elPicoApontVal) elPicoApontVal.textContent = picoApont > 0 ? picoApont.toFixed(1) + '%' : '-';
-            if (elPicoApontDia) elPicoApontDia.textContent = diaPicoApont !== "-" ? `DIA ${diaPicoApont}` : '-';
+            if (elPicoApontVal) {
+                elPicoApontVal.textContent = picoApont > 0 ? picoApont.toFixed(1) + '%' : '-';
+                elPicoApontVal.style.color = '#9b59b6';
+            }
+            if (elPicoApontDia) {
+                elPicoApontDia.textContent = diaPicoApont !== "-" ? `DIA ${diaPicoApont}` : '-';
+                elPicoApontDia.style.color = '#9b59b6';
+            }
         
-            // 3. Mini Cards Diários da Tela 5
+            // 3. Mini Cards Diários da Tela 5 com Carrossel Automático
             const containerMC = document.getElementById('t5-minicards-container');
             if (containerMC) {
                 containerMC.innerHTML = '';
                 let todosCards = [];
                 let idxPico = dAderenciaR.indexOf(picoAder);
-
+        
                 for (let i = 0; i < labF.length; i++) {
                     let isPico = (i === idxPico && picoAder > 0);
-                    let aderVal = dAderenciaR[i] !== null && dAderenciaR[i] > 0 ? dAderenciaR[i].toFixed(1) + '%' : '-';
-                    let apontVal = dApontamentosR[i] !== null && dApontamentosR[i] > 0 ? dApontamentosR[i].toFixed(1) + '%' : '-';
-
+                    let valAderNum = parseNum(dAderenciaR[i]);
+                    let valApontNum = parseNum(dApontamentosR[i]);
+        
+                    let aderVal = valAderNum !== null ? valAderNum.toFixed(1) + '%' : '-';
+                    let apontVal = valApontNum !== null ? valApontNum.toFixed(1) + '%' : '-';
+        
                     let cardHTML = `
                         <div class="t2-minicard ${isPico ? 'pico' : ''}">
                             <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span style="color: #f1c40f; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
@@ -2169,15 +2183,32 @@
                     `;
                     todosCards.push(cardHTML);
                 }
-
+        
                 let cardsPorPagina = 8;
                 let paginasHTML = '';
                 for (let p = 0; p < todosCards.length; p += cardsPorPagina) {
-                    paginasHTML += `<div class="t2-page">${todosCards.slice(p, p + cardsPorPagina).join('')}</div>`;
+                    paginasHTML += `<div class="t2-page" style="min-width: 100%; display: flex; gap: 10px;">${todosCards.slice(p, p + cardsPorPagina).join('')}</div>`;
                 }
-                containerMC.innerHTML = `<div class="t2-track" id="t5-track">${paginasHTML}</div>`;
+        
+                containerMC.style.overflow = 'hidden';
+                containerMC.innerHTML = `<div class="t2-track" id="t5-track" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;">${paginasHTML}</div>`;
+        
+                // Carrossel Automático (20 Segundos)
+                let totalPaginas = Math.ceil(todosCards.length / cardsPorPagina);
+                let paginaAtual = 0;
+                if (window.t5CarouselInterval) clearInterval(window.t5CarouselInterval);
+        
+                if (totalPaginas > 1) {
+                    window.t5CarouselInterval = setInterval(() => {
+                        paginaAtual = (paginaAtual + 1) % totalPaginas;
+                        const track = document.getElementById('t5-track');
+                        if (track) {
+                            track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                        }
+                    }, 20000);
+                }
             }
-
+        
             // 4. Gráfico Misto Tela 5
             const ctx = document.getElementById('t5-grafico-misto');
             if (ctx) {
@@ -2206,41 +2237,41 @@
                     }
                 });
             }
-
+        
             // 5. Tabela Histórico Mensal Tela 5
             const tbody = document.getElementById('t5-table-body');
             if (tbody) {
                 let bodyHtml = '';
                 let maxAder = -1, maxApont = -1;
-
+        
                 for (let i = 0; i <= mesIdx; i++) {
                     let mAder = (cAderenciaM[i] || 0) > 0 ? (sAderenciaM[i] / cAderenciaM[i]) : 0;
                     let mApont = (cApontM[i] || 0) > 0 ? (sApontM[i] / cApontM[i]) : 0;
                     if (mAder > maxAder) maxAder = mAder;
                     if (mApont > maxApont) maxApont = mApont;
                 }
-
+        
                 for (let i = 0; i <= mesIdx; i++) {
                     let mAder = (cAderenciaM[i] || 0) > 0 ? (sAderenciaM[i] / cAderenciaM[i]) : 0;
                     let mApont = (cApontM[i] || 0) > 0 ? (sApontM[i] / cApontM[i]) : 0;
-
+        
                     if (mAder > 0 || mApont > 0) {
                         let isBestAder = (mAder === maxAder && maxAder > 0);
                         let isBestApont = (mApont === maxApont && maxApont > 0);
-
+        
                         let aderStr = mAder > 0 ? mAder.toFixed(1) + '%' : '-';
                         let apontStr = mApont > 0 ? mApont.toFixed(1) + '%' : '-';
-
+        
                         let estiloBadge = `background: rgba(0, 206, 209, 0.2); border-radius: 6px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 8px;`;
-
+        
                         let celulaAder = isBestAder 
                             ? `<div style="${estiloBadge}"><span style="color: #00ff88; font-weight: bold;">${aderStr}</span><i class="fas fa-trophy" style="color: #ffd700;" title="Melhor Mês"></i></div>` 
                             : aderStr;
-
+        
                         let celulaApont = isBestApont 
                             ? `<div style="${estiloBadge}"><span style="color: #00ff88; font-weight: bold;">${apontStr}</span><i class="fas fa-trophy" style="color: #ffd700;" title="Melhor Mês"></i></div>` 
                             : apontStr;
-
+        
                         bodyHtml += `<tr>
                             <td>${mesesExtenso[i]}</td>
                             <td>${celulaAder}</td>
