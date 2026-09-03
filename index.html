@@ -603,7 +603,7 @@
             </div>
         </div>
 
-        <!-- Meio: 3 Carrosséis Horizontais Independentes (OTIF, On Time e In Full) -->
+        <!-- Meio: 3 Carrosséis Horizontais Independentes -->
         <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; width: 100%;">
             <!-- 1. Carrossel OTIF -->
             <div style="background: #102542; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; overflow: hidden; position: relative;">
@@ -2299,48 +2299,79 @@
             criarGauge('t6-gauge-ontime', maxOnTime, '#3498db');
             criarGauge('t6-gauge-infull', maxInFull, '#f39c12');
         
-            function montarCarrosselMiniCards(idContainer, dadosValores, diaMelhor, corTema) {
+            function montarCarrosselMiniCards(idContainer, labOriginal, dadosValores, corTema) {
                 const container = document.getElementById(idContainer);
                 if (!container) return;
                 container.innerHTML = '';
                 
+                // Filtrar apenas dias com valores válidos (> 0), ignorando dias vazios
+                let diasFiltrados = [];
+                let valoresFiltrados = [];
+                labOriginal.forEach((d, i) => {
+                    let val = dadosValores[i];
+                    if (val !== undefined && val !== null && val > 0) {
+                        diasFiltrados.push(d);
+                        valoresFiltrados.push(val);
+                    }
+                });
+        
+                if (diasFiltrados.length === 0) {
+                    container.innerHTML = '<div style="color: #a0aec0; font-size: 0.75em; text-align: center; width: 100%; padding: 6px;">Sem dados disponíveis</div>';
+                    return;
+                }
+        
+                // Descobrir o melhor dia entre os filtrados
+                let maxVal = -1;
+                let melhorDia = null;
+                valoresFiltrados.forEach((v, idx) => {
+                    if (v > maxVal) {
+                        maxVal = v;
+                        melhorDia = diasFiltrados[idx];
+                    }
+                });
+        
                 let paginasHTML = '';
-                let totalDias = labF.length;
-                let cardsPorPagina = 8; // Alterado para 8 cards por visualização
+                let totalDias = diasFiltrados.length;
+                let cardsPorPagina = 8; // Exatamente 8 cards por página
         
                 for (let i = 0; i < totalDias; i += cardsPorPagina) {
-                    let chunkHtml = '<div style="display: flex; gap: 4px; height: 100%; flex-shrink: 0; width: 100%; box-sizing: border-box; justify-content: space-between;">';
+                    let chunkHtml = '<div style="display: flex; gap: 6px; height: 100%; flex-shrink: 0; width: 100%; box-sizing: border-box; justify-content: space-between;">';
                     for (let j = i; j < Math.min(i + cardsPorPagina, totalDias); j++) {
-                        let d = labF[j];
-                        let val = dadosValores[j] ? dadosValores[j].toFixed(1) + '%' : '0.0%';
-                        let isMelhor = (d === diaMelhor);
+                        let d = diasFiltrados[j];
+                        let valNum = valoresFiltrados[j];
+                        let val = valNum.toFixed(1) + '%';
+                        let isMelhor = (d === melhorDia);
                         
                         let bordaCor = isMelhor ? corTema : 'rgba(255,255,255,0.08)';
                         let bgCard = isMelhor ? 'rgba(255, 255, 255, 0.08)' : '#0d1b2a';
         
                         if (isMelhor) {
-                            // Card do PICO com Coroa e Destaque
+                            // Card de PICO (Melhor dia) com coroa compacta ao lado
                             chunkHtml += `
-                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4px 2px; border-radius: 6px; box-sizing: border-box; min-width: 0;">
-                                    <span style="font-size: 0.6em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
-                                    <div style="display: flex; align-items: center; gap: 3px; margin: 2px 0;">
-                                        <i class="fas fa-crown" style="color: ${corTema}; font-size: 0.65em;"></i>
-                                        <span style="font-size: 0.65em; color: ${corTema}; font-weight: 900; white-space: nowrap;">PICO</span>
+                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; min-width: 0; height: 32px;">
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="font-size: 0.65em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
+                                        <i class="fas fa-crown" style="color: ${corTema}; font-size: 0.6em;" title="PICO"></i>
                                     </div>
-                                    <span style="font-size: 0.8em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
+                                    <span style="font-size: 0.82em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
                                 </div>
                             `;
                         } else {
-                            // Cards normais com o traço azul indicador embaixo
+                            // Card normal: Dia na esquerda, Valor na direita, altura compacta
                             chunkHtml += `
-                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5px 2px; border-radius: 6px; box-sizing: border-box; min-width: 0;">
-                                    <span style="font-size: 0.65em; color: #a0aec0; font-weight: bold; white-space: nowrap; margin-bottom: 2px;">DIA ${d}</span>
-                                    <div style="display: flex; align-items: center; gap: 4px;">
-                                        <span style="width: 10px; height: 3px; background: #3498db; border-radius: 2px; display: inline-block;"></span>
-                                        <span style="font-size: 0.82em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
-                                    </div>
+                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; min-width: 0; height: 32px;">
+                                    <span style="font-size: 0.65em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
+                                    <span style="font-size: 0.82em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
                                 </div>
                             `;
+                        }
+                    }
+                    
+                    // Preenche espaços vazios se a última página tiver menos de 8 itens para manter o alinhamento correto
+                    let itensNaPagina = Math.min(i + cardsPorPagina, totalDias) - i;
+                    if (itensNaPagina < cardsPorPagina) {
+                        for (let k = 0; k < (cardsPorPagina - itensNaPagina); k++) {
+                            chunkHtml += `<div style="flex: 1; visibility: hidden; padding: 3px 8px; height: 32px;"></div>`;
                         }
                     }
                     chunkHtml += '</div>';
