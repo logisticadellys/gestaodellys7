@@ -608,7 +608,7 @@
             <!-- 1. Carrossel OTIF -->
             <div style="background: #102542; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; overflow: hidden; position: relative;">
                 <div style="font-size: 0.75em; color: #2ecc71; font-weight: bold; margin-bottom: 4px; padding-left: 4px;">
-                    <i class="fas fa-chart-line" style="margin-right: 5px;"></i> OTIF DIÁRIO
+                    <i class="fas fa-chart-line" style="margin-right: 5px;"></i> OTIF
                 </div>
                 <div style="width: 100%; overflow: hidden; position: relative;">
                     <div id="t6-track-otif" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;"></div>
@@ -618,7 +618,7 @@
             <!-- 2. Carrossel On Time -->
             <div style="background: #102542; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; overflow: hidden; position: relative;">
                 <div style="font-size: 0.75em; color: #3498db; font-weight: bold; margin-bottom: 4px; padding-left: 4px;">
-                    <i class="fas fa-clock" style="margin-right: 5px;"></i> ON TIME DIÁRIO
+                    <i class="fas fa-clock" style="margin-right: 5px;"></i> ON TIME
                 </div>
                 <div style="width: 100%; overflow: hidden; position: relative;">
                     <div id="t6-track-ontime" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;"></div>
@@ -628,7 +628,7 @@
             <!-- 3. Carrossel In Full -->
             <div style="background: #102542; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; overflow: hidden; position: relative;">
                 <div style="font-size: 0.75em; color: #f39c12; font-weight: bold; margin-bottom: 4px; padding-left: 4px;">
-                    <i class="fas fa-box-check" style="margin-right: 5px;"></i> IN FULL DIÁRIO
+                    <i class="fas fa-box-check" style="margin-right: 5px;"></i> IN FULL
                 </div>
                 <div style="width: 100%; overflow: hidden; position: relative;">
                     <div id="t6-track-infull" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;"></div>
@@ -2299,38 +2299,49 @@
             criarGauge('t6-gauge-ontime', maxOnTime, '#3498db');
             criarGauge('t6-gauge-infull', maxInFull, '#f39c12');
         
-            function montarCarrosselMiniCards(idContainer, dadosValores, diaMelhor, corTema, nomeRotulo) {
+            function montarCarrosselMiniCards(idContainer, dadosValores, diaMelhor, corTema) {
                 const container = document.getElementById(idContainer);
                 if (!container) return;
                 container.innerHTML = '';
                 
                 let paginasHTML = '';
                 let totalDias = labF.length;
-                let cardsPorPagina = 7; 
+                let cardsPorPagina = 8; // Alterado para 8 cards por visualização
         
                 for (let i = 0; i < totalDias; i += cardsPorPagina) {
-                    let chunkHtml = '<div style="display: flex; gap: 6px; height: 100%; flex-shrink: 0; width: 100%; box-sizing: border-box; justify-content: space-between;">';
+                    let chunkHtml = '<div style="display: flex; gap: 4px; height: 100%; flex-shrink: 0; width: 100%; box-sizing: border-box; justify-content: space-between;">';
                     for (let j = i; j < Math.min(i + cardsPorPagina, totalDias); j++) {
                         let d = labF[j];
                         let val = dadosValores[j] ? dadosValores[j].toFixed(1) + '%' : '0.0%';
                         let isMelhor = (d === diaMelhor);
                         
                         let bordaCor = isMelhor ? corTema : 'rgba(255,255,255,0.08)';
-                        let bgCard = isMelhor ? 'rgba(255, 255, 255, 0.06)' : '#0d1b2a';
+                        let bgCard = isMelhor ? 'rgba(255, 255, 255, 0.08)' : '#0d1b2a';
         
-                        chunkHtml += `
-                            <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 5px 3px; border-radius: 6px; box-sizing: border-box; min-width: 0;">
-                                <span style="font-size: 0.68em; color: #a0aec0; font-weight: bold; white-space: nowrap;">
-                                    DIA ${d} ${isMelhor ? '<i class="fas fa-crown" style="color: ' + corTema + ';"></i>' : ''}
-                                </span>
-                                <span style="font-size: 0.9em; color: ${corTema}; font-weight: 900; margin: 2px 0; white-space: nowrap;">
-                                    ${val}
-                                </span>
-                                <span style="font-size: 0.58em; color: #a0aec0; background: rgba(255,255,255,0.05); padding: 1px 3px; border-radius: 3px; width: 100%; text-align: center; white-space: nowrap;">
-                                    ${nomeRotulo}
-                                </span>
-                            </div>
-                        `;
+                        if (isMelhor) {
+                            // Card do PICO com Coroa e Destaque
+                            chunkHtml += `
+                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4px 2px; border-radius: 6px; box-sizing: border-box; min-width: 0;">
+                                    <span style="font-size: 0.6em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
+                                    <div style="display: flex; align-items: center; gap: 3px; margin: 2px 0;">
+                                        <i class="fas fa-crown" style="color: ${corTema}; font-size: 0.65em;"></i>
+                                        <span style="font-size: 0.65em; color: ${corTema}; font-weight: 900; white-space: nowrap;">PICO</span>
+                                    </div>
+                                    <span style="font-size: 0.8em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
+                                </div>
+                            `;
+                        } else {
+                            // Cards normais com o traço azul indicador embaixo
+                            chunkHtml += `
+                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5px 2px; border-radius: 6px; box-sizing: border-box; min-width: 0;">
+                                    <span style="font-size: 0.65em; color: #a0aec0; font-weight: bold; white-space: nowrap; margin-bottom: 2px;">DIA ${d}</span>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="width: 10px; height: 3px; background: #3498db; border-radius: 2px; display: inline-block;"></span>
+                                        <span style="font-size: 0.82em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     }
                     chunkHtml += '</div>';
                     paginasHTML += chunkHtml;
