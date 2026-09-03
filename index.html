@@ -2144,7 +2144,7 @@
             if (piorApont === Infinity) piorApont = 0;
             if (picoApont === -1) picoApont = 0;
         
-            // EXIBIÇÃO NOS CARDS
+            // EXIBIÇÃO NOS CARDS SUPERIORES
             const elPiorAderVal = document.getElementById('t5-pior-ader-val') || document.getElementById('t5-pior-aderencia-val');
             const elPiorAderDia = document.getElementById('t5-pior-ader-dia') || document.getElementById('t5-pior-aderencia-dia');
             if (elPiorAderVal) elPiorAderVal.textContent = piorAder > 0 ? piorAder.toFixed(1) + '%' : '-';
@@ -2175,22 +2175,33 @@
             if (containerMC) {
                 containerMC.innerHTML = '';
                 let todosCards = [];
-                let idxPico = dAderenciaR.indexOf(picoAder);
+        
+                // Localiza o índice do PIOR valor de Aderência
+                let idxPior = dAderenciaR.findIndex(val => parseNum(val) === piorAder);
         
                 let totalDias = Math.max(labF.length, dAderenciaR.length, dApontamentosR.length);
         
                 for (let i = 0; i < totalDias; i++) {
                     let diaNome = labF[i] !== undefined ? labF[i] : (i + 1);
-                    let isPico = (i === idxPico && picoAder > 0);
+                    let isPior = (i === idxPior && piorAder > 0 && piorAder !== Infinity);
                     let valAderNum = parseNum(dAderenciaR[i]);
                     let valApontNum = parseNum(dApontamentosR[i]);
         
                     let aderVal = valAderNum !== null ? valAderNum.toFixed(1) + '%' : '-';
                     let apontVal = valApontNum !== null ? valApontNum.toFixed(1) + '%' : '-';
         
+                    // Destaque em vermelho para o PIOR PICO
+                    let cardStyle = `
+                        flex: 0 0 calc((100% - 70px) / 8); 
+                        width: calc((100% - 70px) / 8); 
+                        max-width: calc((100% - 70px) / 8); 
+                        box-sizing: border-box;
+                        ${isPior ? 'border: 1px solid #e74c3c; box-shadow: 0 0 10px rgba(231, 76, 60, 0.35);' : ''}
+                    `;
+        
                     let cardHTML = `
-                        <div class="t2-minicard ${isPico ? 'pico' : ''}" style="flex: 0 0 calc((100% - 70px) / 8); width: calc((100% - 70px) / 8); max-width: calc((100% - 70px) / 8); box-sizing: border-box;">
-                            <span class="t2-mc-dia">DIA ${diaNome} ${isPico ? '<br><span style="color: #f1c40f; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
+                        <div class="t2-minicard ${isPior ? 'pior' : ''}" style="${cardStyle}">
+                            <span class="t2-mc-dia">DIA ${diaNome} ${isPior ? '<br><span style="color: #e74c3c; font-size: 0.85em;"><i class="fas fa-exclamation-triangle"></i> PIOR PICO</span>' : ''}</span>
                             <span class="t2-mc-val" style="color: #2ecc71;">${aderVal}</span>
                             <span class="t2-mc-vol" style="background: rgba(155, 89, 182, 0.15); color: #9b59b6; margin-top: 4px;">CERCA: ${apontVal}</span>
                         </div>
