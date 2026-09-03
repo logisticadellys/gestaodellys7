@@ -2121,8 +2121,9 @@
             dAderenciaR.forEach((val, idx) => {
                 let num = parseNum(val);
                 if (num !== null) {
-                    if (num < piorAder) { piorAder = num; diaPiorAder = labF[idx] || "-"; }
-                    if (num > picoAder) { picoAder = num; diaPicoAder = labF[idx] || "-"; }
+                    let dia = labF[idx] !== undefined ? labF[idx] : (idx + 1);
+                    if (num < piorAder) { piorAder = num; diaPiorAder = dia; }
+                    if (num > picoAder) { picoAder = num; diaPicoAder = dia; }
                 }
             });
             if (piorAder === Infinity) piorAder = 0;
@@ -2135,14 +2136,15 @@
             dApontamentosR.forEach((val, idx) => {
                 let num = parseNum(val);
                 if (num !== null) {
-                    if (num < piorApont) { piorApont = num; diaPiorApont = labF[idx] || "-"; }
-                    if (num > picoApont) { picoApont = num; diaPicoApont = labF[idx] || "-"; }
+                    let dia = labF[idx] !== undefined ? labF[idx] : (idx + 1);
+                    if (num < piorApont) { piorApont = num; diaPiorApont = dia; }
+                    if (num > picoApont) { picoApont = num; diaPicoApont = dia; }
                 }
             });
             if (piorApont === Infinity) piorApont = 0;
             if (picoApont === -1) picoApont = 0;
         
-            // EXIBIÇÃO NOS CARDS (Suporta IDs com ou sem sufixo -encia)
+            // EXIBIÇÃO NOS CARDS
             const elPiorAderVal = document.getElementById('t5-pior-ader-val') || document.getElementById('t5-pior-aderencia-val');
             const elPiorAderDia = document.getElementById('t5-pior-ader-dia') || document.getElementById('t5-pior-aderencia-dia');
             if (elPiorAderVal) elPiorAderVal.textContent = piorAder > 0 ? piorAder.toFixed(1) + '%' : '-';
@@ -2175,7 +2177,11 @@
                 let todosCards = [];
                 let idxPico = dAderenciaR.indexOf(picoAder);
         
-                for (let i = 0; i < labF.length; i++) {
+                // Garante a leitura de TODOS os dias disponíveis nos arrays
+                let totalDias = Math.max(labF.length, dAderenciaR.length, dApontamentosR.length);
+        
+                for (let i = 0; i < totalDias; i++) {
+                    let diaNome = labF[i] !== undefined ? labF[i] : (i + 1);
                     let isPico = (i === idxPico && picoAder > 0);
                     let valAderNum = parseNum(dAderenciaR[i]);
                     let valApontNum = parseNum(dApontamentosR[i]);
@@ -2183,10 +2189,10 @@
                     let aderVal = valAderNum !== null ? valAderNum.toFixed(1) + '%' : '-';
                     let apontVal = valApontNum !== null ? valApontNum.toFixed(1) + '%' : '-';
         
-                    // Estilo fixado via inline-style para evitar que o flexbox estique cards em páginas incompletas
+                    // Tamanho fixo exato para 8 cards por página sem esticar quando houver menos itens
                     let cardHTML = `
-                        <div class="t2-minicard ${isPico ? 'pico' : ''}" style="flex: 0 0 calc((100% - 70px) / 8); max-width: calc((100% - 70px) / 8); box-sizing: border-box;">
-                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span style="color: #f1c40f; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
+                        <div class="t2-minicard ${isPico ? 'pico' : ''}" style="flex: 0 0 calc((100% - 70px) / 8); width: calc((100% - 70px) / 8); max-width: calc((100% - 70px) / 8); box-sizing: border-box;">
+                            <span class="t2-mc-dia">DIA ${diaNome} ${isPico ? '<br><span style="color: #f1c40f; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
                             <span class="t2-mc-val" style="color: #2ecc71;">${aderVal}</span>
                             <span class="t2-mc-vol" style="background: rgba(155, 89, 182, 0.15); color: #9b59b6; margin-top: 4px;">CERCA: ${apontVal}</span>
                         </div>
@@ -2197,7 +2203,7 @@
                 let cardsPorPagina = 8;
                 let paginasHTML = '';
                 for (let p = 0; p < todosCards.length; p += cardsPorPagina) {
-                    paginasHTML += `<div class="t2-page" style="min-width: 100%; display: flex; gap: 10px;">${todosCards.slice(p, p + cardsPorPagina).join('')}</div>`;
+                    paginasHTML += `<div class="t2-page" style="flex: 0 0 100%; min-width: 100%; display: flex; gap: 10px; justify-content: flex-start; box-sizing: border-box;">${todosCards.slice(p, p + cardsPorPagina).join('')}</div>`;
                 }
         
                 containerMC.style.overflow = 'hidden';
@@ -2263,7 +2269,6 @@
                 let maxAder = -1, maxApont = -1;
                 let ultAderMedia = null, ultApontMedia = null;
         
-                // Identifica os maiores valores para destacar o melhor mês
                 for (let i = 0; i <= mesIdx; i++) {
                     let mAder = (cAderenciaM[i] || 0) > 0 ? ((sAderenciaM[i] || 0) / cAderenciaM[i]) : 0;
                     let mApont = (cApontM[i] || 0) > 0 ? ((sApontM[i] || 0) / cApontM[i]) : 0;
@@ -2276,7 +2281,6 @@
                     let mApont = (cApontM[i] || 0) > 0 ? ((sApontM[i] || 0) / cApontM[i]) : 0;
         
                     if (mAder > 0 || mApont > 0) {
-                        // Variação % Aderência vs Mês Anterior
                         let diffAderStr = '<span style="color: #a0aec0;">-</span>';
                         if (mAder > 0 && ultAderMedia !== null && ultAderMedia > 0) {
                             let diff = ((mAder - ultAderMedia) / ultAderMedia) * 100;
@@ -2285,7 +2289,6 @@
                             diffAderStr = `<span style="color: ${cor}; font-weight: bold;">${sinal}${diff.toFixed(1).replace('.', ',')}%</span>`;
                         }
         
-                        // Variação % Apontamento vs Mês Anterior
                         let diffApontStr = '<span style="color: #a0aec0;">-</span>';
                         if (mApont > 0 && ultApontMedia !== null && ultApontMedia > 0) {
                             let diff = ((mApont - ultApontMedia) / ultApontMedia) * 100;
