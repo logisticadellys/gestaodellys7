@@ -2162,11 +2162,10 @@
             const elPicoApontDia = document.getElementById('t5-pico-apont-dia');
             if (elPicoApontVal) {
                 elPicoApontVal.textContent = picoApont > 0 ? picoApont.toFixed(1) + '%' : '-';
-                elPicoApontVal.style.color = '#9b59b6';
+                elPicoApontVal.style.color = '#ffffff'; // Altera o valor para BRANCO igual ao outro card
             }
             if (elPicoApontDia) {
                 elPicoApontDia.textContent = diaPicoApont !== "-" ? `DIA ${diaPicoApont}` : '-';
-                elPicoApontDia.style.color = '#9b59b6';
             }
         
             // Mini Cards Diários da Tela 5
