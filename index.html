@@ -1075,11 +1075,15 @@
                 // --- FIM NOVA LÓGICA ---
 
                 const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
+                const vAderenciaF = []; const vApontamentosF = [];
+                
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
-                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null) {
+                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null || dAderenciaR[i] !== null || dApontamentosR[i] !== null) {
                         labF.push(String(i + 1).padStart(2, '0'));
                         vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
                         vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
+                        vAderenciaF.push(dAderenciaR[i]||0);
+                        vApontamentosF.push(dApontamentosR[i]||0);
                     }
                 }
 
@@ -1091,7 +1095,8 @@
                     renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
                 }
                 if (typeof renderizarDashboardTela5 === 'function') {
-                    renderizarDashboardTela5(labF, dAderenciaR, dApontamentosR, mesExibicaoNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontM, cApontM, anoDeExibicao, mesDeExibicaoIdx);
+                    renderizarDashboardTela5(labF, vAderenciaF, vApontamentosF, mesExibicaoNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontM, cApontM, anoDeExibicao, mesDeExibicaoIdx);
+                }
                 }
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
