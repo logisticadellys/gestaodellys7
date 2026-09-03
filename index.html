@@ -1972,7 +1972,7 @@
                 // Parar intervalo anterior se houver para não encavalar
                 if (window.t4CarouselInterval) clearInterval(window.t4CarouselInterval);
         
-                // Se houver mais de 1 página (mais de 8 dias registrados), alterna a cada 6 segundos
+                // Se houver mais de 1 página (mais de 8 dias registrados), alterna a cada 20 segundos
                 if (totalPaginas > 1) {
                     window.t4CarouselInterval = setInterval(() => {
                         paginaAtual = (paginaAtual + 1) % totalPaginas;
@@ -1980,9 +1980,8 @@
                         if (track) {
                             track.style.transform = `translateX(-${paginaAtual * 100}%)`;
                         }
-                    }, 6000); // Alterna a cada 6 segundos
+                    }, 20000); // Alterna a cada 20 segundos
                 }
-            }
         
             // 5. Gráfico Misto Tela 4
             const ctx = document.getElementById('t4-grafico-misto');
