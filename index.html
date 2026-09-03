@@ -1758,6 +1758,22 @@
                     tbody.innerHTML += tr;
                 }
             }
+            document.addEventListener('DOMContentLoaded', () => {
+            const infoIcon = document.getElementById('info-icon');
+            const modal = document.getElementById('modal-ajuda');
+            
+            if (infoIcon && modal) {
+                infoIcon.addEventListener('click', () => {
+                    modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
+                });
+            }
+
+            // Carrega os dados da planilha
+            fetchPlanilha();
+        });
+    </script>
+</body>
+</html>
 
             // 4. Renderiza o Gráfico Misto Base
             const ctx = document.getElementById('t2-grafico-misto').getContext('2d');
