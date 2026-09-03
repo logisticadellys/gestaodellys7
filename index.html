@@ -2042,14 +2042,13 @@
                 tbody.innerHTML = bodyHtml;
             }
         }
+
         function renderizarDashboardTela5(labF, dAderenciaR, dApontamentosR, mesNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontM, cApontM, anoExibicao, mesIdx) {
-            // Atualiza os labels dos meses na Tela 5
             ['t5-mes-lbl2', 't5-mes-lbl3', 't5-mes-lbl4'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.textContent = mesNome;
             });
 
-            // 1. Médias Mensais (Aderência e Apontamentos)
             let qAder = cAderenciaM[mesIdx] || 0;
             let medAder = qAder > 0 ? (sAderenciaM[mesIdx] / qAder) : 0;
             const elAderMes = document.getElementById('t5-aderencia-mes');
@@ -2060,7 +2059,6 @@
             const elApontMes = document.getElementById('t5-apontamento-mes');
             if (elApontMes) elApontMes.textContent = medApont > 0 ? medApont.toFixed(1) + '%' : '-';
 
-            // 2. Picos Diários do Mês Exibido
             let picoAder = 0, diaPicoAder = "-";
             dAderenciaR.forEach((val, idx) => {
                 if (val !== null && val > picoAder) { picoAder = val; diaPicoAder = labF[idx]; }
