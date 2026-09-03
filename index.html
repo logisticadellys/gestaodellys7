@@ -1680,11 +1680,10 @@
                     let corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
                     
                     let cardHTML = `
-                        <div class="t2-minicard ${isPico ? 'pico' : ''}">
-                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
-                            <span class="t2-mc-val" style="color: ${corOcupacao};">${ocpDiaStr}</span>
-                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">Meta: ${metaDia.toFixed(1)}%</span>
-                            <span class="t2-mc-vol" style="color: #2ecc71;">${volDia}</span>
+                        <div class="t2-minicard ${isPico ? 'pico' : ''}" style="flex: 1; max-width: calc((100% - 70px) / 8); min-width: 0;">
+                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span style="color: #f1c40f; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
+                            <span class="t2-mc-val" style="color: #2ecc71;">${aderVal}</span>
+                            <span class="t2-mc-vol" style="background: rgba(155, 89, 182, 0.15); color: #9b59b6; margin-top: 4px;">CERCA: ${apontVal}</span>
                         </div>
                     `;
                     todosOsCards.push(cardHTML);
