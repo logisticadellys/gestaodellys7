@@ -2269,7 +2269,7 @@
         
             criarGauge('t6-gauge-otif', maxOtif, '#2ecc71');
             criarGauge('t6-gauge-ontime', maxOnTime, '#3498db');
-            criarGauge('t6-gauge-infull', maxInFull, '#9b59b6');
+            criarGauge('t6-gauge-infull', maxInFull, '#f39c12'); // Laranja
         
             const containerVert = document.getElementById('t6-track-vertical');
             if (containerVert) {
@@ -2297,7 +2297,7 @@
                                 </span>
                                 <span style="font-size: 0.85em; color: #2ecc71; font-weight: bold;">OTIF: ${otifVal}</span>
                                 <span style="font-size: 0.85em; color: #3498db; font-weight: bold;">ON TIME: ${onTimeVal}</span>
-                                <span style="font-size: 0.85em; color: #9b59b6; font-weight: bold;">IN FULL: ${inFullVal}</span>
+                                <span style="font-size: 0.85em; color: #f39c12; font-weight: bold;">IN FULL: ${inFullVal}</span>
                             </div>
                         `;
                     }
@@ -2329,7 +2329,7 @@
                     datasets: [
                         { type: 'line', label: 'OTIF (%)', data: vOtifF, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#2ecc71' },
                         { type: 'bar', label: 'ON TIME (%)', data: vOnTimeF, backgroundColor: 'rgba(52, 152, 219, 0.6)', borderColor: '#3498db', borderWidth: 1, borderRadius: 4 },
-                        { type: 'bar', label: 'IN FULL (%)', data: vInFullF, backgroundColor: 'rgba(155, 89, 182, 0.6)', borderColor: '#9b59b6', borderWidth: 1, borderRadius: 4 }
+                        { type: 'bar', label: 'IN FULL (%)', data: vInFullF, backgroundColor: 'rgba(243, 156, 18, 0.6)', borderColor: '#f39c12', borderWidth: 1, borderRadius: 4 } // Laranja
                     ]
                 },
                 options: {
@@ -2371,7 +2371,7 @@
                                 <td>${mesesExtenso[i]}</td>
                                 <td><span style="color:#2ecc71; font-weight:bold;">${mOtif.toFixed(1)}%</span></td>
                                 <td><span style="color:#3498db; font-weight:bold;">${mOnTime.toFixed(1)}%</span></td>
-                                <td><span style="color:#9b59b6; font-weight:bold;">${mInFull.toFixed(1)}%</span></td>
+                                <td><span style="color:#f39c12; font-weight:bold;">${mInFull.toFixed(1)}%</span></td>
                                 <td>${diffHtml}</td>
                             </tr>
                         `;
