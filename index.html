@@ -573,6 +573,62 @@
     </div>
 
     <div id="tela6" class="tela">
+        <!-- Topo com 3 Cards Velocímetro (Melhor Dia OTIF, ON TIME, IN FULL) -->
+        <div class="t2-top-kpis">
+            <div class="t2-kpi-card" style="border-top-color: #2ecc71; text-align: center;">
+                <span class="t2-kpi-title"><i class="fas fa-gauge-high" style="color: #2ecc71; margin-right: 6px;"></i> MELHOR DIA OTIF</span>
+                <div style="position: relative; height: 75px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 5px;">
+                    <canvas id="t6-gauge-otif"></canvas>
+                    <span id="t6-val-otif" style="position: absolute; bottom: 2px; font-size: clamp(1.1em, 1.5vw, 1.7em); font-weight: 900; color: #2ecc71;">-</span>
+                </div>
+                <span class="t2-kpi-sub" style="color: #2ecc71;" id="t6-dia-otif">-</span>
+            </div>
+
+            <div class="t2-kpi-card" style="border-top-color: #3498db; text-align: center;">
+                <span class="t2-kpi-title"><i class="fas fa-clock" style="color: #3498db; margin-right: 6px;"></i> MELHOR DIA ON TIME</span>
+                <div style="position: relative; height: 75px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 5px;">
+                    <canvas id="t6-gauge-ontime"></canvas>
+                    <span id="t6-val-ontime" style="position: absolute; bottom: 2px; font-size: clamp(1.1em, 1.5vw, 1.7em); font-weight: 900; color: #3498db;">-</span>
+                </div>
+                <span class="t2-kpi-sub" style="color: #3498db;" id="t6-dia-ontime">-</span>
+            </div>
+
+            <div class="t2-kpi-card" style="border-top-color: #9b59b6; text-align: center;">
+                <span class="t2-kpi-title"><i class="fas fa-box-check" style="color: #9b59b6; margin-right: 6px;"></i> MELHOR DIA IN FULL</span>
+                <div style="position: relative; height: 75px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 5px;">
+                    <canvas id="t6-gauge-infull"></canvas>
+                    <span id="t6-val-infull" style="position: absolute; bottom: 2px; font-size: clamp(1.1em, 1.5vw, 1.7em); font-weight: 900; color: #9b59b6;">-</span>
+                </div>
+                <span class="t2-kpi-sub" style="color: #9b59b6;" id="t6-dia-infull">-</span>
+            </div>
+        </div>
+
+        <!-- Meio: 3 Minicards Empilhados na Vertical (Carrossel a cada 20s) -->
+        <div style="overflow: hidden; position: relative; width: 100%; height: 115px; flex-shrink: 0;">
+            <div id="t6-track-vertical" style="transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; height: 100%;"></div>
+        </div>
+
+        <!-- Base: Gráfico e Tabela Mensal -->
+        <div class="t2-base-grid">
+            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
+                <canvas id="t6-grafico-misto"></canvas>
+            </div>
+            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
+                <table class="t2-table">
+                    <thead>
+                        <tr><th colspan="5" id="t6-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - OTIF / ON TIME / IN FULL</th></tr>
+                        <tr>
+                            <th>Mês</th>
+                            <th>OTIF (%)</th>
+                            <th>ON TIME (%)</th>
+                            <th>IN FULL (%)</th>
+                            <th>Vs Mês Ant.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="t6-table-body"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -645,6 +701,7 @@
             if (window.t3ChartAlternatingInterval) { clearInterval(window.t3ChartAlternatingInterval); window.t3ChartAlternatingInterval = null; }
             if (window.t4CarouselInterval) { clearInterval(window.t4CarouselInterval); window.t4CarouselInterval = null; }
             if (window.t5CarouselInterval) { clearInterval(window.t5CarouselInterval); window.t5CarouselInterval = null; }
+            if (window.t6CarouselInterval) { clearInterval(window.t6CarouselInterval); window.t6CarouselInterval = null; }
         }
         
         function mudarTelaManual(direcao) { 
@@ -684,6 +741,9 @@
                 if (infoIcon) infoIcon.style.display = 'none';
             } else if (telaAtual === 5) {
                 h1.innerHTML = '<i class="fas fa-bullseye" style="margin-right: 10px; color: #2ecc71;"></i>ADERÊNCIA & APONTAMENTO CERCA - EV';
+                if (infoIcon) infoIcon.style.display = 'none';
+            } else if (telaAtual === 6) {
+                h1.innerHTML = '<i class="fas fa-truck-ramp-box" style="margin-right: 10px; color: #2ecc71;"></i>OTIF & ON TIME & IN FULL - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
@@ -1076,6 +1136,9 @@
                 }
                 if (typeof renderizarDashboardTela5 === 'function') {
                     renderizarDashboardTela5(labF, vAderenciaF, vApontamentosF, mesExibicaoNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontM, cApontM, anoDeExibicao, mesDeExibicaoIdx);
+                }
+                if (typeof renderizarDashboardTela6 === 'function') {
+                    renderizarDashboardTela6(labF, vOtifF, vOnTimeF, vInFullF, mesExibicaoNome, mesesExtenso, sOtifM, cOtifM, sOnTimeM, cOnTimeM, sInFullM, cInFullM, anoDeExibicao, mesDeExibicaoIdx);
                 }
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
@@ -2147,6 +2210,171 @@
                     }
                 }
                 tbody.innerHTML = bodyHtml;
+            }
+        }
+        function renderizarDashboardTela6(labF, vOtifF, vOnTimeF, vInFullF, mesNome, mesesExtenso, sOtifM, cOtifM, sOnTimeM, cOnTimeM, sInFullM, cInFullM, anoAtual, mesDeExibicaoIdx) {
+            const tabelaTitulo6 = document.getElementById('t6-tabela-titulo');
+            if (tabelaTitulo6) tabelaTitulo6.textContent = `HISTÓRICO MENSAL - OTIF, ON TIME E IN FULL (${anoAtual})`;
+
+            // 1. Identificar os Picos (Melhores Dias)
+            let maxOtif = 0, diaOtif = "-";
+            vOtifF.forEach((v, i) => { if (v > maxOtif) { maxOtif = v; diaOtif = labF[i]; } });
+
+            let maxOnTime = 0, diaOnTime = "-";
+            vOnTimeF.forEach((v, i) => { if (v > maxOnTime) { maxOnTime = v; diaOnTime = labF[i]; } });
+
+            let maxInFull = 0, diaInFull = "-";
+            vInFullF.forEach((v, i) => { if (v > maxInFull) { maxInFull = v; diaInFull = labF[i]; } });
+
+            document.getElementById('t6-val-otif').textContent = maxOtif > 0 ? maxOtif.toFixed(1) + '%' : '-';
+            document.getElementById('t6-dia-otif').textContent = diaOtif !== "-" ? `DIA ${diaOtif}` : '-';
+
+            document.getElementById('t6-val-ontime').textContent = maxOnTime > 0 ? maxOnTime.toFixed(1) + '%' : '-';
+            document.getElementById('t6-dia-ontime').textContent = diaOnTime !== "-" ? `DIA ${diaOnTime}` : '-';
+
+            document.getElementById('t6-val-infull').textContent = maxInFull > 0 ? maxInFull.toFixed(1) + '%' : '-';
+            document.getElementById('t6-dia-infull').textContent = diaInFull !== "-" ? `DIA ${diaInFull}` : '-';
+
+            // Criador de Velocímetros (Gauge Chart)
+            function criarGauge(idCanvas, valor, cor) {
+                const ctx = document.getElementById(idCanvas);
+                if (!ctx) return;
+                if (ctx._chartInstance) ctx._chartInstance.destroy();
+
+                const v = valor || 0;
+                ctx._chartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [v, Math.max(0, 100 - v)],
+                            backgroundColor: [cor, 'rgba(255, 255, 255, 0.08)'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        rotation: 270,
+                        circumference: 180,
+                        cutout: '75%',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { tooltip: { enabled: false }, datalabels: { display: false } }
+                    }
+                });
+            }
+
+            criarGauge('t6-gauge-otif', maxOtif, '#2ecc71');
+            criarGauge('t6-gauge-ontime', maxOnTime, '#3498db');
+            criarGauge('t6-gauge-infull', maxInFull, '#9b59b6');
+
+            // 2. Minicards Empilhados na Vertical em Carrossel (Substitui a cada 20s)
+            const containerVert = document.getElementById('t6-track-vertical');
+            if (containerVert) {
+                containerVert.innerHTML = '';
+                let paginasHTML = '';
+                let totalDias = labF.length;
+                let cardsPorPagina = 3; 
+
+                for (let i = 0; i < totalDias; i += cardsPorPagina) {
+                    let chunkHtml = '<div style="display: flex; flex-direction: column; gap: 4px; height: 100%; flex-shrink: 0; width: 100%; box-sizing: border-box;">';
+                    for (let j = i; j < Math.min(i + cardsPorPagina, totalDias); j++) {
+                        let d = labF[j];
+                        let otifVal = vOtifF[j] ? vOtifF[j].toFixed(1) + '%' : '0.0%';
+                        let onTimeVal = vOnTimeF[j] ? vOnTimeF[j].toFixed(1) + '%' : '0.0%';
+                        let inFullVal = vInFullF[j] ? vInFullF[j].toFixed(1) + '%' : '0.0%';
+                        
+                        let isMelhor = (d === diaOtif || d === diaOnTime || d === diaInFull);
+                        let bordaCor = isMelhor ? '#f1c40f' : 'rgba(255,255,255,0.1)';
+                        let bgCor = isMelhor ? 'rgba(241, 196, 15, 0.08)' : '#102542';
+
+                        chunkHtml += `
+                            <div class="t2-minicard" style="background: ${bgCor}; border: 1px solid ${bordaCor}; flex: 1; display: flex; flex-direction: row; justify-content: space-around; align-items: center; padding: 2px 10px;">
+                                <span style="font-size: 0.8em; color: #a0aec0; font-weight: bold; min-width: 75px; text-align: left;">
+                                    DIA ${d} ${isMelhor ? '<i class="fas fa-crown" style="color: #f1c40f;"></i>' : ''}
+                                </span>
+                                <span style="font-size: 0.85em; color: #2ecc71; font-weight: bold;">OTIF: ${otifVal}</span>
+                                <span style="font-size: 0.85em; color: #3498db; font-weight: bold;">ON TIME: ${onTimeVal}</span>
+                                <span style="font-size: 0.85em; color: #9b59b6; font-weight: bold;">IN FULL: ${inFullVal}</span>
+                            </div>
+                        `;
+                    }
+                    chunkHtml += '</div>';
+                    paginasHTML += chunkHtml;
+                }
+
+                containerVert.innerHTML = paginasHTML;
+
+                let totalPaginasT6 = Math.ceil(totalDias / cardsPorPagina);
+                let paginaAtualT6 = 0;
+
+                if (window.t6CarouselInterval) clearInterval(window.t6CarouselInterval);
+                if (totalPaginasT6 > 1) {
+                    window.t6CarouselInterval = setInterval(() => {
+                        paginaAtualT6 = (paginaAtualT6 + 1) % totalPaginasT6;
+                        containerVert.style.transform = `translateY(-${paginaAtualT6 * 100}%)`;
+                    }, 20000);
+                }
+            }
+
+            // 3. Gráfico Misto da Tela 6
+            const ctx6 = document.getElementById('t6-grafico-misto').getContext('2d');
+            if (window.chartMistoT6) window.chartMistoT6.destroy();
+
+            window.chartMistoT6 = new Chart(ctx6, {
+                type: 'bar',
+                data: {
+                    labels: labF,
+                    datasets: [
+                        { type: 'line', label: 'OTIF (%)', data: vOtifF, borderColor: '#2ecc71', borderWidth: 3, fill: false, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#2ecc71' },
+                        { type: 'bar', label: 'ON TIME (%)', data: vOnTimeF, backgroundColor: 'rgba(52, 152, 219, 0.6)', borderColor: '#3498db', borderWidth: 1, borderRadius: 4 },
+                        { type: 'bar', label: 'IN FULL (%)', data: vInFullF, backgroundColor: 'rgba(155, 89, 182, 0.6)', borderColor: '#9b59b6', borderWidth: 1, borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: `📊 OTIF / ON TIME / IN FULL - ${mesNome}`, color: '#a0aec0', font: { size: 15, weight: 'bold' } },
+                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 12, font: { size: 11, weight: 'bold' } } },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#ffffff', font: { size: 10, weight: 'bold' } }, grid: { display: false } },
+                        y: { min: 0, max: 100, ticks: { color: '#ffffff', font: { size: 10, weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            // 4. Tabela Mensal da Tela 6
+            const tbody6 = document.getElementById('t6-table-body');
+            if (tbody6) {
+                tbody6.innerHTML = '';
+                for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                    let mOtif = cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0;
+                    let mOnTime = cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0;
+                    let mInFull = cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0;
+
+                    if (mOtif > 0 || mOnTime > 0 || mInFull > 0) {
+                        let diffHtml = "-";
+                        if (i > 0) {
+                            let mOtifAnt = cOtifM[i-1] > 0 ? (sOtifM[i-1] / cOtifM[i-1]) : 0;
+                            if (mOtifAnt > 0) {
+                                let diff = mOtif - mOtifAnt;
+                                let cor = diff >= 0 ? '#2ecc71' : '#e74c3c';
+                                let icon = diff >= 0 ? '▲' : '▼';
+                                diffHtml = `<span style="color:${cor}; font-weight:bold;">${icon} ${Math.abs(diff).toFixed(1)}%</span>`;
+                            }
+                        }
+
+                        tbody6.innerHTML += `
+                            <tr>
+                                <td>${mesesExtenso[i]}</td>
+                                <td><span style="color:#2ecc71; font-weight:bold;">${mOtif.toFixed(1)}%</span></td>
+                                <td><span style="color:#3498db; font-weight:bold;">${mOnTime.toFixed(1)}%</span></td>
+                                <td><span style="color:#9b59b6; font-weight:bold;">${mInFull.toFixed(1)}%</span></td>
+                                <td>${diffHtml}</td>
+                            </tr>
+                        `;
+                    }
+                }
             }
         }
         document.addEventListener('DOMContentLoaded', () => {
