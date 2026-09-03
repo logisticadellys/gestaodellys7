@@ -2299,15 +2299,15 @@
             criarGauge('t6-gauge-ontime', maxOnTime, '#3498db');
             criarGauge('t6-gauge-infull', maxInFull, '#f39c12');
         
-            function montarCarrosselMiniCards(idContainer, labOriginal, dadosValores, corTema) {
+            // Função limpa e otimizada para os minicards
+            function montarCarrosselMiniCards(idContainer, dadosValores, corTema) {
                 const container = document.getElementById(idContainer);
                 if (!container) return;
                 container.innerHTML = '';
                 
-                // Filtrar apenas dias com valores válidos (> 0), ignorando dias vazios
                 let diasFiltrados = [];
                 let valoresFiltrados = [];
-                labOriginal.forEach((d, i) => {
+                labF.forEach((d, i) => {
                     let val = dadosValores[i];
                     if (val !== undefined && val !== null && val > 0) {
                         diasFiltrados.push(d);
@@ -2320,7 +2320,6 @@
                     return;
                 }
         
-                // Descobrir o melhor dia entre os filtrados
                 let maxVal = -1;
                 let melhorDia = null;
                 valoresFiltrados.forEach((v, idx) => {
@@ -2346,7 +2345,6 @@
                         let bgCard = isMelhor ? 'rgba(255, 255, 255, 0.08)' : '#0d1b2a';
         
                         if (isMelhor) {
-                            // Card de PICO (Melhor dia) com coroa compacta ao lado
                             chunkHtml += `
                                 <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; min-width: 0; height: 32px;">
                                     <div style="display: flex; align-items: center; gap: 4px;">
@@ -2357,7 +2355,6 @@
                                 </div>
                             `;
                         } else {
-                            // Card normal: Dia na esquerda, Valor na direita, altura compacta
                             chunkHtml += `
                                 <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; min-width: 0; height: 32px;">
                                     <span style="font-size: 0.65em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
@@ -2367,7 +2364,6 @@
                         }
                     }
                     
-                    // Preenche espaços vazios se a última página tiver menos de 8 itens para manter o alinhamento correto
                     let itensNaPagina = Math.min(i + cardsPorPagina, totalDias) - i;
                     if (itensNaPagina < cardsPorPagina) {
                         for (let k = 0; k < (cardsPorPagina - itensNaPagina); k++) {
@@ -2393,9 +2389,10 @@
                 }
             }
         
-            montarCarrosselMiniCards('t6-track-otif', vOtifF, diaOtif, '#2ecc71', 'OTIF');
-            montarCarrosselMiniCards('t6-track-ontime', vOnTimeF, diaOnTime, '#3498db', 'ON TIME');
-            montarCarrosselMiniCards('t6-track-infull', vInFullF, diaInFull, '#f39c12', 'IN FULL');
+            // Chamadas corretas dos carrosséis
+            montarCarrosselMiniCards('t6-track-otif', vOtifF, '#2ecc71');
+            montarCarrosselMiniCards('t6-track-ontime', vOnTimeF, '#3498db');
+            montarCarrosselMiniCards('t6-track-infull', vInFullF, '#f39c12');
         
             const ctx6 = document.getElementById('t6-grafico-misto').getContext('2d');
             if (window.chartMistoT6) window.chartMistoT6.destroy();
