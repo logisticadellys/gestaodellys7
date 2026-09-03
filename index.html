@@ -2177,7 +2177,6 @@
                 let todosCards = [];
                 let idxPico = dAderenciaR.indexOf(picoAder);
         
-                // Garante a leitura de TODOS os dias disponíveis nos arrays
                 let totalDias = Math.max(labF.length, dAderenciaR.length, dApontamentosR.length);
         
                 for (let i = 0; i < totalDias; i++) {
@@ -2189,7 +2188,6 @@
                     let aderVal = valAderNum !== null ? valAderNum.toFixed(1) + '%' : '-';
                     let apontVal = valApontNum !== null ? valApontNum.toFixed(1) + '%' : '-';
         
-                    // Tamanho fixo exato para 8 cards por página sem esticar quando houver menos itens
                     let cardHTML = `
                         <div class="t2-minicard ${isPico ? 'pico' : ''}" style="flex: 0 0 calc((100% - 70px) / 8); width: calc((100% - 70px) / 8); max-width: calc((100% - 70px) / 8); box-sizing: border-box;">
                             <span class="t2-mc-dia">DIA ${diaNome} ${isPico ? '<br><span style="color: #f1c40f; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
@@ -2206,19 +2204,28 @@
                     paginasHTML += `<div class="t2-page" style="flex: 0 0 100%; min-width: 100%; display: flex; gap: 10px; justify-content: flex-start; box-sizing: border-box;">${todosCards.slice(p, p + cardsPorPagina).join('')}</div>`;
                 }
         
-                containerMC.style.overflow = 'hidden';
-                containerMC.innerHTML = `<div class="t2-track" id="t5-track" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;">${paginasHTML}</div>`;
-        
                 let totalPaginas = Math.ceil(todosCards.length / cardsPorPagina);
-                let paginaAtual = 0;
-                if (window.t5CarouselInterval) clearInterval(window.t5CarouselInterval);
+        
+                // Preserva a página atual do carrossel na memória global
+                if (typeof window.t5PaginaAtual === 'undefined' || window.t5PaginaAtual >= totalPaginas) {
+                    window.t5PaginaAtual = 0;
+                }
+        
+                containerMC.style.overflow = 'hidden';
+                containerMC.innerHTML = `<div class="t2-track" id="t5-track" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%; transform: translateX(-${window.t5PaginaAtual * 100}%);">${paginasHTML}</div>`;
+        
+                // Limpa temporizadores antigos antes de criar um novo
+                if (window.t5CarouselInterval) {
+                    clearInterval(window.t5CarouselInterval);
+                    window.t5CarouselInterval = null;
+                }
         
                 if (totalPaginas > 1) {
                     window.t5CarouselInterval = setInterval(() => {
-                        paginaAtual = (paginaAtual + 1) % totalPaginas;
+                        window.t5PaginaAtual = (window.t5PaginaAtual + 1) % totalPaginas;
                         const track = document.getElementById('t5-track');
                         if (track) {
-                            track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                            track.style.transform = `translateX(-${window.t5PaginaAtual * 100}%)`;
                         }
                     }, 20000);
                 }
