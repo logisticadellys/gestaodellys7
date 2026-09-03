@@ -556,7 +556,7 @@
             <div class="t2-table-container" style="flex: 1; min-width: 380px;">
                 <table class="t2-table">
                     <thead>
-                        <tr><th colspan="5" id="t5-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - ADERÊNCIA E APONTAMENTO CERCA</th></tr>
+                        <tr><th colspan="5" id="t5-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - ADERÊNCIA E APONTAMENTOS CERCA</th></tr>
                         <tr>
                             <th>Mês</th>
                             <th>Aderência (%)</th>
@@ -1674,36 +1674,32 @@
                     else if (metasMapa[chave4] !== undefined) metaDia = metasMapa[chave4];
                     else {
                         let chaves = Object.keys(metasMapa);
-                        if (chaves[i] !== undefined && metasMapa[chaves[i]] !== undefined) {
-                            metaDia = metasMapa[chaves[i]];
-                        }
+                        if (chaves[i] !== undefined) metaDia = metasMapa[chaves[i]];
                     }
                     
-                    let corOcupacao = (typeof ocpVal !== 'undefined' && ocpVal >= metaDia) ? '#2ecc71' : '#e74c3c';
+                    let corOcupacao = ocpVal >= metaDia ? '#2ecc71' : '#e74c3c';
                     
                     let cardHTML = `
-                        <div class="t2-minicard ${isPico ? 'pico' : ''}" style="flex: 1; max-width: calc((100% - 70px) / 8); min-width: 0;">
-                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span style="color: #f1c40f; font-size: 0.85em;"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
-                            <span class="t2-mc-val" style="color: #2ecc71;">${aderVal}</span>
-                            <span class="t2-mc-vol" style="background: rgba(155, 89, 182, 0.15); color: #9b59b6; margin-top: 4px;">CERCA: ${apontVal}</span>
+                        <div class="t2-minicard ${isPico ? 'pico' : ''}">
+                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPico ? '<br><span class="t2-mc-pico-lbl"><i class="fas fa-crown"></i> PICO</span>' : ''}</span>
+                            <span class="t2-mc-val" style="color: ${corOcupacao};">${ocpDiaStr}</span>
+                            <span style="font-size: clamp(0.55em, 0.65vw, 0.7em); color: #f1c40f; font-weight: bold; margin: 2px 0;">Meta: ${metaDia.toFixed(1)}%</span>
+                            <span class="t2-mc-vol" style="color: #2ecc71;">${volDia}</span>
                         </div>
                     `;
                     todosOsCards.push(cardHTML);
-                    }
-                    
-                    // Lógica de Paginação com Deslize Lateral
-                    let cardsPorPagina = 8;
-                    let paginasHTML = '';
-                    
-                    for (let p = 0; p < todosOsCards.length; p += cardsPorPagina) {
-                        let chunk = todosOsCards.slice(p, p + cardsPorPagina);
-                        paginasHTML += `<div class="t2-page" style="min-width: 100%; display: flex; gap: 10px;">${chunk.join('')}</div>`;
-                    }
-                    
-                    if (containerMC) {
-                        containerMC.style.overflow = 'hidden';
-                        containerMC.innerHTML = `<div class="t2-track" id="t2-track" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;">${paginasHTML}</div>`;
-                    }
+                }
+                
+                // Lógica de Paginação com Deslize Lateral
+                let cardsPorPagina = 8;
+                let paginasHTML = '';
+                
+                for (let p = 0; p < todosOsCards.length; p += cardsPorPagina) {
+                    let chunk = todosOsCards.slice(p, p + cardsPorPagina);
+                    paginasHTML += `<div class="t2-page">${chunk.join('')}</div>`;
+                }
+                
+                containerMC.innerHTML = `<div class="t2-track" id="t2-track">${paginasHTML}</div>`;
                 
                 let totalPaginas = Math.ceil(todosOsCards.length / cardsPorPagina);
                 let paginaAtual = 0;
