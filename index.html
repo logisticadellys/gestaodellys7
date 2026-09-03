@@ -1114,7 +1114,9 @@
                 }
                 // --- FIM NOVA LÓGICA ---
 
+                // 1. DECLARAÇÃO DOS ARRAYS (Inclua vOnTimeF e vInFullF nesta linha)
                 const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
+                const vOnTimeF = []; const vInFullF = []; // <--- ADICIONADO AQUI
                 const vAderenciaF = []; const vApontamentosF = [];
                 
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
@@ -1122,6 +1124,11 @@
                         labF.push(String(i + 1).padStart(2, '0'));
                         vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
                         vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
+                        
+                        // 2. PREENCHIMENTO NO LOOP (Adicione estes dois push logo abaixo do vOtifF)
+                        vOnTimeF.push(dOnTimeR[i]||0); // <--- ADICIONADO AQUI
+                        vInFullF.push(dInFullR[i]||0); // <--- ADICIONADO AQUI
+                        
                         vAderenciaF.push(dAderenciaR[i]||0);
                         vApontamentosF.push(dApontamentosR[i]||0);
                     }
@@ -2215,32 +2222,30 @@
         function renderizarDashboardTela6(labF, vOtifF, vOnTimeF, vInFullF, mesNome, mesesExtenso, sOtifM, cOtifM, sOnTimeM, cOnTimeM, sInFullM, cInFullM, anoAtual, mesDeExibicaoIdx) {
             const tabelaTitulo6 = document.getElementById('t6-tabela-titulo');
             if (tabelaTitulo6) tabelaTitulo6.textContent = `HISTÓRICO MENSAL - OTIF, ON TIME E IN FULL (${anoAtual})`;
-
-            // 1. Identificar os Picos (Melhores Dias)
+        
             let maxOtif = 0, diaOtif = "-";
             vOtifF.forEach((v, i) => { if (v > maxOtif) { maxOtif = v; diaOtif = labF[i]; } });
-
+        
             let maxOnTime = 0, diaOnTime = "-";
             vOnTimeF.forEach((v, i) => { if (v > maxOnTime) { maxOnTime = v; diaOnTime = labF[i]; } });
-
+        
             let maxInFull = 0, diaInFull = "-";
             vInFullF.forEach((v, i) => { if (v > maxInFull) { maxInFull = v; diaInFull = labF[i]; } });
-
+        
             document.getElementById('t6-val-otif').textContent = maxOtif > 0 ? maxOtif.toFixed(1) + '%' : '-';
             document.getElementById('t6-dia-otif').textContent = diaOtif !== "-" ? `DIA ${diaOtif}` : '-';
-
+        
             document.getElementById('t6-val-ontime').textContent = maxOnTime > 0 ? maxOnTime.toFixed(1) + '%' : '-';
             document.getElementById('t6-dia-ontime').textContent = diaOnTime !== "-" ? `DIA ${diaOnTime}` : '-';
-
+        
             document.getElementById('t6-val-infull').textContent = maxInFull > 0 ? maxInFull.toFixed(1) + '%' : '-';
             document.getElementById('t6-dia-infull').textContent = diaInFull !== "-" ? `DIA ${diaInFull}` : '-';
-
-            // Criador de Velocímetros (Gauge Chart)
+        
             function criarGauge(idCanvas, valor, cor) {
                 const ctx = document.getElementById(idCanvas);
                 if (!ctx) return;
                 if (ctx._chartInstance) ctx._chartInstance.destroy();
-
+        
                 const v = valor || 0;
                 ctx._chartInstance = new Chart(ctx, {
                     type: 'doughnut',
@@ -2261,19 +2266,18 @@
                     }
                 });
             }
-
+        
             criarGauge('t6-gauge-otif', maxOtif, '#2ecc71');
             criarGauge('t6-gauge-ontime', maxOnTime, '#3498db');
             criarGauge('t6-gauge-infull', maxInFull, '#9b59b6');
-
-            // 2. Minicards Empilhados na Vertical em Carrossel (Substitui a cada 20s)
+        
             const containerVert = document.getElementById('t6-track-vertical');
             if (containerVert) {
                 containerVert.innerHTML = '';
                 let paginasHTML = '';
                 let totalDias = labF.length;
                 let cardsPorPagina = 3; 
-
+        
                 for (let i = 0; i < totalDias; i += cardsPorPagina) {
                     let chunkHtml = '<div style="display: flex; flex-direction: column; gap: 4px; height: 100%; flex-shrink: 0; width: 100%; box-sizing: border-box;">';
                     for (let j = i; j < Math.min(i + cardsPorPagina, totalDias); j++) {
@@ -2285,7 +2289,7 @@
                         let isMelhor = (d === diaOtif || d === diaOnTime || d === diaInFull);
                         let bordaCor = isMelhor ? '#f1c40f' : 'rgba(255,255,255,0.1)';
                         let bgCor = isMelhor ? 'rgba(241, 196, 15, 0.08)' : '#102542';
-
+        
                         chunkHtml += `
                             <div class="t2-minicard" style="background: ${bgCor}; border: 1px solid ${bordaCor}; flex: 1; display: flex; flex-direction: row; justify-content: space-around; align-items: center; padding: 2px 10px;">
                                 <span style="font-size: 0.8em; color: #a0aec0; font-weight: bold; min-width: 75px; text-align: left;">
@@ -2300,12 +2304,12 @@
                     chunkHtml += '</div>';
                     paginasHTML += chunkHtml;
                 }
-
+        
                 containerVert.innerHTML = paginasHTML;
-
+        
                 let totalPaginasT6 = Math.ceil(totalDias / cardsPorPagina);
                 let paginaAtualT6 = 0;
-
+        
                 if (window.t6CarouselInterval) clearInterval(window.t6CarouselInterval);
                 if (totalPaginasT6 > 1) {
                     window.t6CarouselInterval = setInterval(() => {
@@ -2314,11 +2318,10 @@
                     }, 20000);
                 }
             }
-
-            // 3. Gráfico Misto da Tela 6
+        
             const ctx6 = document.getElementById('t6-grafico-misto').getContext('2d');
             if (window.chartMistoT6) window.chartMistoT6.destroy();
-
+        
             window.chartMistoT6 = new Chart(ctx6, {
                 type: 'bar',
                 data: {
@@ -2342,8 +2345,7 @@
                     }
                 }
             });
-
-            // 4. Tabela Mensal da Tela 6
+        
             const tbody6 = document.getElementById('t6-table-body');
             if (tbody6) {
                 tbody6.innerHTML = '';
@@ -2351,7 +2353,7 @@
                     let mOtif = cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0;
                     let mOnTime = cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0;
                     let mInFull = cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0;
-
+        
                     if (mOtif > 0 || mOnTime > 0 || mInFull > 0) {
                         let diffHtml = "-";
                         if (i > 0) {
@@ -2363,7 +2365,7 @@
                                 diffHtml = `<span style="color:${cor}; font-weight:bold;">${icon} ${Math.abs(diff).toFixed(1)}%</span>`;
                             }
                         }
-
+        
                         tbody6.innerHTML += `
                             <tr>
                                 <td>${mesesExtenso[i]}</td>
