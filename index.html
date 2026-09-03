@@ -704,10 +704,9 @@
             if (typeof fetchPlanilha === 'function') {
                 fetchPlanilha();
             }
-        }
-        
             window.dispatchEvent(new Event('resize'));
         }
+                
         setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 90; } } }, 1000);
 
         window.addEventListener('resize', () => { 
@@ -1077,10 +1076,16 @@
                     }
                 }
 
-                renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
+                if (typeof renderizarDashboardTela2 === 'function') {
+                    renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
+                }
                 renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx);
-                renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
-                renderizarDashboardTela5(labF, dAderenciaR, dApontamentosR, mesExibicaoNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontM, cApontM, anoDeExibicao, mesDeExibicaoIdx);
+                if (typeof renderizarDashboardTela4 === 'function') {
+                    renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
+                }
+                if (typeof renderizarDashboardTela5 === 'function') {
+                    renderizarDashboardTela5(labF, dAderenciaR, dApontamentosR, mesExibicaoNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontM, cApontM, anoDeExibicao, mesDeExibicaoIdx);
+                }
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
                     ['t3-mes-lbl', 't3-mes-lbl2', 't3-mes-lbl3', 't3-mes-lbl4'].forEach(id => {
@@ -2182,6 +2187,9 @@
                 tbody.innerHTML = bodyHtml;
             }
         }
+        document.addEventListener('DOMContentLoaded', () => {
+            aplicarExibicaoTela();
+        });
     </script>
 </body>
 </html>
