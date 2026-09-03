@@ -936,8 +936,8 @@
                             if (valDropMesAcumulado !== null && valDropMesAcumulado > 0) { sDropM[mIdx] = valDropMesAcumulado; }
                             if (valDropSizeMesAcumulado !== null && valDropSizeMesAcumulado > 0) { sDropSizeM[mIdx] = valDropSizeMesAcumulado; }
                             if (valNsMesG !== null && valNsMesG > 0) { sNsM[mIdx] = valNsMesG; cNsM[mIdx]++; }
-                            if (valAderenciaMesG !== null && valAderenciaMesG > 0) { sAderenciaM[mIdx] = valAderenciaMesG; cAderenciaM[mIdx]++; }
-                            if (valApontamentosMesG !== null && valApontamentosMesG > 0) { sApontM[mIdx] = valApontamentosMesG; cApontM[mIdx]++; }
+                            if (valAderenciaMesG !== null && valAderenciaMesG > 0) { sAderenciaM[mIdx] += valAderenciaMesG; cAderenciaM[mIdx]++; }
+                            if (valApontamentosMesG !== null && valApontamentosMesG > 0) { sApontM[mIdx] += valApontamentosMesG; cApontM[mIdx]++; }
                             if (valDevTotMes !== null && valDevTotMes > 0) { sDevTotM[mIdx] += valDevTotMes; cDevTotM[mIdx]++; }
                             if (valDevOpMes !== null && valDevOpMes > 0) { sDevOpM[mIdx] += valDevOpMes; cDevOpM[mIdx]++; }
                             if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
@@ -2260,40 +2260,65 @@
             if (tbody) {
                 let bodyHtml = '';
                 let maxAder = -1, maxApont = -1;
-        
+                let ultAderMedia = null, ultApontMedia = null;
+
+                // Identifica os maiores valores para destacar o melhor mês
                 for (let i = 0; i <= mesIdx; i++) {
                     let mAder = (cAderenciaM[i] || 0) > 0 ? ((sAderenciaM[i] || 0) / cAderenciaM[i]) : 0;
                     let mApont = (cApontM[i] || 0) > 0 ? ((sApontM[i] || 0) / cApontM[i]) : 0;
                     if (mAder > maxAder) maxAder = mAder;
                     if (mApont > maxApont) maxApont = mApont;
                 }
-        
+
                 for (let i = 0; i <= mesIdx; i++) {
                     let mAder = (cAderenciaM[i] || 0) > 0 ? ((sAderenciaM[i] || 0) / cAderenciaM[i]) : 0;
                     let mApont = (cApontM[i] || 0) > 0 ? ((sApontM[i] || 0) / cApontM[i]) : 0;
-        
+
                     if (mAder > 0 || mApont > 0) {
+                        // Variação % Aderência vs Mês Anterior
+                        let diffAderStr = '<span style="color: #a0aec0;">-</span>';
+                        if (mAder > 0 && ultAderMedia !== null && ultAderMedia > 0) {
+                            let diff = ((mAder - ultAderMedia) / ultAderMedia) * 100;
+                            let cor = diff > 0 ? '#2ecc71' : (diff < 0 ? '#e74c3c' : '#f1c40f');
+                            let sinal = diff > 0 ? '▲ +' : (diff < 0 ? '▼ ' : '▬ ');
+                            diffAderStr = `<span style="color: ${cor}; font-weight: bold;">${sinal}${diff.toFixed(1).replace('.', ',')}%</span>`;
+                        }
+
+                        // Variação % Apontamento vs Mês Anterior
+                        let diffApontStr = '<span style="color: #a0aec0;">-</span>';
+                        if (mApont > 0 && ultApontMedia !== null && ultApontMedia > 0) {
+                            let diff = ((mApont - ultApontMedia) / ultApontMedia) * 100;
+                            let cor = diff > 0 ? '#2ecc71' : (diff < 0 ? '#e74c3c' : '#f1c40f');
+                            let sinal = diff > 0 ? '▲ +' : (diff < 0 ? '▼ ' : '▬ ');
+                            diffApontStr = `<span style="color: ${cor}; font-weight: bold;">${sinal}${diff.toFixed(1).replace('.', ',')}%</span>`;
+                        }
+
                         let isBestAder = (mAder === maxAder && maxAder > 0);
                         let isBestApont = (mApont === maxApont && maxApont > 0);
-        
-                        let aderStr = mAder > 0 ? mAder.toFixed(1) + '%' : '-';
-                        let apontStr = mApont > 0 ? mApont.toFixed(1) + '%' : '-';
-        
+
+                        let aderStr = mAder > 0 ? mAder.toFixed(1).replace('.', ',') + '%' : '-';
+                        let apontStr = mApont > 0 ? mApont.toFixed(1).replace('.', ',') + '%' : '-';
+
                         let estiloBadge = `background: rgba(0, 206, 209, 0.2); border-radius: 6px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 8px;`;
-        
+
                         let celulaAder = isBestAder 
                             ? `<div style="${estiloBadge}"><span style="color: #00ff88; font-weight: bold;">${aderStr}</span><i class="fas fa-trophy" style="color: #ffd700;" title="Melhor Mês"></i></div>` 
                             : aderStr;
-        
+
                         let celulaApont = isBestApont 
                             ? `<div style="${estiloBadge}"><span style="color: #00ff88; font-weight: bold;">${apontStr}</span><i class="fas fa-trophy" style="color: #ffd700;" title="Melhor Mês"></i></div>` 
                             : apontStr;
-        
+
                         bodyHtml += `<tr>
                             <td>${mesesExtenso[i] || ''}</td>
                             <td>${celulaAder}</td>
+                            <td>${diffAderStr}</td>
                             <td>${celulaApont}</td>
+                            <td>${diffApontStr}</td>
                         </tr>`;
+
+                        if (mAder > 0) ultAderMedia = mAder;
+                        if (mApont > 0) ultApontMedia = mApont;
                     }
                 }
                 tbody.innerHTML = bodyHtml;
