@@ -1933,7 +1933,7 @@
             if (elNsVal) elNsVal.textContent = piorNs > 0 ? piorNs.toFixed(1) + '%' : '-';
             if (elNsDia) elNsDia.textContent = diaPiorNs !== "-" ? `DIA ${diaPiorNs}` : '-';
         
-            // 4. Mini Cards Diários da Tela 4 (NS em Azul #3498db)
+            // 4. Mini Cards Diários da Tela 4 com Carrossel Automático
             const containerMC = document.getElementById('t4-minicards-container');
             if (containerMC) {
                 containerMC.innerHTML = '';
@@ -1959,9 +1959,29 @@
                 let cardsPorPagina = 8;
                 let paginasHTML = '';
                 for (let p = 0; p < todosCards.length; p += cardsPorPagina) {
-                    paginasHTML += `<div class="t2-page">${todosCards.slice(p, p + cardsPorPagina).join('')}</div>`;
+                    paginasHTML += `<div class="t2-page" style="min-width: 100%; display: flex; gap: 10px;">${todosCards.slice(p, p + cardsPorPagina).join('')}</div>`;
                 }
-                containerMC.innerHTML = `<div class="t2-track" id="t4-track">${paginasHTML}</div>`;
+        
+                containerMC.style.overflow = 'hidden';
+                containerMC.innerHTML = `<div class="t2-track" id="t4-track" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;">${paginasHTML}</div>`;
+        
+                // LÓGICA DO CARROSSEL AUTOMÁTICO
+                let totalPaginas = Math.ceil(todosCards.length / cardsPorPagina);
+                let paginaAtual = 0;
+        
+                // Parar intervalo anterior se houver para não encavalar
+                if (window.t4CarouselInterval) clearInterval(window.t4CarouselInterval);
+        
+                // Se houver mais de 1 página (mais de 8 dias registrados), alterna a cada 6 segundos
+                if (totalPaginas > 1) {
+                    window.t4CarouselInterval = setInterval(() => {
+                        paginaAtual = (paginaAtual + 1) % totalPaginas;
+                        const track = document.getElementById('t4-track');
+                        if (track) {
+                            track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                        }
+                    }, 6000); // Alterna a cada 6 segundos
+                }
             }
         
             // 5. Gráfico Misto Tela 4
@@ -1993,7 +2013,7 @@
                 });
             }
         
-            // 6. Tabela Histórico Mensal Tela 4 (Com Destaque de Troféu no estilo do print)
+            // 6. Tabela Histórico Mensal Tela 4
             const tbody = document.getElementById('t4-table-body');
             if (tbody) {
                 let bodyHtml = '';
@@ -2003,7 +2023,6 @@
                 let maxNs = -1;
                 let minRe = Infinity;
         
-                // Descobre os melhores valores considerando os dados originais corretos
                 for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                     let valNs = arrNs[i] || 0;
                     let valRe = arrRe[i] || 0;
@@ -2025,7 +2044,6 @@
                         let diff = i > 0 && arrRe[i-1] > 0 ? ((reNum - arrRe[i-1]) / arrRe[i-1]) * 100 : 0;
                         let diffStr = i > 0 && arrRe[i-1] > 0 ? `<span style="color: ${diff > 0 ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(1)}%</span>` : '-';
         
-                        // Estilo em pílula idêntico ao print do seu painel
                         let estiloBadge = `background: rgba(0, 206, 209, 0.2); border-radius: 6px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 8px;`;
         
                         let celulaNs = isBestNs 
