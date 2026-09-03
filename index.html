@@ -514,29 +514,36 @@
     </div>
 
     <div id="tela5" class="tela">
-        <!-- Topo com 4 Cards de KPI -->
-        <div class="t2-top-kpis">
-            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #e74c3c; margin-right: 6px;"></i> PIOR PICO ADERÊNCIA (<span id="t5-mes-lbl1">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-pior-aderencia-val">-</span>
-                <span class="t2-kpi-sub" style="color: #e74c3c;" id="t5-pior-aderencia-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #2ecc71; margin-right: 6px;"></i> PICO ADERÊNCIA (<span id="t5-mes-lbl2">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-pico-aderencia-val">-</span>
-                <span class="t2-kpi-sub text-positivo" id="t5-pico-aderencia-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #e74c3c; margin-right: 6px;"></i> PIOR PICO APONT. CERCA (<span id="t5-mes-lbl3">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-pior-apont-val">-</span>
-                <span class="t2-kpi-sub" style="color: #e74c3c;" id="t5-pior-apont-dia">-</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #3498db; margin-right: 6px;"></i> PICO APONT. CERCA (<span id="t5-mes-lbl4">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t5-pico-apont-val">-</span>
-                <span class="t2-kpi-sub" style="color: #3498db;" id="t5-pico-apont-dia">-</span>
-            </div>
+    <!-- Topo com 4 Cards de KPI -->
+    <div class="t2-top-kpis">
+        <!-- CARD 1: PIOR PICO ADERÊNCIA -->
+        <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+            <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #e74c3c; margin-right: 6px;"></i> PIOR PICO ADERÊNCIA (<span id="t5-mes-lbl1">MÊS</span>)</span>
+            <span class="t2-kpi-value" id="t5-pior-ader-val">-</span>
+            <span class="t2-kpi-sub" style="color: #e74c3c;" id="t5-pior-ader-dia">-</span>
         </div>
+
+        <!-- CARD 2: PICO ADERÊNCIA (MELHOR) -->
+        <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
+            <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #2ecc71; margin-right: 6px;"></i> PICO ADERÊNCIA (<span id="t5-mes-lbl2">MÊS</span>)</span>
+            <span class="t2-kpi-value" id="t5-pico-ader-val">-</span>
+            <span class="t2-kpi-sub text-positivo" id="t5-pico-ader-dia">-</span>
+        </div>
+
+        <!-- CARD 3: PIOR PICO APONT. CERCA -->
+        <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+            <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #e74c3c; margin-right: 6px;"></i> PIOR PICO APONT. CERCA (<span id="t5-mes-lbl3">MÊS</span>)</span>
+            <span class="t2-kpi-value" id="t5-pior-apont-val">-</span>
+            <span class="t2-kpi-sub" style="color: #e74c3c;" id="t5-pior-apont-dia">-</span>
+        </div>
+
+        <!-- CARD 4: PICO APONT. CERCA (EM ROXO #9b59b6) -->
+        <div class="t2-kpi-card" style="border-top-color: #9b59b6;">
+            <span class="t2-kpi-title" style="color: #9b59b6;"><i class="fas fa-arrow-trend-up" style="color: #9b59b6; margin-right: 6px;"></i> PICO APONT. CERCA (<span id="t5-mes-lbl4">MÊS</span>)</span>
+            <span class="t2-kpi-value" id="t5-pico-apont-val" style="color: #9b59b6;">-</span>
+            <span class="t2-kpi-sub" style="color: #9b59b6;" id="t5-pico-apont-dia">-</span>
+        </div>
+    </div>
 
         <!-- Mini Cards Diários -->
         <div class="t2-minicards-wrapper" id="t5-minicards-container"></div>
