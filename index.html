@@ -927,6 +927,9 @@
                 const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
                 const sOnTimeM = Array(12).fill(0); const cOnTimeM = Array(12).fill(0);
                 const sInFullM = Array(12).fill(0); const cInFullM = Array(12).fill(0);
+                const otifDiarioPorMes = Array.from({length: 12}, () => []);
+                const onTimeDiarioPorMes = Array.from({length: 12}, () => []);
+                const inFullDiarioPorMes = Array.from({length: 12}, () => []);
                 
                 const converter = (val) => {
                     if (!val || val === "-" || val === "null" || val === "#N/A") return null;
@@ -1005,6 +1008,9 @@
                             if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
                             if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[mIdx] += valOnTimeMesG; cOnTimeM[mIdx]++; }
                             if (valInFullMesG !== null && valInFullMesG > 0) { sInFullM[mIdx] += valInFullMesG; cInFullM[mIdx]++; }
+                            if (valOtifG !== null) otifDiarioPorMes[mIdx].push(valOtifG);
+                            if (valOnTimeG !== null) onTimeDiarioPorMes[mIdx].push(valOnTimeG);
+                            if (valInFullG !== null) inFullDiarioPorMes[mIdx].push(valInFullG);
                         }
                     }
                 }
@@ -1167,7 +1173,7 @@
                     renderizarDashboardTela5(labF, vAderenciaF, vApontamentosF, mesExibicaoNome, mesesExtenso, sAderenciaM, cAderenciaM, sApontM, cApontM, anoDeExibicao, mesDeExibicaoIdx);
                 }
                 if (typeof renderizarDashboardTela6 === 'function') {
-                    renderizarDashboardTela6(labF, vOtifF, vOnTimeF, vInFullF, mesExibicaoNome, mesesExtenso, sOtifM, cOtifM, sOnTimeM, cOnTimeM, sInFullM, cInFullM, anoDeExibicao, mesDeExibicaoIdx);
+                    renderizarDashboardTela6(labF, vOtifF, vOnTimeF, vInFullF, mesExibicaoNome, mesesExtenso, sOtifM, cOtifM, sOnTimeM, cOnTimeM, sInFullM, cInFullM, anoDeExibicao, mesDeExibicaoIdx, otifDiarioPorMes, onTimeDiarioPorMes, inFullDiarioPorMes);
                 }
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
@@ -2241,16 +2247,15 @@
                 tbody.innerHTML = bodyHtml;
             }
         }
-        function renderizarDashboardTela6(labF, vOtifF, vOnTimeF, vInFullF, mesNome, mesesExtenso, sOtifM, cOtifM, sOnTimeM, cOnTimeM, sInFullM, cInFullM, anoAtual, mesDeExibicaoIdx) {
+        function renderizarDashboardTela6(labF, vOtifF, vOnTimeF, vInFullF, mesNome, mesesExtenso, sOtifM, cOtifM, sOnTimeM, cOnTimeM, sInFullM, cInFullM, anoAtual, mesDeExibicaoIdx, otifDiarioPorMes, onTimeDiarioPorMes, inFullDiarioPorMes) {
 
+            // 1. Atualiza rótulos de meses
             ['t6-mes-lbl1', 't6-mes-lbl2', 't6-mes-lbl3'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.textContent = mesNome;
             });
-            
-            const tabelaTitulo6 = document.getElementById('t6-tabela-titulo');
-            if (tabelaTitulo6) tabelaTitulo6.textContent = `HISTÓRICO MENSAL - OTIF, ON TIME E IN FULL (${anoAtual})`;
         
+            // 2. Cálculos de Picos Diários para os KPIs superiores
             let maxOtif = 0, diaOtif = "-";
             vOtifF.forEach((v, i) => { if (v > maxOtif) { maxOtif = v; diaOtif = labF[i]; } });
         
@@ -2269,6 +2274,7 @@
             document.getElementById('t6-val-infull').textContent = maxInFull > 0 ? maxInFull.toFixed(1) + '%' : '-';
             document.getElementById('t6-dia-infull').textContent = diaInFull !== "-" ? `DIA ${diaInFull}` : '-';
         
+            // 3. Função para renderizar os Gauges (Semicírculos)
             function criarGauge(idCanvas, valor, cor) {
                 const ctx = document.getElementById(idCanvas);
                 if (!ctx) return;
@@ -2299,6 +2305,7 @@
             criarGauge('t6-gauge-ontime', maxOnTime, '#3498db');
             criarGauge('t6-gauge-infull', maxInFull, '#f39c12');
         
+            // 4. Carrossel de Mini Cards Diários
             function montarCarrosselMiniCards(idContainer, dadosValores, corTema, nomeRotulo) {
                 const container = document.getElementById(idContainer);
                 if (!container) return;
@@ -2313,12 +2320,12 @@
                         valoresFiltrados.push(val);
                     }
                 });
-            
+        
                 if (diasFiltrados.length === 0) {
                     container.innerHTML = '<div style="color: #a0aec0; font-size: 0.75em; text-align: center; width: 100%; padding: 4px;">Sem dados disponíveis</div>';
                     return;
                 }
-            
+        
                 let maxVal = -1;
                 let melhorDia = null;
                 valoresFiltrados.forEach((v, idx) => {
@@ -2327,35 +2334,32 @@
                         melhorDia = diasFiltrados[idx];
                     }
                 });
-            
+        
                 let cardsPorPagina = 8; 
                 let gapPx = 6;
                 let totalDias = diasFiltrados.length;
                 let totalPaginas = Math.ceil(totalDias / cardsPorPagina);
-            
+        
                 container.style.width = (totalPaginas * 100) + '%';
-                
-                // CORREÇÃO: Força o carrossel a iniciar sempre na primeira página (primeiro dia preenchido)
                 container.style.transform = 'translateX(0%)';
-            
+        
                 let paginasHTML = '';
                 let larguraCard = `calc((100% - (${gapPx}px * ${cardsPorPagina - 1})) / ${cardsPorPagina})`;
-            
+        
                 for (let i = 0; i < totalDias; i += cardsPorPagina) {
                     let chunkWidthPercent = (100 / totalPaginas);
                     let chunkHtml = `<div style="display: flex; gap: ${gapPx}px; height: 100%; flex: 0 0 ${chunkWidthPercent}%; width: ${chunkWidthPercent}%; box-sizing: border-box; justify-content: flex-start;">`;
                     
                     let itensNaPaginaCount = Math.min(i + cardsPorPagina, totalDias) - i;
-            
+        
                     for (let j = i; j < Math.min(i + cardsPorPagina, totalDias); j++) {
                         let d = diasFiltrados[j];
                         let valNum = valoresFiltrados[j];
                         let val = valNum.toFixed(1) + '%';
                         let isMelhor = (d === melhorDia);
-                        
                         let bordaCor = isMelhor ? corTema : 'rgba(255,255,255,0.08)';
                         let bgCard = '#102542';
-            
+        
                         if (isMelhor) {
                             chunkHtml += `
                                 <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; width: ${larguraCard}; flex: 0 0 ${larguraCard}; display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; border-radius: 6px; box-sizing: border-box; height: 32px; min-width: 0;">
@@ -2377,7 +2381,7 @@
                             `;
                         }
                     }
-                    
+        
                     if (itensNaPaginaCount < cardsPorPagina) {
                         for (let k = 0; k < (cardsPorPagina - itensNaPaginaCount); k++) {
                             chunkHtml += `<div style="width: ${larguraCard}; flex: 0 0 ${larguraCard}; visibility: hidden; padding: 3px 6px; height: 32px;"></div>`;
@@ -2386,27 +2390,26 @@
                     chunkHtml += '</div>';
                     paginasHTML += chunkHtml;
                 }
-            
+        
                 container.innerHTML = paginasHTML;
-            
+        
                 let paginaAtual = 0;
                 let intervalName = idContainer + 'Interval';
-            
                 if (window[intervalName]) clearInterval(window[intervalName]);
                 if (totalPaginas > 1) {
                     window[intervalName] = setInterval(() => {
                         paginaAtual = (paginaAtual + 1) % totalPaginas;
                         let deslocamento = paginaAtual * (100 / totalPaginas);
                         container.style.transform = `translateX(-${deslocamento}%)`;
-                    }, 20000); // 20 segundos
+                    }, 20000);
                 }
             }
         
-            // Chamadas atualizadas passando o nome do rótulo correspondente
             montarCarrosselMiniCards('t6-track-otif', vOtifF, '#2ecc71', 'OTIF');
             montarCarrosselMiniCards('t6-track-ontime', vOnTimeF, '#3498db', 'ON TIME');
             montarCarrosselMiniCards('t6-track-infull', vInFullF, '#f39c12', 'IN FULL');
         
+            // 5. Gráfico Misto da Tela 6
             const ctx6 = document.getElementById('t6-grafico-misto').getContext('2d');
             if (window.chartMistoT6) window.chartMistoT6.destroy();
         
@@ -2434,60 +2437,151 @@
                 }
             });
         
+            // 6. Rotação das 4 Tabelas (Histórico, Vs Mês Anterior, Melhor Pico Diário, Pior Pico Diário)
             const tbody6 = document.getElementById('t6-table-body');
+            const tabelaTitulo6 = document.getElementById('t6-tabela-titulo');
+        
             if (tbody6) {
-                tbody6.innerHTML = '';
-                
-                // 1. Descobre os maiores valores (melhores meses) de cada coluna até o mês de exibição
-                let maxOtifM = 0, maxOnTimeM = 0, maxInFullM = 0;
+                // Prepara os arrays de dados mensais
+                let arrOtifM = [], arrOnTimeM = [], arrInFullM = [];
                 for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                    let mOtif = cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0;
-                    let mOnTime = cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0;
-                    let mInFull = cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0;
-                    
-                    if (mOtif > maxOtifM) maxOtifM = mOtif;
-                    if (mOnTime > maxOnTimeM) maxOnTimeM = mOnTime;
-                    if (mInFull > maxInFullM) maxInFullM = mInFull;
+                    arrOtifM.push(cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0);
+                    arrOnTimeM.push(cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0);
+                    arrInFullM.push(cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0);
                 }
         
-                // Função auxiliar para formatar a célula (com troféu se for a melhor, ou branco padrão)
-                function formatarCelulaTabela6(valNum, isMax) {
-                    let valFormatado = valNum > 0 ? valNum.toFixed(1).replace('.', ',') + '%' : '-';
-                    if (!isMax || valNum === 0) {
-                        return `<span style="color: #ffffff; font-weight: bold;">${valFormatado}</span>`;
-                    }
-                    return `<div style="background: rgba(0, 206, 209, 0.18); border-radius: 4px; padding: 4px 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; box-sizing: border-box;">
-                        <span style="color: #00ff88; font-weight: bold;">${valFormatado}</span>
-                        <i class="fas fa-trophy" style="color: #ffd700; font-size: 0.9em;" title="Melhor Mês"></i>
-                    </div>`;
-                }
+                // Descobre máximos para destaques
+                let maxOtifM = Math.max(...arrOtifM, 0);
+                let maxOnTimeM = Math.max(...arrOnTimeM, 0);
+                let maxInFullM = Math.max(...arrInFullM, 0);
         
-                // 2. Renderiza as linhas da tabela
-                for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                    let mOtif = cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0;
-                    let mOnTime = cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0;
-                    let mInFull = cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0;
-        
-                    if (mOtif > 0 || mOnTime > 0 || mInFull > 0) {
-                        let isBestOtif = (mOtif === maxOtifM && maxOtifM > 0);
-                        let isBestOnTime = (mOnTime === maxOnTimeM && maxOnTimeM > 0);
-                        let isBestInFull = (mInFull === maxInFullM && maxInFullM > 0);
-        
-                        tbody6.innerHTML += `
-                            <tr>
+                // Funções geradoras de HTML para cada tipo de tabela
+                function gerarTabelaHistorico() {
+                    let html = '';
+                    for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                        if (arrOtifM[i] > 0 || arrOnTimeM[i] > 0 || arrInFullM[i] > 0) {
+                            let otifStr = arrOtifM[i] > 0 ? arrOtifM[i].toFixed(1).replace('.', ',') + '%' : '-';
+                            let onTimeStr = arrOnTimeM[i] > 0 ? arrOnTimeM[i].toFixed(1).replace('.', ',') + '%' : '-';
+                            let inFullStr = arrInFullM[i] > 0 ? arrInFullM[i].toFixed(1).replace('.', ',') + '%' : '-';
+                            
+                            html += `<tr>
                                 <td style="color: #e2e8f0; font-weight: bold;">${mesesExtenso[i] || ''}</td>
-                                <td>${formatarCelulaTabela6(mOtif, isBestOtif)}</td>
-                                <td>${formatarCelulaTabela6(mOnTime, isBestOnTime)}</td>
-                                <td>${formatarCelulaTabela6(mInFull, isBestInFull)}</td>
-                            </tr>
-                        `;
+                                <td><span style="color: #ffffff; font-weight: bold;">${otifStr}</span></td>
+                                <td><span style="color: #ffffff; font-weight: bold;">${onTimeStr}</span></td>
+                                <td><span style="color: #ffffff; font-weight: bold;">${inFullStr}</span></td>
+                            </tr>`;
+                        }
                     }
+                    return html;
                 }
+        
+                function gerarTabelaVsMesAnt() {
+                    let html = '';
+                    for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                        if (arrOtifM[i] > 0 || arrOnTimeM[i] > 0 || arrInFullM[i] > 0) {
+                            let diffOtif = i > 0 && arrOtifM[i-1] > 0 ? arrOtifM[i] - arrOtifM[i-1] : 0;
+                            let diffOnTime = i > 0 && arrOnTimeM[i-1] > 0 ? arrOnTimeM[i] - arrOnTimeM[i-1] : 0;
+                            let diffInFull = i > 0 && arrInFullM[i-1] > 0 ? arrInFullM[i] - arrInFullM[i-1] : 0;
+        
+                            let formatDiff = (val) => {
+                                if (i === 0) return `<span style="color: #a0aec0;">-</span>`;
+                                let cor = val >= 0 ? '#2ecc71' : '#e74c3c';
+                                let sinal = val > 0 ? '+' : '';
+                                return `<span style="color: ${cor}; font-weight: bold;">${sinal}${val.toFixed(1).replace('.', ',')}%</span>`;
+                            };
+        
+                            html += `<tr>
+                                <td style="color: #e2e8f0; font-weight: bold;">${mesesExtenso[i] || ''}</td>
+                                <td>${formatDiff(diffOtif)}</td>
+                                <td>${formatDiff(diffOnTime)}</td>
+                                <td>${formatDiff(diffInFull)}</td>
+                            </tr>`;
+                        }
+                    }
+                    return html;
+                }
+        
+                function gerarTabelaMelhorPico() {
+                    let html = '';
+                    for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                        let diasOtifMes = otifDiarioPorMes[i] || [];
+                        let diasOnTimeMes = onTimeDiarioPorMes[i] || [];
+                        let diasInFullMes = inFullDiarioPorMes[i] || [];
+        
+                        let maxD(arr) {
+                            let m = 0;
+                            arr.forEach(v => { if (v > m) m = v; });
+                            return m;
+                        }
+        
+                        let pOtif = maxD(diasOtifMes);
+                        let pOnTime = maxD(diasOnTimeMes);
+                        let pInFull = maxD(diasInFullMes);
+        
+                        if (pOtif > 0 || pOnTime > 0 || pInFull > 0) {
+                            html += `<tr>
+                                <td style="color: #e2e8f0; font-weight: bold;">${mesesExtenso[i] || ''}</td>
+                                <td><span style="color: #2ecc71; font-weight: bold;">${pOtif > 0 ? pOtif.toFixed(1).replace('.', ',') + '%' : '-'}</span></td>
+                                <td><span style="color: #3498db; font-weight: bold;">${pOnTime > 0 ? pOnTime.toFixed(1).replace('.', ',') + '%' : '-'}</span></td>
+                                <td><span style="color: #f39c12; font-weight: bold;">${pInFull > 0 ? pInFull.toFixed(1).replace('.', ',') + '%' : '-'}</span></td>
+                            </tr>`;
+                        }
+                    }
+                    return html;
+                }
+        
+                function gerarTabelaPiorPico() {
+                    let html = '';
+                    for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                        let diasOtifMes = otifDiarioPorMes[i] || [];
+                        let diasOnTimeMes = onTimeDiarioPorMes[i] || [];
+                        let diasInFullMes = inFullDiarioPorMes[i] || [];
+        
+                        let minD(arr) {
+                            let m = 99999;
+                            arr.forEach(v => { if (v > 0 && v < m) m = v; });
+                            return m === 99999 ? 0 : m;
+                        }
+        
+                        let pOtif = minD(diasOtifMes);
+                        let pOnTime = minD(diasOnTimeMes);
+                        let pInFull = minD(diasInFullMes);
+        
+                        if (pOtif > 0 || pOnTime > 0 || pInFull > 0) {
+                            html += `<tr>
+                                <td style="color: #e2e8f0; font-weight: bold;">${mesesExtenso[i] || ''}</td>
+                                <td><span style="color: #e74c3c; font-weight: bold;">${pOtif > 0 ? pOtif.toFixed(1).replace('.', ',') + '%' : '-'}</span></td>
+                                <td><span style="color: #e74c3c; font-weight: bold;">${pOnTime > 0 ? pOnTime.toFixed(1).replace('.', ',') + '%' : '-'}</span></td>
+                                <td><span style="color: #e74c3c; font-weight: bold;">${pInFull > 0 ? pInFull.toFixed(1).replace('.', ',') + '%' : '-'}</span></td>
+                            </tr>`;
+                        }
+                    }
+                    return html;
+                }
+        
+                const listaTabelas = [
+                    { titulo: `HISTÓRICO MENSAL - OTIF, ON TIME E IN FULL (${anoAtual})`, html: gerarTabelaHistorico() },
+                    { titulo: `EVOLUÇÃO VS MÊS ANTERIOR - OTIF, ON TIME E IN FULL (${anoAtual})`, html: gerarTabelaVsMesAnt() },
+                    { titulo: `MELHOR PICO DIÁRIO POR MÊS - OTIF, ON TIME E IN FULL (${anoAtual})`, html: gerarTabelaMelhorPico() },
+                    { titulo: `PIOR PICO DIÁRIO POR MÊS - OTIF, ON TIME E IN FULL (${anoAtual})`, html: gerarTabelaPiorPico() }
+                ];
+        
+                let indexTabelaAtual = 0;
+                
+                function atualizarTabelaRotativa() {
+                    if (tabelaTitulo6) tabelaTitulo6.textContent = listaTabelas[indexTabelaAtual].titulo;
+                    tbody6.innerHTML = listaTabelas[indexTabelaAtual].html;
+                    indexTabelaAtual = (indexTabelaAtual + 1) % listaTabelas.length;
+                }
+        
+                // Renderiza a primeira tabela imediatamente
+                atualizarTabelaRotativa();
+        
+                // Configura o timer para alternar as 4 tabelas a cada 20 segundos
+                if (window.t6RotacaoTabelasInterval) clearInterval(window.t6RotacaoTabelasInterval);
+                window.t6RotacaoTabelasInterval = setInterval(atualizarTabelaRotativa, 20000);
             }
         }
-        document.addEventListener('DOMContentLoaded', () => {
-            aplicarExibicaoTela();
-        });
     </script>
 </body>
 </html>
