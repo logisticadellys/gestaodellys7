@@ -639,13 +639,12 @@
             <div class="t2-table-container" style="flex: 1; min-width: 380px;">
                 <table class="t2-table">
                     <thead>
-                        <tr><th colspan="5" id="t6-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - OTIF / ON TIME / IN FULL</th></tr>
+                        <tr><th colspan="4" id="t6-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - OTIF / ON TIME / IN FULL</th></tr>
                         <tr>
                             <th>Mês</th>
                             <th>OTIF (%)</th>
                             <th>ON TIME (%)</th>
                             <th>IN FULL (%)</th>
-                            <th>Vs Mês Ant.</th>
                         </tr>
                     </thead>
                     <tbody id="t6-table-body"></tbody>
@@ -2438,30 +2437,48 @@
             const tbody6 = document.getElementById('t6-table-body');
             if (tbody6) {
                 tbody6.innerHTML = '';
+                
+                // 1. Descobre os maiores valores (melhores meses) de cada coluna até o mês de exibição
+                let maxOtifM = 0, maxOnTimeM = 0, maxInFullM = 0;
+                for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                    let mOtif = cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0;
+                    let mOnTime = cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0;
+                    let mInFull = cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0;
+                    
+                    if (mOtif > maxOtifM) maxOtifM = mOtif;
+                    if (mOnTime > maxOnTimeM) maxOnTimeM = mOnTime;
+                    if (mInFull > maxInFullM) maxInFullM = mInFull;
+                }
+        
+                // Função auxiliar para formatar a célula (com troféu se for a melhor, ou branco padrão)
+                function formatarCelulaTabela6(valNum, isMax) {
+                    let valFormatado = valNum > 0 ? valNum.toFixed(1).replace('.', ',') + '%' : '-';
+                    if (!isMax || valNum === 0) {
+                        return `<span style="color: #ffffff; font-weight: bold;">${valFormatado}</span>`;
+                    }
+                    return `<div style="background: rgba(0, 206, 209, 0.18); border-radius: 4px; padding: 4px 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; box-sizing: border-box;">
+                        <span style="color: #00ff88; font-weight: bold;">${valFormatado}</span>
+                        <i class="fas fa-trophy" style="color: #ffd700; font-size: 0.9em;" title="Melhor Mês"></i>
+                    </div>`;
+                }
+        
+                // 2. Renderiza as linhas da tabela
                 for (let i = 0; i <= mesDeExibicaoIdx; i++) {
                     let mOtif = cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0;
                     let mOnTime = cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0;
                     let mInFull = cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0;
         
                     if (mOtif > 0 || mOnTime > 0 || mInFull > 0) {
-                        let diffHtml = "-";
-                        if (i > 0) {
-                            let mOtifAnt = cOtifM[i-1] > 0 ? (sOtifM[i-1] / cOtifM[i-1]) : 0;
-                            if (mOtifAnt > 0) {
-                                let diff = mOtif - mOtifAnt;
-                                let cor = diff >= 0 ? '#2ecc71' : '#e74c3c';
-                                let icon = diff >= 0 ? '▲' : '▼';
-                                diffHtml = `<span style="color:${cor}; font-weight:bold;">${icon} ${Math.abs(diff).toFixed(1)}%</span>`;
-                            }
-                        }
+                        let isBestOtif = (mOtif === maxOtifM && maxOtifM > 0);
+                        let isBestOnTime = (mOnTime === maxOnTimeM && maxOnTimeM > 0);
+                        let isBestInFull = (mInFull === maxInFullM && maxInFullM > 0);
         
                         tbody6.innerHTML += `
                             <tr>
-                                <td>${mesesExtenso[i]}</td>
-                                <td><span style="color:#2ecc71; font-weight:bold;">${mOtif.toFixed(1)}%</span></td>
-                                <td><span style="color:#3498db; font-weight:bold;">${mOnTime.toFixed(1)}%</span></td>
-                                <td><span style="color:#f39c12; font-weight:bold;">${mInFull.toFixed(1)}%</span></td>
-                                <td>${diffHtml}</td>
+                                <td style="color: #e2e8f0; font-weight: bold;">${mesesExtenso[i] || ''}</td>
+                                <td>${formatarCelulaTabela6(mOtif, isBestOtif)}</td>
+                                <td>${formatarCelulaTabela6(mOnTime, isBestOnTime)}</td>
+                                <td>${formatarCelulaTabela6(mInFull, isBestInFull)}</td>
                             </tr>
                         `;
                     }
