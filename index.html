@@ -2313,12 +2313,12 @@
                         valoresFiltrados.push(val);
                     }
                 });
-            
+        
                 if (diasFiltrados.length === 0) {
                     container.innerHTML = '<div style="color: #a0aec0; font-size: 0.75em; text-align: center; width: 100%; padding: 4px;">Sem dados disponíveis</div>';
                     return;
                 }
-            
+        
                 let maxVal = -1;
                 let melhorDia = null;
                 valoresFiltrados.forEach((v, idx) => {
@@ -2327,26 +2327,24 @@
                         melhorDia = diasFiltrados[idx];
                     }
                 });
-            
+        
                 let cardsPorPagina = 8; 
                 let gapPx = 6;
                 let totalDias = diasFiltrados.length;
                 let totalPaginas = Math.ceil(totalDias / cardsPorPagina);
-            
+        
                 container.style.width = (totalPaginas * 100) + '%';
-                
-                // CORREÇÃO: Força o carrossel a iniciar sempre na primeira página (primeiro dia preenchido)
                 container.style.transform = 'translateX(0%)';
-            
+        
                 let paginasHTML = '';
                 let larguraCard = `calc((100% - (${gapPx}px * ${cardsPorPagina - 1})) / ${cardsPorPagina})`;
-            
+        
                 for (let i = 0; i < totalDias; i += cardsPorPagina) {
                     let chunkWidthPercent = (100 / totalPaginas);
                     let chunkHtml = `<div style="display: flex; gap: ${gapPx}px; height: 100%; flex: 0 0 ${chunkWidthPercent}%; width: ${chunkWidthPercent}%; box-sizing: border-box; justify-content: flex-start;">`;
                     
                     let itensNaPaginaCount = Math.min(i + cardsPorPagina, totalDias) - i;
-            
+        
                     for (let j = i; j < Math.min(i + cardsPorPagina, totalDias); j++) {
                         let d = diasFiltrados[j];
                         let valNum = valoresFiltrados[j];
@@ -2355,7 +2353,7 @@
                         
                         let bordaCor = isMelhor ? corTema : 'rgba(255,255,255,0.08)';
                         let bgCard = '#102542';
-            
+        
                         if (isMelhor) {
                             chunkHtml += `
                                 <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; width: ${larguraCard}; flex: 0 0 ${larguraCard}; display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; border-radius: 6px; box-sizing: border-box; height: 32px; min-width: 0;">
@@ -2386,23 +2384,22 @@
                     chunkHtml += '</div>';
                     paginasHTML += chunkHtml;
                 }
-            
+        
                 container.innerHTML = paginasHTML;
-            
+        
                 let paginaAtual = 0;
                 let intervalName = idContainer + 'Interval';
-            
+        
                 if (window[intervalName]) clearInterval(window[intervalName]);
                 if (totalPaginas > 1) {
                     window[intervalName] = setInterval(() => {
                         paginaAtual = (paginaAtual + 1) % totalPaginas;
                         let deslocamento = paginaAtual * (100 / totalPaginas);
                         container.style.transform = `translateX(-${deslocamento}%)`;
-                    }, 20000); // 20 segundos
+                    }, 20000);
                 }
             }
         
-            // Chamadas atualizadas passando o nome do rótulo correspondente
             montarCarrosselMiniCards('t6-track-otif', vOtifF, '#2ecc71', 'OTIF');
             montarCarrosselMiniCards('t6-track-ontime', vOnTimeF, '#3498db', 'ON TIME');
             montarCarrosselMiniCards('t6-track-infull', vInFullF, '#f39c12', 'IN FULL');
@@ -2434,54 +2431,129 @@
                 }
             });
         
+            // ==========================================
+            // ROTAÇÃO AUTOMÁTICA DA TABELA A CADA 20 SEGUNDOS
+            // ==========================================
+            if (typeof window.t6TabelaEstado === 'undefined') {
+                window.t6TabelaEstado = 0; // 0: Geral, 1: OTIF, 2: ON TIME, 3: IN FULL
+            }
+        
+            const tableEl = document.getElementById('t6-table-body')?.closest('table');
+            const thead6 = tableEl?.querySelector('thead');
             const tbody6 = document.getElementById('t6-table-body');
-            if (tbody6) {
-                tbody6.innerHTML = '';
-                
-                // 1. Descobre os maiores valores (melhores meses) de cada coluna até o mês de exibição
-                let maxOtifM = 0, maxOnTimeM = 0, maxInFullM = 0;
-                for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                    let mOtif = cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0;
-                    let mOnTime = cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0;
-                    let mInFull = cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0;
-                    
-                    if (mOtif > maxOtifM) maxOtifM = mOtif;
-                    if (mOnTime > maxOnTimeM) maxOnTimeM = mOnTime;
-                    if (mInFull > maxInFullM) maxInFullM = mInFull;
-                }
         
-                // Função auxiliar para formatar a célula (com troféu se for a melhor, ou branco padrão)
-                function formatarCelulaTabela6(valNum, isMax) {
-                    let valFormatado = valNum > 0 ? valNum.toFixed(1).replace('.', ',') + '%' : '-';
-                    if (!isMax || valNum === 0) {
-                        return `<span style="color: #ffffff; font-weight: bold;">${valFormatado}</span>`;
+            if (thead6 && tbody6) {
+                const renderizarTabelaAtual = () => {
+                    thead6.innerHTML = '';
+                    tbody6.innerHTML = '';
+        
+                    let mesesValidos = [];
+                    for (let i = 0; i <= mesDeExibicaoIdx; i++) {
+                        let mOtif = cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0;
+                        let mOnTime = cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0;
+                        let mInFull = cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0;
+                        if (mOtif > 0 || mOnTime > 0 || mInFull > 0) {
+                            mesesValidos.push({
+                                idx: i,
+                                nome: mesesExtenso[i] || '',
+                                otif: mOtif,
+                                onTime: mOnTime,
+                                inFull: mInFull
+                            });
+                        }
                     }
-                    return `<div style="background: rgba(0, 206, 209, 0.18); border-radius: 4px; padding: 4px 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; box-sizing: border-box;">
-                        <span style="color: #00ff88; font-weight: bold;">${valFormatado}</span>
-                        <i class="fas fa-trophy" style="color: #ffd700; font-size: 0.9em;" title="Melhor Mês"></i>
-                    </div>`;
-                }
         
-                // 2. Renderiza as linhas da tabela
-                for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                    let mOtif = cOtifM[i] > 0 ? (sOtifM[i] / cOtifM[i]) : 0;
-                    let mOnTime = cOnTimeM[i] > 0 ? (sOnTimeM[i] / cOnTimeM[i]) : 0;
-                    let mInFull = cInFullM[i] > 0 ? (sInFullM[i] / cInFullM[i]) : 0;
-        
-                    if (mOtif > 0 || mOnTime > 0 || mInFull > 0) {
-                        let isBestOtif = (mOtif === maxOtifM && maxOtifM > 0);
-                        let isBestOnTime = (mOnTime === maxOnTimeM && maxOnTimeM > 0);
-                        let isBestInFull = (mInFull === maxInFullM && maxInFullM > 0);
-        
-                        tbody6.innerHTML += `
+                    if (window.t6TabelaEstado === 0) {
+                        // TELA 1: Visão Geral (OTIF, ON TIME, IN FULL)
+                        thead6.innerHTML = `
                             <tr>
-                                <td style="color: #e2e8f0; font-weight: bold;">${mesesExtenso[i] || ''}</td>
-                                <td>${formatarCelulaTabela6(mOtif, isBestOtif)}</td>
-                                <td>${formatarCelulaTabela6(mOnTime, isBestOnTime)}</td>
-                                <td>${formatarCelulaTabela6(mInFull, isBestInFull)}</td>
+                                <th style="text-align: left; padding: 8px;">Mês</th>
+                                <th style="text-align: center; padding: 8px; color: #2ecc71;">OTIF (%)</th>
+                                <th style="text-align: center; padding: 8px; color: #3498db;">ON TIME (%)</th>
+                                <th style="text-align: center; padding: 8px; color: #f39c12;">IN FULL (%)</th>
                             </tr>
                         `;
+        
+                        let maxO = Math.max(...mesesValidos.map(m => m.otif), 0);
+                        let maxOn = Math.max(...mesesValidos.map(m => m.onTime), 0);
+                        let maxIn = Math.max(...mesesValidos.map(m => m.inFull), 0);
+        
+                        mesesValidos.forEach(m => {
+                            let otifStr = m.otif > 0 ? m.otif.toFixed(1).replace('.', ',') + '%' : '-';
+                            let onTimeStr = m.onTime > 0 ? m.onTime.toFixed(1).replace('.', ',') + '%' : '-';
+                            let inFullStr = m.inFull > 0 ? m.inFull.toFixed(1).replace('.', ',') + '%' : '-';
+        
+                            tbody6.innerHTML += `
+                                <tr>
+                                    <td style="color: #e2e8f0; font-weight: bold; padding: 8px;">${m.nome}</td>
+                                    <td style="text-align: center; padding: 8px; color: #ffffff;">${otifStr} ${m.otif === maxO && maxO > 0 ? '🏆' : ''}</td>
+                                    <td style="text-align: center; padding: 8px; color: #ffffff;">${onTimeStr} ${m.onTime === maxOn && maxOn > 0 ? '🏆' : ''}</td>
+                                    <td style="text-align: center; padding: 8px; color: #ffffff;">${inFullStr} ${m.inFull === maxIn && maxIn > 0 ? '🏆' : ''}</td>
+                                </tr>
+                            `;
+                        });
+        
+                    } else {
+                        // TELAS 2, 3 e 4: Visões Detalhadas (OTIF / ON TIME / IN FULL)
+                        let metricaKey = window.t6TabelaEstado === 1 ? 'otif' : (window.t6TabelaEstado === 2 ? 'onTime' : 'inFull');
+                        let nomeMetrica = window.t6TabelaEstado === 1 ? 'OTIF' : (window.t6TabelaEstado === 2 ? 'ON TIME' : 'IN FULL');
+                        let corMetrica = window.t6TabelaEstado === 1 ? '#2ecc71' : (window.t6TabelaEstado === 2 ? '#3498db' : '#f39c12');
+        
+                        thead6.innerHTML = `
+                            <tr>
+                                <th style="text-align: left; padding: 8px;">Mês</th>
+                                <th style="text-align: center; padding: 8px; color: ${corMetrica};">${nomeMetrica} (%)</th>
+                                <th style="text-align: center; padding: 8px;">VS MÊS ANT.</th>
+                                <th style="text-align: center; padding: 8px;">MELHOR PICO</th>
+                                <th style="text-align: center; padding: 8px;">PIOR PICO</th>
+                            </tr>
+                        `;
+        
+                        let valoresMetrica = mesesValidos.map(m => m[metricaKey]).filter(v => v > 0);
+                        let maxVal = valoresMetrica.length > 0 ? Math.max(...valoresMetrica) : 0;
+                        let minVal = valoresMetrica.length > 0 ? Math.min(...valoresMetrica) : 0;
+        
+                        mesesValidos.forEach((m, idx) => {
+                            let val = m[metricaKey];
+                            let valStr = val > 0 ? val.toFixed(1).replace('.', ',') + '%' : '-';
+        
+                            let diffHtml = "-";
+                            if (idx > 0) {
+                                let valAnt = mesesValidos[idx - 1][metricaKey];
+                                if (valAnt > 0 && val > 0) {
+                                    let diff = val - valAnt;
+                                    let corDiff = diff >= 0 ? '#2ecc71' : '#e74c3c';
+                                    let iconDiff = diff >= 0 ? '▲' : '▼';
+                                    diffHtml = `<span style="color:${corDiff}; font-weight:bold;">${iconDiff} ${Math.abs(diff).toFixed(1).replace('.', ',')}%</span>`;
+                                }
+                            }
+        
+                            let isMelhorPico = (val === maxVal && maxVal > 0);
+                            let isPiorPico = (val === minVal && minVal > 0 && mesesValidos.length > 1);
+        
+                            let melhorPicoHtml = isMelhorPico ? `<span style="color: #ffd700; font-weight: bold;">🏆 Sim</span>` : `<span style="color: #a0aec0;">-</span>`;
+                            let piorPicoHtml = isPiorPico ? `<span style="color: #e74c3c; font-weight: bold;">⚠️ Sim</span>` : `<span style="color: #a0aec0;">-</span>`;
+        
+                            tbody6.innerHTML += `
+                                <tr>
+                                    <td style="color: #e2e8f0; font-weight: bold; padding: 8px;">${m.nome}</td>
+                                    <td style="text-align: center; padding: 8px; color: #ffffff; font-weight: bold;">${valStr}</td>
+                                    <td style="text-align: center; padding: 8px;">${diffHtml}</td>
+                                    <td style="text-align: center; padding: 8px;">${melhorPicoHtml}</td>
+                                    <td style="text-align: center; padding: 8px;">${piorPicoHtml}</td>
+                                </tr>
+                            `;
+                        });
                     }
+                };
+        
+                renderizarTabelaAtual();
+        
+                if (!window.t6TabelaIntervalId) {
+                    window.t6TabelaIntervalId = setInterval(() => {
+                        window.t6TabelaEstado = (window.t6TabelaEstado + 1) % 4;
+                        renderizarTabelaAtual();
+                    }, 20000);
                 }
             }
         }
