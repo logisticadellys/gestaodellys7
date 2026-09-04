@@ -2299,7 +2299,6 @@
             criarGauge('t6-gauge-ontime', maxOnTime, '#3498db');
             criarGauge('t6-gauge-infull', maxInFull, '#f39c12');
         
-            // Função limpa e otimizada para os minicards
             function montarCarrosselMiniCards(idContainer, dadosValores, corTema) {
                 const container = document.getElementById(idContainer);
                 if (!container) return;
@@ -2329,12 +2328,19 @@
                     }
                 });
         
+                // Responsivo automático: ajusta quantos cards aparecem por tela conforme o tamanho do monitor/notebook
+                let cardsPorPagina = window.innerWidth > 1400 ? 10 : (window.innerWidth > 1024 ? 8 : 6);
+                let gapPx = 6;
+        
                 let paginasHTML = '';
                 let totalDias = diasFiltrados.length;
-                let cardsPorPagina = 8; // Exatamente 8 cards por página
+                let larguraCard = `calc((100% - (${gapPx}px * ${cardsPorPagina - 1})) / ${cardsPorPagina})`;
         
                 for (let i = 0; i < totalDias; i += cardsPorPagina) {
-                    let chunkHtml = '<div style="display: flex; gap: 6px; height: 100%; flex-shrink: 0; width: 100%; box-sizing: border-box; justify-content: space-between;">';
+                    let chunkHtml = `<div style="display: flex; gap: ${gapPx}px; height: 100%; flex-shrink: 0; width: 100%; box-sizing: border-box; justify-content: flex-start;">`;
+                    
+                    let itensNaPaginaCount = Math.min(i + cardsPorPagina, totalDias) - i;
+        
                     for (let j = i; j < Math.min(i + cardsPorPagina, totalDias); j++) {
                         let d = diasFiltrados[j];
                         let valNum = valoresFiltrados[j];
@@ -2346,8 +2352,8 @@
         
                         if (isMelhor) {
                             chunkHtml += `
-                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; min-width: 0; height: 32px;">
-                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; width: ${larguraCard}; flex: 0 0 ${larguraCard}; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; height: 32px;">
+                                    <div style="display: flex; align-items: center; gap: 4px; min-width: 0;">
                                         <span style="font-size: 0.65em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
                                         <i class="fas fa-crown" style="color: ${corTema}; font-size: 0.6em;" title="PICO"></i>
                                     </div>
@@ -2356,7 +2362,7 @@
                             `;
                         } else {
                             chunkHtml += `
-                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; min-width: 0; height: 32px;">
+                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; width: ${larguraCard}; flex: 0 0 ${larguraCard}; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; height: 32px;">
                                     <span style="font-size: 0.65em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
                                     <span style="font-size: 0.82em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
                                 </div>
@@ -2364,10 +2370,10 @@
                         }
                     }
                     
-                    let itensNaPagina = Math.min(i + cardsPorPagina, totalDias) - i;
-                    if (itensNaPagina < cardsPorPagina) {
-                        for (let k = 0; k < (cardsPorPagina - itensNaPagina); k++) {
-                            chunkHtml += `<div style="flex: 1; visibility: hidden; padding: 3px 8px; height: 32px;"></div>`;
+                    // Preenche espaços vazios invisíveis se a última página tiver menos itens, mantendo o tamanho padrão exato
+                    if (itensNaPaginaCount < cardsPorPagina) {
+                        for (let k = 0; k < (cardsPorPagina - itensNaPaginaCount); k++) {
+                            chunkHtml += `<div style="width: ${larguraCard}; flex: 0 0 ${larguraCard}; visibility: hidden; padding: 3px 8px; height: 32px;"></div>`;
                         }
                     }
                     chunkHtml += '</div>';
