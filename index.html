@@ -2309,12 +2309,12 @@
                         valoresFiltrados.push(val);
                     }
                 });
-        
+            
                 if (diasFiltrados.length === 0) {
                     container.innerHTML = '<div style="color: #a0aec0; font-size: 0.75em; text-align: center; width: 100%; padding: 4px;">Sem dados disponíveis</div>';
                     return;
                 }
-        
+            
                 let maxVal = -1;
                 let melhorDia = null;
                 valoresFiltrados.forEach((v, idx) => {
@@ -2323,23 +2323,26 @@
                         melhorDia = diasFiltrados[idx];
                     }
                 });
-        
+            
                 let cardsPorPagina = 7; 
                 let gapPx = 6;
                 let totalDias = diasFiltrados.length;
                 let totalPaginas = Math.ceil(totalDias / cardsPorPagina);
-        
+            
                 container.style.width = (totalPaginas * 100) + '%';
-        
+                
+                // CORREÇÃO: Força o carrossel a iniciar sempre na primeira página (primeiro dia preenchido)
+                container.style.transform = 'translateX(0%)';
+            
                 let paginasHTML = '';
                 let larguraCard = `calc((100% - (${gapPx}px * ${cardsPorPagina - 1})) / ${cardsPorPagina})`;
-        
+            
                 for (let i = 0; i < totalDias; i += cardsPorPagina) {
                     let chunkWidthPercent = (100 / totalPaginas);
                     let chunkHtml = `<div style="display: flex; gap: ${gapPx}px; height: 100%; flex: 0 0 ${chunkWidthPercent}%; width: ${chunkWidthPercent}%; box-sizing: border-box; justify-content: flex-start;">`;
                     
                     let itensNaPaginaCount = Math.min(i + cardsPorPagina, totalDias) - i;
-        
+            
                     for (let j = i; j < Math.min(i + cardsPorPagina, totalDias); j++) {
                         let d = diasFiltrados[j];
                         let valNum = valoresFiltrados[j];
@@ -2347,8 +2350,8 @@
                         let isMelhor = (d === melhorDia);
                         
                         let bordaCor = isMelhor ? corTema : 'rgba(255,255,255,0.08)';
-                        let bgCard = '#102542'; // Cor de fundo limpa igual à base anterior
-        
+                        let bgCard = '#102542';
+            
                         if (isMelhor) {
                             chunkHtml += `
                                 <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; width: ${larguraCard}; flex: 0 0 ${larguraCard}; display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; border-radius: 6px; box-sizing: border-box; height: 32px; min-width: 0;">
@@ -2379,19 +2382,19 @@
                     chunkHtml += '</div>';
                     paginasHTML += chunkHtml;
                 }
-        
+            
                 container.innerHTML = paginasHTML;
-        
+            
                 let paginaAtual = 0;
                 let intervalName = idContainer + 'Interval';
-        
+            
                 if (window[intervalName]) clearInterval(window[intervalName]);
                 if (totalPaginas > 1) {
                     window[intervalName] = setInterval(() => {
                         paginaAtual = (paginaAtual + 1) % totalPaginas;
                         let deslocamento = paginaAtual * (100 / totalPaginas);
                         container.style.transform = `translateX(-${deslocamento}%)`;
-                    }, 20000);
+                    }, 20000); // 20 segundos
                 }
             }
         
