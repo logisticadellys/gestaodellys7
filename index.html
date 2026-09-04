@@ -603,36 +603,21 @@
             </div>
         </div>
 
-        <!-- Meio: 3 Carrosséis Horizontais Independentes -->
-        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; width: 100%;">
+        <!-- Meio: 3 Carrosséis Horizontais Diretos (Sem caixas externas para economizar espaço) -->
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; width: 100%;">
             <!-- 1. Carrossel OTIF -->
-            <div style="background: #102542; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; overflow: hidden; position: relative;">
-                <div style="font-size: 0.75em; color: #2ecc71; font-weight: bold; margin-bottom: 4px; padding-left: 4px;">
-                    <i class="fas fa-chart-line" style="margin-right: 5px;"></i> OTIF
-                </div>
-                <div style="width: 100%; overflow: hidden; position: relative;">
-                    <div id="t6-track-otif" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;"></div>
-                </div>
+            <div style="width: 100%; overflow: hidden; position: relative;">
+                <div id="t6-track-otif" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;"></div>
             </div>
 
             <!-- 2. Carrossel On Time -->
-            <div style="background: #102542; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; overflow: hidden; position: relative;">
-                <div style="font-size: 0.75em; color: #3498db; font-weight: bold; margin-bottom: 4px; padding-left: 4px;">
-                    <i class="fas fa-clock" style="margin-right: 5px;"></i> ON TIME
-                </div>
-                <div style="width: 100%; overflow: hidden; position: relative;">
-                    <div id="t6-track-ontime" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;"></div>
-                </div>
+            <div style="width: 100%; overflow: hidden; position: relative;">
+                <div id="t6-track-ontime" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;"></div>
             </div>
 
             <!-- 3. Carrossel In Full -->
-            <div style="background: #102542; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px; overflow: hidden; position: relative;">
-                <div style="font-size: 0.75em; color: #f39c12; font-weight: bold; margin-bottom: 4px; padding-left: 4px;">
-                    <i class="fas fa-box-check" style="margin-right: 5px;"></i> IN FULL
-                </div>
-                <div style="width: 100%; overflow: hidden; position: relative;">
-                    <div id="t6-track-infull" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;"></div>
-                </div>
+            <div style="width: 100%; overflow: hidden; position: relative;">
+                <div id="t6-track-infull" style="display: flex; transition: transform 0.6s ease-in-out; width: 100%;"></div>
             </div>
         </div>
 
@@ -2299,7 +2284,7 @@
             criarGauge('t6-gauge-ontime', maxOnTime, '#3498db');
             criarGauge('t6-gauge-infull', maxInFull, '#f39c12');
         
-            function montarCarrosselMiniCards(idContainer, dadosValores, corTema) {
+            function montarCarrosselMiniCards(idContainer, dadosValores, corTema, nomeRotulo) {
                 const container = document.getElementById(idContainer);
                 if (!container) return;
                 container.innerHTML = '';
@@ -2315,7 +2300,7 @@
                 });
         
                 if (diasFiltrados.length === 0) {
-                    container.innerHTML = '<div style="color: #a0aec0; font-size: 0.75em; text-align: center; width: 100%; padding: 6px;">Sem dados disponíveis</div>';
+                    container.innerHTML = '<div style="color: #a0aec0; font-size: 0.75em; text-align: center; width: 100%; padding: 4px;">Sem dados disponíveis</div>';
                     return;
                 }
         
@@ -2328,16 +2313,19 @@
                     }
                 });
         
-                // Responsivo automático: ajusta quantos cards aparecem por tela conforme o tamanho do monitor/notebook
-                let cardsPorPagina = window.innerWidth > 1400 ? 10 : (window.innerWidth > 1024 ? 8 : 6);
+                let cardsPorPagina = 7; 
                 let gapPx = 6;
+                let totalDias = diasFiltrados.length;
+                let totalPaginas = Math.ceil(totalDias / cardsPorPagina);
+        
+                container.style.width = (totalPaginas * 100) + '%';
         
                 let paginasHTML = '';
-                let totalDias = diasFiltrados.length;
                 let larguraCard = `calc((100% - (${gapPx}px * ${cardsPorPagina - 1})) / ${cardsPorPagina})`;
         
                 for (let i = 0; i < totalDias; i += cardsPorPagina) {
-                    let chunkHtml = `<div style="display: flex; gap: ${gapPx}px; height: 100%; flex-shrink: 0; width: 100%; box-sizing: border-box; justify-content: flex-start;">`;
+                    let chunkWidthPercent = (100 / totalPaginas);
+                    let chunkHtml = `<div style="display: flex; gap: ${gapPx}px; height: 100%; flex: 0 0 ${chunkWidthPercent}%; width: ${chunkWidthPercent}%; box-sizing: border-box; justify-content: flex-start;">`;
                     
                     let itensNaPaginaCount = Math.min(i + cardsPorPagina, totalDias) - i;
         
@@ -2348,32 +2336,33 @@
                         let isMelhor = (d === melhorDia);
                         
                         let bordaCor = isMelhor ? corTema : 'rgba(255,255,255,0.08)';
-                        let bgCard = isMelhor ? 'rgba(255, 255, 255, 0.08)' : '#0d1b2a';
+                        let bgCard = '#102542'; // Cor de fundo limpa igual à base anterior
         
                         if (isMelhor) {
                             chunkHtml += `
-                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; width: ${larguraCard}; flex: 0 0 ${larguraCard}; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; height: 32px;">
-                                    <div style="display: flex; align-items: center; gap: 4px; min-width: 0;">
-                                        <span style="font-size: 0.65em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
-                                        <i class="fas fa-crown" style="color: ${corTema}; font-size: 0.6em;" title="PICO"></i>
+                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; width: ${larguraCard}; flex: 0 0 ${larguraCard}; display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; border-radius: 6px; box-sizing: border-box; height: 32px; min-width: 0;">
+                                    <span style="font-size: 0.6em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
+                                    <div style="display: flex; align-items: center; gap: 3px; min-width: 0; overflow: hidden;">
+                                        <span style="font-size: 0.55em; color: ${corTema}; font-weight: bold; white-space: nowrap;">${nomeRotulo}</span>
+                                        <i class="fas fa-crown" style="color: ${corTema}; font-size: 0.55em;" title="PICO"></i>
                                     </div>
-                                    <span style="font-size: 0.82em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
+                                    <span style="font-size: 0.78em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
                                 </div>
                             `;
                         } else {
                             chunkHtml += `
-                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; width: ${larguraCard}; flex: 0 0 ${larguraCard}; display: flex; align-items: center; justify-content: space-between; padding: 3px 8px; border-radius: 6px; box-sizing: border-box; height: 32px;">
-                                    <span style="font-size: 0.65em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
-                                    <span style="font-size: 0.82em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
+                                <div style="background: ${bgCard}; border: 1px solid ${bordaCor}; width: ${larguraCard}; flex: 0 0 ${larguraCard}; display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; border-radius: 6px; box-sizing: border-box; height: 32px; min-width: 0;">
+                                    <span style="font-size: 0.6em; color: #a0aec0; font-weight: bold; white-space: nowrap;">DIA ${d}</span>
+                                    <span style="font-size: 0.55em; color: #a0aec0; font-weight: bold; white-space: nowrap;">${nomeRotulo}</span>
+                                    <span style="font-size: 0.78em; color: ${corTema}; font-weight: 900; white-space: nowrap;">${val}</span>
                                 </div>
                             `;
                         }
                     }
                     
-                    // Preenche espaços vazios invisíveis se a última página tiver menos itens, mantendo o tamanho padrão exato
                     if (itensNaPaginaCount < cardsPorPagina) {
                         for (let k = 0; k < (cardsPorPagina - itensNaPaginaCount); k++) {
-                            chunkHtml += `<div style="width: ${larguraCard}; flex: 0 0 ${larguraCard}; visibility: hidden; padding: 3px 8px; height: 32px;"></div>`;
+                            chunkHtml += `<div style="width: ${larguraCard}; flex: 0 0 ${larguraCard}; visibility: hidden; padding: 3px 6px; height: 32px;"></div>`;
                         }
                     }
                     chunkHtml += '</div>';
@@ -2382,7 +2371,6 @@
         
                 container.innerHTML = paginasHTML;
         
-                let totalPaginas = Math.ceil(totalDias / cardsPorPagina);
                 let paginaAtual = 0;
                 let intervalName = idContainer + 'Interval';
         
@@ -2390,15 +2378,16 @@
                 if (totalPaginas > 1) {
                     window[intervalName] = setInterval(() => {
                         paginaAtual = (paginaAtual + 1) % totalPaginas;
-                        container.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                        let deslocamento = paginaAtual * (100 / totalPaginas);
+                        container.style.transform = `translateX(-${deslocamento}%)`;
                     }, 20000);
                 }
             }
         
-            // Chamadas corretas dos carrosséis
-            montarCarrosselMiniCards('t6-track-otif', vOtifF, '#2ecc71');
-            montarCarrosselMiniCards('t6-track-ontime', vOnTimeF, '#3498db');
-            montarCarrosselMiniCards('t6-track-infull', vInFullF, '#f39c12');
+            // Chamadas atualizadas passando o nome do rótulo correspondente
+            montarCarrosselMiniCards('t6-track-otif', vOtifF, '#2ecc71', 'OTIF');
+            montarCarrosselMiniCards('t6-track-ontime', vOnTimeF, '#3498db', 'ON TIME');
+            montarCarrosselMiniCards('t6-track-infull', vInFullF, '#f39c12', 'IN FULL');
         
             const ctx6 = document.getElementById('t6-grafico-misto').getContext('2d');
             if (window.chartMistoT6) window.chartMistoT6.destroy();
