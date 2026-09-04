@@ -573,13 +573,12 @@
     </div>
 
     <div id="tela6" class="tela">
-        <!-- Topo com 3 Cards Velocímetro -->
         <div class="t2-top-kpis" style="display: flex; gap: 10px; width: 100%; box-sizing: border-box; padding: 0.5vh 0;">
-            
+    
             <!-- Card PICO OTIF -->
             <div class="t2-kpi-card" style="flex: 1; min-width: 0; border-top-color: #2ecc71; text-align: center; padding: 0.8vh 0.2vw; box-sizing: border-box;">
                 <span class="t2-kpi-title" style="margin-bottom: 2px; font-size: clamp(0.7em, 0.85vw, 0.95em); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <i class="fas fa-gauge-high" style="color: #2ecc71; margin-right: 4px;"></i> PICO OTIF
+                    <i class="fas fa-gauge-high" style="color: #2ecc71; margin-right: 4px;"></i> PICO OTIF (<span id="t6-mes-lbl1">MÊS</span>)
                 </span>
                 <div style="position: relative; height: 70px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 2px;">
                     <canvas id="t6-gauge-otif" style="width: 100% !important; height: 100% !important;"></canvas>
@@ -587,11 +586,11 @@
                 </div>
                 <span class="t2-kpi-sub" style="color: #2ecc71; margin-top: 2px; font-size: clamp(0.75em, 0.85vw, 0.95em); display: block;" id="t6-dia-otif">-</span>
             </div>
-    
+        
             <!-- Card PICO ON TIME -->
             <div class="t2-kpi-card" style="flex: 1; min-width: 0; border-top-color: #3498db; text-align: center; padding: 0.8vh 0.2vw; box-sizing: border-box;">
                 <span class="t2-kpi-title" style="margin-bottom: 2px; font-size: clamp(0.7em, 0.85vw, 0.95em); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <i class="fas fa-clock" style="color: #3498db; margin-right: 4px;"></i> PICO ON TIME
+                    <i class="fas fa-clock" style="color: #3498db; margin-right: 4px;"></i> PICO ON TIME (<span id="t6-mes-lbl2">MÊS</span>)
                 </span>
                 <div style="position: relative; height: 70px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 2px;">
                     <canvas id="t6-gauge-ontime" style="width: 100% !important; height: 100% !important;"></canvas>
@@ -599,11 +598,11 @@
                 </div>
                 <span class="t2-kpi-sub" style="color: #3498db; margin-top: 2px; font-size: clamp(0.75em, 0.85vw, 0.95em); display: block;" id="t6-dia-ontime">-</span>
             </div>
-    
-            <!-- Card PICO IN FULL (Com ícone à esquerda mantido/reforçado) -->
+        
+            <!-- Card PICO IN FULL -->
             <div class="t2-kpi-card" style="flex: 1; min-width: 0; border-top-color: #f39c12; text-align: center; padding: 0.8vh 0.2vw; box-sizing: border-box;">
                 <span class="t2-kpi-title" style="margin-bottom: 2px; font-size: clamp(0.7em, 0.85vw, 0.95em); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <i class="fas fa-box-check" style="color: #f39c12; margin-right: 4px;"></i> PICO IN FULL
+                    <i class="fas fa-box-check" style="color: #f39c12; margin-right: 4px;"></i> PICO IN FULL (<span id="t6-mes-lbl3">MÊS</span>)
                 </span>
                 <div style="position: relative; height: 70px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 2px;">
                     <canvas id="t6-gauge-infull" style="width: 100% !important; height: 100% !important;"></canvas>
@@ -611,7 +610,7 @@
                 </div>
                 <span class="t2-kpi-sub" style="color: #f39c12; margin-top: 2px; font-size: clamp(0.75em, 0.85vw, 0.95em); display: block;" id="t6-dia-infull">-</span>
             </div>
-    
+        
         </div>
 
         <!-- Meio: 3 Carrosséis Horizontais Diretos (Sem caixas externas para economizar espaço) -->
@@ -2244,6 +2243,12 @@
             }
         }
         function renderizarDashboardTela6(labF, vOtifF, vOnTimeF, vInFullF, mesNome, mesesExtenso, sOtifM, cOtifM, sOnTimeM, cOnTimeM, sInFullM, cInFullM, anoAtual, mesDeExibicaoIdx) {
+
+            ['t6-mes-lbl1', 't6-mes-lbl2', 't6-mes-lbl3'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = mesNome;
+            });
+            
             const tabelaTitulo6 = document.getElementById('t6-tabela-titulo');
             if (tabelaTitulo6) tabelaTitulo6.textContent = `HISTÓRICO MENSAL - OTIF, ON TIME E IN FULL (${anoAtual})`;
         
