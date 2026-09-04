@@ -632,13 +632,17 @@
             </div>
         </div>
 
-        <!-- Base: Gráfico e Tabela Mensal -->
-        <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
-                <canvas id="t6-grafico-misto"></canvas>
+        <!-- Base: Gráfico e Tabela Mensal (Ajustados para preencher o espaço vertical) -->
+        <div class="t2-base-grid" style="display: flex; gap: 15px; height: calc(100% - 230px); min-height: 420px; box-sizing: border-box; margin-top: 1vh;">
+            
+            <!-- Gráfico Misto (Esquerda) -->
+            <div class="chart-container" style="flex: 1.4; display: flex; flex-direction: column; height: 100%; padding: 1vh; min-width: 0; box-sizing: border-box;">
+                <canvas id="t6-grafico-misto" style="width: 100% !important; height: 100% !important;"></canvas>
             </div>
-            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
-                <table class="t2-table">
+
+            <!-- Tabela Mensal (Direita) -->
+            <div class="t2-table-container" style="flex: 1; display: flex; flex-direction: column; height: 100%; min-width: 380px; box-sizing: border-box; overflow-y: auto;">
+                <table class="t2-table" style="width: 100%; height: 100%;">
                     <thead>
                         <tr><th colspan="5" id="t6-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - OTIF / ON TIME / IN FULL</th></tr>
                         <tr>
@@ -652,6 +656,7 @@
                     <tbody id="t6-table-body"></tbody>
                 </table>
             </div>
+
         </div>
     </div>
     
