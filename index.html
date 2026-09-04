@@ -2508,11 +2508,12 @@
                         let diasOnTimeMes = onTimeDiarioPorMes[i] || [];
                         let diasInFullMes = inFullDiarioPorMes[i] || [];
         
-                        let maxD(arr) {
+                        // Correção aqui (usando arrow function)
+                        const maxD = (arr) => {
                             let m = 0;
                             arr.forEach(v => { if (v > m) m = v; });
                             return m;
-                        }
+                        };
         
                         let pOtif = maxD(diasOtifMes);
                         let pOnTime = maxD(diasOnTimeMes);
@@ -2537,11 +2538,12 @@
                         let diasOnTimeMes = onTimeDiarioPorMes[i] || [];
                         let diasInFullMes = inFullDiarioPorMes[i] || [];
         
-                        let minD(arr) {
+                        // Correção aqui (usando arrow function)
+                        const minD = (arr) => {
                             let m = 99999;
                             arr.forEach(v => { if (v > 0 && v < m) m = v; });
                             return m === 99999 ? 0 : m;
-                        }
+                        };
         
                         let pOtif = minD(diasOtifMes);
                         let pOnTime = minD(diasOnTimeMes);
