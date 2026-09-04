@@ -2517,21 +2517,26 @@
                             let valorAtual = dadosRotativos[i][chave];
                             let valorAnterior = i > 0 ? dadosRotativos[i-1][chave] : null;
                             
-                            let vsMesAnt = '-';
-                            if (valorAnterior !== null && valorAnterior > 0) {
-                                let variacao = valorAtual - valorAnterior;
-                                // Adiciona cor na variação (verde para positivo, vermelho para negativo)
-                                vsMesAnt = variacao > 0 
-                                    ? `<span style="color:#2ecc71">+${variacao.toFixed(1).replace('.',',')}%</span>` 
-                                    : `<span style="color:#e74c3c">${variacao.toFixed(1).replace('.',',')}%</span>`;
+                        let vsMesAnt = '-';
+                        if (valorAnterior !== null && valorAnterior > 0) {
+                            let variacao = valorAtual - valorAnterior;
+                            let valorFormatadoAbs = Math.abs(variacao).toFixed(1).replace('.', ',') + '%';
+                            
+                            if (variacao > 0) {
+                                vsMesAnt = `<span style="color: #2ecc71; font-weight: bold;"><i class="fas fa-caret-up"></i> ${valorFormatadoAbs}</span>`;
+                            } else if (variacao < 0) {
+                                vsMesAnt = `<span style="color: #e74c3c; font-weight: bold;"><i class="fas fa-caret-down"></i> ${valorFormatadoAbs}</span>`;
+                            } else {
+                                vsMesAnt = `<span style="color: #ffffff; font-weight: bold;">0,0%</span>`;
                             }
+                        }
 
-                            linhasIndividuais += `
-                                <tr>
-                                    <td style="color: #e2e8f0; font-weight: bold;">${dadosRotativos[i].mes}</td>
-                                    <td style="color: #ffffff; font-weight: bold;">${valorAtual.toFixed(1).replace('.', ',')}%</td>
-                                    <td style="font-weight: bold;">${vsMesAnt}</td>
-                                </tr>`;
+                        linhasIndividuais += `
+                            <tr>
+                                <td style="color: #e2e8f0; font-weight: bold;">${dadosRotativos[i].mes}</td>
+                                <td style="color: #ffffff; font-weight: bold;">${valorAtual.toFixed(1).replace('.', ',')}%</td>
+                                <td style="font-weight: bold;">${vsMesAnt}</td>
+                            </tr>`;
                         }
 
                         html = `
