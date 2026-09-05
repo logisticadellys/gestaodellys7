@@ -2646,14 +2646,28 @@
                 }
             });
         
-            document.getElementById('t7-melhor-op-val').textContent = melhorOp !== 999999 ? melhorOp.toFixed(2).replace('.', ',') + '%' : '-';
+            const elMelhorOpVal = document.getElementById('t7-melhor-op-val');
+            elMelhorOpVal.textContent = melhorOp !== 999999 ? melhorOp.toFixed(2).replace('.', ',') + '%' : '-';
+            elMelhorOpVal.style.color = '#ffffff';
+        
             document.getElementById('t7-melhor-op-dia').textContent = diaMelhorOp !== "-" ? `DIA ${diaMelhorOp}` : '-';
-            document.getElementById('t7-pior-op-val').textContent = piorOp !== -1 ? piorOp.toFixed(2).replace('.', ',') + '%' : '-';
+        
+            const elPiorOpVal = document.getElementById('t7-pior-op-val');
+            elPiorOpVal.textContent = piorOp !== -1 ? piorOp.toFixed(2).replace('.', ',') + '%' : '-';
+            elPiorOpVal.style.color = '#ffffff';
+        
             document.getElementById('t7-pior-op-dia').textContent = diaPiorOp !== "-" ? `DIA ${diaPiorOp}` : '-';
         
-            document.getElementById('t7-melhor-tot-val').textContent = melhorTot !== 999999 ? melhorTot.toFixed(2).replace('.', ',') + '%' : '-';
+            const elMelhorTotVal = document.getElementById('t7-melhor-tot-val');
+            elMelhorTotVal.textContent = melhorTot !== 999999 ? melhorTot.toFixed(2).replace('.', ',') + '%' : '-';
+            elMelhorTotVal.style.color = '#ffffff';
+        
             document.getElementById('t7-melhor-tot-dia').textContent = diaMelhorTot !== "-" ? `DIA ${diaMelhorTot}` : '-';
-            document.getElementById('t7-pior-tot-val').textContent = piorTot !== -1 ? piorTot.toFixed(2).replace('.', ',') + '%' : '-';
+        
+            const elPiorTotVal = document.getElementById('t7-pior-tot-val');
+            elPiorTotVal.textContent = piorTot !== -1 ? piorTot.toFixed(2).replace('.', ',') + '%' : '-';
+            elPiorTotVal.style.color = '#ffffff';
+        
             document.getElementById('t7-pior-tot-dia').textContent = diaPiorTot !== "-" ? `DIA ${diaPiorTot}` : '-';
         
             let containerMinicards = document.getElementById('t7-minicards-container');
