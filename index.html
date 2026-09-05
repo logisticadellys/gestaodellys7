@@ -2646,33 +2646,45 @@
                 }
             });
         
+            // 1. Melhor Op
             const elMelhorOpVal = document.getElementById('t7-melhor-op-val');
             elMelhorOpVal.textContent = melhorOp !== 999999 ? melhorOp.toFixed(2).replace('.', ',') + '%' : '-';
             elMelhorOpVal.style.color = '#ffffff';
             elMelhorOpVal.style.textShadow = 'none';
-        
-            document.getElementById('t7-melhor-op-dia').textContent = diaMelhorOp !== "-" ? `DIA ${diaMelhorOp}` : '-';
-        
+            
+            const elMelhorOpDia = document.getElementById('t7-melhor-op-dia');
+            elMelhorOpDia.textContent = diaMelhorOp !== "-" ? `DIA ${diaMelhorOp}` : '-';
+            elMelhorOpDia.style.textShadow = 'none';
+            
+            // 2. Pior Op
             const elPiorOpVal = document.getElementById('t7-pior-op-val');
             elPiorOpVal.textContent = piorOp !== -1 ? piorOp.toFixed(2).replace('.', ',') + '%' : '-';
             elPiorOpVal.style.color = '#ffffff';
             elPiorOpVal.style.textShadow = 'none';
-        
-            document.getElementById('t7-pior-op-dia').textContent = diaPiorOp !== "-" ? `DIA ${diaPiorOp}` : '-';
-        
+            
+            const elPiorOpDia = document.getElementById('t7-pior-op-dia');
+            elPiorOpDia.textContent = diaPiorOp !== "-" ? `DIA ${diaPiorOp}` : '-';
+            elPiorOpDia.style.textShadow = 'none';
+            
+            // 3. Melhor Total
             const elMelhorTotVal = document.getElementById('t7-melhor-tot-val');
             elMelhorTotVal.textContent = melhorTot !== 999999 ? melhorTot.toFixed(2).replace('.', ',') + '%' : '-';
             elMelhorTotVal.style.color = '#ffffff';
             elMelhorTotVal.style.textShadow = 'none';
-        
-            document.getElementById('t7-melhor-tot-dia').textContent = diaMelhorTot !== "-" ? `DIA ${diaMelhorTot}` : '-';
-        
+            
+            const elMelhorTotDia = document.getElementById('t7-melhor-tot-dia');
+            elMelhorTotDia.textContent = diaMelhorTot !== "-" ? `DIA ${diaMelhorTot}` : '-';
+            elMelhorTotDia.style.textShadow = 'none';
+            
+            // 4. Pior Total
             const elPiorTotVal = document.getElementById('t7-pior-tot-val');
             elPiorTotVal.textContent = piorTot !== -1 ? piorTot.toFixed(2).replace('.', ',') + '%' : '-';
             elPiorTotVal.style.color = '#ffffff';
             elPiorTotVal.style.textShadow = 'none';
-        
-            document.getElementById('t7-pior-tot-dia').textContent = diaPiorTot !== "-" ? `DIA ${diaPiorTot}` : '-';
+            
+            const elPiorTotDia = document.getElementById('t7-pior-tot-dia');
+            elPiorTotDia.textContent = diaPiorTot !== "-" ? `DIA ${diaPiorTot}` : '-';
+            elPiorTotDia.style.textShadow = 'none';
         
             let containerMinicards = document.getElementById('t7-minicards-container');
             if (containerMinicards) {
