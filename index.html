@@ -1257,6 +1257,9 @@
                 if (typeof renderizarDashboardTela7 === 'function') {
                     renderizarDashboardTela7(labF, vDevTotF, vDevOpF, mesExibicaoNome, mesesExtenso, sDevTotM, cDevTotM, sDevOpM, cDevOpM, anoDeExibicao, mesDeExibicaoIdx);
                 }
+                if (typeof renderizarDashboardTela8 === 'function') {
+                    renderizarDashboardTela8(labF, vAbsQtd, vAbsPerc, vInter, vIntra, vFaltasTot, vAtestadosTot, vAuxFaltas, vAuxAtestados, vAuxTotal, vMotFaltas, vMotAtestados, vMotTotal, vTransfFaltas, vTransfAtestados, vTransfTotal, mesExibicaoNome, mesesExtenso, anoDeExibicao, mesDeExibicaoIdx);
+                }
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
                     ['t3-mes-lbl', 't3-mes-lbl2', 't3-mes-lbl3', 't3-mes-lbl4'].forEach(id => {
