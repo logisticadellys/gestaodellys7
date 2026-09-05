@@ -2692,16 +2692,24 @@
                 for (let i = 0; i < labF.length; i++) {
                     let valTot = vDevTotF[i] !== null ? vDevTotF[i].toFixed(2).replace('.', ',') + '%' : '-';
                     let valOp = vDevOpF[i] !== null ? vDevOpF[i].toFixed(2).replace('.', ',') + '%' : '-';
-                    let isMelhorTot = (labF[i] === diaMelhorTot);
+                    
+                    // Destaque agora baseado no Melhor Op
+                    let isMelhorOp = (labF[i] === diaMelhorOp);
         
                     cardsHtml.push(`
-                        <div class="t2-minicard ${isMelhorTot ? 'pico' : ''}" ${isMelhorTot ? 'style="border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);"' : ''}>
-                            <span class="t2-mc-dia">DIA ${labF[i]} ${isMelhorTot ? '<br><span style="color: #2ecc71; font-size: 0.8em;"><i class="fas fa-trophy"></i> MELHOR</span>' : ''}</span>
-                            <span class="t2-mc-val" style="font-size: 0.95em; color: #ffffff;">Tot: ${valTot}</span>
-                            <span class="t2-mc-vol" style="background: rgba(52, 152, 219, 0.15); color: #3498db; margin-top: 2px;">Op: ${valOp}</span>
+                        <div class="t2-minicard ${isMelhorOp ? 'pico' : ''}" ${isMelhorOp ? 'style="border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);"' : ''}>
+                            <span class="t2-mc-dia">DIA ${labF[i]} ${isMelhorOp ? '<br><span style="color: #2ecc71; font-size: 0.8em;"><i class="fas fa-trophy"></i> MELHOR</span>' : ''}</span>
+                            
+                            <!-- Op na parte superior -->
+                            <span class="t2-mc-val" style="font-size: 0.95em; color: #ffffff;">Op: ${valOp}</span>
+                            
+                            <!-- Tot na parte inferior em laranja -->
+                            <span class="t2-mc-vol" style="background: rgba(243, 156, 18, 0.15); color: #f39c12; margin-top: 2px;">Tot: ${valTot}</span>
                         </div>
                     `);
                 }
+                containerMinicards.innerHTML = cardsHtml.join('');
+            }
         
                 let cardsPorPagina = 8;
                 let paginasHtml = '';
