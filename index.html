@@ -2693,9 +2693,9 @@
                     let valTot = vDevTotF[i] !== null ? vDevTotF[i].toFixed(2).replace('.', ',') + '%' : '-';
                     let valOp = vDevOpF[i] !== null ? vDevOpF[i].toFixed(2).replace('.', ',') + '%' : '-';
                     
-                    // Destaque agora baseado no Melhor Op
+                    // Destaque baseado no Melhor Op
                     let isMelhorOp = (labF[i] === diaMelhorOp);
-        
+            
                     cardsHtml.push(`
                         <div class="t2-minicard ${isMelhorOp ? 'pico' : ''}" ${isMelhorOp ? 'style="border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);"' : ''}>
                             <span class="t2-mc-dia">DIA ${labF[i]} ${isMelhorOp ? '<br><span style="color: #2ecc71; font-size: 0.8em;"><i class="fas fa-trophy"></i> MELHOR</span>' : ''}</span>
@@ -2708,15 +2708,13 @@
                         </div>
                     `);
                 }
-                containerMinicards.innerHTML = cardsHtml.join('');
-            }
-        
+            
                 let cardsPorPagina = 8;
                 let paginasHtml = '';
                 for (let p = 0; p < cardsHtml.length; p += cardsPorPagina) {
                     paginasHtml += `<div class="t2-page">${cardsHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
                 }
-        
+            
                 containerMinicards.innerHTML = `<div class="t2-track" id="t7-track">${paginasHtml}</div>`;
                 
                 let totalPaginas = Math.ceil(cardsHtml.length / cardsPorPagina);
