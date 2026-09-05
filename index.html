@@ -2737,12 +2737,12 @@
                 data: {
                     labels: labF,
                     datasets: [
-                        { type: 'line', label: 'Devolução (%)', data: vDevTotF, borderColor: '#3498db', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#3498db', yAxisID: 'y' },
-                        { type: 'bar', label: 'Devolução OP (%)', data: vDevOpF, backgroundColor: 'rgba(231, 76, 60, 0.6)', borderColor: '#e74c3c', borderWidth: 1, borderRadius: 4, yAxisID: 'y' }
-                    ]
-                },
+                        { type: 'line', label: 'Devolução (%)', data: vDevTotF, borderColor: '#f39c12', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#f39c12', yAxisID: 'y' },
+                        { type: 'bar', label: 'Devolução OP (%)', data: vDevOpF, backgroundColor: 'rgba(52, 152, 219, 0.6)', borderColor: '#3498db', borderWidth: 1, borderRadius: 4, yAxisID: 'y' } ]},
                 options: {
-                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    layout: { padding: { top: 10, right: 10, bottom: 5 } },
                     plugins: {
                         title: { display: true, text: `📊 DEVOLUÇÃO TOTAL x OP - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
                         legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
