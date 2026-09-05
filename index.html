@@ -2649,24 +2649,28 @@
             const elMelhorOpVal = document.getElementById('t7-melhor-op-val');
             elMelhorOpVal.textContent = melhorOp !== 999999 ? melhorOp.toFixed(2).replace('.', ',') + '%' : '-';
             elMelhorOpVal.style.color = '#ffffff';
+            elMelhorOpVal.style.textShadow = 'none';
         
             document.getElementById('t7-melhor-op-dia').textContent = diaMelhorOp !== "-" ? `DIA ${diaMelhorOp}` : '-';
         
             const elPiorOpVal = document.getElementById('t7-pior-op-val');
             elPiorOpVal.textContent = piorOp !== -1 ? piorOp.toFixed(2).replace('.', ',') + '%' : '-';
             elPiorOpVal.style.color = '#ffffff';
+            elPiorOpVal.style.textShadow = 'none';
         
             document.getElementById('t7-pior-op-dia').textContent = diaPiorOp !== "-" ? `DIA ${diaPiorOp}` : '-';
         
             const elMelhorTotVal = document.getElementById('t7-melhor-tot-val');
             elMelhorTotVal.textContent = melhorTot !== 999999 ? melhorTot.toFixed(2).replace('.', ',') + '%' : '-';
             elMelhorTotVal.style.color = '#ffffff';
+            elMelhorTotVal.style.textShadow = 'none';
         
             document.getElementById('t7-melhor-tot-dia').textContent = diaMelhorTot !== "-" ? `DIA ${diaMelhorTot}` : '-';
         
             const elPiorTotVal = document.getElementById('t7-pior-tot-val');
             elPiorTotVal.textContent = piorTot !== -1 ? piorTot.toFixed(2).replace('.', ',') + '%' : '-';
             elPiorTotVal.style.color = '#ffffff';
+            elPiorTotVal.style.textShadow = 'none';
         
             document.getElementById('t7-pior-tot-dia').textContent = diaPiorTot !== "-" ? `DIA ${diaPiorTot}` : '-';
         
