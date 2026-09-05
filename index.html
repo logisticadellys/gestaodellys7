@@ -692,6 +692,45 @@
             </div>
         </div>
     </div>
+
+    <div id="tela8" class="tela">
+        <!-- Topo com 4 Cards de KPI -->
+        <div class="t2-top-kpis">
+            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t2-kpi-title"><i class="fas fa-user-xmark" style="color: #e74c3c; margin-right: 6px;"></i> PIOR ABSENTEÍSMO (<span id="t8-mes-lbl1">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t8-pior-abs-val">-</span>
+                <span class="t2-kpi-sub" style="color: #e74c3c;" id="t8-pior-abs-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t2-kpi-title"><i class="fas fa-user-clock" style="color: #e74c3c; margin-right: 6px;"></i> PIOR ABSENTEÍSMO (%) (<span id="t8-mes-lbl2">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t8-pior-absperc-val">-</span>
+                <span class="t2-kpi-sub" style="color: #e74c3c;" id="t8-pior-absperc-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #f39c12;">
+                <span class="t2-kpi-title"><i class="fas fa-hourglass-half" style="color: #f39c12; margin-right: 6px;"></i> PIOR INTERJORNADA (<span id="t8-mes-lbl3">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t8-pior-inter-val">-</span>
+                <span class="t2-kpi-sub" style="color: #f39c12;" id="t8-pior-inter-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #f39c12;">
+                <span class="t2-kpi-title"><i class="fas fa-clock" style="color: #f39c12; margin-right: 6px;"></i> PIOR INTRAJORNADA (<span id="t8-mes-lbl4">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t8-pior-intra-val">-</span>
+                <span class="t2-kpi-sub" style="color: #f39c12;" id="t8-pior-intra-dia">-</span>
+            </div>
+        </div>
+    
+        <!-- Mini Cards Diários com Transição a cada 20s -->
+        <div class="t2-minicards-wrapper" id="t8-minicards-container"></div>
+    
+        <!-- Base: Gráfico à Esquerda e Tabela Rotativa à Direita -->
+        <div class="t2-base-grid">
+            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
+                <canvas id="t8-grafico-misto"></canvas>
+            </div>
+            <div class="t2-table-container" id="container-tabela-rotativa-t8" style="flex: 1; min-width: 380px;">
+                <!-- O JS injetará as tabelas rotativas aqui -->
+            </div>
+        </div>
+    </div>
     
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
@@ -809,6 +848,9 @@
                 if (infoIcon) infoIcon.style.display = 'none';
             } else if (telaAtual === 7) {
                 h1.innerHTML = '<i class="fas fa-rotate-left" style="margin-right: 10px; color: #2ecc71;"></i>DEVOLUÇÃO TOTAL & OPERAÇÃO - EV';
+                if (infoIcon) infoIcon.style.display = 'none';
+            } else if (telaAtual === 8) {
+                h1.innerHTML = '<i class="fas fa-users" style="margin-right: 10px; color: #2ecc71;"></i>COLABORADORES - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
@@ -2788,6 +2830,224 @@
                 }
                 tbody.innerHTML = bodyHtml;
             }
+        }
+        function renderizarDashboardTela8(labF, vAbsQtd, vAbsPerc, vInter, vIntra, vFaltasTot, vAtestadosTot, vAuxFaltas, vAuxAtestados, vAuxTotal, vMotFaltas, vMotAtestados, vMotTotal, vTransfFaltas, vTransfAtestados, vTransfTotal, mesNome, mesesExtenso, anoAtual, mesDeExibicaoIdx) {
+    
+            // Atualiza rótulos dos meses nos KPIs
+            ['t8-mes-lbl1', 't8-mes-lbl2', 't8-mes-lbl3', 't8-mes-lbl4'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = mesNome;
+            });
+        
+            // 1. Cálculo dos Picos para os 4 Cards Superiores
+            let piorAbsQtd = -1, diaPiorAbsQtd = "-";
+            let piorAbsPerc = -1, diaPiorAbsPerc = "-";
+            let piorInter = -1, diaPiorInter = "-";
+            let piorIntra = -1, diaPiorIntra = "-";
+        
+            vAbsQtd.forEach((val, i) => { if (val > piorAbsQtd) { piorAbsQtd = val; diaPiorAbsQtd = labF[i]; } });
+            vAbsPerc.forEach((val, i) => { if (val > piorAbsPerc) { piorAbsPerc = val; diaPiorAbsPerc = labF[i]; } });
+            vInter.forEach((val, i) => { if (val > piorInter) { piorInter = val; diaPiorInter = labF[i]; } });
+            vIntra.forEach((val, i) => { if (val > piorIntra) { piorIntra = val; diaPiorIntra = labF[i]; } });
+        
+            document.getElementById('t8-pior-abs-val').textContent = piorAbsQtd >= 0 ? piorAbsQtd : '-';
+            document.getElementById('t8-pior-abs-dia').textContent = diaPiorAbsQtd !== "-" ? `DIA ${diaPiorAbsQtd}` : '-';
+        
+            document.getElementById('t8-pior-absperc-val').textContent = piorAbsPerc >= 0 ? piorAbsPerc.toFixed(1).replace('.', ',') + '%' : '-';
+            document.getElementById('t8-pior-absperc-dia').textContent = diaPiorAbsPerc !== "-" ? `DIA ${diaPiorAbsPerc}` : '-';
+        
+            document.getElementById('t8-pior-inter-val').textContent = piorInter >= 0 ? piorInter : '-';
+            document.getElementById('t8-pior-inter-dia').textContent = diaPiorInter !== "-" ? `DIA ${diaPiorInter}` : '-';
+        
+            document.getElementById('t8-pior-intra-val').textContent = piorIntra >= 0 ? piorIntra : '-';
+            document.getElementById('t8-pior-intra-dia').textContent = diaPiorIntra !== "-" ? `DIA ${diaPiorIntra}` : '-';
+        
+            // 2. Minicards Diários (Carrossel a cada 20s)
+            const containerMC = document.getElementById('t8-minicards-container');
+            if (containerMC) {
+                let cardsHtml = [];
+                for (let i = 0; i < labF.length; i++) {
+                    let isPiorAbs = (vAbsQtd[i] === piorAbsQtd && piorAbsQtd > 0);
+                    let absQtdVal = vAbsQtd[i] !== undefined ? vAbsQtd[i] : 0;
+                    let absPercVal = vAbsPerc[i] !== undefined ? vAbsPerc[i].toFixed(1) + '%' : '0%';
+                    let interVal = vInter[i] !== undefined ? vInter[i] : 0;
+                    let intraVal = vIntra[i] !== undefined ? vIntra[i] : 0;
+        
+                    cardsHtml.push(`
+                        <div class="t2-minicard ${isPiorAbs ? 'pico' : ''}" style="${isPiorAbs ? 'border-color: #e74c3c; box-shadow: 0 0 12px rgba(231, 76, 60, 0.4);' : ''}">
+                            <span class="t2-mc-dia">DIA ${labF[i]}</span>
+                            <div style="display: flex; flex-direction: column; gap: 2px; margin: 4px 0;">
+                                <span style="font-size: 0.85em; color: ${isPiorAbs ? '#e74c3c' : '#fff'}; font-weight: bold;">Abs: ${absQtdVal} (${absPercVal})</span>
+                                <span style="font-size: 0.8em; color: #a0aec0;">Inter: ${interVal} | Intra: ${intraVal}</span>
+                            </div>
+                            <span class="t2-mc-vol" style="background: rgba(46,204,113,0.15); color: #2ecc71;">RH / Escala</span>
+                        </div>
+                    `);
+                }
+        
+                let cardsPorPagina = 8;
+                let paginasHtml = '';
+                for (let p = 0; p < cardsHtml.length; p += cardsPorPagina) {
+                    paginasHtml += `<div class="t2-page">${cardsHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
+                }
+                containerMC.innerHTML = `<div class="t2-track" id="t8-track">${paginasHtml}</div>`;
+        
+                let totalPaginas = Math.ceil(cardsHtml.length / cardsPorPagina);
+                let paginaAtual = 0;
+                if (window.t8CarouselInterval) clearInterval(window.t8CarouselInterval);
+                if (totalPaginas > 1) {
+                    window.t8CarouselInterval = setInterval(() => {
+                        paginaAtual = (paginaAtual + 1) % totalPaginas;
+                        let track = document.getElementById('t8-track');
+                        if (track) track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                    }, 20000); // 20 segundos
+                }
+            }
+        
+            // 3. Gráficos com Transição a cada 20 segundos
+            const ctx = document.getElementById('t8-grafico-misto').getContext('2d');
+            if (window.t8ChartInterval) clearInterval(window.t8ChartInterval);
+        
+            let modoGraficoT8 = 0; // 0 = Absenteísmo, Faltas e Atestados | 1 = Faltas | 2 = Atestados | 3 = Intra e Interjornada
+            
+            function renderizarGraficoT8() {
+                if (window.chartMistoT8) window.chartMistoT8.destroy();
+        
+                if (modoGraficoT8 === 0) {
+                    window.chartMistoT8 = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labF,
+                            datasets: [
+                                { type: 'line', label: 'Absenteísmo (Qtd)', data: vAbsQtd, borderColor: '#e74c3c', backgroundColor: '#e74c3c', yAxisID: 'y' },
+                                { type: 'bar', label: 'Faltas (Total)', data: vFaltasTot, backgroundColor: '#f1c40f', yAxisID: 'y1' },
+                                { type: 'bar', label: 'Atestados (Total)', data: vAtestadosTot, backgroundColor: '#3498db', yAxisID: 'y1' }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: {
+                                y: { type: 'linear', position: 'left', ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                                y1: { type: 'linear', position: 'right', grid: { display: false }, ticks: { color: '#fff' } },
+                                x: { ticks: { color: '#fff' }, grid: { display: false } }
+                            },
+                            plugins: { legend: { labels: { color: '#fff' } } }
+                        }
+                    });
+                } else if (modoGraficoT8 === 1) {
+                    window.chartMistoT8 = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labF,
+                            datasets: [{ label: 'Faltas Totais do Dia', data: vFaltasTot, backgroundColor: '#e74c3c' }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } },
+                            plugins: { legend: { labels: { color: '#fff' } } }
+                        }
+                    });
+                } else if (modoGraficoT8 === 2) {
+                    window.chartMistoT8 = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labF,
+                            datasets: [{ label: 'Atestados Totais do Dia', data: vAtestadosTot, backgroundColor: '#3498db' }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } },
+                            plugins: { legend: { labels: { color: '#fff' } } }
+                        }
+                    });
+                } else if (modoGraficoT8 === 3) {
+                    window.chartMistoT8 = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labF,
+                            datasets: [
+                                { label: 'Interjornada (Qtd)', data: vInter, borderColor: '#f39c12', backgroundColor: '#f39c12', tension: 0.2 },
+                                { label: 'Intrajornada (Qtd)', data: vIntra, borderColor: '#2ecc71', backgroundColor: '#2ecc71', tension: 0.2 }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } },
+                            plugins: { legend: { labels: { color: '#fff' } } }
+                        }
+                    });
+                }
+            }
+        
+            renderizarGraficoT8();
+            window.t8ChartInterval = setInterval(() => {
+                modoGraficoT8 = (modoGraficoT8 + 1) % 4;
+                renderizarGraficoT8();
+            }, 20000); // 20 segundos
+        
+            // 4. Tabelas Rotativas à Direita
+            const containerTabela = document.getElementById('container-tabela-rotativa-t8');
+            if (window.t8TableInterval) clearInterval(window.t8TableInterval);
+        
+            let modoTabelaT8 = 0; // 0, 1, 2, 3 conforme solicitado
+            
+            function renderizarTabelaT8() {
+                if (!containerTabela) return;
+        
+                let html = `<table class="t2-table">`;
+                if (modoTabelaT8 === 0) {
+                    html += `
+                        <thead>
+                            <tr><th colspan="4" style="text-align:center; background: rgba(0,206,209,0.2); color:#00ced1;">RESUMO MENSAL - COLABORADORES</th></tr>
+                            <tr><th>Métrica</th><th>Total do Mês</th><th>Métrica</th><th>Total do Mês</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Absenteísmo (%) Mês</td><td>-</td><td>Absenteísmo (Qtd)</td><td>-</td></tr>
+                            <tr><td>Interjornada (Qtd)</td><td>-</td><td>Intrajornada (Qtd)</td><td>-</td></tr>
+                        </tbody>
+                    `;
+                } else if (modoTabelaT8 === 1) {
+                    html += `
+                        <thead>
+                            <tr><th colspan="4" style="text-align:center; background: rgba(0,206,209,0.2); color:#00ced1;">ABSENTEÍSMO MENSAL VS MÊS ANT.</th></tr>
+                            <tr><th>Vs Mês Ant.</th><th>Absenteísmo (%)</th><th>Absenteísmo (Qtd)</th><th>Vs Mês Ant.</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        </tbody>
+                    `;
+                } else if (modoTabelaT8 === 2) {
+                    html += `
+                        <thead>
+                            <tr><th colspan="4" style="text-align:center; background: rgba(0,206,209,0.2); color:#00ced1;">JORNADAS VS MÊS ANT.</th></tr>
+                            <tr><th>Vs Mês Ant.</th><th>Interjornada</th><th>Intrajornada</th><th>Vs Mês Ant.</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        </tbody>
+                    `;
+                } else if (modoTabelaT8 === 3) {
+                    html += `
+                        <thead>
+                            <tr><th colspan="5" style="text-align:center; background: rgba(0,206,209,0.2); color:#00ced1;">OCORRÊNCIAS POR FUNÇÃO</th></tr>
+                            <tr><th>Função</th><th>Atestados</th><th>Faltas</th><th>Total</th><th>Vs Mês Ant.</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Ajudantes</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                            <tr><td>Motoristas</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                            <tr><td>Transferência</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        </tbody>
+                    `;
+                }
+                html += `</table>`;
+                containerTabela.innerHTML = html;
+            }
+        
+            renderizarTabelaT8();
+            window.t8TableInterval = setInterval(() => {
+                modoTabelaT8 = (modoTabelaT8 + 1) % 4;
+                renderizarTabelaT8();
+            }, 20000); // 20 segundos por tabela
         }
         document.addEventListener('DOMContentLoaded', () => {
             aplicarExibicaoTela();
