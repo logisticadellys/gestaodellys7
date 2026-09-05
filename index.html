@@ -641,6 +641,57 @@
             </div>
         </div>
     </div>
+
+    <div id="tela7" class="tela">
+        <!-- Topo com 4 Cards de KPI -->
+        <div class="t2-top-kpis">
+            <div class="t2-kpi-card" style="border-top-color: #2ecc71;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #2ecc71; margin-right: 6px;"></i> MELHOR PICO DEV. OP (<span id="t7-mes-lbl1">MÊS</span>)</span>
+                <span class="t2-kpi-value text-positivo" id="t7-melhor-op-val">-</span>
+                <span class="t2-kpi-sub text-positivo" id="t7-melhor-op-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #e74c3c; margin-right: 6px;"></i> PIOR PICO DEV. OP (<span id="t7-mes-lbl2">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t7-pior-op-val" style="color: #e74c3c;">-</span>
+                <span class="t2-kpi-sub" style="color: #e74c3c;" id="t7-pior-op-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #3498db;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-up" style="color: #3498db; margin-right: 6px;"></i> MELHOR PICO DEV. TOTAL (<span id="t7-mes-lbl3">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t7-melhor-tot-val" style="color: #3498db;">-</span>
+                <span class="t2-kpi-sub" style="color: #3498db;" id="t7-melhor-tot-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #f1c40f;">
+                <span class="t2-kpi-title"><i class="fas fa-arrow-trend-down" style="color: #f1c40f; margin-right: 6px;"></i> PIOR PICO DEV. TOTAL (<span id="t7-mes-lbl4">MÊS</span>)</span>
+                <span class="t2-kpi-value text-neutro" id="t7-pior-tot-val">-</span>
+                <span class="t2-kpi-sub text-neutro" id="t7-pior-tot-dia">-</span>
+            </div>
+        </div>
+    
+        <!-- Mini Cards Diários (Carrossel) -->
+        <div class="t2-minicards-wrapper" id="t7-minicards-container"></div>
+    
+        <!-- Base: Gráfico à Esquerda e Tabela à Direita -->
+        <div class="t2-base-grid">
+            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
+                <canvas id="t7-grafico-misto"></canvas>
+            </div>
+            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
+                <table class="t2-table">
+                    <thead>
+                        <tr><th colspan="5" id="t7-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - DEVOLUÇÃO</th></tr>
+                        <tr>
+                            <th>Mês</th>
+                            <th>Devolução (%)</th>
+                            <th>Vs Mês Ant.</th>
+                            <th>Devolução OP (%)</th>
+                            <th>Vs Mês Ant.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="t7-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
@@ -716,30 +767,30 @@
         }
         
         function mudarTelaManual(direcao) { 
-            if (direcao === 1) telaAtual = telaAtual === 6 ? 1 : telaAtual + 1;
-            else telaAtual = telaAtual === 1 ? 6 : telaAtual - 1;
+            if (direcao === 1) telaAtual = telaAtual === 7 ? 1 : telaAtual + 1;
+            else telaAtual = telaAtual === 1 ? 7 : telaAtual - 1;
             aplicarExibicaoTela();
         }
-        
+          
         function alternarTelas() {
-            telaAtual = telaAtual === 6 ? 1 : telaAtual + 1;
+            telaAtual = telaAtual === 7 ? 1 : telaAtual + 1;
             aplicarExibicaoTela();
         }
-        
+          
         function aplicarExibicaoTela() {
             // Executa o reset de timers e posições a cada troca
             resetarTodosCarrosseisETimer();
-        
+         
             const telas = document.querySelectorAll('.tela');
             telas.forEach((t, i) => {
                 t.classList.toggle('ativa', i + 1 === telaAtual);
             });
-        
+         
             const h1 = document.querySelector('.titulo-painel');
             const spanData = document.getElementById('data-painel');
             const infoIcon = document.getElementById('info-icon');
             const modal = document.getElementById('modal-ajuda');
-        
+         
             // Lógica do cabeçalho por tela
             if (telaAtual === 2) {
                 h1.innerHTML = '<i class="fas fa-boxes-stacked" style="margin-right: 10px; color: #2ecc71;"></i>VOLUME EXPEDIDO & OCUPAÇÃO - EV';
@@ -756,14 +807,17 @@
             } else if (telaAtual === 6) {
                 h1.innerHTML = '<i class="fas fa-truck-ramp-box" style="margin-right: 10px; color: #2ecc71;"></i>OTIF & ON TIME & IN FULL - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
+            } else if (telaAtual === 7) {
+                h1.innerHTML = '<i class="fas fa-rotate-left" style="margin-right: 10px; color: #2ecc71;"></i>DEVOLUÇÃO TOTAL & OPERAÇÃO - EV';
+                if (infoIcon) infoIcon.style.display = 'none';
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
                 if (modal) modal.style.display = 'none';
             }
-        
+         
             if (spanData && h1) h1.appendChild(spanData);
-        
+         
             if (typeof fetchPlanilha === 'function') {
                 fetchPlanilha();
             }
@@ -773,7 +827,7 @@
         setInterval(() => { if (autoMode) { tempoRestante--; document.getElementById('timer-display').textContent = tempoRestante; if (tempoRestante <= 0) { alternarTelas(); tempoRestante = 90; } } }, 1000);
 
         window.addEventListener('resize', () => { 
-            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal].forEach(c => c && c.resize());
+            [chartInstance, chartMensalInstance, chartOcupDiario, chartOcupMensal, chartDropDiario, chartDropMensal, chartNfDiario, chartNfMensal, chartNsDiario, chartNsMensal, chartReDiario, chartReMensal, chartMistoT7].forEach(c => c && c.resize());
         });
 
         function safeSplit(row) {
@@ -1157,6 +1211,9 @@
                 }
                 if (typeof renderizarDashboardTela6 === 'function') {
                     renderizarDashboardTela6(labF, vOtifF, vOnTimeF, vInFullF, mesExibicaoNome, mesesExtenso, sOtifM, cOtifM, sOnTimeM, cOnTimeM, sInFullM, cInFullM, anoDeExibicao, mesDeExibicaoIdx);
+                }
+                if (typeof renderizarDashboardTela7 === 'function') {
+                    renderizarDashboardTela7(labF, vDevTotF, vDevOpF, mesExibicaoNome, mesesExtenso, sDevTotM, cDevTotM, sDevOpM, cDevOpM, anoDeExibicao, mesDeExibicaoIdx);
                 }
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
@@ -2562,6 +2619,139 @@
                 window.intervaloTabelaT6 = setInterval(renderizarTabelaRotativa, 20000);
             }
             // --- FIM: TABELA ROTATIVA TELA 6 ---
+        }
+        function renderizarDashboardTela7(labF, vDevTotF, vDevOpF, mesNome, mesesExtenso, sDevTotM, cDevTotM, sDevOpM, cDevOpM, anoAtual, mesDeExibicaoIdx) {
+            ['t7-mes-lbl1', 't7-mes-lbl2', 't7-mes-lbl3', 't7-mes-lbl4'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = mesNome;
+            });
+        
+            const tabelaTitulo7 = document.getElementById('t7-tabela-titulo');
+            if (tabelaTitulo7) tabelaTitulo7.textContent = `HISTÓRICO MENSAL - DEVOLUÇÃO (${anoAtual})`;
+        
+            let melhorOp = 999999, piorOp = -1, diaMelhorOp = "-", diaPiorOp = "-";
+            let melhorTot = 999999, piorTot = -1, diaMelhorTot = "-", diaPiorTot = "-";
+        
+            vDevOpF.forEach((val, idx) => {
+                if (val !== null && val > 0) {
+                    if (val < melhorOp) { melhorOp = val; diaMelhorOp = labF[idx]; }
+                    if (val > piorOp) { piorOp = val; diaPiorOp = labF[idx]; }
+                }
+            });
+        
+            vDevTotF.forEach((val, idx) => {
+                if (val !== null && val > 0) {
+                    if (val < melhorTot) { melhorTot = val; diaMelhorTot = labF[idx]; }
+                    if (val > piorTot) { piorTot = val; diaPiorTot = labF[idx]; }
+                }
+            });
+        
+            document.getElementById('t7-melhor-op-val').textContent = melhorOp !== 999999 ? melhorOp.toFixed(2).replace('.', ',') + '%' : '-';
+            document.getElementById('t7-melhor-op-dia').textContent = diaMelhorOp !== "-" ? `DIA ${diaMelhorOp}` : '-';
+            document.getElementById('t7-pior-op-val').textContent = piorOp !== -1 ? piorOp.toFixed(2).replace('.', ',') + '%' : '-';
+            document.getElementById('t7-pior-op-dia').textContent = diaPiorOp !== "-" ? `DIA ${diaPiorOp}` : '-';
+        
+            document.getElementById('t7-melhor-tot-val').textContent = melhorTot !== 999999 ? melhorTot.toFixed(2).replace('.', ',') + '%' : '-';
+            document.getElementById('t7-melhor-tot-dia').textContent = diaMelhorTot !== "-" ? `DIA ${diaMelhorTot}` : '-';
+            document.getElementById('t7-pior-tot-val').textContent = piorTot !== -1 ? piorTot.toFixed(2).replace('.', ',') + '%' : '-';
+            document.getElementById('t7-pior-tot-dia').textContent = diaPiorTot !== "-" ? `DIA ${diaPiorTot}` : '-';
+        
+            let containerMinicards = document.getElementById('t7-minicards-container');
+            if (containerMinicards) {
+                let cardsHtml = [];
+                for (let i = 0; i < labF.length; i++) {
+                    let valTot = vDevTotF[i] !== null ? vDevTotF[i].toFixed(2).replace('.', ',') + '%' : '-';
+                    let valOp = vDevOpF[i] !== null ? vDevOpF[i].toFixed(2).replace('.', ',') + '%' : '-';
+                    let isMelhorTot = (labF[i] === diaMelhorTot);
+        
+                    cardsHtml.push(`
+                        <div class="t2-minicard ${isMelhorTot ? 'pico' : ''}" ${isMelhorTot ? 'style="border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);"' : ''}>
+                            <span class="t2-mc-dia">DIA ${labF[i]} ${isMelhorTot ? '<br><span style="color: #2ecc71; font-size: 0.8em;"><i class="fas fa-trophy"></i> MELHOR</span>' : ''}</span>
+                            <span class="t2-mc-val" style="font-size: 0.95em; color: #ffffff;">Tot: ${valTot}</span>
+                            <span class="t2-mc-vol" style="background: rgba(52, 152, 219, 0.15); color: #3498db; margin-top: 2px;">Op: ${valOp}</span>
+                        </div>
+                    `);
+                }
+        
+                let cardsPorPagina = 8;
+                let paginasHtml = '';
+                for (let p = 0; p < cardsHtml.length; p += cardsPorPagina) {
+                    paginasHtml += `<div class="t2-page">${cardsHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
+                }
+        
+                containerMinicards.innerHTML = `<div class="t2-track" id="t7-track">${paginasHtml}</div>`;
+                
+                let totalPaginas = Math.ceil(cardsHtml.length / cardsPorPagina);
+                let paginaAtual = 0;
+                if (window.t7CarouselInterval) clearInterval(window.t7CarouselInterval);
+                if (totalPaginas > 1) {
+                    window.t7CarouselInterval = setInterval(() => {
+                        paginaAtual = (paginaAtual + 1) % totalPaginas;
+                        let track = document.getElementById('t7-track');
+                        if (track) track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                    }, 20000);
+                }
+            }
+        
+            const ctx = document.getElementById('t7-grafico-misto').getContext('2d');
+            if (window.chartMistoT7) window.chartMistoT7.destroy();
+        
+            window.chartMistoT7 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labF,
+                    datasets: [
+                        { type: 'line', label: 'Devolução (%)', data: vDevTotF, borderColor: '#3498db', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#3498db', yAxisID: 'y' },
+                        { type: 'bar', label: 'Devolução OP (%)', data: vDevOpF, backgroundColor: 'rgba(231, 76, 60, 0.6)', borderColor: '#e74c3c', borderWidth: 1, borderRadius: 4, yAxisID: 'y' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 10, right: 10, bottom: 5 } },
+                    plugins: {
+                        title: { display: true, text: `📊 DEVOLUÇÃO TOTAL x OP - ${mesNome}`, color: '#a0aec0', font: { size: 16, weight: 'bold' } },
+                        legend: { display: true, position: 'bottom', labels: { color: '#ffffff', boxWidth: 15, font: { size: 12, weight: 'bold' } } },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { display: false } },
+                        y: { type: 'linear', display: true, position: 'left', ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        
+            const tbody = document.getElementById('t7-table-body');
+            if (tbody) {
+                let bodyHtml = '';
+                const maxIdx = mesDeExibicaoIdx;
+                
+                for (let i = 0; i <= maxIdx; i++) {
+                    let mTot = cDevTotM[i] > 0 ? (sDevTotM[i] / cDevTotM[i]) : 0;
+                    let mOp = cDevOpM[i] > 0 ? (sDevOpM[i] / cDevOpM[i]) : 0;
+                    
+                    if (mTot > 0 || mOp > 0) {
+                        let antTot = i > 0 && cDevTotM[i-1] > 0 ? (sDevTotM[i-1] / cDevTotM[i-1]) : 0;
+                        let diffTot = antTot > 0 ? ((mTot - antTot) / antTot) * 100 : 0;
+                        let corTot = diffTot < 0 ? '#2ecc71' : (diffTot > 0 ? '#e74c3c' : '#f1c40f');
+                        let iconeTot = diffTot < 0 ? '▼' : (diffTot > 0 ? '▲' : '▬');
+                        let diffTotStr = antTot > 0 ? `<span style="color: ${corTot}; font-weight: bold;">${iconeTot} ${Math.abs(diffTot).toFixed(1)}%</span>` : '-';
+        
+                        let antOp = i > 0 && cDevOpM[i-1] > 0 ? (sDevOpM[i-1] / cDevOpM[i-1]) : 0;
+                        let diffOp = antOp > 0 ? ((mOp - antOp) / antOp) * 100 : 0;
+                        let corOp = diffOp < 0 ? '#2ecc71' : (diffOp > 0 ? '#e74c3c' : '#f1c40f');
+                        let iconeOp = diffOp < 0 ? '▼' : (diffOp > 0 ? '▲' : '▬');
+                        let diffOpStr = antOp > 0 ? `<span style="color: ${corOp}; font-weight: bold;">${iconeOp} ${Math.abs(diffOp).toFixed(1)}%</span>` : '-';
+        
+                        bodyHtml += `<tr>
+                            <td>${mesesExtenso[i]}</td>
+                            <td>${mTot.toFixed(2).replace('.', ',')}%</td>
+                            <td>${diffTotStr}</td>
+                            <td>${mOp.toFixed(2).replace('.', ',')}%</td>
+                            <td>${diffOpStr}</td>
+                        </tr>`;
+                    }
+                }
+                tbody.innerHTML = bodyHtml;
+            }
         }
         document.addEventListener('DOMContentLoaded', () => {
             aplicarExibicaoTela();
