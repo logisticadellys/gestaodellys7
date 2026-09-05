@@ -1056,6 +1056,20 @@
                     let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
                     let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
                     let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
+                    
+                    let valAbsQtd = converter(colunas[cabecalho.indexOf("ABSENTEÍSMO QTD")]); // Ajuste o nome da coluna se necessário
+                    let valAbsPerc = converter(colunas[cabecalho.indexOf("ABSENTEÍSMO (%)")]);
+                    let valInter = converter(colunas[cabecalho.indexOf("INTERJORNADA (QTD)")]);
+                    let valIntra = converter(colunas[cabecalho.indexOf("INTRAJORNADA (QTD)")]);
+                    let f1 = converter(colunas[cabecalho.indexOf("FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)")]) || 0;
+                    let f2 = converter(colunas[cabecalho.indexOf("FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)")]) || 0;
+                    let f3 = converter(colunas[cabecalho.indexOf("FALTAS MOTORISTA TRANSFERÊNCIA (QTD)")]) || 0;
+                    let valFaltasTot = f1 + f2 + f3;
+                    let a1 = converter(colunas[cabecalho.indexOf("ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)")]) || 0;
+                    let a2 = converter(colunas[cabecalho.indexOf("ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)")]) || 0;
+                    let a3 = converter(colunas[cabecalho.indexOf("ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)")]) || 0;
+                    let valAtestadosTot = a1 + a2 + a3;
+                    
                 
                     let pD = dataPlanilha.split('/');
                     if (pD.length === 3) {
@@ -1069,10 +1083,15 @@
                                 if(valDevTotG !== null) dDevTot[dP-1] = valDevTotG; if(valDevOpG !== null) dDevOp[dP-1] = valDevOpG;
                                 if(valAderenciaG !== null) dAderenciaR[dP-1] = valAderenciaG;
                                 if(valApontamentosG !== null) dApontamentosR[dP-1] = valApontamentosG;
-                
                                 if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
                                 if(valOnTimeG !== null) dOnTimeR[dP-1] = valOnTimeG;
                                 if(valInFullG !== null) dInFullR[dP-1] = valInFullG;
+                                if(valAbsQtd !== null) dAbsQtdR[dP-1] = valAbsQtd;
+                                if(valAbsPerc !== null) dAbsPercR[dP-1] = valAbsPerc;
+                                if(valInter !== null) dInterR[dP-1] = valInter;
+                                if(valIntra !== null) dIntraR[dP-1] = valIntra;
+                                if(valFaltasTot !== null) dFaltasTotR[dP-1] = valFaltasTot;
+                                if(valAtestadosTot !== null) dAtestadosTotR[dP-1] = valAtestadosTot;      
                             }
                         }
                         if (aP === anoAtual) {
@@ -1224,20 +1243,24 @@
                 // 1. DECLARAÇÃO DOS ARRAYS (Inclua vOnTimeF e vInFullF nesta linha)
                 const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
                 const vOnTimeF = []; const vInFullF = []; // <--- ADICIONADO AQUI
-                const vAderenciaF = []; const vApontamentosF = [];
+                const vAderenciaF = []; const vApontamentosF = []; const vAbsQtd = []; const vAbsPerc = []; const vInter = []; const vIntra = []; const vFaltasTot = []; const vAtestadosTot = [];
                 
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
-                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null || dAderenciaR[i] !== null || dApontamentosR[i] !== null) {
+                    if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null || dAderenciaR[i] !== null || dApontamentosR[i] !== null || dAbsQtdR[i] !== null || dAbsPercR[i] !== null || dInterR[i] !== null || dIntraR[i] !== null || dFaltasTotR[i] !== null || dAtestadosTotR[i] !== null) {
+                        
                         labF.push(String(i + 1).padStart(2, '0'));
                         vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
                         vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
-                        
-                        // 2. PREENCHIMENTO NO LOOP (Adicione estes dois push logo abaixo do vOtifF)
-                        vOnTimeF.push(dOnTimeR[i]||0); // <--- ADICIONADO AQUI
-                        vInFullF.push(dInFullR[i]||0); // <--- ADICIONADO AQUI
-                        
+                        vOnTimeF.push(dOnTimeR[i]||0);
+                        vInFullF.push(dInFullR[i]||0);
                         vAderenciaF.push(dAderenciaR[i]||0);
                         vApontamentosF.push(dApontamentosR[i]||0);
+                        vAbsQtd.push(dAbsQtdR[i] || 0);
+                        vAbsPerc.push(dAbsPercR[i] || 0);
+                        vInter.push(dInterR[i] || 0);
+                        vIntra.push(dIntraR[i] || 0);
+                        vFaltasTot.push(dFaltasTotR[i] || 0);
+                        vAtestadosTot.push(dAtestadosTotR[i] || 0);
                     }
                 }
 
