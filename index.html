@@ -1664,17 +1664,15 @@
                     renderizarGraficoAlternadoT3();
                     
                     window.t3ChartAlternatingInterval = setInterval(() => {
-                        modoGraficoT3 = modoGraficoT3 === 0 ? 1 : 0;
-                        renderizarGraficoAlternadoT3();
-                    }, 20000);
-                }
+                            modoGraficoT3 = modoGraficoT3 === 0 ? 1 : 0;
+                            renderizarGraficoAlternadoT3();
+                        }, 20000);
 
-                
+                    } catch (err) { 
+                        console.error("Erro no gráfico alternado T3:", err); 
+                    }
 
-            } catch (err) { console.error("Erro:", err); }
-        }
-
-        function renderizarDashboardTela2(labF, vVolF, vOcpF, mesNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoAtual, mesDeExibicaoIdx) {
+            function renderizarDashboardTela2(labF, vVolF, vOcpF, mesNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoAtual, mesDeExibicaoIdx) {
             document.getElementById('t2-mes-lbl').textContent = mesNome;
             document.getElementById('t2-pico-vol-lbl').textContent = mesNome; // Alterado para o novo card
             document.getElementById('t2-pico-mes-lbl').textContent = mesNome;
@@ -1753,6 +1751,10 @@
                     `;
                     todosOsCards.push(cardHTML);
                 }
+
+                containerMC.innerHTML = todosOsCards.join('');
+            }
+        }
                 
                 // Lógica de Paginação com Deslize Lateral
                 let cardsPorPagina = 8;
