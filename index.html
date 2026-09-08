@@ -693,6 +693,51 @@
         </div>
     </div>
     
+    <div id="tela8" class="tela">
+        <!-- Topo com 4 Cards de KPI -->
+        <div class="t2-top-kpis">
+            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t2-kpi-title"><i class="fas fa-user-xmark" style="color: #e74c3c; margin-right: 6px;"></i> PIOR ABSENTEÍSMO QTD (<span id="t8-mes-lbl1">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t8-pior-abs-qtd">-</span>
+                <span class="t2-kpi-sub" style="color: #e74c3c;" id="t8-pior-abs-qtd-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
+                <span class="t2-kpi-title"><i class="fas fa-user-clock" style="color: #e74c3c; margin-right: 6px;"></i> PIOR ABSENTEÍSMO % (<span id="t8-mes-lbl2">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t8-pior-abs-perc">-</span>
+                <span class="t2-kpi-sub" style="color: #e74c3c;" id="t8-pior-abs-perc-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #f39c12;">
+                <span class="t2-kpi-title"><i class="fas fa-business-time" style="color: #f39c12; margin-right: 6px;"></i> PIOR INTERJORNADA (<span id="t8-mes-lbl3">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t8-pior-inter">-</span>
+                <span class="t2-kpi-sub" style="color: #f39c12;" id="t8-pior-inter-dia">-</span>
+            </div>
+            <div class="t2-kpi-card" style="border-top-color: #3498db;">
+                <span class="t2-kpi-title"><i class="fas fa-clock" style="color: #3498db; margin-right: 6px;"></i> PIOR INTRAJORNADA (<span id="t8-mes-lbl4">MÊS</span>)</span>
+                <span class="t2-kpi-value" id="t8-pior-intra">-</span>
+                <span class="t2-kpi-sub" style="color: #3498db;" id="t8-pior-intra-dia">-</span>
+            </div>
+        </div>
+    
+        <!-- Mini Cards Diários (Carrossel com Absenteísmo Qtd/%, Inter/Intra) -->
+        <div class="t2-minicards-wrapper" id="t8-minicards-container"></div>
+    
+        <!-- Base: Gráfico à Esquerda e Tabela à Direita -->
+        <div class="t2-base-grid">
+            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
+                <canvas id="t8-grafico-misto"></canvas>
+            </div>
+            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
+                <table class="t2-table">
+                    <thead>
+                        <tr><th colspan="6" id="t8-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - COLABORADORES</th></tr>
+                    </thead>
+                    <thead id="t8-table-head"></thead>
+                    <tbody id="t8-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
         Chart.register(ChartDataLabels);
@@ -767,13 +812,13 @@
         }
         
         function mudarTelaManual(direcao) { 
-            if (direcao === 1) telaAtual = telaAtual === 7 ? 1 : telaAtual + 1;
-            else telaAtual = telaAtual === 1 ? 7 : telaAtual - 1;
+            if (direcao === 1) telaAtual = telaAtual === 8 ? 1 : telaAtual + 1;
+            else telaAtual = telaAtual === 1 ? 8 : telaAtual - 1;
             aplicarExibicaoTela();
         }
           
         function alternarTelas() {
-            telaAtual = telaAtual === 7 ? 1 : telaAtual + 1;
+            telaAtual = telaAtual === 8 ? 1 : telaAtual + 1;
             aplicarExibicaoTela();
         }
           
@@ -810,6 +855,9 @@
             } else if (telaAtual === 7) {
                 h1.innerHTML = '<i class="fas fa-rotate-left" style="margin-right: 10px; color: #2ecc71;"></i>DEVOLUÇÃO TOTAL & OPERAÇÃO - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
+            } else if (telaAtual === 8) {
+                h1.innerHTML = '<i class="fas fa-users-gear" style="margin-right: 10px; color: #2ecc71;"></i>COLABORADORES - EV';
+                if (infoIcon) infoIcon.style.display = 'none';    
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
@@ -939,7 +987,15 @@
                     mtAtestados: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)", 
                     mtBanco: "BANCO DE HORAS MOTORISTA TRANSFERÊNCIA (QTD)", 
                     mtUtil: "UTILIZADOS MOTORISTA TRANSFERÊNCIA (QTD)",
-                    otif: "ENTREGAS OTIF (%)"
+                    otif: "ENTREGAS OTIF (%)",
+                    interjornada: "INTERJORNADA (QTD)",
+                    intrajornada: "INTRAJORNADA (QTD)",
+                    faltasMotDist: "FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    faltasAuxDist: "FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    faltasMotTransf: "FALTAS MOTORISTA TRANSFERÊNCIA (QTD)",
+                    atestMotDist: "ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)",
+                    atestAuxDist: "ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)",
+                    atestMotTransf: "ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)"
                 };
 
                 const idxs = {}; for (let key in mapping) idxs[key] = cabecalho.indexOf(mapping[key].toUpperCase());
@@ -970,6 +1026,22 @@
                 const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
                 const sOnTimeM = Array(12).fill(0); const cOnTimeM = Array(12).fill(0);
                 const sInFullM = Array(12).fill(0); const cInFullM = Array(12).fill(0);
+
+                const dAbsQtdR = Array(ultimoDiaMesExibicao).fill(null);
+                const dAbsPercR = Array(ultimoDiaMesExibicao).fill(null);
+                const dInterR = Array(ultimoDiaMesExibicao).fill(null);
+                const dIntraR = Array(ultimoDiaMesExibicao).fill(null);
+                
+                const sAbsQtdM = Array(12).fill(0);
+                const sAbsPercM = Array(12).fill(0);
+                const sInterM = Array(12).fill(0);
+                const sIntraM = Array(12).fill(0);
+                const sFaltasMotDistM = Array(12).fill(0);
+                const sFaltasAuxDistM = Array(12).fill(0);
+                const sFaltasMotTransfM = Array(12).fill(0);
+                const sAtestMotDistM = Array(12).fill(0);
+                const sAtestAuxDistM = Array(12).fill(0);
+                const sAtestMotTransfM = Array(12).fill(0);
                 
                 const converter = (val) => {
                     if (!val || val === "-" || val === "null" || val === "#N/A") return null;
@@ -1014,6 +1086,17 @@
                     let valDevOpMes = converter(colunas[cabecalho.indexOf("DEVOLUÇÃO OP (%) MÊS")]);
                     let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
                     let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
+                    let valAbsQtdG = converter(colunas[idxs.abs]);
+                    let valAbsPercG = converter(colunas[idxs.absPerc]);
+                    let valInterG = converter(colunas[idxs.interjornada]);
+                    let valIntraG = converter(colunas[idxs.intrajornada]);
+                    
+                    let valFaltasMotDistG = converter(colunas[idxs.faltasMotDist]);
+                    let valFaltasAuxDistG = converter(colunas[idxs.faltasAuxDist]);
+                    let valFaltasMotTransfG = converter(colunas[idxs.faltasMotTransf]);
+                    let valAtestMotDistG = converter(colunas[idxs.atestMotDist]);
+                    let valAtestAuxDistG = converter(colunas[idxs.atestAuxDist]);
+                    let valAtestMotTransfG = converter(colunas[idxs.atestMotTransf]);
                 
                     let pD = dataPlanilha.split('/');
                     if (pD.length === 3) {
@@ -1031,6 +1114,10 @@
                                 if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
                                 if(valOnTimeG !== null) dOnTimeR[dP-1] = valOnTimeG;
                                 if(valInFullG !== null) dInFullR[dP-1] = valInFullG;
+                                if(valAbsQtdG !== null) dAbsQtdR[dP-1] = valAbsQtdG;
+                                if(valAbsPercG !== null) dAbsPercR[dP-1] = valAbsPercG;
+                                if(valInterG !== null) dInterR[dP-1] = valInterG;
+                                if(valIntraG !== null) dIntraR[dP-1] = valIntraG;
                             }
                         }
                         if (aP === anoAtual) {
@@ -1048,6 +1135,17 @@
                             if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
                             if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[mIdx] += valOnTimeMesG; cOnTimeM[mIdx]++; }
                             if (valInFullMesG !== null && valInFullMesG > 0) { sInFullM[mIdx] += valInFullMesG; cInFullM[mIdx]++; }
+                            if (valAbsQtdG !== null) sAbsQtdM[mIdx] += valAbsQtdG;
+                            if (valAbsPercG !== null) sAbsPercM[mIdx] = valAbsPercG; 
+                            if (valInterG !== null) sInterM[mIdx] += valInterG;
+                            if (valIntraG !== null) sIntraM[mIdx] += valIntraG;
+                            
+                            if (valFaltasMotDistG !== null) sFaltasMotDistM[mIdx] += valFaltasMotDistG;
+                            if (valFaltasAuxDistG !== null) sFaltasAuxDistM[mIdx] += valFaltasAuxDistG;
+                            if (valFaltasMotTransfG !== null) sFaltasMotTransfM[mIdx] += valFaltasMotTransfG;
+                            if (valAtestMotDistG !== null) sAtestMotDistM[mIdx] += valAtestMotDistG;
+                            if (valAtestAuxDistG !== null) sAtestAuxDistM[mIdx] += valAtestAuxDistG;
+                            if (valAtestMotTransfG !== null) sAtestMotTransfM[mIdx] += valAtestMotTransfG;
                         }
                     }
                 }
@@ -1214,6 +1312,9 @@
                 }
                 if (typeof renderizarDashboardTela7 === 'function') {
                     renderizarDashboardTela7(labF, vDevTotF, vDevOpF, mesExibicaoNome, mesesExtenso, sDevTotM, cDevTotM, sDevOpM, cDevOpM, anoDeExibicao, mesDeExibicaoIdx);
+                }
+                if (typeof renderizarDashboardTela8 === 'function') {
+                    renderizarDashboardTela8(labF, dAbsQtdR, dAbsPercR, dInterR, dIntraR, mesExibicaoNome, mesesExtenso, sAbsQtdM, sAbsPercM, sInterM, sIntraM, sFaltasMotDistM, sFaltasAuxDistM, sFaltasMotTransfM, sAtestMotDistM, sAtestAuxDistM, sAtestMotTransfM, anoDeExibicao, mesDeExibicaoIdx);
                 }
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
@@ -2788,6 +2889,173 @@
                 }
                 tbody.innerHTML = bodyHtml;
             }
+        }
+        function renderizarDashboardTela8(labF, vAbsQtdF, vAbsPercF, vInterF, vIntraF, vFaltasMotDist, vFaltasAuxDist, vFaltasMotTransf, vAtestMotDist, vAtestAuxDist, vAtestMotTransf, mesNome, mesesExtenso, sAbsQtdM, sAbsPercM, sInterM, sIntraM, sFaltasMotDistM, sFaltasAuxDistM, sFaltasMotTransfM, sAtestMotDistM, sAtestAuxDistM, sAtestMotTransfM, anoAtual, mesDeExibicaoIdx) {
+    
+            ['t8-mes-lbl1', 't8-mes-lbl2', 't8-mes-lbl3', 't8-mes-lbl4'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = mesNome;
+            });
+        
+            // Picos dos KPIs superiores
+            let pAbsQtd = 0, dAbsQtd = "-";
+            vAbsQtdF.forEach((v, i) => { if (v > pAbsQtd) { pAbsQtd = v; dAbsQtd = labF[i]; } });
+        
+            let pAbsPerc = 0, dAbsPerc = "-";
+            vAbsPercF.forEach((v, i) => { if (v > pAbsPerc) { pAbsPerc = v; dAbsPerc = labF[i]; } });
+        
+            let pInter = 0, dInter = "-";
+            vInterF.forEach((v, i) => { if (v > pInter) { pInter = v; dInter = labF[i]; } });
+        
+            let pIntra = 0, dIntra = "-";
+            vIntraF.forEach((v, i) => { if (v > pIntra) { pIntra = v; dIntra = labF[i]; } });
+        
+            document.getElementById('t8-pior-abs-qtd').textContent = pAbsQtd > 0 ? pAbsQtd.toLocaleString('pt-BR') : '-';
+            document.getElementById('t8-pior-abs-qtd-dia').textContent = dAbsQtd !== "-" ? `DIA ${dAbsQtd}` : '-';
+        
+            document.getElementById('t8-pior-abs-perc').textContent = pAbsPerc > 0 ? pAbsPerc.toFixed(1).replace('.', ',') + '%' : '-';
+            document.getElementById('t8-pior-abs-perc-dia').textContent = dAbsPerc !== "-" ? `DIA ${dAbsPerc}` : '-';
+        
+            document.getElementById('t8-pior-inter').textContent = pInter > 0 ? pInter.toLocaleString('pt-BR') : '-';
+            document.getElementById('t8-pior-inter-dia').textContent = dInter !== "-" ? `DIA ${dInter}` : '-';
+        
+            document.getElementById('t8-pior-intra').textContent = pIntra > 0 ? pIntra.toLocaleString('pt-BR') : '-';
+            document.getElementById('t8-pior-intra-dia').textContent = dIntra !== "-" ? `DIA ${dIntra}` : '-';
+        
+            // Mini-cards diários (Carrossel com transição a cada 20s)
+            const containerMC = document.getElementById('t8-minicards-container');
+            if (containerMC) {
+                let cardsHtml = [];
+                for (let i = 0; i < labF.length; i++) {
+                    let qQtd = vAbsQtdF[i] || 0;
+                    let qPerc = vAbsPercF[i] || 0;
+                    let qInter = vInterF[i] || 0;
+                    let qIntra = vIntraF[i] || 0;
+                    let isPiorAbs = (qQtd === pAbsQtd && pAbsQtd > 0);
+        
+                    cardsHtml.push(`
+                        <div style="display:flex; gap:0.5vw; width:100%;">
+                            <div class="t2-minicard ${isPiorAbs ? 'pico' : ''}" style="flex:1;">
+                                <span class="t2-mc-dia">DIA ${labF[i]} ${isPiorAbs ? '<span style="color:#e74c3c">● PIOR</span>' : ''}</span>
+                                <span class="t2-mc-val" style="font-size:0.95em; color:${isPiorAbs ? '#e74c3c' : '#fff'}">Abs: ${qQtd} (${qPerc.toFixed(1)}%)</span>
+                                <span class="t2-mc-vol" style="background:rgba(231,76,60,0.15); color:#e74c3c;">Absenteísmo</span>
+                            </div>
+                            <div class="t2-minicard" style="flex:1;">
+                                <span class="t2-mc-dia">DIA ${labF[i]}</span>
+                                <span class="t2-mc-val" style="font-size:0.95em;">Inter: ${qInter} | Intra: ${qIntra}</span>
+                                <span class="t2-mc-vol" style="background:rgba(52,152,219,0.15); color:#3498db;">Jornadas</span>
+                            </div>
+                        </div>
+                    `);
+                }
+        
+                let cardsPorPagina = 4;
+                let paginasHtml = '';
+                for (let p = 0; p < cardsHtml.length; p += cardsPorPagina) {
+                    paginasHtml += `<div class="t2-page" style="grid-template-columns: repeat(4, 1fr);">${cardsHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
+                }
+                containerMC.innerHTML = `<div class="t2-track" id="t8-track-mc">${paginasHtml}</div>`;
+        
+                let totalPaginas = Math.ceil(cardsHtml.length / cardsPorPagina);
+                let paginaAtual = 0;
+                if (window.t8McInterval) clearInterval(window.t8McInterval);
+                if (totalPaginas > 1) {
+                    window.t8McInterval = setInterval(() => {
+                        paginaAtual = (paginaAtual + 1) % totalPaginas;
+                        let track = document.getElementById('t8-track-mc');
+                        if (track) track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                    }, 20000); // 20 segundos
+                }
+            }
+        
+            // Gráficos e Tabelas Mensais Rotativos (a cada 20s)
+            if (window.t8TableInterval) clearInterval(window.t8TableInterval);
+            let modoTabelaT8 = 0;
+        
+            function renderizarTabelasEChartsT8() {
+                const tbody = document.getElementById('t8-table-body');
+                const thead = document.getElementById('t8-table-head');
+                if (!tbody || !thead) return;
+        
+                let headHtml = '';
+                let bodyHtml = '';
+        
+                const maxIdx = mesDeExibicaoIdx;
+        
+                if (modoTabelaT8 === 0) {
+                    document.getElementById('t8-tabela-titulo').textContent = "HISTÓRICO MENSAL - ABSENTEÍSMO E JORNADAS";
+                    headHtml = `<tr><th>Mês</th><th>Absenteísmo (%)</th><th>Absenteísmo (Qtd)</th><th>Interjornada (Qtd)</th><th>Intrajornada (Qtd)</th></tr>`;
+                    for (let i = 0; i <= maxIdx; i++) {
+                        bodyHtml += `<tr>
+                            <td>${mesesExtenso[i]}</td>
+                            <td>${sAbsPercM[i] ? sAbsPercM[i].toFixed(1).replace('.', ',') + '%' : '-'}</td>
+                            <td>${sAbsQtdM[i] ? sAbsQtdM[i].toLocaleString('pt-BR') : '-'}</td>
+                            <td>${sInterM[i] ? sInterM[i].toLocaleString('pt-BR') : '-'}</td>
+                            <td>${sIntraM[i] ? sIntraM[i].toLocaleString('pt-BR') : '-'}</td>
+                        </tr>`;
+                    }
+                } else if (modoTabelaT8 === 1) {
+                    document.getElementById('t8-tabela-titulo').textContent = "HISTÓRICO MENSAL - ABSENTEÍSMO VS MÊS ANT.";
+                    headHtml = `<tr><th>Mês</th><th>Absenteísmo (%)</th><th>Vs Mês Ant.</th><th>Absenteísmo (Qtd)</th><th>Vs Mês Ant.</th></tr>`;
+                    for (let i = 0; i <= maxIdx; i++) {
+                        let antPerc = i > 0 ? sAbsPercM[i - 1] : 0;
+                        let atualPerc = sAbsPercM[i] || 0;
+                        let diffPerc = antPerc ? ((atualPerc - antPerc) / antPerc) * 100 : 0;
+        
+                        let antQtd = i > 0 ? sAbsQtdM[i - 1] : 0;
+                        let atualQtd = sAbsQtdM[i] || 0;
+                        let diffQtd = antQtd ? ((atualQtd - antQtd) / antQtd) * 100 : 0;
+        
+                        bodyHtml += `<tr>
+                            <td>${mesesExtenso[i]}</td>
+                            <td>${atualPerc ? atualPerc.toFixed(1).replace('.', ',') + '%' : '-'}</td>
+                            <td>${i > 0 ? (diffPerc !== 0 ? (diffPerc > 0 ? '▲ ' : '▼ ') + Math.abs(diffPerc).toFixed(1) + '%' : '-') : '-'}</td>
+                            <td>${atualQtd ? atualQtd.toLocaleString('pt-BR') : '-'}</td>
+                            <td>${i > 0 ? (diffQtd !== 0 ? (diffQtd > 0 ? '▲ ' : '▼ ') + Math.abs(diffQtd).toFixed(1) + '%' : '-') : '-'}</td>
+                        </tr>`;
+                    }
+                } else if (modoTabelaT8 === 2) {
+                    document.getElementById('t8-tabela-titulo').textContent = "HISTÓRICO MENSAL - INTER E INTRAJORNADA VS MÊS ANT.";
+                    headHtml = `<tr><th>Mês</th><th>Interjornada</th><th>Vs Mês Ant.</th><th>Intrajornada</th><th>Vs Mês Ant.</th></tr>`;
+                    for (let i = 0; i <= maxIdx; i++) {
+                        let antInter = i > 0 ? sInterM[i - 1] : 0;
+                        let atInter = sInterM[i] || 0;
+                        let diffInter = antInter ? ((atInter - antInter) / antInter) * 100 : 0;
+        
+                        let antIntra = i > 0 ? sIntraM[i - 1] : 0;
+                        let atIntra = sIntraM[i] || 0;
+                        let diffIntra = antIntra ? ((atIntra - antIntra) / antIntra) * 100 : 0;
+        
+                        bodyHtml += `<tr>
+                            <td>${mesesExtenso[i]}</td>
+                            <td>${atInter ? atInter.toLocaleString('pt-BR') : '-'}</td>
+                            <td>${i > 0 ? (diffInter !== 0 ? (diffInter > 0 ? '▲ ' : '▼ ') + Math.abs(diffInter).toFixed(1) + '%' : '-') : '-'}</td>
+                            <td>${atIntra ? atIntra.toLocaleString('pt-BR') : '-'}</td>
+                            <td>${i > 0 ? (diffIntra !== 0 ? (diffIntra > 0 ? '▲ ' : '▼ ') + Math.abs(diffIntra).toFixed(1) + '%' : '-') : '-'}</td>
+                        </tr>`;
+                    }
+                } else if (modoTabelaT8 === 3) {
+                    document.getElementById('t8-tabela-titulo').textContent = "HISTÓRICO MENSAL - FALTAS E ATESTADOS POR FUNÇÃO";
+                    headHtml = `<tr><th>Mês</th><th>Motorista (F/A)</th><th>Auxiliar (F/A)</th><th>Transf. (F/A)</th></tr>`;
+                    for (let i = 0; i <= maxIdx; i++) {
+                        bodyHtml += `<tr>
+                            <td>${mesesExtenso[i]}</td>
+                            <td>${sFaltasMotDistM[i] || 0} / ${sAtestMotDistM[i] || 0}</td>
+                            <td>${sFaltasAuxDistM[i] || 0} / ${sAtestAuxDistM[i] || 0}</td>
+                            <td>${sFaltasMotTransfM[i] || 0} / ${sAtestMotTransfM[i] || 0}</td>
+                        </tr>`;
+                    }
+                }
+        
+                thead.innerHTML = headHtml;
+                tbody.innerHTML = bodyHtml;
+            }
+        
+            renderizarTabelasEChartsT8();
+            window.t8TableInterval = setInterval(() => {
+                modoTabelaT8 = (modoTabelaT8 + 1) % 4;
+                renderizarTabelasEChartsT8();
+            }, 20000); // 20 segundos
         }
         document.addEventListener('DOMContentLoaded', () => {
             aplicarExibicaoTela();
