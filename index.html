@@ -3031,37 +3031,29 @@
                     window.chartMistoT8.destroy();
                 }
             
-                // 1. CÁLCULO DIRETO POR DATA DA PLANILHA
-                // Caso esteja usando o array de linhas brutas da planilha (ex: dadosPlanilha):
-                const dadosFaltas = labF.map(dia => {
-                    // Localiza a linha correspondente ao dia exato do mês
-                    const row = dadosPlanilha.find(r => {
-                        if (!r['DATA']) return false;
-                        const dataObj = new Date(r['DATA']);
-                        return dataObj.getDate() === Number(dia);
-                    });
-            
-                    if (!row) return 0;
-                    return (Number(row['FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0) +
-                           (Number(row['FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0) +
-                           (Number(row['FALTAS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0);
+                // Soma diária das Faltas pelo índice do dia no mês
+                const dadosFaltas = labF.map((_, i) => {
+                    const f1 = Number(vFaltasMotDist?.[i]) || 0;
+                    const f2 = Number(vFaltasAuxDist?.[i]) || 0;
+                    const f3 = Number(vFaltasMotTransf?.[i]) || 0;
+                    return f1 + f2 + f3;
                 });
             
-                const dadosAtestados = labF.map(dia => {
-                    const row = dadosPlanilha.find(r => {
-                        if (!r['DATA']) return false;
-                        const dataObj = new Date(r['DATA']);
-                        return dataObj.getDate() === Number(dia);
-                    });
-            
-                    if (!row) return 0;
-                    return (Number(row['ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0) +
-                           (Number(row['ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0) +
-                           (Number(row['ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0);
+                // Soma diária dos Atestados pelo índice do dia no mês
+                const dadosAtestados = labF.map((_, i) => {
+                    const a1 = Number(vAtestMotDist?.[i]) || 0;
+                    const a2 = Number(vAtestAuxDist?.[i]) || 0;
+                    const a3 = Number(vAtestMotTransf?.[i]) || 0;
+                    return a1 + a2 + a3;
                 });
             
-                // Rótulos do eixo X formatados ("01", "02", "03"...)
+                // Eixo X formatado ("01", "02", "03"...)
                 const labelsGrafico = labF.map(dia => String(dia).padStart(2, '0'));
+            
+                // Nome do mês com tratamento contra erros de variável
+                const mesTitulo = (typeof nomeMesCorreto !== 'undefined' && nomeMesCorreto) 
+                    ? nomeMesCorreto.toUpperCase() 
+                    : 'SETEMBRO';
             
                 window.chartMistoT8 = new Chart(canvasGrafico.getContext('2d'), {
                     type: 'bar',
@@ -3087,7 +3079,7 @@
                             {
                                 type: 'line',
                                 label: 'Absenteísmo (Qtd)',
-                                data: vAbsQtdF.map(v => Number(v) || 0),
+                                data: (typeof vAbsQtdF !== 'undefined' ? vAbsQtdF : []).map(v => Number(v) || 0),
                                 borderColor: '#e74c3c',
                                 backgroundColor: '#e74c3c',
                                 borderWidth: 2,
@@ -3114,14 +3106,14 @@
                             }
                         },
                         plugins: {
-                            // Oculta os números/rótulos escritos sobre as barras
+                            // Oculta os valores flutuantes dentro do gráfico
                             datalabels: {
                                 display: false
                             },
                             title: {
                                 display: true,
-                                text: `📊 ABSENTEÍSMO (QTD) X FALTAS X ATESTADOS - ${nomeMesCorreto.toUpperCase()}`,
-                                color: '#9fb3c8', // Tom cinza-azulado do gráfico de referência
+                                text: `📊 ABSENTEÍSMO (QTD) X FALTAS X ATESTADOS - ${mesTitulo}`,
+                                color: '#9fb3c8', // Cor idêntica ao gráfico de referência
                                 font: {
                                     size: 14,
                                     weight: 'bold'
