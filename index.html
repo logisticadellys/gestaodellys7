@@ -3031,53 +3031,52 @@
                     window.chartMistoT8.destroy();
                 }
             
-                // Certifique-se de que 'dadosPlanilha' aponta para o seu array bruto lido da planilha
                 const listaDados = (typeof dadosPlanilha !== 'undefined' && Array.isArray(dadosPlanilha)) ? dadosPlanilha : [];
             
-                // Função para extrair apenas o número do dia da coluna DATA
-                const obterDia = (valorData) => {
+                // Extrai o número do dia comparando datas no formato DD/MM/YYYY
+                const obterDiaDaData = (valorData) => {
                     if (!valorData) return null;
                     const str = String(valorData).trim();
-                    if (str.includes('/')) return parseInt(str.split('/')[0], 10);
-                    if (str.includes('-')) return parseInt(str.split('-')[2], 10);
+                    if (str.includes('/')) {
+                        const partes = str.split('/');
+                        return parseInt(partes[0], 10); // Pega a primeira parte (o dia)
+                    }
+                    if (str.includes('-')) {
+                        const partes = str.split('-');
+                        return parseInt(partes[partes.length - 1], 10);
+                    }
                     return parseInt(str, 10) || null;
                 };
             
-                // 1. CÁLCULO DAS FALTAS (QTD) - Busca linha a linha pelo dia
+                // 1. CÁLCULO DAS FALTAS (QTD)
                 const dadosFaltas = labF.map(diaNum => {
                     const targetDia = Number(diaNum);
-                    
-                    // Filtra todas as linhas pertencentes a este dia específico
-                    const linhasDoDia = listaDados.filter(row => obterDia(row['DATA'] || row['Data']) === targetDia);
+                    const linhaDoDia = listaDados.find(row => obterDiaDaData(row['DATA'] || row['Data']) === targetDia);
             
-                    // Soma apenas as colunas de QUANTIDADE (QTD)
-                    return linhasDoDia.reduce((acc, row) => {
-                        const f1 = Number(row['FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0;
-                        const f2 = Number(row['FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0;
-                        const f3 = Number(row['FALTAS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0;
-                        return acc + f1 + f2 + f3;
-                    }, 0);
+                    if (!linhaDoDia) return 0;
+            
+                    // Cabeçalhos exatos da sua planilha
+                    const f1 = Number(linhaDoDia['FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0;
+                    const f2 = Number(linhaDoDia['FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0;
+                    const f3 = Number(linhaDoDia['FALTAS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0;
+            
+                    return f1 + f2 + f3;
                 });
             
-                // 2. CÁLCULO DOS ATESTADOS (QTD) - Busca linha a linha pelo dia
+                // 2. CÁLCULO DOS ATESTADOS (QTD)
                 const dadosAtestados = labF.map(diaNum => {
                     const targetDia = Number(diaNum);
+                    const linhaDoDia = listaDados.find(row => obterDiaDaData(row['DATA'] || row['Data']) === targetDia);
             
-                    const linhasDoDia = listaDados.filter(row => obterDia(row['DATA'] || row['Data']) === targetDia);
+                    if (!linhaDoDia) return 0;
             
-                    // Soma apenas as colunas de QUANTIDADE (QTD)
-                    return linhasDoDia.reduce((acc, row) => {
-                        const a1 = Number(row['ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0;
-                        const a2 = Number(row['ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0;
-                        const a3 = Number(row['ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0;
-                        return acc + a1 + a2 + a3;
-                    }, 0);
+                    // Cabeçalhos exatos da sua planilha (no dia 01/09: 1 + 4 + 0 = 5)
+                    const a1 = Number(linhaDoDia['ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0;
+                    const a2 = Number(linhaDoDia['ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0;
+                    const a3 = Number(linhaDoDia['ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0;
+            
+                    return a1 + a2 + a3;
                 });
-            
-                // Diagnóstico no console F12 do navegador
-                console.log("-> Dias no Eixo X:", labF);
-                console.log("-> Qtd Faltas Diárias:", dadosFaltas);
-                console.log("-> Qtd Atestados Diários:", dadosAtestados);
             
                 const labelsGrafico = labF.map(dia => String(dia).padStart(2, '0'));
                 const mesTitulo = (typeof nomeMesCorreto !== 'undefined' && nomeMesCorreto) 
