@@ -2892,9 +2892,12 @@
         }
         function renderizarDashboardTela8(labF, vAbsQtdF, vAbsPercF, vInterF, vIntraF, vFaltasMotDist, vFaltasAuxDist, vFaltasMotTransf, vAtestMotDist, vAtestAuxDist, vAtestMotTransf, mesNome, mesesExtenso, sAbsQtdM, sAbsPercM, sInterM, sIntraM, sFaltasMotDistM, sFaltasAuxDistM, sFaltasMotTransfM, sAtestMotDistM, sAtestAuxDistM, sAtestMotTransfM, anoAtual, mesDeExibicaoIdx) {
     
+            // Garante que o nome do mês venha por extenso corretamente (evitando números)
+            const nomeMesCorreto = mesesExtenso[mesDeExibicaoIdx] || mesNome;
+        
             ['t8-mes-lbl1', 't8-mes-lbl2', 't8-mes-lbl3', 't8-mes-lbl4'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.textContent = mesNome;
+                if (el) el.textContent = nomeMesCorreto;
             });
         
             // Picos dos KPIs superiores
