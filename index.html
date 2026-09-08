@@ -3031,26 +3031,51 @@
                     window.chartMistoT8.destroy();
                 }
             
-                // Soma diária das Faltas pelo índice do dia no mês
-                const dadosFaltas = labF.map((_, i) => {
-                    const f1 = Number(vFaltasMotDist?.[i]) || 0;
-                    const f2 = Number(vFaltasAuxDist?.[i]) || 0;
-                    const f3 = Number(vFaltasMotTransf?.[i]) || 0;
+                // Soma APENAS os valores do dia específico (buscando diretamente pelas linhas do dia)
+                const dadosFaltas = labF.map(diaNum => {
+                    // Encontra no seu array de dados gerais a linha correspondente a este dia
+                    // Substitua 'dadosPlanilha' pela sua variável que contém o JSON/linhas da planilha
+                    const itemDia = dadosPlanilha?.find(row => {
+                        if (!row['DATA']) return false;
+                        // Trata a data para extrair apenas o número do dia
+                        const d = typeof row['DATA'] === 'string' 
+                            ? parseInt(row['DATA'].split('/')[0], 10) 
+                            : new Date(row['DATA']).getDate();
+                        return d === Number(diaNum);
+                    });
+            
+                    if (!itemDia) return 0;
+            
+                    // Soma estritamente a quantidade (Qtd) do dia corrente
+                    const f1 = Number(itemDia['FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0;
+                    const f2 = Number(itemDia['FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0;
+                    const f3 = Number(itemDia['FALTAS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0;
+            
                     return f1 + f2 + f3;
                 });
             
-                // Soma diária dos Atestados pelo índice do dia no mês
-                const dadosAtestados = labF.map((_, i) => {
-                    const a1 = Number(vAtestMotDist?.[i]) || 0;
-                    const a2 = Number(vAtestAuxDist?.[i]) || 0;
-                    const a3 = Number(vAtestMotTransf?.[i]) || 0;
+                const dadosAtestados = labF.map(diaNum => {
+                    const itemDia = dadosPlanilha?.find(row => {
+                        if (!row['DATA']) return false;
+                        const d = typeof row['DATA'] === 'string' 
+                            ? parseInt(row['DATA'].split('/')[0], 10) 
+                            : new Date(row['DATA']).getDate();
+                        return d === Number(diaNum);
+                    });
+            
+                    if (!itemDia) return 0;
+            
+                    // Soma estritamente a quantidade (Qtd) do dia corrente
+                    const a1 = Number(itemDia['ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0;
+                    const a2 = Number(itemDia['ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0;
+                    const a3 = Number(itemDia['ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0;
+            
                     return a1 + a2 + a3;
                 });
             
-                // Eixo X formatado ("01", "02", "03"...)
+                // Rótulos do eixo X formatados ("01", "02", "03"...)
                 const labelsGrafico = labF.map(dia => String(dia).padStart(2, '0'));
             
-                // Nome do mês com tratamento contra erros de variável
                 const mesTitulo = (typeof nomeMesCorreto !== 'undefined' && nomeMesCorreto) 
                     ? nomeMesCorreto.toUpperCase() 
                     : 'SETEMBRO';
@@ -3106,30 +3131,17 @@
                             }
                         },
                         plugins: {
-                            // Oculta os valores flutuantes dentro do gráfico
-                            datalabels: {
-                                display: false
-                            },
+                            datalabels: { display: false },
                             title: {
                                 display: true,
                                 text: `📊 ABSENTEÍSMO (QTD) X FALTAS X ATESTADOS - ${mesTitulo}`,
-                                color: '#9fb3c8', // Cor idêntica ao gráfico de referência
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                },
-                                padding: {
-                                    top: 10,
-                                    bottom: 15
-                                }
+                                color: '#9fb3c8',
+                                font: { size: 14, weight: 'bold' },
+                                padding: { top: 10, bottom: 15 }
                             },
                             legend: {
                                 position: 'bottom',
-                                labels: {
-                                    color: '#ffffff',
-                                    boxWidth: 12,
-                                    padding: 15
-                                }
+                                labels: { color: '#ffffff', boxWidth: 12, padding: 15 }
                             }
                         }
                     }
