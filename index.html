@@ -692,60 +692,6 @@
             </div>
         </div>
     </div>
-
-    <!-- TELA 8 - GESTÃO DE COLABORADORES -->
-    <div id="tela8" class="tela">
-        <!-- Topo com 4 Cards de KPI -->
-        <div class="t2-top-kpis">
-            <div class="t2-kpi-card" style="border-top-color: #e74c3c;">
-                <span class="t2-kpi-title"><i class="fas fa-user-xmark" style="color: #e74c3c; margin-right: 6px;"></i> ABSENTEÍSMO QTD (<span id="t8-mes-lbl1">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t8-abs-qtd-val" style="color: #e74c3c;">-</span>
-                <span class="t2-kpi-sub" style="color: #e74c3c;">▲ Acumulado do Mês</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #f39c12;">
-                <span class="t2-kpi-title"><i class="fas fa-user-clock" style="color: #f39c12; margin-right: 6px;"></i> ABSENTEÍSMO % (<span id="t8-mes-lbl2">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t8-abs-perc-val" style="color: #f39c12;">-</span>
-                <span class="t2-kpi-sub" style="color: #f39c12;">Média do Mês</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #9b59b6;">
-                <span class="t2-kpi-title"><i class="fas fa-business-time" style="color: #9b59b6; margin-right: 6px;"></i> INTERJORNADA (<span id="t8-mes-lbl3">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t8-inter-val" style="color: #9b59b6;">-</span>
-                <span class="t2-kpi-sub" style="color: #9b59b6;">▲ Total Ocorrências</span>
-            </div>
-            <div class="t2-kpi-card" style="border-top-color: #3498db;">
-                <span class="t2-kpi-title"><i class="fas fa-clock-rotate-left" style="color: #3498db; margin-right: 6px;"></i> INTRAJORNADA (<span id="t8-mes-lbl4">MÊS</span>)</span>
-                <span class="t2-kpi-value" id="t8-intra-val" style="color: #3498db;">-</span>
-                <span class="t2-kpi-sub" style="color: #3498db;">▲ Total Ocorrências</span>
-            </div>
-        </div>
-
-        <!-- Mini Cards Diários (Carrossel) -->
-        <div class="t2-minicards-wrapper" id="t8-minicards-container"></div>
-
-        <!-- Base: Gráfico à Esquerda e Tabela à Direita -->
-        <div class="t2-base-grid">
-            <div class="chart-container" style="flex: 1.4; padding: 1vh; min-width: 0;">
-                <canvas id="t8-grafico-misto"></canvas>
-            </div>
-            <div class="t2-table-container" style="flex: 1; min-width: 380px;">
-                <table class="t2-table">
-                    <thead>
-                        <tr><th colspan="6" id="t8-tabela-titulo" style="text-align: center; font-size: 1.1em; background: rgba(0,206,209,0.2); border-bottom: 2px solid #00ced1;">HISTÓRICO MENSAL - COLABORADORES</th></tr>
-                        <tr>
-                            <th>Mês</th>
-                            <th>Abs. (Qtd)</th>
-                            <th>Abs. (%)</th>
-                            <th>Interjornada</th>
-                            <th>Intrajornada</th>
-                            <th>Vs Mês Ant.</th>
-                        </tr>
-                    </thead>
-                    <tbody id="t8-table-body"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    
     
     <script>
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKxl-zvgTVOsrSbHGyDemOfdGq_aTVlkODbyfzlbXdeQGo1SOCipFqc3Dlh6hHl7uAsnMf0WgOX4Bt/pub?output=csv';
@@ -821,17 +767,18 @@
         }
         
         function mudarTelaManual(direcao) { 
-            if (direcao === 1) telaAtual = telaAtual === 8 ? 1 : telaAtual + 1;
-            else telaAtual = telaAtual === 1 ? 8 : telaAtual - 1;
+            if (direcao === 1) telaAtual = telaAtual === 7 ? 1 : telaAtual + 1;
+            else telaAtual = telaAtual === 1 ? 7 : telaAtual - 1;
             aplicarExibicaoTela();
         }
           
         function alternarTelas() {
-            telaAtual = telaAtual === 8 ? 1 : telaAtual + 1;
+            telaAtual = telaAtual === 7 ? 1 : telaAtual + 1;
             aplicarExibicaoTela();
         }
           
         function aplicarExibicaoTela() {
+            // Executa o reset de timers e posições a cada troca
             resetarTodosCarrosseisETimer();
          
             const telas = document.querySelectorAll('.tela');
@@ -844,6 +791,7 @@
             const infoIcon = document.getElementById('info-icon');
             const modal = document.getElementById('modal-ajuda');
          
+            // Lógica do cabeçalho por tela
             if (telaAtual === 2) {
                 h1.innerHTML = '<i class="fas fa-boxes-stacked" style="margin-right: 10px; color: #2ecc71;"></i>VOLUME EXPEDIDO & OCUPAÇÃO - EV';
                 if (infoIcon) infoIcon.style.display = 'block';
@@ -861,9 +809,6 @@
                 if (infoIcon) infoIcon.style.display = 'none';
             } else if (telaAtual === 7) {
                 h1.innerHTML = '<i class="fas fa-rotate-left" style="margin-right: 10px; color: #2ecc71;"></i>DEVOLUÇÃO TOTAL & OPERAÇÃO - EV';
-                if (infoIcon) infoIcon.style.display = 'none';
-            } else if (telaAtual === 8) {
-                h1.innerHTML = '<i class="fas fa-users-gear" style="margin-right: 10px; color: #2ecc71;"></i>GESTÃO DE COLABORADORES - EV';
                 if (infoIcon) infoIcon.style.display = 'none';
             } else {
                 h1.innerHTML = 'GESTÃO À VISTA - EV';
@@ -1025,26 +970,7 @@
                 const sOtifM = Array(12).fill(0); const cOtifM = Array(12).fill(0);
                 const sOnTimeM = Array(12).fill(0); const cOnTimeM = Array(12).fill(0);
                 const sInFullM = Array(12).fill(0); const cInFullM = Array(12).fill(0);
-
-                // Extração dos arrays diários e mensais da Tela 8
-                const dAbsQtdR = Array(ultimoDiaMesExibicao).fill(null);
-                const dAbsPercR = Array(ultimoDiaMesExibicao).fill(null);
-                const dInterR = Array(ultimoDiaMesExibicao).fill(null);
-                const dIntraR = Array(ultimoDiaMesExibicao).fill(null);
-
-                const acAbsQtdM = Array(12).fill(0);
-                const sAbsPercM = Array(12).fill(0); const cAbsPercM = Array(12).fill(0);
-                const acInterM = Array(12).fill(0);
-                const acIntraM = Array(12).fill(0);
-
-                // No loop de leitura das linhas da planilha, leia as colunas:
-                let valAbsQtdG = converter(colunas[cabecalho.indexOf("ABSENTEÍSMO (QTD)")]);
-                let valAbsPercG = converter(colunas[cabecalho.indexOf("ABSENTEÍSMO (%)")]);
-                let valInterG = converter(colunas[cabecalho.indexOf("INTERJORNADA (QTD)")]);
-                let valIntraG = converter(colunas[cabecalho.indexOf("INTRAJORNADA (QTD)")]);
-                let valAbsQtdMesG = converter(colunas[cabecalho.indexOf("ABSENTEÍSMO (QTD) MÊS")]);
-                let valAbsPercMesG = converter(colunas[cabecalho.indexOf("ABSENTEÍSMO (%) MÊS")]);
-
+                
                 const converter = (val) => {
                     if (!val || val === "-" || val === "null" || val === "#N/A") return null;
                     let n = parseFloat(val.replace(/"/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.').replace('%', ''));
@@ -1060,7 +986,6 @@
                         for(let key in idxs) valCards[key] = (colunas[idxs[key]] || "-").replace(/"/g, '').trim() || "-";
                     }
                 
-                    // --- LEITURA DAS COLUNAS (Telas 2 a 7) ---
                     let valVol = converter(colunas[cabecalho.indexOf("VOLUME EXPEDIDO (KG)")]);
                     let valOcupG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%)")]);
                     let valOcupMesG = converter(colunas[cabecalho.indexOf("OCUPAÇÃO (%) MÊS")]);
@@ -1090,18 +1015,10 @@
                     let valDropMesAcumulado = converter(colunas[cabecalho.indexOf("PESOXVEÍCULO (KG) MÊS")]);
                     let valDropSizeMesAcumulado = converter(colunas[cabecalho.indexOf("DROPSIZE (KG) MÊS")]);
                 
-                    // --- LEITURA DAS COLUNAS (Tela 8) ---
-                    let valAbsQtdG = converter(colunas[cabecalho.indexOf("ABSENTEÍSMO (QTD)")]);
-                    let valAbsPercG = converter(colunas[cabecalho.indexOf("ABSENTEÍSMO (%)")]);
-                    let valInterG = converter(colunas[cabecalho.indexOf("INTERJORNADA (QTD)")]);
-                    let valIntraG = converter(colunas[cabecalho.indexOf("INTRAJORNADA (QTD)")]);
-                    let valAbsPercMesG = converter(colunas[cabecalho.indexOf("ABSENTEÍSMO (%) MÊS")]);
-                
                     let pD = dataPlanilha.split('/');
                     if (pD.length === 3) {
                         let dP = parseInt(pD[0]); let mP = parseInt(pD[1]); let aP = parseInt(pD[2]);
                 
-                        // Preenchimento dos dias do MÊS DE EXIBIÇÃO SELECIONADO
                         if (aP === anoDeExibicao && mP === (mesDeExibicaoIdx + 1)) {
                             if (dP <= ultimoDiaMesExibicao) {
                                 if(valVol !== null) dVolR[dP-1] = valVol; if(valOcupG !== null) dOcpR[dP-1] = valOcupG;
@@ -1114,16 +1031,8 @@
                                 if(valOtifG !== null) dOtifR[dP-1] = valOtifG;
                                 if(valOnTimeG !== null) dOnTimeR[dP-1] = valOnTimeG;
                                 if(valInFullG !== null) dInFullR[dP-1] = valInFullG;
-                
-                                // Tela 8: Alimentação diária
-                                if(valAbsQtdG !== null) dAbsQtdR[dP-1] = valAbsQtdG;
-                                if(valAbsPercG !== null) dAbsPercR[dP-1] = valAbsPercG;
-                                if(valInterG !== null) dInterR[dP-1] = valInterG;
-                                if(valIntraG !== null) dIntraR[dP-1] = valIntraG;
                             }
                         }
-                
-                        // Acúmulo dos dados MENSAIS do ANO ATUAL
                         if (aP === anoAtual) {
                             let mIdx = mP - 1;
                             if (valVol !== null) acVolM[mIdx] += valVol; if (valNfG !== null) acNfM[mIdx] += valNfG; if (valCliG !== null) acCliM[mIdx] += valCliG;
@@ -1139,20 +1048,9 @@
                             if (valOtifMesG !== null && valOtifMesG > 0) { sOtifM[mIdx] += valOtifMesG; cOtifM[mIdx]++; }
                             if (valOnTimeMesG !== null && valOnTimeMesG > 0) { sOnTimeM[mIdx] += valOnTimeMesG; cOnTimeM[mIdx]++; }
                             if (valInFullMesG !== null && valInFullMesG > 0) { sInFullM[mIdx] += valInFullMesG; cInFullM[mIdx]++; }
-                
-                            // Tela 8: Acúmulo mensal
-                            if (valAbsQtdG !== null) acAbsQtdM[mIdx] += valAbsQtdG;
-                            if (valAbsPercMesG !== null && valAbsPercMesG > 0) { sAbsPercM[mIdx] += valAbsPercMesG; cAbsPercM[mIdx]++; }
-                            if (valInterG !== null) acInterM[mIdx] += valInterG;
-                            if (valIntraG !== null) acIntraM[mIdx] += valIntraG;
                         }
                     }
                 }
-
-                const vAbsQtdF = dAbsQtdR;
-                const vAbsPercF = dAbsPercR;
-                const vInterF = dInterR;
-                const vIntraF = dIntraR;
                 
                 // --- INÍCIO NOVA LÓGICA DE CÁLCULO EXATO PARA TELA 1 ---
                 let linhasPreenchidas = [];
@@ -1281,48 +1179,30 @@
                 }
                 // --- FIM NOVA LÓGICA ---
 
-                // 1. DECLARAÇÃO DOS ARRAYS (Telas 2 a 8)
-                const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; 
-                const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; 
-                const vDevOpF = []; const vOtifF = []; const vOnTimeF = []; const vInFullF = []; 
+                // 1. DECLARAÇÃO DOS ARRAYS (Inclua vOnTimeF e vInFullF nesta linha)
+                const labF = []; const vVolF = []; const vOcpF = []; const vDropF = []; const vDropSizeF = []; const vNfF = []; const vCliF = []; const vNsF = []; const vReF = []; const vDevTotF = []; const vDevOpF = []; const vOtifF = [];
+                const vOnTimeF = []; const vInFullF = []; // <--- ADICIONADO AQUI
                 const vAderenciaF = []; const vApontamentosF = [];
-                const vAbsQtdF = []; const vAbsPercF = []; const vInterF = []; const vIntraF = []; // <- Tela 8
                 
                 for (let i = 0; i < ultimoDiaMesExibicao; i++) {
                     if (dVolR[i] !== null || dOcpR[i] !== null || dNsR[i] !== null || dReR[i] !== null || dDevTot[i] !== null || dOtifR[i] !== null || dAderenciaR[i] !== null || dApontamentosR[i] !== null) {
                         labF.push(String(i + 1).padStart(2, '0'));
-                        vVolF.push(dVolR[i]||0); 
-                        vOcpF.push(dOcpR[i]||0); 
-                        vDropF.push(dDropR[i]||0); 
-                        vDropSizeF.push(dDropSizeR[i]||0); 
-                        vNfF.push(dNfR[i]||0); 
-                        vCliF.push(dCliR[i]||0); 
-                        vNsF.push(dNsR[i]||0); 
-                        vReF.push(dReR[i]||0); 
-                        vDevTotF.push(dDevTot[i]||0); 
-                        vDevOpF.push(dDevOp[i]||0); 
-                        vOtifF.push(dOtifR[i]||0);
-                        vOnTimeF.push(dOnTimeR[i]||0); 
-                        vInFullF.push(dInFullR[i]||0);
-                        vAderenciaF.push(dAderenciaR[i]||0); 
+                        vVolF.push(dVolR[i]||0); vOcpF.push(dOcpR[i]||0); vDropF.push(dDropR[i]||0); vDropSizeF.push(dDropSizeR[i]||0); vNfF.push(dNfR[i]||0); vCliF.push(dCliR[i]||0); vNsF.push(dNsR[i]||0); vReF.push(dReR[i]||0);
+                        vDevTotF.push(dDevTot[i]||0); vDevOpF.push(dDevOp[i]||0); vOtifF.push(dOtifR[i]||0);
+                        
+                        // 2. PREENCHIMENTO NO LOOP (Adicione estes dois push logo abaixo do vOtifF)
+                        vOnTimeF.push(dOnTimeR[i]||0); // <--- ADICIONADO AQUI
+                        vInFullF.push(dInFullR[i]||0); // <--- ADICIONADO AQUI
+                        
+                        vAderenciaF.push(dAderenciaR[i]||0);
                         vApontamentosF.push(dApontamentosR[i]||0);
-                
-                        // 2. PREENCHIMENTO DA TELA 8 NO LOOP
-                        vAbsQtdF.push(dAbsQtdR[i]||0);
-                        vAbsPercF.push(dAbsPercR[i]||0);
-                        vInterF.push(dInterR[i]||0);
-                        vIntraF.push(dIntraR[i]||0);
                     }
                 }
-                
-                // --- RENDERIZAÇÃO DAS TELAS ---
+
                 if (typeof renderizarDashboardTela2 === 'function') {
                     renderizarDashboardTela2(labF, vVolF, vOcpF, mesExibicaoNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoDeExibicao, mesDeExibicaoIdx);
                 }
-                
-                // Tela 3 (ajustado de anoAtual para anoDeExibicao)
-                renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoDeExibicao, mesDeExibicaoIdx);
-                
+                renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesExibicaoNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx);
                 if (typeof renderizarDashboardTela4 === 'function') {
                     renderizarDashboardTela4(labF, vNsF, vReF, mesExibicaoNome, mesesExtenso, sNsM, cNsM, acReM, anoDeExibicao, mesDeExibicaoIdx);
                 }
@@ -1334,9 +1214,6 @@
                 }
                 if (typeof renderizarDashboardTela7 === 'function') {
                     renderizarDashboardTela7(labF, vDevTotF, vDevOpF, mesExibicaoNome, mesesExtenso, sDevTotM, cDevTotM, sDevOpM, cDevOpM, anoDeExibicao, mesDeExibicaoIdx);
-                }
-                if (typeof renderizarDashboardTela8 === 'function') {
-                    renderizarDashboardTela8(labF, vAbsQtdF, vAbsPercF, vInterF, vIntraF, mesExibicaoNome, mesesExtenso, acAbsQtdM, sAbsPercM, cAbsPercM, acInterM, acIntraM, anoDeExibicao, mesDeExibicaoIdx);
                 }
                 function renderizarDashboardTela3(labF, vDropF, vDropSizeF, vCliF, vNfF, mesNome, mesesExtenso, sDropM, sDropSizeM, acCliM, acNfM, anoAtual, mesDeExibicaoIdx) {
                     // Atualiza os títulos dos meses nos KPIs
@@ -1664,15 +1541,17 @@
                     renderizarGraficoAlternadoT3();
                     
                     window.t3ChartAlternatingInterval = setInterval(() => {
-                            modoGraficoT3 = modoGraficoT3 === 0 ? 1 : 0;
-                            renderizarGraficoAlternadoT3();
-                        }, 20000);
+                        modoGraficoT3 = modoGraficoT3 === 0 ? 1 : 0;
+                        renderizarGraficoAlternadoT3();
+                    }, 20000);
+                }
 
-                    } catch (err) { 
-                        console.error("Erro no gráfico alternado T3:", err); 
-                    }
+                
 
-            function renderizarDashboardTela2(labF, vVolF, vOcpF, mesNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoAtual, mesDeExibicaoIdx) {
+            } catch (err) { console.error("Erro:", err); }
+        }
+
+        function renderizarDashboardTela2(labF, vVolF, vOcpF, mesNome, mesesExtenso, acVolM, sOcpM, cOcpM, anoAtual, mesDeExibicaoIdx) {
             document.getElementById('t2-mes-lbl').textContent = mesNome;
             document.getElementById('t2-pico-vol-lbl').textContent = mesNome; // Alterado para o novo card
             document.getElementById('t2-pico-mes-lbl').textContent = mesNome;
@@ -1751,10 +1630,6 @@
                     `;
                     todosOsCards.push(cardHTML);
                 }
-
-                containerMC.innerHTML = todosOsCards.join('');
-            }
-        }
                 
                 // Lógica de Paginação com Deslize Lateral
                 let cardsPorPagina = 8;
@@ -2913,95 +2788,6 @@
                 }
                 tbody.innerHTML = bodyHtml;
             }
-        }
-        function renderizarDashboardTela8(labF, vAbsQtdF, vAbsPercF, vInterF, vIntraF, mesNome, mesesExtenso, acAbsQtdM, sAbsPercM, cAbsPercM, acInterM, acIntraM, anoAtual, mesDeExibicaoIdx) {
-            ['t8-mes-lbl1', 't8-mes-lbl2', 't8-mes-lbl3', 't8-mes-lbl4'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = mesNome;
-            });
-
-            const tabelaTitulo = document.getElementById('t8-tabela-titulo');
-            if (tabelaTitulo) tabelaTitulo.textContent = `HISTÓRICO MENSAL - COLABORADORES (${anoAtual})`;
-
-            // 1. Atualiza KPIs do Topo
-            const totAbsQtd = acAbsQtdM[mesDeExibicaoIdx] || 0;
-            const medAbsPerc = cAbsPercM[mesDeExibicaoIdx] ? (sAbsPercM[mesDeExibicaoIdx] / cAbsPercM[mesDeExibicaoIdx]) : 0;
-            const totInter = acInterM[mesDeExibicaoIdx] || 0;
-            const totIntra = acIntraM[mesDeExibicaoIdx] || 0;
-
-            document.getElementById('t8-abs-qtd-val').textContent = totAbsQtd.toLocaleString('pt-BR');
-            document.getElementById('t8-abs-perc-val').textContent = medAbsPerc.toFixed(1).replace('.', ',') + '%';
-            document.getElementById('t8-inter-val').textContent = totInter.toLocaleString('pt-BR');
-            document.getElementById('t8-intra-val').textContent = totIntra.toLocaleString('pt-BR');
-
-            // 2. Mini Cards Diários
-            const containerMini = document.getElementById('t8-minicards-container');
-            if (containerMini) {
-                let cardsHTML = [];
-                for (let i = 0; i < labF.length; i++) {
-                    cardsHTML.push(`
-                        <div class="t2-minicard">
-                            <span class="t2-mc-dia">DIA ${labF[i]}</span>
-                            <span class="t2-mc-val" style="color: #e74c3c;">${vAbsQtdF[i] || 0} Faltas</span>
-                            <span class="t2-mc-vol" style="background: rgba(243, 156, 18, 0.15); color: #f39c12;">Inter: ${vInterF[i] || 0} | Intra: ${vIntraF[i] || 0}</span>
-                        </div>
-                    `);
-                }
-                containerMini.innerHTML = `<div class="t2-track">${cardsHTML.join('')}</div>`;
-            }
-
-            // 3. Tabela Mensal
-            const tbody = document.getElementById('t8-table-body');
-            if (tbody) {
-                let bodyHtml = '';
-                for (let i = 0; i <= mesDeExibicaoIdx; i++) {
-                    let absPerc = cAbsPercM[i] ? (sAbsPercM[i] / cAbsPercM[i]) : 0;
-                    let absPercAnt = (i > 0 && cAbsPercM[i-1]) ? (sAbsPercM[i-1] / cAbsPercM[i-1]) : 0;
-                    
-                    let diffPerc = absPercAnt > 0 ? ((absPerc - absPercAnt) / absPercAnt) * 100 : 0;
-                    let corDiff = diffPerc < 0 ? '#2ecc71' : (diffPerc > 0 ? '#e74c3c' : '#f1c40f');
-                    let iconDiff = diffPerc < 0 ? '▼' : (diffPerc > 0 ? '▲' : '▬');
-
-                    bodyHtml += `<tr>
-                        <td>${mesesExtenso[i]}</td>
-                        <td>${(acAbsQtdM[i] || 0).toLocaleString('pt-BR')}</td>
-                        <td>${absPerc.toFixed(1).replace('.', ',')}%</td>
-                        <td>${(acInterM[i] || 0).toLocaleString('pt-BR')}</td>
-                        <td>${(acIntraM[i] || 0).toLocaleString('pt-BR')}</td>
-                        <td style="color: ${corDiff}; font-weight: bold;">${iconDiff} ${Math.abs(diffPerc).toFixed(1)}%</td>
-                    </tr>`;
-                }
-                tbody.innerHTML = bodyHtml;
-            }
-
-            // 4. Gráfico Misto
-            const ctx = document.getElementById('t8-grafico-misto').getContext('2d');
-            if (window.chartMistoT8) window.chartMistoT8.destroy();
-
-            window.chartMistoT8 = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labF,
-                    datasets: [
-                        { type: 'line', label: 'Absenteísmo (%)', data: vAbsPercF, borderColor: '#f39c12', backgroundColor: '#f39c12', yAxisID: 'y1', borderWidth: 2 },
-                        { type: 'bar', label: 'Interjornada (Qtd)', data: vInterF, backgroundColor: '#9b59b6', yAxisID: 'y' },
-                        { type: 'bar', label: 'Intrajornada (Qtd)', data: vIntraF, backgroundColor: '#3498db', yAxisID: 'y' }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { type: 'linear', position: 'left', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0' } },
-                        y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#f39c12', callback: v => v + '%' } },
-                        x: { ticks: { color: '#a0aec0' } }
-                    },
-                    plugins: {
-                        legend: { labels: { color: '#ffffff' } },
-                        datalabels: { display: false }
-                    }
-                }
-            });
         }
         document.addEventListener('DOMContentLoaded', () => {
             aplicarExibicaoTela();
