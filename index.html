@@ -200,6 +200,18 @@
         .modal-regras h4 { color: #00ced1; margin-top: 0; }
         .modal-regras ul { padding-left: 20px; color: #e2e8f0; }
         .status-cor { font-weight: bold; }
+        .minicard-pior-abs {
+            border: 2px solid #e74c3c !important;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+            background: rgba(231, 76, 60, 0.18) !important;
+        }
+
+        .minicard-pior-jornada {
+            border: 2px solid #f39c12 !important;
+            box-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
+            background: rgba(243, 156, 18, 0.18) !important;
+        }
+        
     </style>
 </head>
 <body>
@@ -718,8 +730,11 @@
             </div>
         </div>
     
-        <!-- Mini Cards Diários (Carrossel com Absenteísmo Qtd/%, Inter/Intra) -->
-        <div class="t2-minicards-wrapper" id="t8-minicards-container"></div>
+        <div style="display: flex; flex-direction: column; gap: 6px; width: 100%; flex-shrink: 0;">
+            <div class="t2-minicards-wrapper" id="t8-minicards-abs-container"></div>
+            <div class="t2-minicards-wrapper" id="t8-minicards-jornadas-container"></div>
+        </div>
+        
     
         <!-- Base: Gráfico à Esquerda e Tabela à Direita -->
         <div class="t2-base-grid">
@@ -2937,48 +2952,66 @@
             document.getElementById('t8-pior-intra').textContent = pIntra > 0 ? pIntra.toLocaleString('pt-BR') : '-';
             document.getElementById('t8-pior-intra-dia').textContent = dIntra !== "-" ? `DIA ${dIntra}` : '-';
         
-            // Mini-cards diários (Carrossel com transição a cada 20s)
-            const containerMC = document.getElementById('t8-minicards-container');
-            if (containerMC) {
-                let cardsHtml = [];
+            // Mini-cards diários (Separados em 2 linhas com transição sincronizada a cada 20s)
+            const containerAbs = document.getElementById('t8-minicards-abs-container');
+            const containerJornadas = document.getElementById('t8-minicards-jornadas-container');
+            
+            if (containerAbs && containerJornadas) {
+                let cardsAbsHtml = [];
+                let cardsJornadasHtml = [];
+            
                 for (let i = 0; i < labF.length; i++) {
                     let qQtd = vAbsQtdF[i] || 0;
                     let qPerc = vAbsPercF[i] || 0;
                     let qInter = vInterF[i] || 0;
                     let qIntra = vIntraF[i] || 0;
+            
                     let isPiorAbs = (qQtd === pAbsQtd && pAbsQtd > 0);
-        
-                    cardsHtml.push(`
-                        <div style="display:flex; gap:0.5vw; width:100%;">
-                            <div class="t2-minicard ${isPiorAbs ? 'pico' : ''}" style="flex:1;">
-                                <span class="t2-mc-dia">DIA ${labF[i]} ${isPiorAbs ? '<span style="color:#e74c3c">● PIOR</span>' : ''}</span>
-                                <span class="t2-mc-val" style="font-size:0.95em; color:${isPiorAbs ? '#e74c3c' : '#fff'}">Abs: ${qQtd} (${qPerc.toFixed(1)}%)</span>
-                                <span class="t2-mc-vol" style="background:rgba(231,76,60,0.15); color:#e74c3c;">Absenteísmo</span>
-                            </div>
-                            <div class="t2-minicard" style="flex:1;">
-                                <span class="t2-mc-dia">DIA ${labF[i]}</span>
-                                <span class="t2-mc-val" style="font-size:0.95em;">Inter: ${qInter} | Intra: ${qIntra}</span>
-                                <span class="t2-mc-vol" style="background:rgba(52,152,219,0.15); color:#3498db;">Jornadas</span>
-                            </div>
+                    let isPiorJornada = ((qInter === pInter && pInter > 0) || (qIntra === pIntra && pIntra > 0));
+            
+                    // Card Linha 1: Absenteísmo
+                    cardsAbsHtml.push(`
+                        <div class="t2-minicard ${isPiorAbs ? 'pico minicard-pior-abs' : ''}">
+                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPiorAbs ? '<span style="color:#e74c3c">● PIOR</span>' : ''}</span>
+                            <span class="t2-mc-val" style="font-size:0.95em; color:${isPiorAbs ? '#e74c3c' : '#fff'}">Abs: ${qQtd} (${qPerc.toFixed(1)}%)</span>
+                            <span class="t2-mc-vol" style="background:rgba(231,76,60,0.15); color:#e74c3c;">Absenteísmo</span>
+                        </div>
+                    `);
+            
+                    // Card Linha 2: Jornadas
+                    cardsJornadasHtml.push(`
+                        <div class="t2-minicard ${isPiorJornada ? 'minicard-pior-jornada' : ''}">
+                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPiorJornada ? '<span style="color:#f39c12">● PIOR</span>' : ''}</span>
+                            <span class="t2-mc-val" style="font-size:0.95em;">Inter: ${qInter} | Intra: ${qIntra}</span>
+                            <span class="t2-mc-vol" style="background:rgba(52,152,219,0.15); color:#3498db;">Jornadas</span>
                         </div>
                     `);
                 }
-        
+            
                 let cardsPorPagina = 4;
-                let paginasHtml = '';
-                for (let p = 0; p < cardsHtml.length; p += cardsPorPagina) {
-                    paginasHtml += `<div class="t2-page" style="grid-template-columns: repeat(4, 1fr);">${cardsHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
+                let paginasAbsHtml = '';
+                let paginasJornadasHtml = '';
+            
+                for (let p = 0; p < cardsAbsHtml.length; p += cardsPorPagina) {
+                    paginasAbsHtml += `<div class="t2-page" style="grid-template-columns: repeat(4, 1fr);">${cardsAbsHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
+                    paginasJornadasHtml += `<div class="t2-page" style="grid-template-columns: repeat(4, 1fr);">${cardsJornadasHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
                 }
-                containerMC.innerHTML = `<div class="t2-track" id="t8-track-mc">${paginasHtml}</div>`;
-        
-                let totalPaginas = Math.ceil(cardsHtml.length / cardsPorPagina);
+            
+                containerAbs.innerHTML = `<div class="t2-track" id="t8-track-abs">${paginasAbsHtml}</div>`;
+                containerJornadas.innerHTML = `<div class="t2-track" id="t8-track-jornadas">${paginasJornadasHtml}</div>`;
+            
+                let totalPaginas = Math.ceil(cardsAbsHtml.length / cardsPorPagina);
                 let paginaAtual = 0;
+            
                 if (window.t8McInterval) clearInterval(window.t8McInterval);
                 if (totalPaginas > 1) {
                     window.t8McInterval = setInterval(() => {
                         paginaAtual = (paginaAtual + 1) % totalPaginas;
-                        let track = document.getElementById('t8-track-mc');
-                        if (track) track.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                        let trackAbs = document.getElementById('t8-track-abs');
+                        let trackJornadas = document.getElementById('t8-track-jornadas');
+            
+                        if (trackAbs) trackAbs.style.transform = `translateX(-${paginaAtual * 100}%)`;
+                        if (trackJornadas) trackJornadas.style.transform = `translateX(-${paginaAtual * 100}%)`;
                     }, 20000); // 20 segundos
                 }
             }
