@@ -2892,17 +2892,25 @@
         }
         function renderizarDashboardTela8(labF, vAbsQtdF, vAbsPercF, vInterF, vIntraF, vFaltasMotDist, vFaltasAuxDist, vFaltasMotTransf, vAtestMotDist, vAtestAuxDist, vAtestMotTransf, mesNome, mesesExtenso, sAbsQtdM, sAbsPercM, sInterM, sIntraM, sFaltasMotDistM, sFaltasAuxDistM, sFaltasMotTransfM, sAtestMotDistM, sAtestAuxDistM, sAtestMotTransfM, anoAtual, mesDeExibicaoIdx) {
 
-            // --- CORREÇÃO DEFINITIVA DO NOME DO MÊS ---
+            // --- CÁLCULO DINÂMICO DO MÊS (REGRA DIA 05 / DIA 06) ---
             const mesesPadrao = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-        
-            const nomeMesCorreto = mesesPadrao[mesDeExibicaoIdx] 
-                || (typeof mesNome === 'string' ? mesNome : "Mês");
-        
+            
+            const hoje = new Date();
+            const diaAtual = hoje.getDate();
+            let mesIdx = hoje.getMonth(); // 0 = Janeiro, 11 = Dezembro
+            
+            // Se for dia 5 ou anterior, retrocede para o mês passado
+            if (diaAtual <= 5) {
+                mesIdx = mesIdx === 0 ? 11 : mesIdx - 1;
+            }
+            
+            const nomeMesCorreto = mesesPadrao[mesIdx];
+            
             ['t8-mes-lbl1', 't8-mes-lbl2', 't8-mes-lbl3', 't8-mes-lbl4'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.textContent = nomeMesCorreto;
             });
-            // -----------
+            // ----------------------------------------------------
         
             // Picos dos KPIs superiores
             let pAbsQtd = 0, dAbsQtd = "-";
