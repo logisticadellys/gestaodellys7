@@ -3031,17 +3031,24 @@
                     window.chartMistoT8.destroy();
                 }
             
-                // Soma diária de Faltas (Mot Dist + Aux Dist + Mot Transf)
-                const dadosFaltas = labF.map((_, i) => 
-                    (vFaltasMotDist[i] || 0) + (vFaltasAuxDist[i] || 0) + (vFaltasMotTransf[i] || 0)
-                );
+                // Soma diária de Faltas (Motorista Dist. + Auxiliar Dist. + Motorista Transf.)
+                const dadosFaltas = labF.map((_, i) => {
+                    const f1 = Number(vFaltasMotDist[i]) || 0;
+                    const f2 = Number(vFaltasAuxDist[i]) || 0;
+                    const f3 = Number(vFaltasMotTransf[i]) || 0;
+                    return f1 + f2 + f3;
+                });
             
-                // Soma diária de Atestados (Mot Dist + Aux Dist + Mot Transf)
-                const dadosAtestados = labF.map((_, i) => 
-                    (vAtestMotDist[i] || 0) + (vAtestAuxDist[i] || 0) + (vAtestMotTransf[i] || 0)
-                );
+                // Soma diária de Atestados (Motorista Dist. + Auxiliar Dist. + Motorista Transf.)
+                const dadosAtestados = labF.map((_, i) => {
+                    const a1 = Number(vAtestMotDist[i]) || 0;
+                    const a2 = Number(vAtestAuxDist[i]) || 0;
+                    const a3 = Number(vAtestMotTransf[i]) || 0;
+                    return a1 + a2 + a3;
+                });
             
-                const labelsGrafico = labF.map(dia => `DIA ${dia}`);
+                // Rótulos do eixo X formatados como "01", "02", "03" (Padrão do print)
+                const labelsGrafico = labF.map(dia => String(dia).padStart(2, '0'));
             
                 window.chartMistoT8 = new Chart(canvasGrafico.getContext('2d'), {
                     type: 'bar',
@@ -3052,7 +3059,7 @@
                                 type: 'bar',
                                 label: 'Faltas (Qtd)',
                                 data: dadosFaltas,
-                                backgroundColor: 'rgba(230, 126, 34, 0.75)',
+                                backgroundColor: '#e67e22',
                                 borderColor: '#e67e22',
                                 borderWidth: 1
                             },
@@ -3060,19 +3067,21 @@
                                 type: 'bar',
                                 label: 'Atestados (Qtd)',
                                 data: dadosAtestados,
-                                backgroundColor: 'rgba(52, 152, 219, 0.75)',
+                                backgroundColor: '#3498db',
                                 borderColor: '#3498db',
                                 borderWidth: 1
                             },
                             {
                                 type: 'line',
                                 label: 'Absenteísmo (Qtd)',
-                                data: vAbsQtdF,
+                                data: vAbsQtdF.map(v => Number(v) || 0),
                                 borderColor: '#e74c3c',
                                 backgroundColor: '#e74c3c',
                                 borderWidth: 2,
                                 fill: false,
-                                tension: 0.2
+                                tension: 0.1,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#e74c3c'
                             }
                         ]
                     },
@@ -3083,16 +3092,36 @@
                             y: {
                                 type: 'linear',
                                 position: 'left',
-                                grid: { color: 'rgba(255,255,255,0.1)' },
-                                ticks: { color: '#fff' }
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#ffffff' }
                             },
                             x: {
-                                grid: { color: 'rgba(255,255,255,0.1)' },
-                                ticks: { color: '#fff' }
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#ffffff' }
                             }
                         },
                         plugins: {
-                            legend: { labels: { color: '#fff' } }
+                            title: {
+                                display: true,
+                                text: `📊 ABSENTEÍSMO (QTD) X FALTAS X ATESTADOS - ${nomeMesCorreto.toUpperCase()}`,
+                                color: '#ffffff',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 15
+                                }
+                            },
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#ffffff',
+                                    boxWidth: 12,
+                                    padding: 15
+                                }
+                            }
                         }
                     }
                 });
