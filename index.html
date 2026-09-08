@@ -2952,7 +2952,7 @@
             document.getElementById('t8-pior-intra').textContent = pIntra > 0 ? pIntra.toLocaleString('pt-BR') : '-';
             document.getElementById('t8-pior-intra-dia').textContent = dIntra !== "-" ? `DIA ${dIntra}` : '-';
         
-            // Mini-cards diários (8 por linha, sem rótulo inferior)
+            // Mini-cards diários (8 por linha, com cores por padrão e '-' quando sem valor/zero)
             const containerAbs = document.getElementById('t8-minicards-abs-container');
             const containerJornadas = document.getElementById('t8-minicards-jornadas-container');
             
@@ -2961,32 +2961,42 @@
                 let cardsJornadasHtml = [];
             
                 for (let i = 0; i < labF.length; i++) {
-                    let qQtd = vAbsQtdF[i] || 0;
-                    let qPerc = vAbsPercF[i] || 0;
-                    let qInter = vInterF[i] || 0;
-                    let qIntra = vIntraF[i] || 0;
+                    let qQtd = vAbsQtdF[i];
+                    let qPerc = vAbsPercF[i];
+                    let qInter = vInterF[i];
+                    let qIntra = vIntraF[i];
             
                     let isPiorAbs = (qQtd === pAbsQtd && pAbsQtd > 0);
                     let isPiorJornada = ((qInter === pInter && pInter > 0) || (qIntra === pIntra && pIntra > 0));
             
-                    // Card Linha 1: Absenteísmo (sem a tag inferior)
+                    // Tratamento para exibir '-' em vez de 0 ou vazio
+                    let txtQtd = (qQtd && qQtd > 0) ? qQtd.toLocaleString('pt-BR') : '-';
+                    let txtPerc = (qPerc && qPerc > 0) ? `${qPerc.toFixed(1).replace('.', ',')}%` : '-';
+                    let txtInter = (qInter && qInter > 0) ? qInter.toLocaleString('pt-BR') : '-';
+                    let txtIntra = (qIntra && qIntra > 0) ? qIntra.toLocaleString('pt-BR') : '-';
+            
+                    // Definição de cores: Azul no Absenteísmo e Laranja nas Jornadas (Vermelho no Pior Abs / Laranja-Vermelho no Pior Jornada)
+                    let colorAbs = isPiorAbs ? '#e74c3c' : '#3498db';
+                    let colorJornada = isPiorJornada ? '#e74c3c' : '#f39c12';
+            
+                    // Card Linha 1: Absenteísmo (Azul por padrão)
                     cardsAbsHtml.push(`
                         <div class="t2-minicard ${isPiorAbs ? 'pico minicard-pior-abs' : ''}" style="padding: 4px 6px;">
                             <span class="t2-mc-dia" style="font-size:0.8em;">DIA ${labF[i]} ${isPiorAbs ? '<span style="color:#e74c3c">● PIOR</span>' : ''}</span>
-                            <span class="t2-mc-val" style="font-size:0.85em; color:${isPiorAbs ? '#e74c3c' : '#fff'}">Abs: ${qQtd} (${qPerc.toFixed(1)}%)</span>
+                            <span class="t2-mc-val" style="font-size:0.85em; color:${colorAbs};">Abs: ${txtQtd} (${txtPerc})</span>
                         </div>
                     `);
             
-                    // Card Linha 2: Jornadas (sem a tag inferior)
+                    // Card Linha 2: Jornadas (Laranja por padrão)
                     cardsJornadasHtml.push(`
                         <div class="t2-minicard ${isPiorJornada ? 'minicard-pior-jornada' : ''}" style="padding: 4px 6px;">
                             <span class="t2-mc-dia" style="font-size:0.8em;">DIA ${labF[i]} ${isPiorJornada ? '<span style="color:#f39c12">● PIOR</span>' : ''}</span>
-                            <span class="t2-mc-val" style="font-size:0.85em;">Inter: ${qInter} | Intra: ${qIntra}</span>
+                            <span class="t2-mc-val" style="font-size:0.85em; color:${colorJornada};">Inter: ${txtInter} | Intra: ${txtIntra}</span>
                         </div>
                     `);
                 }
             
-                let cardsPorPagina = 8; // Alterado para 8 cards por tela
+                let cardsPorPagina = 8;
                 let paginasAbsHtml = '';
                 let paginasJornadasHtml = '';
             
