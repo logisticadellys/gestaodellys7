@@ -2848,155 +2848,125 @@
         }
     
         function renderizarDashboardTela8(labels, absData, absPercData, interData, intraData, mesNome, mesesExtenso, absMes, absPercMes, interMes, intraMes, ano, mesIdx) {
-            
-            // 1. Preencher os títulos de mês nos KPIs
-            document.getElementById('t8-mes-lbl1').innerText = mesNome;
-            document.getElementById('t8-mes-lbl2').innerText = mesNome;
-            document.getElementById('t8-mes-lbl3').innerText = mesNome;
-            document.getElementById('t8-mes-lbl4').innerText = mesNome;
+    
+            // Helper de escrita segura: impede interrupção do código se o ID não existir no HTML
+            const setTxt = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = (val !== undefined && val !== null) ? val : '-';
+            };
         
-            // 2. Encontrar os piores dias (maiores valores) para os KPIs do topo
+            // Garantia de arrays válidos
+            const safeLabels = Array.isArray(labels) ? labels : [];
+            const safeAbs = Array.isArray(absData) ? absData : [];
+            const safeAbsPerc = Array.isArray(absPercData) ? absPercData : [];
+            const safeInter = Array.isArray(interData) ? interData : [];
+            const safeIntra = Array.isArray(intraData) ? intraData : [];
+        
+            // 1. Atualizar rótulos de mês
+            setTxt('t8-mes-lbl1', mesNome);
+            setTxt('t8-mes-lbl2', mesNome);
+            setTxt('t8-mes-lbl3', mesNome);
+            setTxt('t8-mes-lbl4', mesNome);
+        
+            // 2. Encontrar Piores Dias
             function getPiorDia(arr) {
                 if (!arr || arr.length === 0) return { val: 0, dia: '-' };
                 let maxVal = -1;
                 let diaIdx = -1;
                 for (let i = 0; i < arr.length; i++) {
-                    if (arr[i] !== null && arr[i] > maxVal) {
+                    if (arr[i] !== null && arr[i] !== undefined && arr[i] > maxVal) {
                         maxVal = arr[i];
                         diaIdx = i;
                     }
                 }
-                return maxVal > -1 ? { val: maxVal, dia: labels[diaIdx] } : { val: 0, dia: '-' };
+                return maxVal > -1 ? { val: maxVal, dia: safeLabels[diaIdx] || '-' } : { val: 0, dia: '-' };
             }
         
-            const piorAbs = getPiorDia(absData);
-            const piorAbsPerc = getPiorDia(absPercData);
-            const piorInter = getPiorDia(interData);
-            const piorIntra = getPiorDia(intraData);
+            const piorAbs = getPiorDia(safeAbs);
+            const piorAbsPerc = getPiorDia(safeAbsPerc);
+            const piorInter = getPiorDia(safeInter);
+            const piorIntra = getPiorDia(safeIntra);
         
-            document.getElementById('t8-pior-abs-val').innerText = piorAbs.val;
-            document.getElementById('t8-pior-abs-dia').innerText = piorAbs.dia !== '-' ? piorAbs.dia + '/' + (mesIdx + 1) : '-';
-            
-            document.getElementById('t8-pior-abs-perc-val').innerText = piorAbsPerc.val + '%';
-            document.getElementById('t8-pior-abs-perc-dia').innerText = piorAbsPerc.dia !== '-' ? piorAbsPerc.dia + '/' + (mesIdx + 1) : '-';
-            
-            document.getElementById('t8-pior-inter-val').innerText = piorInter.val;
-            document.getElementById('t8-pior-inter-dia').innerText = piorInter.dia !== '-' ? piorInter.dia + '/' + (mesIdx + 1) : '-';
-            
-            document.getElementById('t8-pior-intra-val').innerText = piorIntra.val;
-            document.getElementById('t8-pior-intra-dia').innerText = piorIntra.dia !== '-' ? piorIntra.dia + '/' + (mesIdx + 1) : '-';
+            const posFixDia = (dia) => (dia && dia !== '-') ? `${dia}/${mesIdx + 1}` : '-';
         
-            // 3. Renderizar o Gráfico Misto (Canvas id: t8-grafico-misto)
-            if (window.t8GraficoMistoObj) {
-                window.t8GraficoMistoObj.destroy();
-            }
-            
-            const ctxT8 = document.getElementById('t8-grafico-misto').getContext('2d');
-            window.t8GraficoMistoObj = new Chart(ctxT8, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Interjornada',
-                            type: 'line',
-                            data: interData,
-                            borderColor: '#f39c12',
-                            backgroundColor: '#f39c12',
-                            borderWidth: 2,
-                            fill: false,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Intrajornada',
-                            type: 'line',
-                            data: intraData,
-                            borderColor: '#f1c40f',
-                            backgroundColor: '#f1c40f',
-                            borderWidth: 2,
-                            fill: false,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Absenteísmo',
-                            type: 'bar',
-                            data: absData,
-                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                            borderColor: '#e74c3c',
-                            borderWidth: 1,
-                            yAxisID: 'y'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { color: '#ecf0f1' } }
+            setTxt('t8-pior-abs-val', piorAbs.val);
+            setTxt('t8-pior-abs-dia', posFixDia(piorAbs.dia));
+        
+            setTxt('t8-pior-abs-perc-val', piorAbsPerc.val + '%');
+            setTxt('t8-pior-abs-perc-dia', posFixDia(piorAbsPerc.dia));
+        
+            setTxt('t8-pior-inter-val', piorInter.val);
+            setTxt('t8-pior-inter-dia', posFixDia(piorInter.dia));
+        
+            setTxt('t8-pior-intra-val', piorIntra.val);
+            setTxt('t8-pior-intra-dia', posFixDia(piorIntra.dia));
+        
+            // 3. Renderizar Gráfico Misto
+            const canvas = document.getElementById('t8-grafico-misto');
+            if (canvas) {
+                if (window.t8GraficoMistoObj) window.t8GraficoMistoObj.destroy();
+                const ctxT8 = canvas.getContext('2d');
+                window.t8GraficoMistoObj = new Chart(ctxT8, {
+                    type: 'bar',
+                    data: {
+                        labels: safeLabels,
+                        datasets: [
+                            { label: 'Interjornada', type: 'line', data: safeInter, borderColor: '#f39c12', backgroundColor: '#f39c12', borderWidth: 2, fill: false, yAxisID: 'y' },
+                            { label: 'Intrajornada', type: 'line', data: safeIntra, borderColor: '#f1c40f', backgroundColor: '#f1c40f', borderWidth: 2, fill: false, yAxisID: 'y' },
+                            { label: 'Absenteísmo', type: 'bar', data: safeAbs, backgroundColor: 'rgba(231, 76, 60, 0.7)', borderColor: '#e74c3c', borderWidth: 1, yAxisID: 'y' }
+                        ]
                     },
-                    scales: {
-                        x: { ticks: { color: '#bdc3c7' } },
-                        y: { 
-                            type: 'linear', 
-                            display: true, 
-                            position: 'left',
-                            ticks: { color: '#bdc3c7' } 
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'top', labels: { color: '#ecf0f1' } } },
+                        scales: {
+                            x: { ticks: { color: '#bdc3c7' } },
+                            y: { type: 'linear', display: true, position: 'left', ticks: { color: '#bdc3c7' } }
                         }
                     }
-                }
-            });
-        
-            // 4. Lógica das Tabelas Rotativas à Direita
-            const containerTabela = document.getElementById('container-tabela-rotativa-t8');
-            
-            // Limpar intervalo anterior para não encavalar transições
-            if (window.t8TableAlternatingInterval) {
-                clearInterval(window.t8TableAlternatingInterval);
+                });
             }
         
-            // Gerar HTML das duas tabelas (Exemplo: Tabela 1 - Absenteísmo, Tabela 2 - Jornadas)
-            const tabela1 = `
-                <div class="t8-tabela-view active" id="t8-view-1">
-                    <h3 style="color: #e74c3c; text-align: center; margin-bottom: 10px;">Resumo Absenteísmo</h3>
-                    <table class="tabela-padrao">
-                        <thead><tr><th>Dia</th><th>Abs. (Qtd)</th><th>Abs. (%)</th></tr></thead>
-                        <tbody>
-                            ${labels.map((dia, i) => `<tr><td>${dia}</td><td>${absData[i] || 0}</td><td>${absPercData[i] || 0}%</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
+            // 4. Renderizar Tabelas Rotativas
+            const containerTabela = document.getElementById('container-tabela-rotativa-t8');
+            if (containerTabela) {
+                if (window.t8TableAlternatingInterval) clearInterval(window.t8TableAlternatingInterval);
         
-            const tabela2 = `
-                <div class="t8-tabela-view" id="t8-view-2" style="display: none;">
-                    <h3 style="color: #f39c12; text-align: center; margin-bottom: 10px;">Resumo Jornadas</h3>
-                    <table class="tabela-padrao">
-                        <thead><tr><th>Dia</th><th>Interjornada</th><th>Intrajornada</th></tr></thead>
-                        <tbody>
-                            ${labels.map((dia, i) => `<tr><td>${dia}</td><td>${interData[i] || 0}</td><td>${intraData[i] || 0}</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
+                const tabela1 = `
+                    <div class="t8-tabela-view active" id="t8-view-1">
+                        <h3 style="color: #e74c3c; text-align: center; margin-bottom: 10px;">Resumo Absenteísmo</h3>
+                        <table class="tabela-padrao">
+                            <thead><tr><th>Dia</th><th>Abs. (Qtd)</th><th>Abs. (%)</th></tr></thead>
+                            <tbody>
+                                ${safeLabels.map((dia, i) => `<tr><td>${dia}</td><td>${safeAbs[i] ?? 0}</td><td>${safeAbsPerc[i] ?? 0}%</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
         
-            containerTabela.innerHTML = tabela1 + tabela2;
+                const tabela2 = `
+                    <div class="t8-tabela-view" id="t8-view-2" style="display: none;">
+                        <h3 style="color: #f39c12; text-align: center; margin-bottom: 10px;">Resumo Jornadas</h3>
+                        <table class="tabela-padrao">
+                            <thead><tr><th>Dia</th><th>Interjornada</th><th>Intrajornada</th></tr></thead>
+                            <tbody>
+                                ${safeLabels.map((dia, i) => `<tr><td>${dia}</td><td>${safeInter[i] ?? 0}</td><td>${safeIntra[i] ?? 0}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
         
-            // Alternar tabelas a cada 20 segundos
-            let mostrandoView1 = true;
-            window.t8TableAlternatingInterval = setInterval(() => {
-                const v1 = document.getElementById('t8-view-1');
-                const v2 = document.getElementById('t8-view-2');
-                if (!v1 || !v2) return;
+                containerTabela.innerHTML = tabela1 + tabela2;
         
-                if (mostrandoView1) {
-                    v1.style.display = 'none';
-                    v2.style.display = 'block';
-                } else {
-                    v2.style.display = 'none';
-                    v1.style.display = 'block';
-                }
-                mostrandoView1 = !mostrandoView1;
-            }, 20000); 
+                let mostrandoView1 = true;
+                window.t8TableAlternatingInterval = setInterval(() => {
+                    const v1 = document.getElementById('t8-view-1');
+                    const v2 = document.getElementById('t8-view-2');
+                    if (!v1 || !v2) return;
+                    v1.style.display = mostrandoView1 ? 'none' : 'block';
+                    v2.style.display = mostrandoView1 ? 'block' : 'none';
+                    mostrandoView1 = !mostrandoView1;
+                }, 20000);
+            }
         }
         document.addEventListener('DOMContentLoaded', () => {
             aplicarExibicaoTela();
