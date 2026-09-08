@@ -3031,23 +3031,36 @@
                     window.chartMistoT8.destroy();
                 }
             
-                // Soma diária de Faltas (Motorista Dist. + Auxiliar Dist. + Motorista Transf.)
-                const dadosFaltas = labF.map((_, i) => {
-                    const f1 = Number(vFaltasMotDist[i]) || 0;
-                    const f2 = Number(vFaltasAuxDist[i]) || 0;
-                    const f3 = Number(vFaltasMotTransf[i]) || 0;
-                    return f1 + f2 + f3;
+                // 1. CÁLCULO DIRETO POR DATA DA PLANILHA
+                // Caso esteja usando o array de linhas brutas da planilha (ex: dadosPlanilha):
+                const dadosFaltas = labF.map(dia => {
+                    // Localiza a linha correspondente ao dia exato do mês
+                    const row = dadosPlanilha.find(r => {
+                        if (!r['DATA']) return false;
+                        const dataObj = new Date(r['DATA']);
+                        return dataObj.getDate() === Number(dia);
+                    });
+            
+                    if (!row) return 0;
+                    return (Number(row['FALTAS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0) +
+                           (Number(row['FALTAS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0) +
+                           (Number(row['FALTAS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0);
                 });
             
-                // Soma diária de Atestados (Motorista Dist. + Auxiliar Dist. + Motorista Transf.)
-                const dadosAtestados = labF.map((_, i) => {
-                    const a1 = Number(vAtestMotDist[i]) || 0;
-                    const a2 = Number(vAtestAuxDist[i]) || 0;
-                    const a3 = Number(vAtestMotTransf[i]) || 0;
-                    return a1 + a2 + a3;
+                const dadosAtestados = labF.map(dia => {
+                    const row = dadosPlanilha.find(r => {
+                        if (!r['DATA']) return false;
+                        const dataObj = new Date(r['DATA']);
+                        return dataObj.getDate() === Number(dia);
+                    });
+            
+                    if (!row) return 0;
+                    return (Number(row['ATESTADOS MOTORISTA DISTRIBUIÇÃO (QTD)']) || 0) +
+                           (Number(row['ATESTADOS AUXILIAR DISTRIBUIÇÃO (QTD)']) || 0) +
+                           (Number(row['ATESTADOS MOTORISTA TRANSFERÊNCIA (QTD)']) || 0);
                 });
             
-                // Rótulos do eixo X formatados como "01", "02", "03" (Padrão do print)
+                // Rótulos do eixo X formatados ("01", "02", "03"...)
                 const labelsGrafico = labF.map(dia => String(dia).padStart(2, '0'));
             
                 window.chartMistoT8 = new Chart(canvasGrafico.getContext('2d'), {
@@ -3101,10 +3114,14 @@
                             }
                         },
                         plugins: {
+                            // Oculta os números/rótulos escritos sobre as barras
+                            datalabels: {
+                                display: false
+                            },
                             title: {
                                 display: true,
                                 text: `📊 ABSENTEÍSMO (QTD) X FALTAS X ATESTADOS - ${nomeMesCorreto.toUpperCase()}`,
-                                color: '#ffffff',
+                                color: '#9fb3c8', // Tom cinza-azulado do gráfico de referência
                                 font: {
                                     size: 14,
                                     weight: 'bold'
