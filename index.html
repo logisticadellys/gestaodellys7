@@ -2968,6 +2968,72 @@
                 }
             }
         
+            // Renderização do Gráfico Misto da Tela 8
+            const canvasGrafico = document.getElementById('t8-grafico-misto');
+            if (canvasGrafico) {
+                if (window.chartMistoT8 instanceof Chart) {
+                    window.chartMistoT8.destroy();
+                }
+        
+                const maxIdx = mesDeExibicaoIdx;
+                const labelsGrafico = mesesExtenso.slice(0, maxIdx + 1);
+                const dadosQtd = sAbsQtdM.slice(0, maxIdx + 1);
+                const dadosPerc = sAbsPercM.slice(0, maxIdx + 1);
+        
+                window.chartMistoT8 = new Chart(canvasGrafico.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: labelsGrafico,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Absenteísmo (Qtd)',
+                                data: dadosQtd,
+                                backgroundColor: 'rgba(231, 76, 60, 0.6)',
+                                borderColor: '#e74c3c',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'line',
+                                label: 'Absenteísmo (%)',
+                                data: dadosPerc,
+                                borderColor: '#3498db',
+                                backgroundColor: '#3498db',
+                                borderWidth: 2,
+                                fill: false,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                position: 'left',
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#fff' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                position: 'right',
+                                grid: { drawOnChartArea: false },
+                                ticks: { color: '#fff', callback: (value) => value + '%' }
+                            },
+                            x: {
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#fff' }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#fff' } }
+                        }
+                    }
+                });
+            }
+        
             // Gráficos e Tabelas Mensais Rotativos (a cada 20s)
             if (window.t8TableInterval) clearInterval(window.t8TableInterval);
             let modoTabelaT8 = 0;
@@ -2979,7 +3045,6 @@
         
                 let headHtml = '';
                 let bodyHtml = '';
-        
                 const maxIdx = mesDeExibicaoIdx;
         
                 if (modoTabelaT8 === 0) {
