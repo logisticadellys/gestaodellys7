@@ -3024,18 +3024,25 @@
                 }
             }
         
-            // Renderização do Gráfico Misto da Tela 8
+            // Renderização do Gráfico Misto da Tela 8 (Diário do Mês)
             const canvasGrafico = document.getElementById('t8-grafico-misto');
             if (canvasGrafico) {
                 if (window.chartMistoT8 instanceof Chart) {
                     window.chartMistoT8.destroy();
                 }
-        
-                const maxIdx = mesDeExibicaoIdx;
-                const labelsGrafico = mesesExtenso.slice(0, maxIdx + 1);
-                const dadosQtd = sAbsQtdM.slice(0, maxIdx + 1);
-                const dadosPerc = sAbsPercM.slice(0, maxIdx + 1);
-        
+            
+                // Soma diária de Faltas (Mot Dist + Aux Dist + Mot Transf)
+                const dadosFaltas = labF.map((_, i) => 
+                    (vFaltasMotDist[i] || 0) + (vFaltasAuxDist[i] || 0) + (vFaltasMotTransf[i] || 0)
+                );
+            
+                // Soma diária de Atestados (Mot Dist + Aux Dist + Mot Transf)
+                const dadosAtestados = labF.map((_, i) => 
+                    (vAtestMotDist[i] || 0) + (vAtestAuxDist[i] || 0) + (vAtestMotTransf[i] || 0)
+                );
+            
+                const labelsGrafico = labF.map(dia => `DIA ${dia}`);
+            
                 window.chartMistoT8 = new Chart(canvasGrafico.getContext('2d'), {
                     type: 'bar',
                     data: {
@@ -3043,22 +3050,29 @@
                         datasets: [
                             {
                                 type: 'bar',
-                                label: 'Absenteísmo (Qtd)',
-                                data: dadosQtd,
-                                backgroundColor: 'rgba(231, 76, 60, 0.6)',
-                                borderColor: '#e74c3c',
-                                borderWidth: 1,
-                                yAxisID: 'y'
+                                label: 'Faltas (Qtd)',
+                                data: dadosFaltas,
+                                backgroundColor: 'rgba(230, 126, 34, 0.75)',
+                                borderColor: '#e67e22',
+                                borderWidth: 1
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Atestados (Qtd)',
+                                data: dadosAtestados,
+                                backgroundColor: 'rgba(52, 152, 219, 0.75)',
+                                borderColor: '#3498db',
+                                borderWidth: 1
                             },
                             {
                                 type: 'line',
-                                label: 'Absenteísmo (%)',
-                                data: dadosPerc,
-                                borderColor: '#3498db',
-                                backgroundColor: '#3498db',
+                                label: 'Absenteísmo (Qtd)',
+                                data: vAbsQtdF,
+                                borderColor: '#e74c3c',
+                                backgroundColor: '#e74c3c',
                                 borderWidth: 2,
                                 fill: false,
-                                yAxisID: 'y1'
+                                tension: 0.2
                             }
                         ]
                     },
@@ -3071,12 +3085,6 @@
                                 position: 'left',
                                 grid: { color: 'rgba(255,255,255,0.1)' },
                                 ticks: { color: '#fff' }
-                            },
-                            y1: {
-                                type: 'linear',
-                                position: 'right',
-                                grid: { drawOnChartArea: false },
-                                ticks: { color: '#fff', callback: (value) => value + '%' }
                             },
                             x: {
                                 grid: { color: 'rgba(255,255,255,0.1)' },
