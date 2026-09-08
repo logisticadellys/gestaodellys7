@@ -2952,7 +2952,7 @@
             document.getElementById('t8-pior-intra').textContent = pIntra > 0 ? pIntra.toLocaleString('pt-BR') : '-';
             document.getElementById('t8-pior-intra-dia').textContent = dIntra !== "-" ? `DIA ${dIntra}` : '-';
         
-            // Mini-cards diários (Separados em 2 linhas com transição sincronizada a cada 20s)
+            // Mini-cards diários (8 por linha, sem rótulo inferior)
             const containerAbs = document.getElementById('t8-minicards-abs-container');
             const containerJornadas = document.getElementById('t8-minicards-jornadas-container');
             
@@ -2969,32 +2969,30 @@
                     let isPiorAbs = (qQtd === pAbsQtd && pAbsQtd > 0);
                     let isPiorJornada = ((qInter === pInter && pInter > 0) || (qIntra === pIntra && pIntra > 0));
             
-                    // Card Linha 1: Absenteísmo
+                    // Card Linha 1: Absenteísmo (sem a tag inferior)
                     cardsAbsHtml.push(`
-                        <div class="t2-minicard ${isPiorAbs ? 'pico minicard-pior-abs' : ''}">
-                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPiorAbs ? '<span style="color:#e74c3c">● PIOR</span>' : ''}</span>
-                            <span class="t2-mc-val" style="font-size:0.95em; color:${isPiorAbs ? '#e74c3c' : '#fff'}">Abs: ${qQtd} (${qPerc.toFixed(1)}%)</span>
-                            <span class="t2-mc-vol" style="background:rgba(231,76,60,0.15); color:#e74c3c;">Absenteísmo</span>
+                        <div class="t2-minicard ${isPiorAbs ? 'pico minicard-pior-abs' : ''}" style="padding: 4px 6px;">
+                            <span class="t2-mc-dia" style="font-size:0.8em;">DIA ${labF[i]} ${isPiorAbs ? '<span style="color:#e74c3c">● PIOR</span>' : ''}</span>
+                            <span class="t2-mc-val" style="font-size:0.85em; color:${isPiorAbs ? '#e74c3c' : '#fff'}">Abs: ${qQtd} (${qPerc.toFixed(1)}%)</span>
                         </div>
                     `);
             
-                    // Card Linha 2: Jornadas
+                    // Card Linha 2: Jornadas (sem a tag inferior)
                     cardsJornadasHtml.push(`
-                        <div class="t2-minicard ${isPiorJornada ? 'minicard-pior-jornada' : ''}">
-                            <span class="t2-mc-dia">DIA ${labF[i]} ${isPiorJornada ? '<span style="color:#f39c12">● PIOR</span>' : ''}</span>
-                            <span class="t2-mc-val" style="font-size:0.95em;">Inter: ${qInter} | Intra: ${qIntra}</span>
-                            <span class="t2-mc-vol" style="background:rgba(52,152,219,0.15); color:#3498db;">Jornadas</span>
+                        <div class="t2-minicard ${isPiorJornada ? 'minicard-pior-jornada' : ''}" style="padding: 4px 6px;">
+                            <span class="t2-mc-dia" style="font-size:0.8em;">DIA ${labF[i]} ${isPiorJornada ? '<span style="color:#f39c12">● PIOR</span>' : ''}</span>
+                            <span class="t2-mc-val" style="font-size:0.85em;">Inter: ${qInter} | Intra: ${qIntra}</span>
                         </div>
                     `);
                 }
             
-                let cardsPorPagina = 4;
+                let cardsPorPagina = 8; // Alterado para 8 cards por tela
                 let paginasAbsHtml = '';
                 let paginasJornadasHtml = '';
             
                 for (let p = 0; p < cardsAbsHtml.length; p += cardsPorPagina) {
-                    paginasAbsHtml += `<div class="t2-page" style="grid-template-columns: repeat(4, 1fr);">${cardsAbsHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
-                    paginasJornadasHtml += `<div class="t2-page" style="grid-template-columns: repeat(4, 1fr);">${cardsJornadasHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
+                    paginasAbsHtml += `<div class="t2-page" style="grid-template-columns: repeat(8, 1fr);">${cardsAbsHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
+                    paginasJornadasHtml += `<div class="t2-page" style="grid-template-columns: repeat(8, 1fr);">${cardsJornadasHtml.slice(p, p + cardsPorPagina).join('')}</div>`;
                 }
             
                 containerAbs.innerHTML = `<div class="t2-track" id="t8-track-abs">${paginasAbsHtml}</div>`;
@@ -3012,7 +3010,7 @@
             
                         if (trackAbs) trackAbs.style.transform = `translateX(-${paginaAtual * 100}%)`;
                         if (trackJornadas) trackJornadas.style.transform = `translateX(-${paginaAtual * 100}%)`;
-                    }, 20000); // 20 segundos
+                    }, 20000);
                 }
             }
         
