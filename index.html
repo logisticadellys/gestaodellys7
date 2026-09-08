@@ -2892,13 +2892,29 @@
         }
         function renderizarDashboardTela8(labF, vAbsQtdF, vAbsPercF, vInterF, vIntraF, vFaltasMotDist, vFaltasAuxDist, vFaltasMotTransf, vAtestMotDist, vAtestAuxDist, vAtestMotTransf, mesNome, mesesExtenso, sAbsQtdM, sAbsPercM, sInterM, sIntraM, sFaltasMotDistM, sFaltasAuxDistM, sFaltasMotTransfM, sAtestMotDistM, sAtestAuxDistM, sAtestMotTransfM, anoAtual, mesDeExibicaoIdx) {
     
-            // Garante que o nome do mês venha por extenso corretamente (evitando números)
-            const nomeMesCorreto = mesesExtenso[mesDeExibicaoIdx] || mesNome;
+            // --- CORREÇÃO DEFINITIVA DO NOME DO MÊS ---
+            const mesesPadrao = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            
+            function obterNomeMesSeguro(val, idx) {
+                let i = parseInt(idx);
+                if (!isNaN(i)) {
+                    if (i >= 0 && i < 12) return mesesPadrao[i];
+                    if (i >= 1 && i <= 12) return mesesPadrao[i - 1];
+                }
+                let n = parseInt(val);
+                if (!isNaN(n) && n >= 1 && n <= 12) {
+                    return mesesPadrao[n - 1];
+                }
+                return (val && isNaN(val)) ? val : "Mês";
+            }
+        
+            const nomeMesCorreto = obterNomeMesSeguro(mesNome, mesDeExibicaoIdx);
         
             ['t8-mes-lbl1', 't8-mes-lbl2', 't8-mes-lbl3', 't8-mes-lbl4'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.textContent = nomeMesCorreto;
             });
+            // ------------------------------------------
         
             // Picos dos KPIs superiores
             let pAbsQtd = 0, dAbsQtd = "-";
